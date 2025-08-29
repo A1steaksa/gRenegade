@@ -58,11 +58,14 @@ local isHotload = not table.IsEmpty( LIB )
         --- @private
         --- @param ent Player|Entity
         --- @param dmgInfo CTakeDamageInfo
+        --- @param tookDamage boolean
         --- @param isVehicleDamage boolean?
-        function LIB.SendIncomingDamageInfo( ent, dmgInfo, isVehicleDamage )
+        function LIB.SendIncomingDamageInfo( ent, dmgInfo, tookDamage, isVehicleDamage )
             if not IsValid( ent ) or not isentity( ent ) then return end
 
-            if isVehicleDamage == nil then isVehicleDamage = false end
+            if isVehicleDamage == nil then
+                isVehicleDamage = false
+            end
 
             --- @type Player
             local ply
@@ -80,7 +83,7 @@ local isHotload = not table.IsEmpty( LIB )
                 if ent.IsGlideVehicle then
                     -- Send the damage event to all of the vehicle's occupants
                     for _, seat in pairs( ent.seats ) do
-                        LIB.SendIncomingDamageInfo( seat:GetDriver(), dmgInfo, true )
+                        LIB.SendIncomingDamageInfo( seat:GetDriver(), dmgInfo, tookDamage, true )
                     end
 
                     return
