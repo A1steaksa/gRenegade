@@ -144,6 +144,14 @@ local LIB = CNC.CreateExport()
         return LIB.CreateTransform( viewSetup.origin, viewSetup.angles )
     end
 
+    --- Gets a transformation matrix that represents the local player's current position and rotation
+    function LIB.GetPlayerTransform()
+        local viewSetup = render.GetViewSetup() --[[@as ViewSetup]]
+        viewSetup.angles.pitch = 0
+        viewSetup.angles.roll  = 0
+        return LIB.CreateTransform( viewSetup.origin, viewSetup.angles )
+    end
+
     --- [[ Private ]]
 
     --- This function is what all others rely on to determine the faction of a given Entity  
