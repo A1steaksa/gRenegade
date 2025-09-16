@@ -11,11 +11,8 @@ local isHotload = not table.IsEmpty( STATIC )
 
 -- #region Imports
 
-    --- @type Hud
-    local hud = CNC.Import( "renhud/client/code/combat/hud.lua" )
-
-    --- @type StyleManager
-    local styleManager = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
+    --- @type HudClass
+    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
 
     --- @type CommandoCamera
     local commandoCamera = CNC.Import( "renhud/client/code/combat/commando-camera.lua" )
@@ -130,18 +127,18 @@ local isHotload = not table.IsEmpty( STATIC )
             -- dazzleLayer.SetCurrentDazzleLayer( nil )
         end
 
-        hud.Init( renderAvailable )
+        hudClass.Init( renderAvailable )
         -- CNC_RENEGADE.ScreenFadeManager.Init()
 
         hook.Add( "Think", "A1_Renegade_CombatManager_Think", STATIC.Think )
     end
 
     function STATIC.Shutdown()
-        typecheck.NotImplementedError( CLASS, "Shutdown" )
+        typecheck.NotImplementedError( "Shutdown" )
     end
 
     function STATIC.SceneInit()
-        typecheck.NotImplementedError( CLASS, "SceneInit" )
+        typecheck.NotImplementedError( "SceneInit" )
     end
 
     --[[ Level Loading ]] do
@@ -152,38 +149,38 @@ local isHotload = not table.IsEmpty( STATIC )
                 renderAvailable = true
             end
 
-            typecheck.NotImplementedError( CLASS, "PreLoadLevel" )
+            typecheck.NotImplementedError( "PreLoadLevel" )
         end
 
         --- @param mapName string
         ---@param preloadAssets boolean
         function STATIC.LoadLevelThreaded( mapName, preloadAssets )
-            typecheck.NotImplementedError( CLASS, "LoadLevelThreaded" )
+            typecheck.NotImplementedError( "LoadLevelThreaded" )
         end
 
         --- @return boolean
         function STATIC.IsLoadLevelComplete()
-            typecheck.NotImplementedError( CLASS, "IsLoadLevelComplete" )
+            typecheck.NotImplementedError( "IsLoadLevelComplete" )
         end
 
         --- @return boolean
         function STATIC.IsLoadingLevel()
-            typecheck.NotImplementedError( CLASS, "IsLoadingLevel" )
+            typecheck.NotImplementedError( "IsLoadingLevel" )
         end
 
         function STATIC.PostLoadLevel()
-            typecheck.NotImplementedError( CLASS, "PostLoadLevel" )
+            typecheck.NotImplementedError( "PostLoadLevel" )
         end
 
         function STATIC.UnloadLevel()
-            typecheck.NotImplementedError( CLASS, "UnloadLevel" )
+            typecheck.NotImplementedError( "UnloadLevel" )
         end
     end
 
     --[[ Main Loop ]] do
       
         function STATIC.GenerateControl()
-            typecheck.NotImplementedError( CLASS, "GenerateControl" )
+            typecheck.NotImplementedError( "GenerateControl" )
         end
 
         function STATIC.Think()
@@ -192,15 +189,15 @@ local isHotload = not table.IsEmpty( STATIC )
 
             STATIC.MainCamera:Update()
 
-            hud.Think()
+            hudClass.Think()
         end
 
         function STATIC.Render()
-            typecheck.NotImplementedError( CLASS, "Render" )
+            typecheck.NotImplementedError( "Render" )
         end
 
         function STATIC.HandleInput()
-            typecheck.NotImplementedError( CLASS, "HandleInput" )
+            typecheck.NotImplementedError( "HandleInput" )
         end
     end
 
@@ -208,12 +205,12 @@ local isHotload = not table.IsEmpty( STATIC )
 
         --- @param save unknown
         function STATIC.Save( save )
-            typecheck.NotImplementedError( CLASS, "Save" )
+            typecheck.NotImplementedError( "Save" )
         end
 
         --- @param load unknown
         function STATIC.Load( load )
-            typecheck.NotImplementedError( CLASS, "Load" )
+            typecheck.NotImplementedError( "Load" )
         end
     end
 
@@ -313,30 +310,30 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param handler unknown
         function STATIC.SetCombatNetworkHandler( handler )
-            typecheck.NotImplementedError( CLASS, "SetCombatNetworkHandler" )
+            typecheck.NotImplementedError( "SetCombatNetworkHandler" )
         end
 
         ---@param damager Entity
         ---@param victim Entity
         function STATIC.CanDamage( damager, victim )
-            typecheck.NotImplementedError( CLASS, "CanDamage" )
+            typecheck.NotImplementedError( "CanDamage" )
         end
 
         ---@param damager Entity
         ---@param victim Entity
         function STATIC.GetDamageFactor( damager, victim)
-            typecheck.NotImplementedError( CLASS, "GetDamageFactor" )
+            typecheck.NotImplementedError( "GetDamageFactor" )
         end
 
         ---@param soldier Entity
         ---@param victim Entity
         function STATIC.OnSoldierKill( soldier, victim )
-            typecheck.NotImplementedError( CLASS, "OnSoldierKill" )
+            typecheck.NotImplementedError( "OnSoldierKill" )
         end
 
         ---@param soldier Entity
         function STATIC.OnSoldierDeath( soldier )
-            typecheck.NotImplementedError( CLASS, "OnSoldierDeath" )
+            typecheck.NotImplementedError( "OnSoldierDeath" )
         end
 
         ---@return boolean
@@ -359,11 +356,11 @@ local isHotload = not table.IsEmpty( STATIC )
 
         --- @param wasSuccess boolean
         function STATIC.MissionComplete( wasSuccess )
-            typecheck.NotImplementedError( CLASS, "MissionComplete" )
+            typecheck.NotImplementedError( "MissionComplete" )
         end
 
         function STATIC.StarKilled()
-            typecheck.NotImplementedError( CLASS, "StarKilled" )
+            typecheck.NotImplementedError( "StarKilled" )
         end
     end
 
@@ -378,7 +375,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
             -- Clear the HUD if we just changed stars
             if STATIC.TheStar ~= target then
-                hud.Reset()
+                hudClass.Reset()
             end
 
             STATIC.TheStar = target
@@ -387,7 +384,7 @@ local isHotload = not table.IsEmpty( STATIC )
             --     -- TODO: Point the camera toward the new star's direction
             -- end
 
-            hud.ForceWeaponChartUpdate()
+            hudClass.ForceWeaponChartUpdate()
             -- Omitted weapon view class resetting
 
             if not STATIC.IsLevelInitialized then
@@ -414,11 +411,11 @@ local isHotload = not table.IsEmpty( STATIC )
                 return
             end
 
-            typecheck.NotImplementedError( CLASS, "UpdateStar" )
+            typecheck.NotImplementedError( "UpdateStar" )
         end
 
         function STATIC.UpdateStarTargeting()
-            typecheck.NotImplementedError( CLASS, "UpdateStarTargeting" )
+            typecheck.NotImplementedError( "UpdateStarTargeting" )
         end
 
         --- @param isStarTargeting boolean
@@ -435,7 +432,7 @@ local isHotload = not table.IsEmpty( STATIC )
     --[[ The Scene ]] do
 
         function STATIC.GetScene()
-            typecheck.NotImplementedError( CLASS, "GetScene" )
+            typecheck.NotImplementedError( "GetScene" )
         end
 
         --- @return unknown
@@ -455,7 +452,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         --- @param profileName string
         function STATIC.SetCameraProfile( profileName )
-            typecheck.NotImplementedError( CLASS, "SetCameraProfile" )
+            typecheck.NotImplementedError( "SetCameraProfile" )
         end
 
         ---@param vehicle Entity
@@ -465,13 +462,13 @@ local isHotload = not table.IsEmpty( STATIC )
                 seat = 0
             end
 
-            typecheck.NotImplementedError( CLASS, "SetCameraVehicle" )
+            typecheck.NotImplementedError( "SetCameraVehicle" )
         end
 
         --- @param pos Vector
         --- @return boolean
         function STATIC.IsInCameraFrustum( pos )
-            typecheck.NotImplementedError( CLASS, "IsInCameraFrustum" )
+            typecheck.NotImplementedError( "IsInCameraFrustum" )
         end
 
         --- @param areActive boolean
@@ -653,7 +650,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         --- @param killer Entity
         function STATIC.RegisterStarKiller( killer )
-            typecheck.NotImplementedError( CLASS, "RegisterStarKiller" )
+            typecheck.NotImplementedError( "RegisterStarKiller" )
         end
 
         --- @return integer
@@ -669,7 +666,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- [[ Private ]]
 
-    --- @class CombatManager
+    --- @class CombatManagerClass
     --- @field private _IAmServer boolean
     --- @field private _IAmClient boolean
     --- @field private MyId integer
@@ -708,10 +705,10 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @param mode CombatMode
     function STATIC.SetCombatMode( mode )
-        typecheck.NotImplementedError( CLASS, "SetCombatMode" )
+        typecheck.NotImplementedError( "SetCombatMode" )
     end
 
     function STATIC.UpdateCombatMode()
-        typecheck.NotImplementedError( CLASS, "UpdateCombatMode" )
+        typecheck.NotImplementedError( "UpdateCombatMode" )
     end
 end

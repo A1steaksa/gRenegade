@@ -1,10 +1,9 @@
--- Based on Code/Combat/hud.cpp
+-- Based on HUDClass within Code/Combat/hud.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- The static components of Hud
---- @class Hud
+--- @class HudClass
 local STATIC = CNC.CreateExport()
 
 --#region Imports
@@ -682,7 +681,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Status Bar ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field StatusBarRenderer Render2dInstance
 
         function STATIC.StatusBarInit()
@@ -693,7 +692,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Reticles ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field ReticleRenderer Render2dInstance
         --- @field ReticleHitRenderer Render2dInstance
 
@@ -712,7 +711,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Weapon Display ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field WeaponBoxRenderer Render2dInstance
         --- @field WeaponImageRenderer Render2dInstance
         --- @field WeaponClipCountRenderer Render2dTextInstance
@@ -979,7 +978,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Target Info ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field TargetRenderer Render2dInstance
         --- @field TargetTeamIconRenderer Render2dInstance
         --- @field TargetBoxRenderer Render2dInstance
@@ -1394,7 +1393,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Health/Armor Info ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field InfoRenderer Render2dInstance
         --- @field InfoHealthCountRenderer Render2dTextInstance
         --- @field InfoShieldCountRenderer Render2dTextInstance
@@ -1786,7 +1785,7 @@ local STATIC = CNC.CreateExport()
 
     --[[ Damage Indicator ]] do
 
-        --- @class Hud
+    --- @class HudClass
         --- @field DamageRenderer Render2dInstance
         --- @field DamageIndicatorIntensity table<integer, number>
         --- @field DamageIndicatorIntensityChanging boolean

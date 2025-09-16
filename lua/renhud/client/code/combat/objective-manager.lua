@@ -32,6 +32,8 @@ end
     }
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+    --- @type HudClass
+    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
 --#endregion
 
 
