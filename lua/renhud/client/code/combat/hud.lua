@@ -12,7 +12,7 @@ local STATIC = CNC.CreateExport()
     --- @type GlobalSettings
     local globalSettings = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
 
-    --- @type CombatManager
+    --- @type CombatManagerClass
     local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
     --- @type Rect

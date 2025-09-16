@@ -30,7 +30,8 @@ end
         FAILED       = 2,
         HIDDEN       = 3
     }
-    local objectiveStatus = STATIC.OBJECTIVE_STATUS
+    --- @type CombatManagerClass
+    local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 --#endregion
 
 

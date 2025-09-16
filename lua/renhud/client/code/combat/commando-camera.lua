@@ -28,7 +28,7 @@ end
 
 --#region Imports
 
-    --- @type CombatManager
+    --- @type CombatManagerClass
     local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
     --- @type HudInfo

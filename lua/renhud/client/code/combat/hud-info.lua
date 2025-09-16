@@ -8,20 +8,20 @@ local STATIC
 --[[ Class Setup ]] do
 
     --- The static components of HudInfo
-    --- @class HudInfo
+    --- @class HudInfoClass
     STATIC = CNC.CreateExport()
 end
 
 
 --#region Imports
 
---- @type CombatManager
-local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+--- @type CombatManagerClass
+local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
 --- @type GameType
 local gameType = CNC.Import( "renhud/client/code/combat/game-type.lua" )
 
---- @type BuildingsBridge
+--- @type BuildingsBridgeClass
 local buildingsBridge = CNC.Import( "renhud/client/bridges/buildings.lua" )
 
 --- @type InfoEntityLib
@@ -190,7 +190,7 @@ end
                 if not IsValid( infoEntity ) then return end
 
                 local bounds = infoEntityLib.GetEntityWorldBoundingBox( infoEntity )
-                local shouldCullTarget = combatManager:GetCamera():CullBox( bounds )
+                local shouldCullTarget = combatManagerClass:GetCamera():CullBox( bounds )
                 if shouldCullTarget then
                     STATIC.InfoEntity = NULL
                 end
@@ -261,7 +261,7 @@ end
 
     --- [[ Private ]]
 
-    --- @class HudInfo
+    --- @class HudInfoClass
     --- @field private CameraTargetPosition Vector
     --- @field private WeaponTargetEntity Entity The Entity that is directly under the Player's reticle, if any. May be NULL.
     --- @field private WeaponTargetPosition Vector The position, in world space, where the Player's weapon is pointed.

@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- The static components of CombatManager
---- @class CombatManager
+--- @class CombatManagerClass
 local STATIC = CNC.CreateExport()
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -51,7 +51,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- [[ Public ]]
 
-    --- @class CombatManager
+    --- @class CombatManagerClass
     --- @field GameScene unknown
 
     --[[ Default Values ]] do
