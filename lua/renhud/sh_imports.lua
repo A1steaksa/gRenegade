@@ -5,8 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class ImportsLib
 local LIB = {}
-
-local CLASS = "Imports"
+local CLASS = "ImportsLib"
 
 --- @type table<string, table>
 --- @private

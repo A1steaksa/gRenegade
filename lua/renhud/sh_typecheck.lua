@@ -159,7 +159,7 @@ end
             local errorMessage = tostring( message )
 
             MsgC( LIB.ErrorPrefixColor, prefix, LIB.ErrorTextColor, " " .. errorMessage )
-            error( "" )
+            error( "", 3 )
         end
 
         --- Throws an error about a specific argument number
@@ -196,15 +196,15 @@ end
         end
 
         --- Throws an error stating that the function or code path has not been implemented
-        ---@param className string
         ---@param codePathName string? (Optional) The specific path within the function that has not been implemented
-        function LIB.NotImplementedError( className, codePathName )
+        function LIB.NotImplementedError( codePathName )
             local errorMessage = "Function is not yet implemented"
             if codePathName then
                 errorMessage = codePathName .. " is not yet implemented"
             end
 
             local functionName = LIB.GetCallerFunctionName()
+            local className = "XXXXXXXXXX"
 
             LIB.Error( className, functionName, errorMessage )
         end
