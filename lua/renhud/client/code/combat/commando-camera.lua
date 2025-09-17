@@ -31,7 +31,7 @@ end
     --- @type CombatManagerClass
     local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
-    --- @type HudInfo
+    --- @type HudInfoClass
     local hudInfo = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
 
     --- @type CommandoCameraProfile
