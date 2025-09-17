@@ -49,7 +49,6 @@ if SERVER then
 
     -- Send Lua files to clients
     IterateFilesRecursively( "renhud/client/", "LUA", AddCSLuaFile )
-    IterateFiles( "renhud/lua-libraries/", "LUA", AddCSLuaFile )
     IterateFiles( "renhud/", "LUA", AddCSLuaFile )
 
     -- Send all materials to the clients
@@ -60,31 +59,33 @@ if SERVER then
     resource.AddFile( "resource/fonts/ARI_____.ttf" )
 end
 
---[[ Client Setup ]]
-if CLIENT then
-    -- Load ConVars
-    include( "renhud/client/cl_convars.lua" )
+--[[ Shared ]] do
+    include( "renhud/sh_typecheck.lua" )
+    include( "renhud/sh_imports.lua" )
+    include( "renhud/sh_robustclass.lua" )
+    include( "renhud/sh_debugdraw.lua" )
 end
 
---[[ Shared Init ]] do
+if CLIENT then
+    include( "renhud/client/cl_convars.lua" )
 
-    -- Load prerequisite libraries
-    include( "renhud/lua-libraries/robustclass.lua" )
-    include( "renhud/lua-libraries/typecheck.lua" )
-    include( "renhud/lua-libraries/imports.lua" )
-    include( "renhud/lua-libraries/debugdraw.lua" )
+    include( "renhud/client/cl_materials.lua" )
+    include( "renhud/client/cl_translation.lua" )
+    include( "renhud/client/cl_objectives.lua" )
+    include( "renhud/client/cl_pickups.lua" )
+end
 
-    -- Load shared utilities
+--[[ Shared ]] do
     include( "renhud/sh_info-entity.lua" )
     include( "renhud/sh_damage.lua" )
 end
 
---[[ Client Init ]]
 if CLIENT then
+
     --- @class Renegade
     local CNC = CNC_RENEGADE
 
-    --- @type StyleManager
+    --- @type StyleManagerClass
     local styleManager = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
 
     --- @type FontsLib
@@ -101,6 +102,7 @@ if CLIENT then
     styleManager.Initialize()
 
     local function StartHud()
+        hook.Remove( "PostRender", "A1_Renegade_Init_StartHud" )
 
         -- Ensure that fonts have loaded and that the player exists
         if not IsValid( LocalPlayer() ) then return end
@@ -110,8 +112,13 @@ if CLIENT then
         CNC.IsServerEnabled = GetGlobal2Bool( "A1_Renegade_ServerRunning", false )
         MsgC( "[REN] HUD Server is ", ( CNC.IsServerEnabled and Color( 43, 250, 100 ) or Color( 250, 100, 43 ) ), ( CNC.IsServerEnabled and "Online" or "Offline" ), "\n" )
 
+        -- Radar gets initialized on its own for some reason
+        --- @type RadarManagerClass
+        local radarManager = CNC.Import( "renhud/client/code/combat/radar.lua" )
+        radarManager.Init()
+
         -- Load the game's kernel file
-        --- @type CombatManager
+        --- @type CombatManagerClass
         local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
         -- Load overrides for Renegade's default settings
@@ -119,8 +126,6 @@ if CLIENT then
 
         -- Start the HUD
         combatManager.Init( true )
-
-        hook.Remove( "PostRender", "A1_Renegade_Init_StartHud" )
     end
 
     hook.Add( "PostRender", "A1_Renegade_Init_StartHud", StartHud )
