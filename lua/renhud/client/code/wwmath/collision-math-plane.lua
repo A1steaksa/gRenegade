@@ -17,13 +17,6 @@ end
 --#endregion
 
 
---#region Imports
-
-    --- @type WWMath
-    local wwMath = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
---#endregion
-
-
 --[[ Static Functions and Variables ]] do
     local CLASS = "CollisionMath"
 

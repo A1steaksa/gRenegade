@@ -50,8 +50,8 @@ local STATIC = CNC.CreateExport()
     --- @type AABox
     local aABox = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
 
-    --- @type WWMath
-    local wWMath = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
+    --- @type WWMathClass
+    local wWMathClass = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
 
     --- @type PlayerType
     local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
@@ -1231,7 +1231,7 @@ local STATIC = CNC.CreateExport()
 
                     STATIC.EnterableBounce = STATIC.EnterableBounce or 0
                     STATIC.EnterableBounce = STATIC.EnterableBounce + FrameTime() * 5
-                    STATIC.EnterableBounce = wWMath.Wrap( STATIC.EnterableBounce, 0, math.rad( 360 ) )
+                STATIC.EnterableBounce = wWMathClass.Wrap( STATIC.EnterableBounce, 0, math.rad( 360 ) )
                     enterableBox = enterableBox + Vector( 0, TARGET_ENTERABLE_BOUNCE * ( math.sin( STATIC.EnterableBounce ) - 1 ) )
 
                     uv:ReplaceVectors( TARGET_ENTERABLE_UV_UL, TARGET_ENTERABLE_UV_LR )
