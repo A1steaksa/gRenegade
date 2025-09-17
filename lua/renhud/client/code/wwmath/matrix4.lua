@@ -28,8 +28,8 @@ end
     --- @type Vector4
     local vector4 = CNC.Import( "renhud/client/code/wwmath/vector4.lua" )
 
-    --- @type Matrix3d
-    local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    --- @type Matrix3dClass
+    local matrix3dClass = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
 --#endregion
 
 
@@ -190,7 +190,7 @@ end
             end
 
             -- ( a: Matrix4Instance,  b: Matrix3dInstance ): Matrix4Instance
-            if matrix3d.IsMatrix3d( b ) then
+            if matrix3dClass.IsMatrix3d( b ) then
                 --- @cast a Matrix4Instance
                 --- @cast b Matrix3dInstance
                 local aRow = a.Row
@@ -267,7 +267,7 @@ end
     --- @param zNear number
     --- @param zFar number
     function INSTANCE:InitOrthographic( left, right, bottom, top, zNear, zFar )
-        typecheck.NotImplementedError( CLASS, "InitOrthographic" )
+        typecheck.NotImplementedError( "InitOrthographic" )
     end
 
     --- @overload fun( self: Matrix4Instance, left: number, right: number, bottom: number, top: number, zNear: number, zFar: number ): nil

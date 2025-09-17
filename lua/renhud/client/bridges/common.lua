@@ -10,7 +10,7 @@ local CLASS = "CommonBridgeClass"
 
 --#region Imports
 
-    --- @type Matrix3d
+    --- @type Matrix3dClass
     local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
 
     --- @type PlayerType

@@ -44,8 +44,8 @@ local STATIC = CNC.CreateExport()
     --- @type BuildingsBridgeClass
     local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
 
-    --- @type Matrix3d
-    local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    --- @type Matrix3dClass
+    local matrix3dClass = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
 
     --- @type AABox
     local aABox = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
@@ -1323,7 +1323,7 @@ local STATIC = CNC.CreateExport()
                 local cameraTM = combatCamera:GetTransform()
                 local cameraPos = cameraTM:GetTranslation()
 
-                local boxViewTM = matrix3d.New() --[[@as Matrix3dInstance]]
+            local boxViewTM = matrix3dClass.New() --[[@as Matrix3dInstance]]
                 boxViewTM:LookAt( cameraPos, entTM * entBox.Center, 0 )
                 local boxViewInvTM = boxViewTM:GetOrthogonalInverse()
 
