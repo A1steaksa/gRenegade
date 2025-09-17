@@ -9,6 +9,6 @@ local replicatedFlags   = { FCVAR_ARCHIVE, FCVAR_REPLICATED }
     CreateConVar( "ren_entityinfo_update_delay", "0.250", standardFlags,    "How frequently, in seconds between updates, should the server send updated InfoEntity data to clients?" )
 end
 
---[[ Directional Damage Indicators ]] do
-    -- CreateConVar( "ren_damageindicator_update_delay", "0.250", standardFlags,  "How frequently, in seconds between updates, should the server send updated InfoEntity data to clients?" )
+--[[ Radar ]] do
+    CreateConVar( "ren_radar_range", "2450", replicatedFlags, "The maximum distance of the radar, in Source units" )
 end
