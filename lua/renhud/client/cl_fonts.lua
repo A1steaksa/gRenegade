@@ -13,7 +13,7 @@ local isHotload = not table.IsEmpty( LIB )
     --- @type FontChars
     local fontCharsClass = CNC.Import( "renhud/client/code/ww3d2/font-chars.lua" )
 
-    --- @type Font3d
+    --- @type Font3dClass
     local font3dClass = CNC.Import( "renhud/client/code/ww3d2/font-3d.lua" )
 --#endregion
 

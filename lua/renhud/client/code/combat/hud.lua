@@ -26,8 +26,8 @@ local STATIC = CNC.CreateExport()
     --- @type Render2dText
     local render2dText = CNC.Import( "renhud/client/code/ww3d2/render-2d-text.lua" )
 
-    --- @type Font3d
-    local font3d = CNC.Import( "renhud/client/code/ww3d2/font-3d.lua" )
+    --- @type Font3dClass
+    local font3dClass = CNC.Import( "renhud/client/code/ww3d2/font-3d.lua" )
 
     --- @type TranslateDb
     local translateDb = CNC.Import( "renhud/client/code/wwtranslatedb/translatedb.lua" )
@@ -200,10 +200,9 @@ local STATIC = CNC.CreateExport()
         -- These fonts are provided by `WW3DAssetManager::Get_Instance()->Get_Font3DInstance( tgaFileName )` in the original code
         STATIC.Font3dInstances = {}
 
-        STATIC.Font3dInstances.Large  = font3d.New( STATIC.Materials.Fonts.Large  )
-        STATIC.Font3dInstances.Medium = font3d.New( STATIC.Materials.Fonts.Medium )
-        STATIC.Font3dInstances.Small  = font3d.New( STATIC.Materials.Fonts.Small  )
-    end
+    STATIC.Font3dInstances.Large  = font3dClass.New( STATIC.Materials.Fonts.Large  )
+    STATIC.Font3dInstances.Medium = font3dClass.New( STATIC.Materials.Fonts.Medium )
+    STATIC.Font3dInstances.Small  = font3dClass.New( STATIC.Materials.Fonts.Small  )
 
     --- @param renderAvailable boolean
     function STATIC.Init( renderAvailable )
