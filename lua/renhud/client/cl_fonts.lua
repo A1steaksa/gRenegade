@@ -198,7 +198,8 @@ function LIB.CreateFont( font )
         ["$translucent"]    = 1,
         ["$gammacolorread"] = 1,    -- Disables SRGB conversion of color texture read.  Credit: Noaccess
         ["$linearwrite"]    = 1,    -- Disables SRGB conversion of shader results.      Credit: Noaccess
-        ["$vertexcolor"]    = 1
+        ["$vertexcolor"]    = 1,
+        ["$nocull"]         = 1,    -- Renegade does not support backface culling
     } )
 
     -- This font3d will ultimately be used to set the font of a Render2dTextInstance
