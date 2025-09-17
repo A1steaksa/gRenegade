@@ -17,3 +17,7 @@ end
 --[[ Weapon Display / Ammo Counts ]] do
     CreateConVar( "ren_weaponinfo_center_ammo_display_time", "2", standardFlags, "How long, in seconds, should the center-right ammo counter be displayed when it appears?" )
 end
+
+--[[ Radar ]] do
+    CreateConVar( "ren_radar_range", "2450", replicatedFlags, "The maximum distance of the radar, in Source units" )
+end
