@@ -52,7 +52,7 @@ end
     typecheck.RegisterType( "CommandoCameraProfileInstance", STATIC.IsCommandoCameraProfile )
 
     function STATIC.Init()
-        typecheck.NotImplementedError( CLASS, "Init" )
+        typecheck.NotImplementedError( "Init" )
     end
 
     --- @param name string
@@ -80,32 +80,32 @@ end
 
     --- @param amount number
     function INSTANCE:SetZoom( amount )
-        typecheck.NotImplementedError( CLASS, "SetZoom" )
+        typecheck.NotImplementedError( "SetZoom" )
     end
 
     --- @return number
     function INSTANCE:GetZoom()
-        typecheck.NotImplementedError( CLASS, "GetZoom" )
+        typecheck.NotImplementedError( "GetZoom" )
     end
 
     --- @param height number
     function INSTANCE:SetHeight( height )
-        typecheck.NotImplementedError( CLASS, "SetHeight" )
+        typecheck.NotImplementedError( "SetHeight" )
     end
 
     --- @return number
     function INSTANCE:GetHeight()
-        typecheck.NotImplementedError( CLASS, "GetHeight" )
+        typecheck.NotImplementedError( "GetHeight" )
     end
 
     --- @param distance number
     function INSTANCE:SetDistance( distance )
-        typecheck.NotImplementedError( CLASS, "SetDistance" )
+        typecheck.NotImplementedError( "SetDistance" )
     end
 
     --- @return number
     function INSTANCE:GetDistance()
-        typecheck.NotImplementedError( CLASS, "GetDistance" )
+        typecheck.NotImplementedError( "GetDistance" )
     end
 
     --- @return number
@@ -147,6 +147,6 @@ end
     --- @param lerp number
     --- @protected
     function INSTANCE:Lerp( a, b, lerp )
-        typecheck.NotImplementedError( CLASS, "Lerp" )
+        typecheck.NotImplementedError( "Lerp" )
     end
 end

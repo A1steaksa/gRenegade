@@ -109,12 +109,12 @@ end
 
         local aTable = STATIC.OverlapTestFunctions[aType]
         if not aTable then
-            typecheck.NotImplementedError( CLASS, "First operand of type '" .. aType .. "'" )
+            typecheck.NotImplementedError( "First operand of type '" .. aType .. "'" )
         end
 
         local checkFunction = aTable[bType]
         if not checkFunction then
-            typecheck.NotImplementedError( CLASS, "First operand of type '" .. aType .. "' and second operand of type '" .. bType .. "'" )
+            typecheck.NotImplementedError( "First operand of type '" .. aType .. "' and second operand of type '" .. bType .. "'" )
         end
 
         return checkFunction( a, b )

@@ -290,6 +290,6 @@ end
     --- @param fontMaterial IMaterial
     --- @return IMaterial
     function INSTANCE:MinimizeFontMaterial( fontMaterial )
-        typecheck.NotImplementedError( CLASS, "MinimizeFontMaterial" )
+        typecheck.NotImplementedError( "MinimizeFontMaterial" )
     end
 end

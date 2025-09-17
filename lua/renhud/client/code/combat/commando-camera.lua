@@ -88,7 +88,7 @@ end
     typecheck.RegisterType( "CommandoCameraInstance", STATIC.IsCommandoCamera )
 
     function STATIC.Init()
-        typecheck.NotImplementedError( CLASS, "Init" )
+        typecheck.NotImplementedError( "Init" )
     end
 end
 
@@ -402,19 +402,19 @@ end
 
     --- @param pos Vector
     function INSTANCE:SetAnchorPosition( pos )
-        typecheck.NotImplementedError( CLASS, "SetAnchorPosition" )
+        typecheck.NotImplementedError( "SetAnchorPosition" )
     end
 
     --- @param target Vector
     function INSTANCE:ForceLook( target )
-        typecheck.NotImplementedError( CLASS, "ForceLook" )
+        typecheck.NotImplementedError( "ForceLook" )
     end
 
     --[[ Profile Access ]] do
 
         --- @param name string
         function INSTANCE:UseProfile( name )
-            typecheck.NotImplementedError( CLASS, "UseProfile" )
+            typecheck.NotImplementedError( "UseProfile" )
         end
 
         function INSTANCE:UseDefaultProfile()
@@ -424,17 +424,17 @@ end
 
         --- @param height number
         function INSTANCE:SetProfileHeight( height )
-            typecheck.NotImplementedError( CLASS, "SetProfileHeight" )
+            typecheck.NotImplementedError( "SetProfileHeight" )
         end
 
         --- @param distance number
         function INSTANCE:SetProfileDistance( distance )
-            typecheck.NotImplementedError( CLASS, "SetProfileDistance" )
+            typecheck.NotImplementedError( "SetProfileDistance" )
         end
 
         --- @return number
         function INSTANCE:GetProfileZoom()
-            typecheck.NotImplementedError( CLASS, "GetProfileZoom" )
+            typecheck.NotImplementedError( "GetProfileZoom" )
         end
     end
 
@@ -463,7 +463,7 @@ end
 
     --- @param time number
     function INSTANCE:SetLerpTime( time )
-        typecheck.NotImplementedError( CLASS, "SetLerpTime" )
+        typecheck.NotImplementedError( "SetLerpTime" )
     end
 
     --- @return boolean
@@ -473,7 +473,7 @@ end
 
     --- @param host RenderObjInstance
     function INSTANCE:SetHostModel( host )
-        typecheck.NotImplementedError( CLASS, "SetHostModel" )
+        typecheck.NotImplementedError( "SetHostModel" )
     end
 
     --- @return boolean
@@ -505,18 +505,18 @@ end
 
         --- @return boolean
         function INSTANCE:DrawSniper()
-            typecheck.NotImplementedError( CLASS, "DrawSniper" )
+            typecheck.NotImplementedError( "DrawSniper" )
         end
 
         --- @param isEnabled boolean
         --- @param zoom number
         function INSTANCE:CinematicSniperControl( isEnabled, zoom )
-            typecheck.NotImplementedError( CLASS, "CinematicSniperControl" )
+            typecheck.NotImplementedError( "CinematicSniperControl" )
         end
 
         --- @param isSniping boolean
         function INSTANCE:SetIsStarSniping( isSniping )
-            typecheck.NotImplementedError( CLASS, "SetIsStarSniping" )
+            typecheck.NotImplementedError( "SetIsStarSniping" )
         end
 
         --- @return boolean
@@ -547,11 +547,11 @@ end
 
     --- @return Vector
     function INSTANCE:GetFirstPersonOffsetTweak()
-        typecheck.NotImplementedError( CLASS, "GetFirstPersonOffsetTweak" )
+        typecheck.NotImplementedError( "GetFirstPersonOffsetTweak" )
     end
 
     function INSTANCE:ResetFirstPersonOffsetTweak()
-        typecheck.NotImplementedError( CLASS, "ResetFirstPersonOffsetTweak" )
+        typecheck.NotImplementedError( "ResetFirstPersonOffsetTweak" )
     end
 
     --- @param mode SnapshotMode
@@ -638,17 +638,17 @@ end
     --- @return number
     --- @protected
     function INSTANCE:GetCameraPos( offset, distance, intermediatePos )
-        typecheck.NotImplementedError( CLASS, "GetCameraPos" )
+        typecheck.NotImplementedError( "GetCameraPos" )
     end
 
     --- @protected
     function INSTANCE:UseHostModel()
-        typecheck.NotImplementedError( CLASS, "UseHostModel" )
+        typecheck.NotImplementedError( "UseHostModel" )
     end
 
     --- @protected
     function INSTANCE:HandleInput()
-        typecheck.NotImplementedError( CLASS, "HandleInput" )
+        typecheck.NotImplementedError( "HandleInput" )
     end
 
     --- "Finds the world position and Entity the player is looking/pointing at"
@@ -716,12 +716,12 @@ end
     function INSTANCE:UpdateSniperListenerPos()
 
         if IsValid( self.SniperListener ) then
-            typecheck.NotImplementedError( CLASS, "UpdateSniperListenerPos" )
+            typecheck.NotImplementedError( "UpdateSniperListenerPos" )
         end
     end
 
     --- @protected
     function INSTANCE:HandleSnapshotMode()
-        typecheck.NotImplementedError( CLASS, "HandleSnapshotMode" )
+        typecheck.NotImplementedError( "HandleSnapshotMode" )
     end
 end

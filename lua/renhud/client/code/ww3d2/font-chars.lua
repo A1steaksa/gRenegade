@@ -111,7 +111,7 @@ end
     --- @param isBold boolean
     --- @return boolean
     function INSTANCE:IsFont( fontName, pointSize, isBold )
-        typecheck.NotImplementedError( CLASS, "IsFont" )
+        typecheck.NotImplementedError( "IsFont" )
     end
 
     --- @return string

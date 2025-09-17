@@ -476,11 +476,5 @@ end
             bit.bnot( mask.DEPTHCOMPARE )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.DEPTHCOMPARE )
-        )
-    end
-
-    --- [[ Protected ]]
-
-    --- @class ShaderInstance
+    typecheck.NotImplementedError()
 end

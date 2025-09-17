@@ -410,14 +410,14 @@ end
     --- @param topColor Color
     --- @param bottomColor Color
     function INSTANCE:AddQuadVerticalGradient( screen, topColor, bottomColor )
-        typecheck.NotImplementedError( CLASS, "AddQuadVerticalGradient" )
+    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
     end
 
     ---@param screen RectInstance
     ---@param leftColor Color
     ---@param rightColor Color
     function INSTANCE:AddQuadVerticalGradient( screen, leftColor, rightColor )
-        typecheck.NotImplementedError( CLASS, "AddQuadVerticalGradient" )
+    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
     end
 
     --- @param vertex0 Vector
@@ -498,7 +498,7 @@ end
     end
 
     function INSTANCE:AddOutline( ... )
-        typecheck.NotImplementedError( CLASS, "AddOutline" )
+    typecheck.NotImplementedError( "AddOutline" )
     end
 
     --- @param rect RectInstance
@@ -506,7 +506,7 @@ end
     --- @param borderColor Color? [Default: Red]
     --- @param fillColor Color? [Default: White]
     function INSTANCE:AddRect( rect, borderWidth, borderColor, fillColor )
-        typecheck.NotImplementedError( CLASS, "AddRect" )
+    typecheck.NotImplementedError( "AddRect" )
     end
 
     ---@param isHidden boolean
@@ -523,17 +523,17 @@ end
     --- Moves/translates all vertices
     --- @param translation Vector
     function INSTANCE:Move( translation )
-        typecheck.NotImplementedError( CLASS, "Move" )
+    typecheck.NotImplementedError( "Move" )
     end
 
     --- @param alpha number
     function INSTANCE:ForceAlpha( alpha )
-        typecheck.NotImplementedError( CLASS, "ForceAlpha" )
+    typecheck.NotImplementedError( "ForceAlpha" )
     end
 
     --- @param color Color
     function INSTANCE:ForceColor( color )
-        typecheck.NotImplementedError( CLASS, "ForceColor" )
+    typecheck.NotImplementedError( "ForceColor" )
     end
 
     --- @return Color[]

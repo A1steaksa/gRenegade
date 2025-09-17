@@ -61,7 +61,7 @@ local vectorBridge = CNC.Import( "renhud/client/bridges/vector.lua" )
     --- @param toTransform AABoxInstance
     --- @return AABoxInstance
     function STATIC.Transform( transformMatrix, toTransform )
-        typecheck.NotImplementedError( CLASS, "Transform" )
+        typecheck.NotImplementedError( "Transform" )
     end
 end
 
@@ -102,7 +102,7 @@ end
             end
 
             -- Omitted MinMaxAABox logic
-            typecheck.NotImplementedError( CLASS, "MinMaxAABox constructor" )
+            typecheck.NotImplementedError( "MinMaxAABox constructor" )
         end
 
         -- ( center: Vector, extent: Vector )
@@ -165,14 +165,14 @@ end
                 return
             end
 
-            typecheck.NotImplementedError( CLASS, "MinMaxAABox and LineSeg" )
+            typecheck.NotImplementedError( "MinMaxAABox and LineSeg" )
         end
     end
 
     --- @param min Vector
     --- @param max Vector
     function INSTANCE:InitMinMax( min, max )
-        typecheck.NotImplementedError( CLASS, "InitMinMax" )
+        typecheck.NotImplementedError( "InitMinMax" )
     end
 
     --- Initializes this box to a random state
@@ -199,7 +199,7 @@ end
 
     --- @param point Vector
     function INSTANCE:AddPoint( point )
-        typecheck.NotImplementedError( CLASS, "AddPoint" )
+        typecheck.NotImplementedError( "AddPoint" )
     end
 
     function INSTANCE:AddBox( ... )
@@ -224,25 +224,25 @@ end
             return
         end
 
-        typecheck.NotImplementedError( CLASS, "AddBox" )
+        typecheck.NotImplementedError( "AddBox" )
     end
 
     --- @param axis Vector
     --- @return number
     function INSTANCE:ProjectToAxis( axis )
-        typecheck.NotImplementedError( CLASS, "ProjectToAxis" )
+        typecheck.NotImplementedError( "ProjectToAxis" )
     end
 
     ---@param transformMatrix Matrix3dInstance
     ---@param input AABoxInstance
     ---@return AABoxInstance
     function INSTANCE:Transform( transformMatrix, input )
-        typecheck.NotImplementedError( CLASS, "Transform" )
+        typecheck.NotImplementedError( "Transform" )
     end
 
     --- @param pos Vector
     function INSTANCE:Translate( pos )
-        typecheck.NotImplementedError( CLASS, "Translate" )
+        typecheck.NotImplementedError( "Translate" )
     end
 
     --- @return number
@@ -251,6 +251,6 @@ end
     end
 
     function INSTANCE:Contains( ... )
-        typecheck.NotImplementedError( CLASS, "Contains" )
+        typecheck.NotImplementedError( "Contains" )
     end
 end

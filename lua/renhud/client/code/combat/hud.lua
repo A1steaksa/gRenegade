@@ -360,11 +360,11 @@ local STATIC = CNC.CreateExport()
 
     --- @param points number
     function STATIC.DisplayPoints( points )
-        typecheck.NotImplementedError( CLASS, "DisplayPoints" )
+    typecheck.NotImplementedError()
     end
 
     function STATIC.ToggleHidePoints()
-        typecheck.NotImplementedError( CLASS, "ToggleHidePoints" )
+    typecheck.NotImplementedError()
     end
 
     --- @return boolean
@@ -377,11 +377,11 @@ local STATIC = CNC.CreateExport()
     end
 
     function STATIC.ForceWeaponChartUpdate()
-        typecheck.NotImplementedError( CLASS, "ForceWeaponChartUpdate" )
+    typecheck.NotImplementedError()
     end
 
     function STATIC.ForceWeaponChartDisplay()
-        typecheck.NotImplementedError( CLASS, "ForceWeaponChartDisplay" )
+    typecheck.NotImplementedError()
     end
 
     --[[ Powerups ]] do
@@ -587,13 +587,13 @@ local STATIC = CNC.CreateExport()
         --- @param id integer
         ---@param rounds integer
         function STATIC.AddPowerupWeapon( id, rounds )
-            typecheck.NotImplementedError( CLASS, "AddPowerupWeapon" )
+        typecheck.NotImplementedError()
         end
 
         --- @param id integer
         ---@param rounds integer
         function STATIC.AddPowerupAmmo( id, rounds )
-            typecheck.NotImplementedError( CLASS, "AddPowerupAmmo" )
+        typecheck.NotImplementedError()
         end
 
         --- Adds an armor powerup notification

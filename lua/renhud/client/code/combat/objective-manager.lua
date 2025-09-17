@@ -37,10 +37,9 @@ end
 --#endregion
 
 
---[[ Static Functions and Variables ]] do
-
-    local CLASS = "GameType"
-
-    --- [[ Public ]]
-
+        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( CLASS )
 end
