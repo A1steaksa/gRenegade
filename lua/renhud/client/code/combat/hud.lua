@@ -14,8 +14,8 @@ local STATIC = CNC.CreateExport()
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
-    --- @type Rect
-    local rect = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    --- @type RectClass
+    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
 
     --- @type StyleManager
     local styleManager = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
@@ -286,16 +286,7 @@ local STATIC = CNC.CreateExport()
 
             local reticleOffset = Vector( ScrW()/2, ScrH()/2 ) -- TODO: Implement COMBAT_CAMERA->Get_Camera_Target_2D_Offset();
 
-            STATIC.ReticleRenderer:Reset()
-            STATIC.ReticleRenderer:AddQuad(
-                rect.New(
-                    reticleOffset.x - RETICLE_WIDTH / 2,
-                    reticleOffset.y - RETICLE_HEIGHT / 2,
-                    reticleOffset.x + RETICLE_WIDTH / 2,
-                    reticleOffset.y + RETICLE_HEIGHT / 2
-                ),
-                reticleColor
-            )
+        STATIC.ReticleRenderer:AddQuad( rectClass.New(
 
             if combatManager.IsGameplayPermitted() then
                 STATIC.ReticleRenderer:SetHidden( false )
@@ -394,7 +385,7 @@ local STATIC = CNC.CreateExport()
         --- @field IconBox RectInstance
         --- @field Timer number
 
-        local POWERUP_PIXEL_UV_64X64 = rect.New( 0, 0, 64, 65 )
+    local POWERUP_PIXEL_UV_64X64 = rectClass.New( 0, 0, 64, 65 )
         local POWERUP_OFFSET_10X40 = Vector( 10, 40 )
 
         STATIC.MaxPowerupIcons = 5
@@ -443,7 +434,7 @@ local STATIC = CNC.CreateExport()
                 Name = name,
                 Number = number,
                 Renderer = render2d.New(),
-                IconBox = rect.New( pixelUvs ),
+            IconBox = rectClass.New( pixelUvs ),
                 UV = uvs or pixelUvs,
                 Timer = STATIC.PowerupTime
             }
@@ -487,7 +478,7 @@ local STATIC = CNC.CreateExport()
                 animationTimer = 0
             end
 
-            local box = rect.New( STATIC.PowerupBoxUvUpperLeft, STATIC.PowerupBoxUvLowerRight )
+        local box = rectClass.New( STATIC.PowerupBoxUvUpperLeft, STATIC.PowerupBoxUvLowerRight )
             local start = Vector( ScrW(),  ScrH() ) - STATIC.PowerupBoxBase
             box = box + start - box:LowerLeft()
 
@@ -502,7 +493,7 @@ local STATIC = CNC.CreateExport()
 
                 powerup.Timer = powerup.Timer - frameTime
 
-                local drawBox = rect.New( box )
+            local drawBox = rectClass.New( box )
 
                 --- @type Color, Color
                 local green, white
@@ -745,8 +736,8 @@ local STATIC = CNC.CreateExport()
                 STATIC.WeaponBoxRenderer:SetMaterial( STATIC.Materials.Hud.Main )
                 STATIC.WeaponBoxRenderer:SetCoordinateRange( render2d.GetScreenResolution() )
 
-                local boxUv = rect.New( STATIC.WeaponBoxUvUpperLeft, STATIC.WeaponBoxUvLowerRight )
-                local drawBox = rect.New( boxUv )
+            local boxUv = rectClass.New( STATIC.WeaponBoxUvUpperLeft, STATIC.WeaponBoxUvLowerRight )
+            local drawBox = rectClass.New( boxUv )
                 boxUv = boxUv / 256
                 drawBox = drawBox + Vector( ScrW(), ScrH() ) - WEAPON_OFFSET - drawBox:UpperLeft()
                 --- @cast drawBox RectInstance
@@ -868,8 +859,8 @@ local STATIC = CNC.CreateExport()
                     local fade = math.Clamp( STATIC.CenterClipCountTimer, 0, 1 )
                     local fadeColor = Color( 255, 255, 255, fade * 255 )
 
-                    local uv = rect.New( BULLET_ICON_UV_UL, BULLET_ICON_UV_LR )
-                    local draw = rect.New( uv )
+                local uv = rectClass.New( BULLET_ICON_UV_UL, BULLET_ICON_UV_LR )
+                local draw = rectClass.New( uv )
                     uv:ScaleVector( INFO_UV_SCALE )
                     draw = draw + centerClipCountOffset + BULLET_ICON_OFFSET - draw:UpperLeft()
 
@@ -926,7 +917,7 @@ local STATIC = CNC.CreateExport()
                         local fileName = STATIC.Materials.SeatIcons[seat]
                         STATIC.WeaponImageRenderer:SetMaterial( fileName )
                         local offset = Vector( 16, 34 )
-                        local iconBox = rect.New( 0, 0, 64, 64 )
+                    local iconBox = rectClass.New( 0, 0, 64, 64 )
                         iconBox = iconBox + STATIC.WeaponBase + offset - iconBox:UpperLeft()
                         STATIC.WeaponImageRenderer:AddQuad( iconBox )
 
@@ -1153,8 +1144,8 @@ local STATIC = CNC.CreateExport()
             STATIC.TargetBoxEdge( box:LowerRight(), box:UpperRight(), color )
             STATIC.TargetBoxEdge( box:LowerRight(), box:LowerLeft(),  color )
 
-            local uv = rect.New( TARGET_HEALTH_R_UV_UL, TARGET_HEALTH_R_UV_LR )
-            local draw = rect.New( uv )
+        local uv = rectClass.New( TARGET_HEALTH_R_UV_UL, TARGET_HEALTH_R_UV_LR )
+        local draw = rectClass.New( uv )
             local draw2
 
             --[[ Health Bar ]] do
@@ -1166,7 +1157,7 @@ local STATIC = CNC.CreateExport()
 
                     --[[ Health Background ]] do
 
-                        local black = rect.New( HEALTH_BACK_UV_UL, HEALTH_BACK_UV_LR )
+                    local black = rectClass.New( HEALTH_BACK_UV_UL, HEALTH_BACK_UV_LR )
                         black:ScaleVector( INFO_UV_SCALE )
 
                         draw = draw + box:LowerLeft() - draw:UpperLeft() + Vector( 0, 18 )
@@ -1195,7 +1186,7 @@ local STATIC = CNC.CreateExport()
                 --[[ Name Background ]] do
 
                     uv:ReplaceVectors( TARGET_NAME_UV_UL, TARGET_NAME_UV_LR )
-                    draw = rect.New( uv )
+                draw = rectClass.New( uv )
                     uv:ScaleVector( INFO_UV_SCALE )
                     draw = draw + box:LowerLeft() - draw:UpperLeft() + Vector( 0, 1 )
                     draw = draw + Vector( (box:Width() - draw:Width() ) / 2 + 10, 0 )
@@ -1223,7 +1214,7 @@ local STATIC = CNC.CreateExport()
 
                 uv:ReplaceVectors( TEAM_ICON_UV_UL, TEAM_ICON_UV_LR )
 
-                draw2 = rect.New( uv )
+            draw2 = rectClass.New( uv )
                 uv:ScaleVector( TEAM_ICON_UV_SCALE )
                 draw2 = draw2 + draw:UpperLeft() - draw2:UpperRight() - TEAM_ICON_ADJUST
 
@@ -1233,7 +1224,7 @@ local STATIC = CNC.CreateExport()
             --[[ Chevrons ]] do
 
                 if entityInfo.ShowInteractionChevrons then
-                    local enterableBox = rect.New( Vector( 0, 0 ), TARGET_ENTERABLE_SIZE )
+                local enterableBox = rectClass.New( Vector( 0, 0 ), TARGET_ENTERABLE_SIZE )
                     enterableBox = enterableBox + Vector(
                         box:Center().x - enterableBox:Center().x,
                         box.Top - enterableBox.Bottom
@@ -1362,7 +1353,7 @@ local STATIC = CNC.CreateExport()
             top.y = bottom.y
             bottom.y = temp
 
-            STATIC.InfoBox = STATIC.InfoBox or rect.New()
+        STATIC.InfoBox = STATIC.InfoBox or rectClass.New()
             STATIC.InfoBox:Replace(
                 top.x * screen.Right,
                 top.y * screen.Bottom,
@@ -1586,8 +1577,8 @@ local STATIC = CNC.CreateExport()
 
             --[[ Health Bar ]] do
 
-                uv = rect.New( HEALTH_UV_UL, HEALTH_UV_LR )
-                draw = rect.New( uv )
+            uv = rectClass.New( HEALTH_UV_UL, HEALTH_UV_LR )
+            draw = rectClass.New( uv )
                 uv:ScaleVector( INFO_UV_SCALE )
 
                 --- @type RectInstance
@@ -1607,9 +1598,9 @@ local STATIC = CNC.CreateExport()
             --[[ Health Cross ]] do
 
                 -- Background gradient
-                uv = rect.New( GRADIENT_BLACK_UV_UL, GRADIENT_BLACK_UV_LR )
+            uv = rectClass.New( GRADIENT_BLACK_UV_UL, GRADIENT_BLACK_UV_LR )
                 uv:ScaleVector( INFO_UV_SCALE )
-                draw = rect.New( HEALTH_TEXT_BACK_UL, HEALTH_TEXT_BACK_LR )
+            draw = rectClass.New( HEALTH_TEXT_BACK_UL, HEALTH_TEXT_BACK_LR )
                 draw = draw + STATIC.InfoBase
                 infoRenderer:AddQuad( draw, uv )
 
@@ -1631,14 +1622,14 @@ local STATIC = CNC.CreateExport()
                 end
 
                 -- Cross icon fill
-                uv = rect.New( HEALTH_CROSS_1_UV_UL, HEALTH_CROSS_1_UV_LR )
-                draw = rect.New( uv )
+            uv = rectClass.New( HEALTH_CROSS_1_UV_UL, HEALTH_CROSS_1_UV_LR )
+            draw = rectClass.New( uv )
                 uv:ScaleVector( INFO_UV_SCALE )
                 draw = draw + ( STATIC.InfoBase + HEALTH_CROSS_1_OFFSET - draw:UpperLeft() )
                 infoRenderer:AddQuad( draw, uv, ColorAlpha( healthColor, intensity * 255 ) )
 
                 -- Cross icon outline
-                uv2 = rect.New( HEALTH_CROSS_2_UV_UL, HEALTH_CROSS_2_UV_LR )
+            uv2 = rectClass.New( HEALTH_CROSS_2_UV_UL, HEALTH_CROSS_2_UV_LR )
                 uv2:ScaleVector( INFO_UV_SCALE )
                 infoRenderer:AddQuad( draw, uv2, ColorAlpha( healthColor, ( 1 - intensity ) * 255 ) )
             end
@@ -1673,15 +1664,15 @@ local STATIC = CNC.CreateExport()
                     local fade = math.Clamp( STATIC.CenterHealthTimer, 0, 1 )
 
                     -- Background gradient
-                    uv = rect.New( GRADIENT_BLACK_UV_UL, GRADIENT_BLACK_UV_LR )
+                uv = rectClass.New( GRADIENT_BLACK_UV_UL, GRADIENT_BLACK_UV_LR )
                     uv:ScaleVector( INFO_UV_SCALE )
-                    draw = rect.New( HEALTH_TEXT_BACK_UL, HEALTH_TEXT_BACK_LR )
+                draw = rectClass.New( HEALTH_TEXT_BACK_UL, HEALTH_TEXT_BACK_LR )
                     draw = draw + healthCenterOffset
                     infoRenderer:AddQuad( draw, uv, Color( 255, 255, 255, fade * 255 ) )
 
                     -- The center cross
-                    uv = rect.New( HEALTH_CROSS_1_UV_UL, HEALTH_CROSS_1_UV_LR  )
-                    draw = rect.New( uv )
+                uv = rectClass.New( HEALTH_CROSS_1_UV_UL, HEALTH_CROSS_1_UV_LR  )
+                draw = rectClass.New( uv )
                     uv:ScaleVector( INFO_UV_SCALE )
                     draw = draw + healthCenterOffset + HEALTH_CROSS_1_OFFSET - draw:UpperLeft()
 
@@ -1712,8 +1703,8 @@ local STATIC = CNC.CreateExport()
                     -- Background shields
                     local percent = 0
                     while percent < shieldPercent do
-                        uv = rect.New( SHIELD_UV_UL, SHIELD_UV_LR )
-                        draw = rect.New( uv )
+                    uv = rectClass.New( SHIELD_UV_UL, SHIELD_UV_LR )
+                    draw = rectClass.New( uv )
 
                         uv:ScaleVector( INFO_UV_SCALE )
                         draw = draw + ( STATIC.InfoBase + SHIELD_OFFSET - draw:UpperLeft() )
@@ -1724,8 +1715,8 @@ local STATIC = CNC.CreateExport()
                     end
 
                     -- Foreground shield
-                    uv = rect.New( SHIELD_UV_UL, SHIELD_UV_LR )
-                    draw = rect.New( uv )
+                uv = rectClass.New( SHIELD_UV_UL, SHIELD_UV_LR )
+                draw = rectClass.New( uv )
                     uv:ScaleVector( INFO_UV_SCALE )
                     draw = draw + ( STATIC.InfoBase + SHIELD_OFFSET - draw:UpperLeft() )
                     draw = draw + Vector( math.floor( -shieldPercent * TOTAL_SHIELD_MOVEMENT ), 0 )
@@ -1752,8 +1743,8 @@ local STATIC = CNC.CreateExport()
 
                 -- Add each frame part
                 for _, frameData in ipairs( infoFrameData ) do
-                    uv = rect.New( frameData.UpperLeftUv, frameData.LowerRightUv )
-                    draw = rect.New( uv )
+                uv = rectClass.New( frameData.UpperLeftUv, frameData.LowerRightUv )
+                draw = rectClass.New( uv )
 
                     draw = draw + STATIC.InfoBase + frameData.Offset - draw:UpperLeft()
 
@@ -1763,9 +1754,9 @@ local STATIC = CNC.CreateExport()
                 end
 
                 -- Add health background
-                uv = rect.New( HEALTH_BACK_UV_UL, HEALTH_BACK_UV_LR )
+            uv = rectClass.New( HEALTH_BACK_UV_UL, HEALTH_BACK_UV_LR )
                 uv:ScaleVector( INFO_UV_SCALE )
-                draw = rect.New( HEALTH_BACK_UL, HEALTH_BACK_LR )
+            draw = rectClass.New( HEALTH_BACK_UL, HEALTH_BACK_LR )
                 draw = draw + STATIC.InfoBase
 
                 infoRenderer:AddQuad( draw, uv )
@@ -1870,9 +1861,9 @@ local STATIC = CNC.CreateExport()
             --- @type RectInstance
             local uv
             if bit.band( index, 1 ) == 1 then
-                uv = rect.New( DAMAGE_2_UV_UL, DAMAGE_2_UV_LR )
+            uv = rectClass.New( DAMAGE_2_UV_UL, DAMAGE_2_UV_LR )
             else
-                uv = rect.New( DAMAGE_1_UV_UL, DAMAGE_1_UV_LR )
+            uv = rectClass.New( DAMAGE_1_UV_UL, DAMAGE_1_UV_LR )
             end
             uv:ScaleVector( INFO_UV_SCALE )
 

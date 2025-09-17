@@ -24,8 +24,8 @@ end
 
 --#region Imports
 
-    --- @type Rect
-    local rect = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    --- @type RectClass
+    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
 
     --- @type WW3d
     local ww3d = CNC.Import( "renhud/client/code/ww3d2/ww3d.lua" )
@@ -325,7 +325,7 @@ end
             vertex3 = fourthArg
 
             -- ( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, uvs: RectInstance, color: Color? )
-            if rect.IsRect( fifthArg ) then
+        if rectClass.IsRect( fifthArg ) then
                 --- @cast fifthArg RectInstance
                 uvs = fifthArg
 
@@ -353,7 +353,7 @@ end
             --- @cast firstArg RectInstance
 
             -- ( rect: RectInstance, uvs: RectInstance, color: Color? )
-            if rect.IsRect( secondArg ) then
+        if rectClass.IsRect( secondArg ) then
                 --- @cast secondArg RectInstance
 
                 _rect = firstArg
@@ -468,7 +468,7 @@ end
             startPos = args[1] --[[@as Vector]]
             endPos   = args[2] --[[@as Vector]]
             width    = args[3] --[[@as number]]
-            uv       = rect.New( 0, 0, 1, 1 ) --[[@as RectInstance]]
+        uv       = rectClass.New( 0, 0, 1, 1 ) --[[@as RectInstance]]
             color    = args[4] --[[@as Color]]
         end
 

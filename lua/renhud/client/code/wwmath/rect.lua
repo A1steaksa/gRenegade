@@ -12,7 +12,7 @@ local STATIC, INSTANCE
     INSTANCE = robustclass.Register( "Renegade_Rect" )
 
     --- The static components of Rect
-    --- @class Rect
+    --- @class RectClass
     --- @field Instance RectInstance The Metatable used by RectInstance
     STATIC = CNC.CreateExport()
 
@@ -102,9 +102,9 @@ end
         -- Creating from edge positions
         -- ( left: number, top: number, right: number, bottom: number )
         if argCount == 4 then
-            local left = args[1] --[[@as number]]
-            local top = args[2] --[[@as number]]
-            local right = args[3] --[[@as number]]
+            local left   = args[1] --[[@as number]]
+            local top    = args[2] --[[@as number]]
+            local right  = args[3] --[[@as number]]
             local bottom = args[4] --[[@as number]]
 
             typecheck.AssertArgType( CLASS, 1, left, "number" )
@@ -256,12 +256,21 @@ end
 
             -- Move the Rectangle to be relative to 0,0
             -- This makes scaling it easier
-            self = self - center
+            -- self = self - center
+            self.Left   = self.Left   - center.x
+            self.Top    = self.Top    - center.y
+            self.Right  = self.Right  - center.x
+            self.Bottom = self.Bottom - center.y
+
 
             self:Scale( scale )
 
             -- Move the now-scaled Rectangle back to where it was
-            self = self + center
+            --self = self + center
+            self.Left   = self.Left   + center.x
+            self.Top    = self.Top    + center.y
+            self.Right  = self.Right  + center.x
+            self.Bottom = self.Bottom + center.y
 
             return self
         end

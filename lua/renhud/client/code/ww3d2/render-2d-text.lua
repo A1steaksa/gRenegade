@@ -9,12 +9,12 @@ local STATIC, INSTANCE
 
     --- The instanced components of Render2dText
     --- @class Render2dTextInstance : Render2dInstance
-    --- @field Static Render2dText The static table for this instance's class
+    --- @field Static Render2dTextClass The static table for this instance's class
     INSTANCE = robustclass.Register( "Renegade_Render2dText : Renegade_Render2d" )
 
     --- An image-based text renderer
     --- The static components of Render2dText
-    --- @class Render2dText : Render2d
+    --- @class Render2dTextClass : Render2dClass
     --- @field Instance Render2dTextInstance The Metatable used by Render2dTextInstance
     STATIC = CNC.CreateExport()
 
@@ -26,11 +26,11 @@ end
 
 --#region Imports
 
-    --- @type Render2d
+    --- @type Render2dClass
     local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
 
-    --- @type Rect
-    local rect = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    --- @type RectClass
+    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
 --#endregion
 
 
@@ -83,15 +83,16 @@ end
         self.Location = Vector( 0, 0 )
         self.Cursor = Vector( 0, 0 )
         self.WrapWidth = 0
-        self.ClipRect = rect.New( 0, 0, 0, 0 )
+        self.ClipRect = rectClass.New( 0, 0, 0, 0 )
         self.IsClippedEnabled = false
         self.Font = nil
+        self.UsePointFiltering = true -- Text doesn't look good with smooth filtering
 
         self:Reset()
 
         self:SetFont( font )
 
-        self:SetCoordinateRange( rect.New( -320, -240, 320, 240 ) )
+        self:SetCoordinateRange( rectClass.New( -320, -240, 320, 240 ) )
     end
 
     function INSTANCE:Reset()
@@ -144,7 +145,7 @@ end
         end
 
         if char ~= " " and not isClipped then
-            local charRect = rect.New(
+            local charRect = rectClass.New(
                 cursor.x,
                 cursor.y,
                 cursor.x + font:GetCharWidth( char ),
@@ -152,7 +153,7 @@ end
             )
 
             local charUv = font:GetCharUv( char )
-            
+
             -- Adding 0.5 to avoid off by one errors when flooring
             local fontAtlasWidth  = font:PeekMaterial():Width()  + 0.5
             local fontAtlasHeight = font:PeekMaterial():Height() + 0.5
@@ -210,9 +211,9 @@ end
         local font = self.Font
 
         -- Reset extents
-        self.DrawExtents = rect.New( self.Location, self.Location )
+        self.DrawExtents = rectClass.New( self.Location, self.Location )
         if self.TotalExtents:Width() == 0 then
-            self.TotalExtents = rect.New( self.Location, self.Location )
+            self.TotalExtents = rectClass.New( self.Location, self.Location )
         end
 
         for _, char in ipairs( string.Explode( "", text ) ) do
@@ -222,7 +223,7 @@ end
 
             -- If we're at a space and the next word would put us past our max width, wrap
             -- if char == " " and self.WrapWidth > 0 then
-            --     -- TODO: Implement this
+            --     -- TODO: Implement text wrapping
             -- end
 
             if wrap then

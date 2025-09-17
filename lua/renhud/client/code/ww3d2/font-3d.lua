@@ -9,11 +9,11 @@ local STATIC, INSTANCE
 
     --- The instanced components of Font3d
     --- @class Font3dInstance
-    --- @field Static Font3d The static table for this instance's class
+    --- @field Static Font3dClass The static table for this instance's class
     INSTANCE = robustclass.Register( "Renegade_Font3d" )
 
     --- The static components of Font3d
-    --- @class Font3d
+    --- @class Font3dClass
     --- @field Instance Font3dInstance The Metatable used by Font3dInstance
     STATIC = CNC.CreateExport()
 
@@ -28,8 +28,8 @@ end
     --- @type Font3dData
     local font3dData = CNC.Import( "renhud/client/code/ww3d2/font-3d-data.lua" )
 
-    --- @type Rect
-    local rect = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    --- @type RectClass
+    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
 --#endregion
 
 
@@ -145,7 +145,7 @@ end
     --- @param char string
     --- @return RectInstance
     function INSTANCE:GetCharUv( char )
-        return rect.New(
+        return rectClass.New(
             self.FontData:GetCharUOffset( char ),
             self.FontData:GetCharVOffset( char ),
             self.FontData:GetCharUOffset( char ) + self.FontData:GetCharUWidth( char ),
