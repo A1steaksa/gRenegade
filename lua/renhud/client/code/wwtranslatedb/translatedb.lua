@@ -3,37 +3,25 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
-
---[[ Class Setup ]] do
-
-    --- The static components of TranslateDb
-    --- @class TranslateDb
-    STATIC = CNC.CreateExport()
-end
+--- @class TranslateDbClass
+local STATIC = CNC.CreateExport()
+local CLASS = "TranslateDb"
+local isHotload = not table.IsEmpty( STATIC )
 
 
---[[ Static Functions and Variables ]] do
+--#region Imports
+    --- @type TranslationLib
+    local translationLib = CNC.Import( "renhud/client/cl_translation.lua" )
+--#endregion
 
-    local CLASS = "CombatManager"
 
-    local strings = {
-        [ "IDS_Power_up_DataDisc_01" ] = "Data Disc",
+--#region Imported Enums
 
-        [ "IDS_Enc_Obj_Priority_0_Primary" ] = "Primary",
-        [ "IDS_Enc_Obj_Priority_0_Secondary" ] = "Secondary",
+    local languageEnum = translationLib.LANGUAGE
+--#endregion
 
-        [ "IDS_Power_up_SecurityCard" ] = "Security Card",
 
-        [ "IDS_Power_up_Armor_00" ] = "Armor",
-        [ "IDS_Power_up_Health_00" ] = "Health",
-        [ "IDS_Power_up_Armor_Upgrade" ] = "Augmented Armor",
-        [ "IDS_Power_up_Health_Upgrade" ] = "Augmented Health",
-    }
-
-    --- [[ Public ]]
-
-    function STATIC.GetString( id )
-        return strings[ id ] or "UNKNOWN STRING ID"
-    end
+--- @param id string|integer The unique ID of the string to look up. 
+function STATIC.GetString( id )
+    return translationLib.GetString( languageEnum.English, id ) or "UNKNOWN STRING"
 end
