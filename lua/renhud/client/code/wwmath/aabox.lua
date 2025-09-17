@@ -9,11 +9,11 @@ local STATIC, INSTANCE
 
     --- The instanced components of AABox
     --- @class AABoxInstance
-    --- @field Static AABox The static table for this instance's class
+    --- @field Static AABoxClass The static table for this instance's class
     INSTANCE = robustclass.Register( "Renegade_AABox" )
 
     --- The static components of AABox
-    --- @class AABox
+    --- @class AABoxClass
     --- @field Instance AABoxInstance The Metatable used by AABoxInstance
     STATIC = CNC.CreateExport()
 
@@ -24,8 +24,8 @@ end
 
 --#region Imports
 
---- @type VectorBridge
-local vectorBridge = CNC.Import( "renhud/client/bridges/vector.lua" )
+--- @type VectorBridgeClass
+local vectorBridgeClass = CNC.Import( "renhud/client/bridges/vector.lua" )
 --#endregion
 
 
@@ -35,7 +35,7 @@ local vectorBridge = CNC.Import( "renhud/client/bridges/vector.lua" )
 
     --- [[ Public ]]
 
-    --- @class AABox
+    --- @class AABoxClass
 
     --- Creates a new AABoxInstance
     --- @overload fun(): AABoxInstance
@@ -215,8 +215,8 @@ end
             local newMin = self.Center - self.Extent
             local newMax = self.Center + self.Extent
 
-            vectorBridge.UpdateMin( newMin, ( otherBox.Center - otherBox.Extent ) )
-            vectorBridge.UpdateMax( newMax, ( otherBox.Center + otherBox.Extent ) )
+            vectorBridgeClass.UpdateMin( newMin, ( otherBox.Center - otherBox.Extent ) )
+            vectorBridgeClass.UpdateMax( newMax, ( otherBox.Center + otherBox.Extent ) )
 
             self.Center = ( newMax + newMin ) * 0.5
             self.Extent = ( newMax - newMin ) * 0.5

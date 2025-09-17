@@ -8,11 +8,11 @@ local STATIC = CNC.CreateExport()
 
 --#region Imports
 
-    --- @type GlobalSettings
-    local globalSettings = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
+    --- @type GlobalSettingsClass
+    local globalSettingsClass = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
 
     --- @type CombatManagerClass
-    local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
     --- @type Rect
     local rect = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
@@ -38,11 +38,11 @@ local STATIC = CNC.CreateExport()
     --- @type HudInfo
     local hudInfo = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
 
-    --- @type PhysicalGameObjectsBridge
-    local physObjBridge = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
+    --- @type PhysicalGameObjectsBridgeClass
+    local physObjBridgeClass = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
 
-    --- @type BuildingsBridge
-    local buildingsBridge = CNC.Import( "renhud/client/bridges/buildings.lua" )
+    --- @type BuildingsBridgeClass
+    local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
 
     --- @type Matrix3d
     local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
@@ -59,8 +59,8 @@ local STATIC = CNC.CreateExport()
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
 
-    --- @type CameraBridge
-    local cameraBridge = CNC.Import( "renhud/client/bridges/camera.lua")
+    --- @type CameraBridgeClass
+    local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua")
 --#endregion
 
 
@@ -246,7 +246,7 @@ local STATIC = CNC.CreateExport()
 
         -- STATIC.ObjectiveUpdate()
 
-        local combatStar = combatManager.GetTheStar()
+        local transformationMatrix = physObjBridgeClass.GetPlayerTransform():GetInverse()
 
         --[[ Reticle ]] do
 
@@ -259,7 +259,7 @@ local STATIC = CNC.CreateExport()
 
                 if entityInfo.ShouldTarget then
                     reticleColor = globalSettings.Colors.Friendly
-                    if physObjBridge.IsPhysicalGameObject( targetEntity ) then
+                if physObjBridgeClass.IsPhysicalGameObject( targetEntity ) then
                         if entityInfo.FeelingTowardPlayer == dispositionEnum.Enemy then
                             reticleColor = globalSettings.Colors.Enemy
                         end
@@ -338,9 +338,9 @@ local STATIC = CNC.CreateExport()
         render.PopFilterMag()
         render.PopFilterMin()
 
-        if cameraBridge.ViewOverride then
-            combatManager.GetCamera():DebugDraw()
-        end
+    if cameraBridgeClass.ViewOverride then
+        combatManagerClass.GetCamera():DebugDraw()
+    end
     end
     hook.Add( "HUDPaint", "A1_Renegade_RenderHUD", STATIC.Render )
 
@@ -1090,18 +1090,18 @@ local STATIC = CNC.CreateExport()
             STATIC.BoxZoomSize = math.Clamp( STATIC.BoxZoomSize, 0, 1 )
 
             local color = globalSettings.Colors.NoRelation
-            if physObjBridge.IsPhysicalGameObject( targetEnt ) then
-                if physObjBridge.IsTeammate( combatStar, targetEnt ) then
+        if physObjBridgeClass.IsPhysicalGameObject( targetEnt ) then
+            if physObjBridgeClass.IsTeammate( combatStar, targetEnt ) then
                     color = globalSettings.Colors.Friendly
-                elseif physObjBridge.IsEnemy( combatStar, targetEnt ) then
+            elseif physObjBridgeClass.IsEnemy( combatStar, targetEnt ) then
                     color = globalSettings.Colors.Enemy
                 end
             end
 
-            if buildingsBridge.IsBuilding( targetEnt ) then
-                if buildingsBridge.IsTeammate( combatStar, targetEnt ) then
+        if buildingsBridgeClass.IsBuilding( targetEnt ) then
+            if buildingsBridgeClass.IsTeammate( combatStar, targetEnt ) then
                     color = globalSettings.Colors.Friendly
-                elseif buildingsBridge.IsEnemy( combatStar, targetEnt ) then
+            elseif buildingsBridgeClass.IsEnemy( combatStar, targetEnt ) then
                     color = globalSettings.Colors.Enemy
                 end
             end
@@ -1311,13 +1311,13 @@ local STATIC = CNC.CreateExport()
             local top = Vector( 0, 0 )
             local bottom = Vector( 0, 0 )
 
-            if physObjBridge.IsPhysicalGameObject( ent ) then
+        if physObjBridgeClass.IsPhysicalGameObject( ent ) then
 
                 -- "tm" here stands for "Transformation Matrix"
                 -- "inv" here stands for "Inverse"
 
                 local entBox = infoEntityLib.GetEntityLocalBoundingBox( ent )
-                local entTM = physObjBridge.GetTransform( ent )
+            local entTM = physObjBridgeClass.GetTransform( ent )
 
                 local combatCamera = combatManager.GetCamera()
                 local cameraTM = combatCamera:GetTransform()

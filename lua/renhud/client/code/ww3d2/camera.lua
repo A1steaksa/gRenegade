@@ -34,19 +34,19 @@ end
     --- @type Frustum
     local frustum = CNC.Import( "renhud/client/code/wwmath/frustum.lua" )
 
-    --- @type Matrix3d
+    --- @type Matrix3dClass
     local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
 
-    --- @type WWMath
+    --- @type WWMathClass
     local wWMath = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
 
     --- @type Matrix4
     local matrix4 = CNC.Import( "renhud/client/code/wwmath/matrix4.lua" )
 
-    --- @type Render2d
+    --- @type Render2dClass
     local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
 
-    --- @type CameraBridge
+    --- @type CameraBridgeClass
     local cameraBridge = CNC.Import( "renhud/client/bridges/camera.lua" )
 --#endregion
 

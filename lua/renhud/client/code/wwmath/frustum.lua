@@ -27,9 +27,6 @@ end
 
     --- @type Plane
     local plane = CNC.Import( "renhud/client/code/wwmath/plane.lua" )
-
-    --- @type CameraBridge
-    local cameraBridge = CNC.Import( "renhud/client/bridges/camera.lua" )
 --#endregion
 
 

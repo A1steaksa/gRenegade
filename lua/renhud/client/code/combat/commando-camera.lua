@@ -37,14 +37,14 @@ end
     --- @type CommandoCameraProfile
     local commandoCameraProfile = CNC.Import( "renhud/client/code/combat/commando-camera-profile.lua" )
 
-    --- @type BuildingsBridge
-    local buildingsBridge = CNC.Import( "renhud/client/bridges/buildings.lua" )
+    --- @type BuildingsBridgeClass
+    local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
 
-    --- @type PhysicalGameObjectsBridge
-    local physicalGameObjectsBridge = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
+    --- @type PhysicalGameObjectsBridgeClass
+    local physicalGameObjectsBridgeClass = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
 
     --- @type SmartGameObjectsBridge
-    local smartGameObjectsBridge = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
+    local smartGameObjectsBridgeClass = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua")
@@ -672,12 +672,12 @@ end
 
                 -- Check for the MCT
                 local isMct = false
-                if buildingsBridge.IsBuilding( hitEnt ) then
-                    isMct = buildingsBridge.IsMct( hitEnt )
+                if buildingsBridgeClass.IsBuilding( hitEnt ) then
+                    isMct = buildingsBridgeClass.IsMct( hitEnt )
                 end
 
                 -- Don't target stealthed enemies
-                if smartGameObjectsBridge.IsStealthed( hitEnt ) and physicalGameObjectsBridge.IsEnemy( hitEnt, combatStar ) then
+                if smartGameObjectsBridgeClass.IsStealthed( hitEnt ) and physicalGameObjectsBridgeClass.IsEnemy( hitEnt, combatStar ) then
                     hitEnt = NULL
                 end
 

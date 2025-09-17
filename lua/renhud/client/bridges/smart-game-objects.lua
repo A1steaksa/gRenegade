@@ -4,10 +4,10 @@
 local CNC = CNC_RENEGADE
 
 --- Parent class
---- @type CommonBridge
+--- @type CommonBridgeClass
 local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class SmartGameObjectsBridge : CommonBridge
+--- @class SmartGameObjectsBridge : CommonBridgeClass
 local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
 
 

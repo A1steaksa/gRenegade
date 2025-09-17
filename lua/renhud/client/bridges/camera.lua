@@ -4,10 +4,10 @@
 local CNC = CNC_RENEGADE
 
 --- Parent class
---- @type CommonBridge
+--- @type CommonBridgeClass
 local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class CameraBridge : CommonBridge
+--- @class CameraBridgeClass : CommonBridgeClass
 local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
 
 
@@ -15,7 +15,7 @@ local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
 
     local CLASS = "CameraBridge"
 
-    --- @class CameraBridge
+    --- @class CameraBridgeClass
     --- @field ViewOverride ViewSetup
 
     --- [[ Public ]]

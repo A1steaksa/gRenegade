@@ -3,8 +3,9 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class CommonBridge
+--- @class CommonBridgeClass
 local LIB = CNC.CreateExport()
+local CLASS = "CommonBridgeClass"
 
 
 --#region Imports

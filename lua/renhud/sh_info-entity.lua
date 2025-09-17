@@ -6,20 +6,6 @@ local CNC = CNC_RENEGADE
 local LIB = CNC.CreateExport()
 local CLASS = "InfoEntityLib"
 
-
---#region Imports
-
---- @type PlayerType
-local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
-
---- @type AABox
-local aABox = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
-
---- @type CameraBridge
-local cameraBridge = CNC.Import( "renhud/client/bridges/camera.lua" )
---#endregion
-
-
 --#region Enums
 
 --- Describes how Entities feel about each other
@@ -30,8 +16,25 @@ LIB.DISPOSITION = {
     Neutral  = 3
 }
 local dispositionEnum = LIB.DISPOSITION
+--#endregion
 
-local playerTypeEnum = playerTypeLib.PLAYER_TYPE_ENUM
+
+--#region Imports
+
+--- @type PlayerType
+local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+
+--- @type AABoxClass
+local aABox = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
+
+--- @type CameraBridgeClass
+local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua" )
+--#endregion
+
+
+--#region Imported Enums
+
+    local playerTypeEnum = playerTypeLib.PLAYER_TYPE_ENUM
 --#endregion
 
 
@@ -291,7 +294,7 @@ if CLIENT then
         --- @return Entity?
         --- @return number traceDistance
         function LIB.TraceForInfoEntity()
-            local viewSetup = cameraBridge.GetViewSetup()
+            local viewSetup = cameraBridgeClass.GetViewSetup()
 
             local startPos = viewSetup.origin
             local endPos = startPos + viewSetup.angles:Forward() * traceLengthConVar:GetFloat()
@@ -810,11 +813,9 @@ end
             ["npc_security_camera"]         = playerTypeEnum.Aperture,
         }
 
-        --- @private
         --- @param ent Entity
         --- @return PlayerTypeEnum
         function LIB.GetEntityTeamToShow( ent )
-
             if ent:IsNPC() then
                 local class = ent:GetClass()
                 local playerType = LIB.NpcTeams[class]

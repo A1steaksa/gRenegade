@@ -142,8 +142,8 @@ local isHotload = not table.IsEmpty( LIB )
             --- @type CombatManagerClass
             local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
-            --- @type CommonBridge
-            local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+            --- @type CommonBridgeClass
+            local commonBridgeClass = CNC.Import( "renhud/client/bridges/common.lua" )
         --#endregion
 
         local damageIndicatorsEnabledConVar = GetConVar( "ren_damageindicator_enabled" )
@@ -170,7 +170,7 @@ local isHotload = not table.IsEmpty( LIB )
                 return
             end
 
-            local relativeDirection = commonBridge.GetCameraTransform():InverseRotateVector( directionVector )
+            local relativeDirection = commonBridgeClass.GetCameraTransform():InverseRotateVector( directionVector )
 
             -- "Convert direction into 0 .. 7"
             local angle = math.atan2( relativeDirection.y, -relativeDirection.x )
