@@ -350,7 +350,7 @@ function STATIC.Update( playerTransformationMatrix, center )
 
     -- "If the renderer object for this particular radar direction hasn't been created, create it now"
     if STATIC.CompassRenderers[ STATIC.CurrentCompassRendererIndex ] == NULL then
-        local font = styleManagerClass.PeekFont( fontStyleEnum.FONT_INGAME_TXT )
+        local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
         local newCompassRenderer = render2dTextClass.New( font )
         newCompassRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
         STATIC.CompassRenderers[ STATIC.CurrentCompassRendererIndex ] = newCompassRenderer

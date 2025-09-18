@@ -3,65 +3,61 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
+--- The static components of StyleManager
+--- @class StyleManagerClass
+local STATIC = CNC.CreateExport()
+local CLASS = "StyleManager"
 
---[[ Class Setup ]] do
 
-    --- The static components of StyleManager
-    --- @class StyleManager
-    STATIC = CNC.CreateExport()
-end
+--#region Exported Enums
+
+    --- @enum FontStyle
+    STATIC.FONT_STYLE = {
+        Title             = 0,
+        LgControls        = 1,
+        Controls          = 2,
+        Lists             = 3,
+        Tooltips          = 4,
+        Menu              = 5,
+        SmMenu            = 6,
+        Header            = 7,
+        BigHeader         = 8,
+        Credits           = 9,
+        CreditsBold       = 10,
+        IngameTxt         = 11,
+        IngameBigTxt      = 12,
+        IngameSubtitleTxt = 13,
+        IngameHeaderTxt   = 14
+    }
+    local fontStyleEnum = STATIC.FONT_STYLE
+
+    --- @enum Justification
+    STATIC.JUSTIFICATION = {
+        Left    = 0,
+        Right   = 1,
+        Center  = 2
+    }
+    local justificationEnum = STATIC.JUSTIFICATION
+
+    --- @enum EventAudio
+    STATIC.EVENT_AUDIO = {
+        MouseClick = 0,
+        MouseOver  = 1,
+        MenuBack   = 2,
+        Popup      = 3,
+        AudioMax   = 4
+    }
+    local eventAudioEnum = STATIC.EVENT_AUDIO
+--#endregion
 
 
 --#region Imports
 
-    --- @type Render2d
+    --- @type Render2dClass
     local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
 
     --- @type FontsLib
     local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
---#endregion
-
-
---#region Enums
-
-    --- @enum FONT_STYLE
-    STATIC.FONT_STYLE = {
-        FONT_TITLE               = 0,
-        FONT_LG_CONTROLS         = 1,
-        FONT_CONTROLS            = 2,
-        FONT_LISTS               = 3,
-        FONT_TOOLTIPS            = 4,
-        FONT_MENU                = 5,
-        FONT_SM_MENU             = 6,
-        FONT_HEADER              = 7,
-        FONT_BIG_HEADER          = 8,
-        FONT_CREDITS             = 9,
-        FONT_CREDITS_BOLD        = 10,
-        FONT_INGAME_TXT          = 11,
-        FONT_INGAME_BIG_TXT      = 12,
-        FONT_INGAME_SUBTITLE_TXT = 13,
-        FONT_INGAME_HEADER_TXT   = 14
-    }
-    local fontStyle = STATIC.FONT_STYLE
-
-    --- @enum JUSTIFICATION
-    STATIC.JUSTIFICATION = {
-        LEFT_JUSTIFY    = 0,
-        RIGHT_JUSTIFY   = 1,
-        CENTER_JUSTIFY  = 2
-    }
-    local justification = STATIC.JUSTIFICATION
-
-    --- @enum EVENT_AUDIO
-    STATIC.EVENT_AUDIO = {
-        EVENT_MOUSE_CLICK = 0,
-        EVENT_MOUSE_OVER  = 1,
-        EVENT_MENU_BACK   = 2,
-        EVENT_POPUP       = 3,
-        EVENT_AUDIO_MAX   = 4
-    }
-    local eventAudio = STATIC.EVENT_AUDIO
 --#endregion
 
 
@@ -80,30 +76,26 @@ end
     --- The font defaults as found in stylemgr.cpp and, seemingly identically, in data/stylemgr.ini
     --- @type FontDescription[]
     STATIC.DefaultFonts = {
-        [ fontStyle.FONT_TITLE              ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 52 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_LG_CONTROLS        ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 12 ), InterCharSpacing = 2, IsBold = true  },
-        [ fontStyle.FONT_CONTROLS           ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ),  InterCharSpacing = 2, IsBold = true  },
-        [ fontStyle.FONT_LISTS              ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ),  InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_TOOLTIPS           ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ),  InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_MENU               ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 32 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_SM_MENU            ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 20 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_HEADER             ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 9  ),  InterCharSpacing = 2, IsBold = true  },
-        [ fontStyle.FONT_BIG_HEADER         ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 12 ), InterCharSpacing = 2, IsBold = true  },
-        [ fontStyle.FONT_CREDITS            ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 10 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_CREDITS_BOLD       ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 10 ), InterCharSpacing = 2, IsBold = true  },
-        [ fontStyle.FONT_INGAME_TXT         ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ),  InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_INGAME_BIG_TXT     ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 16 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_INGAME_SUBTITLE_TXT] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 14 ), InterCharSpacing = 2, IsBold = false },
-        [ fontStyle.FONT_INGAME_HEADER_TXT  ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 9  ),  InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Title            ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 52 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.LgControls       ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 12 ), InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Controls         ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ), InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Lists            ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Tooltips         ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Menu             ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 32 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.SmMenu           ] = { Name = "Regatta Condensed LET", PointSize = math.floor( sizeMultipler * 20 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Header           ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 9  ), InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.BigHeader        ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 12 ), InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Credits          ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 10 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.CreditsBold      ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 10 ), InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.IngameTxt        ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 8  ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameBigTxt     ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 16 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameSubtitleTxt] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 14 ), InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameHeaderTxt  ] = { Name = "Arial MT",              PointSize = math.floor( sizeMultipler * 9  ), InterCharSpacing = 2, IsBold = true  },
     }
 end
 
 
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "StyleManager"
-
-    --- [[ Public ]]
 
     --[[ Initialization ]] do
 
@@ -125,23 +117,23 @@ end
 
         --- @param fileName string
         function STATIC.InitializeFromIni( fileName )
-            typecheck.NotImplementedError( CLASS, "InitializeFromIni" )
+            typecheck.NotImplementedError( "InitializeFromIni" )
         end
 
         function STATIC.Shutdown()
-            typecheck.NotImplementedError( CLASS, "Shutdown" )
+            typecheck.NotImplementedError( "Shutdown" )
         end
     end
 
     --[[ Font methods ]] do
 
-        --- @param style FONT_STYLE
+        --- @param style FontStyle
         --- @return FontCharsInstance
         function STATIC.GetFont( style )
-            typecheck.NotImplementedError( CLASS, "GetFont" )
+            typecheck.NotImplementedError( "GetFont" )
         end
 
-        --- @param style FONT_STYLE
+        --- @param style FontStyle
         --- @return Font3dInstance
         function STATIC.PeekFont( style )
             -- Pull the font from the cache
@@ -164,17 +156,17 @@ end
         end
 
         --- @param renderer Render2dTextInstance
-        --- @param style FONT_STYLE
+        --- @param style FontStyle
         function STATIC.AssignFont( renderer, style )
-            typecheck.NotImplementedError( CLASS, "AssignFont" )
+            typecheck.NotImplementedError( "AssignFont" )
         end
     end
 
     --[[ Sound methods ]] do
 
-        --- @param event EVENT_AUDIO
+        --- @param event EventAudio
         function STATIC.PlaySound( event )
-            typecheck.NotImplementedError( CLASS, "PlaySound" )
+            typecheck.NotImplementedError( "PlaySound" )
         end
     end
 
@@ -182,7 +174,7 @@ end
 
         --- @param renderer Render2dTextInstance
         function STATIC.ConfigureRenderer( renderer )
-            typecheck.NotImplementedError( CLASS, "ConfigureRenderer" )
+            typecheck.NotImplementedError( "ConfigureRenderer" )
         end
     end
 
@@ -263,20 +255,20 @@ end
 
     --[[ Text support ]] do
 
-        --- @overload fun( text: string, renderer:Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doClip: boolean, justify: JUSTIFICATION?, isVCentered: boolean? )
-	    --- @overload fun( text: string, renderer:Render2dTextInstance, rect:RectInstance, doShadow: boolean?, doClip: boolean?, justify: JUSTIFICATION?, isEnabled:boolean?, isVCentered: boolean? )
+        --- @overload fun( text: string, renderer:Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doClip: boolean, justify: Justification?, isVCentered: boolean? )
+	    --- @overload fun( text: string, renderer:Render2dTextInstance, rect:RectInstance, doShadow: boolean?, doClip: boolean?, justify: Justification?, isEnabled:boolean?, isVCentered: boolean? )
         function STATIC.RenderText( ... )
             local args = { ... }
             local argCount = select( "#", ... )
 
-            typecheck.NotImplementedError( CLASS, "RenderText" )
+            typecheck.NotImplementedError( "RenderText" )
         end
 
         --- @param text string
         --- @param renderer Render2dTextInstance
         --- @param rect RectInstance
         function STATIC.RenderTitleText( text, renderer, rect )
-            typecheck.NotImplementedError( CLASS, "RenderTitleText" )
+            typecheck.NotImplementedError( "RenderTitleText" )
         end
 
         --- @overload fun( text: string, renderer: Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doVCenter: boolean? )
@@ -285,16 +277,16 @@ end
             local args = { ... }
             local argCount = select( "#", ... )
 
-            typecheck.NotImplementedError( CLASS, "RenderWrappedText" )
+            typecheck.NotImplementedError( "RenderWrappedText" )
         end
 
-        --- @overload fun( text: string, renderer: Render2dTextInstance, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, isEnabled:boolean?, justify: JUSTIFICATION? )
-        --- @overload fun( text: string, renderer: Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, justify: JUSTIFICATION? )
+        --- @overload fun( text: string, renderer: Render2dTextInstance, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, isEnabled:boolean?, justify: Justification? )
+        --- @overload fun( text: string, renderer: Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, justify: Justification? )
         function STATIC.RenderWrappedTextEx( ... )
             local args = { ... }
             local argCount = select( "#", ... )
 
-            typecheck.NotImplementedError( CLASS, "RenderWrappedTextEx" )
+            typecheck.NotImplementedError( "RenderWrappedTextEx" )
         end
     end
 
@@ -302,13 +294,13 @@ end
 
         --- @param renderer Render2dTextInstance
         function STATIC.ConfigureHilighter( renderer )
-            typecheck.NotImplementedError( CLASS, "ConfigureHilighter" )
+            typecheck.NotImplementedError( "ConfigureHilighter" )
         end
 
         --- @param renderer Render2dTextInstance
         --- @param rect RectInstance
         function STATIC.RenderHilight( renderer, rect )
-            typecheck.NotImplementedError( CLASS, "RenderHilight" )
+            typecheck.NotImplementedError( "RenderHilight" )
         end
     end
 
@@ -320,16 +312,16 @@ end
         --- @param radiusX integer
         --- @param radiusY integer
         --- @param color Color
-        --- @param justify JUSTIFICATION
+        --- @param justify Justification
         function STATIC.RenderGlow( text, renderer, rect, radiusX, radiusY, color, justify )
-            typecheck.NotImplementedError( CLASS, "RenderGlow" )
+            typecheck.NotImplementedError( "RenderGlow" )
         end
     end
 
 
     --- [[ Private ]]
 
-    --- @class StyleManager
+    --- @class StyleManagerClass
     --- @field private BackdropMaterial IMaterial
     --- @field private TitleColor Color
     --- @field private TitleHilightColor Color
@@ -353,6 +345,6 @@ end
 
     --- @private
     --- A map of FONT_STYLE to its matching Font3dInstance
-    --- @type table<FONT_STYLE, Font3dInstance>
+    --- @type table<FontStyle, Font3dInstance>
     STATIC.FontStyleToFont3d = {}
 end
