@@ -106,7 +106,7 @@ if CLIENT then
 
         -- Ensure that fonts have loaded and that the player exists
         if not IsValid( LocalPlayer() ) then return end
-        if not fontsLib.IsFontCreated( styleManager.DefaultFonts[ styleManager.FONT_STYLE.FONT_INGAME_TXT ] ) then return end
+        if not fontsLib.IsFontCreated( styleManager.DefaultFonts[ styleManager.FONT_STYLE.IngameTxt ] ) then return end
 
         -- Check if the server is running the HUD
         CNC.IsServerEnabled = GetGlobal2Bool( "A1_Renegade_ServerRunning", false )
