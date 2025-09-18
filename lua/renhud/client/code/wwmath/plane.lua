@@ -67,7 +67,7 @@ end
     ---@param lineDirection Vector
     ---@param linePoint Vector
     function IntersectPlanes( planeA, planeB, lineDirection, linePoint )
-        typecheck.NotImplementedError( CLASS, "IntersectPlanes" )
+        typecheck.NotImplementedError( "IntersectPlanes" )
     end
 end
 
@@ -199,7 +199,7 @@ end
     --- @param setT number
     --- @return boolean
     function INSTANCE:ComputeIntersection( point0, point1, setT )
-        typecheck.NotImplementedError( CLASS, "ComputeIntersection" )
+        typecheck.NotImplementedError( "ComputeIntersection" )
     end
 
     --- @return boolean
@@ -209,11 +209,11 @@ end
         typecheck.AssertArgType( CLASS, 1, args[1], { "vector", "sphere" } )
 
         if isvector( args[1] ) then
-            typecheck.NotImplementedError( CLASS, "Vector check" )
+            typecheck.NotImplementedError( "Vector check" )
         end
 
         -- Omitted sphere check logic as there is currently no sphere usecase
-        typecheck.NotImplementedError( CLASS, "Sphere check" )
+        typecheck.NotImplementedError( "Sphere check" )
     end
 
     -- Omitted function InFrontOrIntersecting due to sphere dependency
