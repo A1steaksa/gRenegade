@@ -3,207 +3,200 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC, INSTANCE
+--- @class ShaderClass
+--- @field Instance ShaderInstance The Metatable used by ShaderInstance
+local STATIC = CNC.CreateExport()
+local CLASS = "ShaderInstance"
+local isHotload = not table.IsEmpty( STATIC )
 
---[[ Class Setup ]] do
-
-    --- The instanced components of Shader
-    --- @class ShaderInstance
-    --- @field Static Shader The static table for this instance's class
-    INSTANCE = robustclass.Register( "Renegade_Shader" )
-
-    --- The static components of Shader
-    --- @class Shader
-    --- @field Instance ShaderInstance The Metatable used by ShaderInstance
-    STATIC = CNC.CreateExport()
-
-    STATIC.Instance = INSTANCE
-    INSTANCE.Static = STATIC
-    INSTANCE.IsShader = true
-end
+--- @class ShaderInstance
+--- @field Static ShaderClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_Shader" )
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsShader = true
 
 
---#region Enums
+--#region Exported Enums
 
     --- @enum ShaderShiftConstants
     STATIC.SHADER_SHIFT_CONSTANTS = {
-        DEPTHCOMPARE        = 0,  -- Bit shift for depth comparison setting
-        DEPTHMASK           = 3,  -- Bit shift for depth mask setting
-        COLORMASK           = 4,  -- Bit shift for color mask setting
-        DSTBLEND            = 5,  -- Bit shift for destination blend setting
-        FOG                 = 8,  -- Bit shift for fog setting
-        PRIMARYGRADIENT     = 10, -- Bit shift for primary gradient setting
-        SECONDARYGRADIENT   = 13, -- Bit shift for secondary gradient setting
-        SRCBLEND            = 14, -- Bit shift for source blend setting
-        MATERIALING         = 16, -- Bit shift for materialing setting (1 bit)
-        NPATCHENABLE        = 17, -- Bit shift for npatch enabling
-        ALPHATEST           = 18, -- Bit shift for alpha test setting
-        CULLMODE            = 19, -- Bit shift for cullmode setting
-        POSTDETAILCOLORFUNC = 20, -- Bit shift for post-detail color function setting
-        POSTDETAILALPHAFUNC = 24, -- Bit shift for post-detail alpha function setting
+        DepthCompare        = 0,  -- Bit shift for depth comparison setting
+        DepthMask           = 3,  -- Bit shift for depth mask setting
+        ColorMask           = 4,  -- Bit shift for color mask setting
+        DstBlend            = 5,  -- Bit shift for destination blend setting
+        Fog                 = 8,  -- Bit shift for fog setting
+        PrimaryGradient     = 10, -- Bit shift for primary gradient setting
+        SecondaryGradient   = 13, -- Bit shift for secondary gradient setting
+        SrcBlend            = 14, -- Bit shift for source blend setting
+        Materialing         = 16, -- Bit shift for materialing setting (1 bit)
+        NPatchEnable        = 17, -- Bit shift for npatch enabling
+        AlphaTest           = 18, -- Bit shift for alpha test setting
+        CullMode            = 19, -- Bit shift for cullmode setting
+        PostDetailColorFunc = 20, -- Bit shift for post-detail color function setting
+        PostDetailAlphaFunc = 24, -- Bit shift for post-detail alpha function setting
     }
-    local SHADER_SHIFT_CONSTANTS = STATIC.SHADER_SHIFT_CONSTANTS
+    local shaderShiftConstantsEnum = STATIC.SHADER_SHIFT_CONSTANTS
 
     --- @enum AlphaTest
     STATIC.ALPHA_TEST = {
-        DISABLE = 0, -- Disable alpha testing (default)
-        ENABLE  = 1, -- Enable alpha testing
+        Disable = 0, -- Disable alpha testing (default)
+        Enable  = 1, -- Enable alpha testing
     }
-    local ALPHA_TEST = STATIC.ALPHA_TEST
+    local alphaTestEnum = STATIC.ALPHA_TEST
 
     --- @enum DepthCompare
     STATIC.DEPTH_COMPARE = {
-        PASS_NEVER    = 0, -- Pass never
-        PASS_LESS     = 1, -- Pass if incoming less than stored
-        PASS_EQUAL    = 2, -- Pass if incoming equal to stored
-        PASS_LEQUAL   = 3, -- Pass if incoming less than or equal to stored (default)
-        PASS_GREATER  = 4, -- Pass if incoming greater than stored
-        PASS_NOTEQUAL = 5, -- Pass if incoming not equal to stored
-        PASS_GEQUAL   = 6, -- Pass if incoming greater than or equal to stored
-        PASS_ALWAYS   = 7, -- Pass always
+        PassNever    = 0, -- Pass never
+        PassLess     = 1, -- Pass if incoming less than stored
+        PassEqual    = 2, -- Pass if incoming equal to stored
+        PassLEqual   = 3, -- Pass if incoming less than or equal to stored (default)
+        PassGreater  = 4, -- Pass if incoming greater than stored
+        PassNotEqual = 5, -- Pass if incoming not equal to stored
+        PassGEqual   = 6, -- Pass if incoming greater than or equal to stored
+        PassAlways   = 7, -- Pass always
     }
-    local DEPTH_COMPARE = STATIC.DEPTH_COMPARE
+    local depthCompareEnum = STATIC.DEPTH_COMPARE
 
-    --- @enum DepthWrite
-    STATIC.DEPTH_WRITE = {
-        DISABLE = 0, -- Disable depth buffer writes
-        ENABLE  = 1, -- Enable depth buffer writes (default)
+    --- @enum DepthMask
+    STATIC.DEPTH_MASK = {
+        Disable = 0, -- Disable depth buffer writes
+        Enable  = 1, -- Enable depth buffer writes (default)
     }
-    local DEPTH_WRITE = STATIC.DEPTH_WRITE
+    local depthMaskEnum = STATIC.DEPTH_MASK
 
-    --- @enum ColorWrite
-    STATIC.COLOR_WRITE = {
-        DISABLE = 0, -- Disable color buffer writes
-        ENABLE  = 1, -- Enable color buffer writes (default)
+    --- @enum ColorMask
+    STATIC.COLOR_MASK = {
+        Disable = 0, -- Disable color buffer writes
+        Enable  = 1, -- Enable color buffer writes (default)
     }
-    local COLOR_WRITE = STATIC.COLOR_WRITE
+    local colorMaskEnum = STATIC.COLOR_MASK
 
     --- @enum DetailAlphaFunc
     STATIC.DETAIL_ALPHA_FUNC = {
-        DISABLE  = 0, -- Local (default)
-        DETAIL   = 1, -- Other
-        SCALE    = 2, -- Local * other
-        INVSCALE = 3, -- ~(~local * ~other) = local + (1-local)*other
+        Disable  = 0, -- Local (default)
+        Detail   = 1, -- Other
+        Scale    = 2, -- Local * other
+        InvScale = 3, -- ~(~local * ~other) = local + (1-local)*other
     }
-    local DETAIL_ALPHA_FUNC = STATIC.DETAIL_ALPHA_FUNC
+    local detailAlphaFuncEnum = STATIC.DETAIL_ALPHA_FUNC
 
     --- @enum DetailColorFunc
     STATIC.DETAIL_COLOR_FUNC = {
-        DISABLE     = 0, -- 0000 local (default)
-        DETAIL      = 1, -- 0001 other
-        SCALE       = 2, -- 0010 local * other
-        INVSCALE    = 3, -- 0011 ~(~local * ~other) = local + (1-local)*other
-        ADD         = 4, -- 0100 local + other
-        SUB         = 5, -- 0101 local - other
-        SUBR        = 6, -- 0110 other - local
-        BLEND       = 7, -- 0111 (localAlpha)*local + (~localAlpha)*other
-        DETAILBLEND = 8, -- 1000 (otherAlpha)*local + (~otherAlpha)*other
+        Disable     = 0, -- 0000 local (default)
+        Detail      = 1, -- 0001 other
+        Scale       = 2, -- 0010 local * other
+        InvScale    = 3, -- 0011 ~(~local * ~other) = local + (1-local)*other
+        Add         = 4, -- 0100 local + other
+        Sub         = 5, -- 0101 local - other
+        SubR        = 6, -- 0110 other - local
+        Blend       = 7, -- 0111 (localAlpha)*local + (~localAlpha)*other
+        DetailBlend = 8, -- 1000 (otherAlpha)*local + (~otherAlpha)*other
     }
-    local DETAIL_COLOR_FUNC = STATIC.DETAIL_COLOR_FUNC
+    local detailColorFuncEnum = STATIC.DETAIL_COLOR_FUNC
 
     --- @enum CullMode
     STATIC.CULL_MODE = {
-        DISABLE = 0,
-        ENABLE  = 1,
+        Disable = 0,
+        Enable  = 1,
     }
-    local CULL_MODE = STATIC.CULL_MODE
+    local cullModeEnum = STATIC.CULL_MODE
 
     --- @enum NPatch
     STATIC.N_PATCH = {
-        DISABLE  = 0,
-        ENABLE   = 1,
+        Disable  = 0,
+        Enable   = 1,
     }
-    local N_PATCH = STATIC.N_PATCH
+    local nPatchEnum = STATIC.N_PATCH
 
     --- @enum DstBlendFunc
     STATIC.DST_BLEND_FUNC = {
-        ZERO                = 0, -- Destination pixel doesn't affect blending (default)
-        ONE                 = 1, -- Destination pixel added unmodified
-        SRC_COLOR           = 2, -- Destination pixel multiplied by fragment RGB components
-        ONE_MINUS_SRC_COLOR = 3, -- Destination pixel multiplied by one minus (i.e. inverse) fragment RGB components
-        SRC_ALPHA           = 4, -- Destination pixel multiplied by fragment alpha component
-        ONE_MINUS_SRC_ALPHA = 5, -- Destination pixel multiplied by fragment inverse alpha
+        Zero             = 0, -- Destination pixel doesn't affect blending (default)
+        One              = 1, -- Destination pixel added unmodified
+        SrcColor         = 2, -- Destination pixel multiplied by fragment RGB components
+        OneMinusSrcColor = 3, -- Destination pixel multiplied by one minus (i.e. inverse) fragment RGB components
+        SrcAlpha         = 4, -- Destination pixel multiplied by fragment alpha component
+        OneMinusSrcAlpha = 5, -- Destination pixel multiplied by fragment inverse alpha
     }
-    local DST_BLEND_FUNC = STATIC.DST_BLEND_FUNC
+    local dstBlendFuncEnum = STATIC.DST_BLEND_FUNC
 
     --- @enum FogFunc
     STATIC.FOG_FUNC = {
-        DISABLE        = 0, -- Don't perform fogging (default)
-        ENABLE         = 1, -- Apply fog, f*fogColor + (1-f)*fragment
-        SCALE_FRAGMENT = 2, -- Fog scalar value multiplies fragment, (1-f)*fragment
-        WHITE          = 3, -- Fog scalar value replaces fragment, f*fogColor
+        Disable        = 0, -- Don't perform fogging (default)
+        Enable         = 1, -- Apply fog, f*fogColor + (1-f)*fragment
+        ScaleFragment  = 2, -- Fog scalar value multiplies fragment, (1-f)*fragment
+        White          = 3, -- Fog scalar value replaces fragment, f*fogColor
     }
-    local FOG_FUNC = STATIC.FOG_FUNC
+    local fogFuncEnum = STATIC.FOG_FUNC
 
     --- @enum PrimaryGradient
     STATIC.PRIMARY_GRADIENT = {
-        DISABLE             = 0, -- 000 disable primary gradient (same as OpenGL 'decal' texture blend)
-        MODULATE            = 1, -- 001 modulate fragment ARGB by gradient ARGB (default)
-        ADD                 = 2, -- 010 add gradient RGB to fragment RGB, copy gradient A to fragment A
-        BUMPENVMAP          = 3, -- 011
-        BUMPENVMAPLUMINANCE = 4, -- 100
-        DOTPRODUCT3         = 5, -- 101
+        Disable             = 0, -- 000 disable primary gradient (same as OpenGL 'decal' texture blend)
+        Modulate            = 1, -- 001 modulate fragment ARGB by gradient ARGB (default)
+        Add                 = 2, -- 010 add gradient RGB to fragment RGB, copy gradient A to fragment A
+        BumpEnvMap          = 3, -- 011
+        BumpEnvMapLuminance = 4, -- 100
+        DotPoduct3          = 5, -- 101
     }
-    local PRIMARY_GRADIENT = STATIC.PRIMARY_GRADIENT
+    local primaryGradientEnum = STATIC.PRIMARY_GRADIENT
 
     --- @enum SecondaryGradient
     STATIC.SECONDARY_GRADIENT = {
-        DISABLE = 0, -- Don't draw secondary gradient (default)
-        ENABLE  = 1, -- Add secondary gradient RGB to fragment RGB
+        Disable = 0, -- Don't draw secondary gradient (default)
+        Enable  = 1, -- Add secondary gradient RGB to fragment RGB
     }
-    local SECONDARY_GRADIENT = STATIC.SECONDARY_GRADIENT
+    local secondaryGradientEnum = STATIC.SECONDARY_GRADIENT
 
     --- @enum SrcBlendFunc
     STATIC.SRC_BLEND_FUNC = {
-        ZERO                = 0, -- Fragment not added to color buffer
-        ONE                 = 1, -- Fragment added unmodified to color buffer (default)
-        SRC_ALPHA           = 2, -- Fragment RGB components multiplied by fragment A
-        ONE_MINUS_SRC_ALPHA = 3, -- Fragment RGB components multiplied by fragment inverse (one minus) A
+        Zero                = 0, -- Fragment not added to color buffer
+        One                 = 1, -- Fragment added unmodified to color buffer (default)
+        SrcAlpha            = 2, -- Fragment RGB components multiplied by fragment A
+        OneMinusSrcAlpha    = 3, -- Fragment RGB components multiplied by fragment inverse (one minus) A
     }
-    local SRC_BLEND_FUNC = STATIC.SRC_BLEND_FUNC
+    local srcBlendFuncEnum = STATIC.SRC_BLEND_FUNC
 
     --- @enum Materialing
     STATIC.MATERIALING = {
-        DISABLE = 0, -- No materialing (treat fragment initial color as 1,1,1,1)
-        ENABLE  = 1, -- Enable materialing
+        Disable = 0, -- No materialing (treat fragment initial color as 1,1,1,1)
+        Enable  = 1, -- Enable materialing
     }
-    local MATERIALING = STATIC.MATERIALING
+    local materialingEnum = STATIC.MATERIALING
 
     --- @enum StaticSortCategory
     STATIC.STATIC_SORT_CATEGORY = {
-        OPAQUE     = 0,
-        ALPHA_TEST = 1,
-        ADDITIVE   = 2,
-        OTHER      = 3,
+        Opaque     = 0,
+        AlphaTest  = 1,
+        Additive   = 2,
+        Other      = 3,
     }
-    local STATIC_SORT_CATEGORY = STATIC.STATIC_SORT_CATEGORY
+    local staticSortCategoryEnum = STATIC.STATIC_SORT_CATEGORY
 
     --- @enum Mask
     STATIC.MASK = {
-        DEPTHCOMPARE        = bit.lshift( 7,  0  ),  -- Mask for depth comparison setting
-        DEPTHMASK           = bit.lshift( 1,  3  ),  -- Mask for depth mask setting
-        COLORMASK           = bit.lshift( 1,  4  ),  -- Mask for color mask setting
-        DSTBLEND            = bit.lshift( 7,  5  ),  -- Mask for destination blend setting
-        FOG                 = bit.lshift( 3,  8  ),  -- Mask for fog setting
-        PRIMARYGRADIENT     = bit.lshift( 7,  10 ),  -- Mask for primary gradient setting
-        SECONDARYGRADIENT   = bit.lshift( 1,  13 ),  -- Mask for secondary gradient setting
-        SRCBLEND            = bit.lshift( 3,  14 ),  -- Mask for source blend setting
-        MATERIALING         = bit.lshift( 1,  16 ),  -- Mask for materialing setting
-        NPATCHENABLE        = bit.lshift( 1,  17 ),  -- Mask for npatch enable
-        ALPHATEST           = bit.lshift( 1,  18 ),  -- Mask for alpha test enable
-        CULLMODE            = bit.lshift( 1,  19 ),  -- Mask for cullmode setting
-        POSTDETAILCOLORFUNC = bit.lshift( 15, 20 ),  -- Mask for post detail color function setting
-        POSTDETAILALPHAFUNC = bit.lshift( 7,  24 ),  -- Mask for post detail alpha function setting
+        DepthCompare        = bit.lshift( 7,  0  ),  -- Mask for depth comparison setting
+        DepthMask           = bit.lshift( 1,  3  ),  -- Mask for depth mask setting
+        ColorMask           = bit.lshift( 1,  4  ),  -- Mask for color mask setting
+        DstBlend            = bit.lshift( 7,  5  ),  -- Mask for destination blend setting
+        Fog                 = bit.lshift( 3,  8  ),  -- Mask for fog setting
+        PrimaryGradient     = bit.lshift( 7,  10 ),  -- Mask for primary gradient setting
+        SecondaryGradient   = bit.lshift( 1,  13 ),  -- Mask for secondary gradient setting
+        SrcBlend            = bit.lshift( 3,  14 ),  -- Mask for source blend setting
+        Materialing         = bit.lshift( 1,  16 ),  -- Mask for materialing setting
+        NPatchEnable        = bit.lshift( 1,  17 ),  -- Mask for npatch enable
+        AlphaTest           = bit.lshift( 1,  18 ),  -- Mask for alpha test enable
+        CullMode            = bit.lshift( 1,  19 ),  -- Mask for cullmode setting
+        PostDetailColorFunc = bit.lshift( 15, 20 ),  -- Mask for post detail color function setting
+        PostDetailAlphaFunc = bit.lshift( 7,  24 ),  -- Mask for post detail alpha function setting
     }
-    local mask = STATIC.MASK
+    local maskEnum = STATIC.MASK
 --#endregion
 
 
 --[[ Static Functions and Variables ]] do
 
-    local CLASS = "Shader"
-
-    --- [[ Public ]]
+    --- @class ShaderClass
+    --- @field PolygonCullMode MATERIAL_CULLMODE
 
     --- Creates a new ShaderInstance
     --- @vararg any
@@ -222,129 +215,239 @@ end
     end
 
     typecheck.RegisterType( "ShaderInstance", STATIC.IsShader )
+
+    --- @param isBackfaceCullingInverted boolean Enables **C**ounter-**C**lock**W**ise (CCW) culling when inverted or **C**lock**W**ise (CW) culling otherwise
+    function STATIC.InvertBackfaceCulling( isBackfaceCullingInverted )
+        if isBackfaceCullingInverted then
+            STATIC.PolygonCullMode = MATERIAL_CULLMODE_CCW
+        else
+            STATIC.PolygonCullMode = MATERIAL_CULLMODE_CW
+        end
+    end
+
+    --- "Is backface culling inverted?"
+    --- @return boolean `true` when using **C**ounter-**C**lock**W**ise (CCW) culling, `false` otherwise
+    function STATIC.IsBackfaceCullingInverted()
+        return STATIC.PolygonCullMode == MATERIAL_CULLMODE_CCW
+    end
 end
 
 
---[[ Instanced Functions and Variables ]] do
+--- @class ShaderInstance
+--- @field ShaderBits integer
+--- @field DepthCompare DepthCompare
+--- @field DepthMask DepthMask
+--- @field ColorMask ColorMask
+--- @field DstBlendFunc DstBlendFunc
+--- @field FogFunc FogFunc
+--- @field PrimaryGradient PrimaryGradient
+--- @field SecondaryGradient SecondaryGradient
+--- @field SrcBlendFunc SrcBlendFunc
+--- @field Materialing Materialing
+--- @field AlphaTest AlphaTest
+--- @field CullMode CullMode
+--- @field PostDetailColorFunc DetailAlphaFunc
+--- @field PostDetailAlphaFunc DetailColorFunc
+--- @field NPatchEnable NPatch
 
-    local CLASS = "ShaderInstance"
+--- Converts Renegade destination blend function enums to their Garry's Mod equivalents
+local dstBlendFuncConverter = {
+    [dstBlendFuncEnum.Zero            ] = BLEND_ZERO,
+    [dstBlendFuncEnum.One             ] = BLEND_ONE,
+    [dstBlendFuncEnum.SrcAlpha        ] = BLEND_SRC_ALPHA,
+    [dstBlendFuncEnum.SrcColor        ] = BLEND_SRC_COLOR,
+    [dstBlendFuncEnum.OneMinusSrcAlpha] = BLEND_ONE_MINUS_SRC_ALPHA,
+    [dstBlendFuncEnum.OneMinusSrcColor] = BLEND_ONE_MINUS_SRC_COLOR,
+}
 
-    --- [[ Public ]]
+--- Converts Renegade source blend function enums to their Garry's Mod equivalents
+local srcBlendFuncConverter = {
+    [srcBlendFuncEnum.Zero            ] = BLEND_ZERO,
+    [srcBlendFuncEnum.One             ] = BLEND_ONE,
+    [srcBlendFuncEnum.SrcAlpha        ] = BLEND_SRC_ALPHA,
+    [srcBlendFuncEnum.OneMinusSrcAlpha] = BLEND_ONE_MINUS_SRC_ALPHA,
+}
 
-    --- @class ShaderInstance
-    --- @field ShaderBits integer
-    --- @field DepthCompare DepthCompare
-    --- @field DepthMask DepthWrite
-    --- @field ColorMask ColorWrite
-    --- @field DstBlendFunc DstBlendFunc
-    --- @field FogFunc FogFunc
-    --- @field PrimaryGradient PrimaryGradient
-    --- @field SecondaryGradient SecondaryGradient
-    --- @field SrcBlendFunc SrcBlendFunc
-    --- @field Materialing Materialing
-    --- @field AlphaTest AlphaTest
-    --- @field CullMode CullMode
-    --- @field PostDetailColorFunc DetailAlphaFunc
-    --- @field PostDetailAlphaFunc DetailColorFunc
-    --- @field NPatchEnable NPatch
+--- Constructs a new ShaderInstance
+--- @vararg any
+function INSTANCE:Renegade_Shader( ... )
+    local args = { ... }
+    local argCount = select( "#", ... )
+    typecheck.AssertArgCount( CLASS, argCount, { 0, 1 } )
 
-    --- Constructs a new ShaderInstance
-    --- @vararg any
-    function INSTANCE:Renegade_Shader( ... )
-        local args = { ... }
-        local argCount = select( "#", ... )
+    --- ()
+    if argCount == 0 then
+        self:Reset()
+        return
+    end
 
-        if argCount == 0 then
-            self:Reset()
+    if argCount == 1 then
+        local firstArg = args[1]
+        typecheck.AssertArgType( CLASS, 1, arg, { "ShaderInstance", "number" } )
+
+        --- ( shader: ShaderInstance )
+        if typecheck.IsOfType( firstArg, "ShaderInstance" ) then
+            self.ShaderBits = ( firstArg --[[@as ShaderInstance]] ).ShaderBits
+            return
+        --- ( shaderBits: integer )
+        else
+            self.ShaderBits = firstArg --[[@as number]]
             return
         end
-
-        typecheck.NotImplementedError( CLASS )
     end
+end
 
-    local dstBlendFuncConverter = {
-        [DST_BLEND_FUNC.ZERO               ] = BLEND_ZERO,
-        [DST_BLEND_FUNC.ONE                ] = BLEND_ONE,
-        [DST_BLEND_FUNC.SRC_ALPHA          ] = BLEND_SRC_ALPHA,
-        [DST_BLEND_FUNC.SRC_COLOR          ] = BLEND_SRC_COLOR,
-        [DST_BLEND_FUNC.ONE_MINUS_SRC_ALPHA] = BLEND_ONE_MINUS_SRC_ALPHA,
-        [DST_BLEND_FUNC.ONE_MINUS_SRC_COLOR] = BLEND_ONE_MINUS_SRC_COLOR,
-    }
+--- Applies rendering overrides and settings for this shader  
+--- Always be sure to revert these changes after rendering  
+--- @see ShaderInstance.Unapply
+function INSTANCE:Apply()
 
-    local srcBlendFuncConverter = {
-        [SRC_BLEND_FUNC.ZERO               ] = BLEND_ZERO,
-        [SRC_BLEND_FUNC.ONE                ] = BLEND_ONE,
-        [SRC_BLEND_FUNC.SRC_ALPHA          ] = BLEND_SRC_ALPHA,
-        [SRC_BLEND_FUNC.ONE_MINUS_SRC_ALPHA] = BLEND_ONE_MINUS_SRC_ALPHA,
-    }
+    --[[ Blending ]] do
 
-    function INSTANCE:Enable()
         local dstBlendFunc = dstBlendFuncConverter[ self.DstBlendFunc ]
         local srcBlendFunc = srcBlendFuncConverter[ self.SrcBlendFunc ]
-
         render.OverrideBlend( true, srcBlendFunc, dstBlendFunc, BLENDFUNC_ADD )
     end
+end
 
-    function INSTANCE:Disable()
+--- Removes overrides set by this shader  
+--- Always apply shaders before unapplying them  
+--- @see ShaderInstance.Apply
+function INSTANCE:Unapply()
+
+    --[[ Blending ]] do
+
         render.OverrideBlend( false )
     end
+end
 
-    function INSTANCE:Apply()
-        typecheck.NotImplementedError( CLASS, "Apply" )
+function INSTANCE:Reset()
+    self.ShaderBits = 0
+
+    self:SetDepthCompare( depthCompareEnum.PassLEqual )
+    self:SetDepthMask( depthMaskEnum.Enable )
+    self:SetColorMask( colorMaskEnum.Enable )
+    self:SetDstBlendFunc( dstBlendFuncEnum.Zero )
+    self:SetFogFunc( fogFuncEnum.Disable )
+    self:SetPrimaryGradient( primaryGradientEnum.Modulate )
+    self:SetSecondaryGradient( secondaryGradientEnum.Disable )
+    self:SetSrcBlendFunc( srcBlendFuncEnum.One )
+    self:SetMaterialing( materialingEnum.Disable )
+    self:SetAlphaTest( alphaTestEnum.Disable )
+    self:SetCullMode( cullModeEnum.Enable )
+    self:SetPostDetailColorFunc( detailColorFuncEnum.Disable )
+    self:SetPostDetailAlphaFunc( detailAlphaFuncEnum.Disable )
+    self:SetNPatchEnable( nPatchEnum.Disable )
+end
+
+--[[ Bitflag Getters ]] do
+
+    --- @return DepthCompare
+    function INSTANCE:GetDepthCompare()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.DepthCompare ), shaderShiftConstantsEnum.DepthCompare ) --[[@as DepthCompare]]
     end
 
-    function INSTANCE:Reset()
-        self.ShaderBits = 0
-
-        self:SetDepthCompare( DEPTH_COMPARE.PASS_LEQUAL )
-        self:SetDepthMask( DEPTH_WRITE.ENABLE )
-        self:SetColorMask( COLOR_WRITE.ENABLE )
-        self:SetDstBlendFunc( DST_BLEND_FUNC.ZERO )
-        self:SetFogFunc( FOG_FUNC.DISABLE )
-        self:SetPrimaryGradient( PRIMARY_GRADIENT.MODULATE )
-        self:SetSecondaryGradient( SECONDARY_GRADIENT.DISABLE )
-        self:SetSrcBlendFunc( SRC_BLEND_FUNC.ONE )
-        self:SetMaterialing( MATERIALING.DISABLE )
-        self:SetAlphaTest( ALPHA_TEST.DISABLE )
-        self:SetCullMode( CULL_MODE.ENABLE )
-        self:SetPostDetailColorFunc( DETAIL_COLOR_FUNC.DISABLE )
-        self:SetPostDetailAlphaFunc( DETAIL_ALPHA_FUNC.DISABLE )
-        self:SetNPatchEnable( N_PATCH.DISABLE )
+    --- @return DepthMask
+    function INSTANCE:GetDepthMask()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.DepthMask ), shaderShiftConstantsEnum.DepthMask ) --[[@as DepthMask]]
     end
 
-    --- @param flag DepthWrite
-    function INSTANCE:SetDepthMask( flag )
-        self.DepthMask = flag
-
-        self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.DEPTHMASK )
-        )
-        self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.DEPTHMASK )
-        )
+    --- @return ColorMask
+    function INSTANCE:GetColorMask()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.ColorMask ), shaderShiftConstantsEnum.ColorMask ) --[[@as ColorMask]]
     end
 
-    --- @param flag ColorWrite
-    function INSTANCE:SetColorMask( flag )
-        self.ColorMask = flag
-
-        self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.COLORMASK )
-        )
-        self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.COLORMASK )
-        )
+    --- @return DetailAlphaFunc
+    function INSTANCE:GetPostDetailAlphaFunc()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.PostDetailAlphaFunc ), shaderShiftConstantsEnum.PostDetailAlphaFunc ) --[[@as DetailAlphaFunc]]
     end
+
+    --- @return DetailColorFunc
+    function INSTANCE:GetPostDetailColorFunc()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.PostDetailColorFunc ), shaderShiftConstantsEnum.PostDetailColorFunc ) --[[@as DetailColorFunc]]
+    end
+
+    --- @return AlphaTest
+    function INSTANCE:GetAlphaTest()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.AlphaTest ), shaderShiftConstantsEnum.AlphaTest ) --[[@as AlphaTest]]
+    end
+
+    --- @return CullMode
+    function INSTANCE:GetCullMode()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.CullMode ), shaderShiftConstantsEnum.CullMode ) --[[@as CullMode]]
+    end
+
+    --- @return DstBlendFunc
+    function INSTANCE:GetDstBlendFunc()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.DstBlend ), shaderShiftConstantsEnum.DstBlend ) --[[@as DstBlendFunc]]
+    end
+
+    --- @return FogFunc
+    function INSTANCE:GetFogFunc()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.Fog ), shaderShiftConstantsEnum.Fog ) --[[@as FogFunc]]
+    end
+
+    --- @return PrimaryGradient
+    function INSTANCE:GetPrimaryGradient()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.PrimaryGradient ), shaderShiftConstantsEnum.PrimaryGradient ) --[[@as PrimaryGradient]]
+    end
+
+    --- @return SecondaryGradient
+    function INSTANCE:GetSecondaryGradient()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.SecondaryGradient ), shaderShiftConstantsEnum.SecondaryGradient ) --[[@as SecondaryGradient]]
+    end
+
+    --- @return SrcBlendFunc
+    function INSTANCE:GetSrcBlendFunc()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.SrcBlend ), shaderShiftConstantsEnum.SrcBlend ) --[[@as SrcBlendFunc]]
+    end
+
+    --- @return Materialing
+    function INSTANCE:GetMaterialing()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.Materialing ), shaderShiftConstantsEnum.Materialing ) --[[@as Materialing]]
+    end
+
+    --- @return NPatch
+    function INSTANCE:GetNPatchEnable()
+        return bit.rshift( bit.band( self.ShaderBits, maskEnum.NPatchEnable ), shaderShiftConstantsEnum.NPatchEnable ) --[[@as NPatch]]
+    end
+end
+
+--[[ Bitflag Setters ]] do
 
     --- @param flag DepthCompare
     function INSTANCE:SetDepthCompare( flag )
         self.DepthCompare = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.DEPTHCOMPARE )
+            bit.bnot( maskEnum.DepthCompare )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.DEPTHCOMPARE )
+            bit.lshift( flag, shaderShiftConstantsEnum.DepthCompare )
+        )
+    end
+
+    --- @param flag DepthMask
+    function INSTANCE:SetDepthMask( flag )
+        self.DepthMask = flag
+
+        self.ShaderBits = bit.band( self.ShaderBits,
+            bit.bnot( maskEnum.DepthMask )
+        )
+        self.ShaderBits = bit.bor( self.ShaderBits,
+            bit.lshift( flag, shaderShiftConstantsEnum.DepthMask )
+        )
+    end
+
+    --- @param flag ColorMask
+    function INSTANCE:SetColorMask( flag )
+        self.ColorMask = flag
+
+        self.ShaderBits = bit.band( self.ShaderBits,
+            bit.bnot( maskEnum.ColorMask )
+        )
+        self.ShaderBits = bit.bor( self.ShaderBits,
+            bit.lshift( flag, shaderShiftConstantsEnum.ColorMask )
         )
     end
 
@@ -353,10 +456,10 @@ end
         self.DstBlendFunc = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.DSTBLEND )
+            bit.bnot( maskEnum.DstBlend )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.DSTBLEND )
+            bit.lshift( flag, shaderShiftConstantsEnum.DstBlend )
         )
     end
 
@@ -365,10 +468,10 @@ end
         self.SrcBlendFunc = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.SRCBLEND )
+            bit.bnot( maskEnum.SrcBlend )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.SRCBLEND )
+            bit.lshift( flag, shaderShiftConstantsEnum.SrcBlend )
         )
     end
 
@@ -377,10 +480,10 @@ end
         self.FogFunc = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.FOG )
+            bit.bnot( maskEnum.Fog )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.FOG )
+            bit.lshift( flag, shaderShiftConstantsEnum.Fog )
         )
     end
 
@@ -389,10 +492,10 @@ end
         self.PrimaryGradient = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.PRIMARYGRADIENT )
+            bit.bnot( maskEnum.PrimaryGradient )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.PRIMARYGRADIENT )
+            bit.lshift( flag, shaderShiftConstantsEnum.PrimaryGradient )
         )
     end
 
@@ -401,10 +504,10 @@ end
         self.SecondaryGradient = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.SECONDARYGRADIENT )
+            bit.bnot( maskEnum.SecondaryGradient )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.SECONDARYGRADIENT )
+            bit.lshift( flag, shaderShiftConstantsEnum.SecondaryGradient )
         )
     end
 
@@ -413,10 +516,10 @@ end
         self.Materialing = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.MATERIALING )
+            bit.bnot( maskEnum.Materialing )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.MATERIALING )
+            bit.lshift( flag, shaderShiftConstantsEnum.Materialing )
         )
     end
 
@@ -425,10 +528,10 @@ end
         self.AlphaTest = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.ALPHATEST )
+            bit.bnot( maskEnum.AlphaTest )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.ALPHATEST )
+            bit.lshift( flag, shaderShiftConstantsEnum.AlphaTest )
         )
     end
 
@@ -437,10 +540,10 @@ end
         self.CullMode = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.CULLMODE )
+            bit.bnot( maskEnum.CullMode )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.CULLMODE )
+            bit.lshift( flag, shaderShiftConstantsEnum.CullMode )
         )
     end
 
@@ -449,10 +552,10 @@ end
         self.PostDetailColorFunc = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.POSTDETAILCOLORFUNC )
+            bit.bnot( maskEnum.PostDetailColorFunc )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.POSTDETAILCOLORFUNC )
+            bit.lshift( flag, shaderShiftConstantsEnum.PostDetailColorFunc )
         )
     end
 
@@ -461,10 +564,10 @@ end
         self.PostDetailAlphaFunc = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.POSTDETAILALPHAFUNC )
+            bit.bnot( maskEnum.PostDetailAlphaFunc )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
-            bit.lshift( flag, SHADER_SHIFT_CONSTANTS.POSTDETAILALPHAFUNC )
+            bit.lshift( flag, shaderShiftConstantsEnum.PostDetailAlphaFunc )
         )
     end
 
@@ -473,8 +576,59 @@ end
         self.NPatchEnable = flag
 
         self.ShaderBits = bit.band( self.ShaderBits,
-            bit.bnot( mask.DEPTHCOMPARE )
+            bit.bnot( maskEnum.DepthCompare )
         )
         self.ShaderBits = bit.bor( self.ShaderBits,
+            bit.lshift( flag, shaderShiftConstantsEnum.DepthCompare )
+        )
+    end
+end
+
+--- @param mat3 W3dMaterial3Struct
+function INSTANCE:InitFromMaterial3( mat3 )
     typecheck.NotImplementedError()
+end
+
+--- "Turn on fog for this shader"  
+--- "Enable most appropriate fog mode (FOG_ENABLE, FOG_SCALE_FRAGMENT, or FOG_WHITE) for given source and destination blends."
+function INSTANCE:EnableFog()
+    local sourceBlendFunc = self:GetSrcBlendFunc()
+
+    local destBlendFunc = self:GetDstBlendFunc()
+
+    if sourceBlendFunc == srcBlendFuncEnum.Zero then
+        if destBlendFunc == dstBlendFuncEnum.SrcColor then
+            self:SetFogFunc( fogFuncEnum.White )
+        else
+            -- Omitted call to ReportUnableToFog()
+        end
+        return
+    elseif sourceBlendFunc == srcBlendFuncEnum.One then
+        local isOpaque   = destBlendFunc == dstBlendFuncEnum.Zero
+        local isAdditive = destBlendFunc == dstBlendFuncEnum.One
+        local isScreen   = destBlendFunc == dstBlendFuncEnum.OneMinusSrcColor
+
+        if isOpaque then
+            self:SetFogFunc( fogFuncEnum.Enable )
+        elseif isAdditive or isScreen then
+            self:SetFogFunc( fogFuncEnum.ScaleFragment )
+        else
+            -- Omitted call to ReportUnableToFog()
+        end
+        return
+    elseif sourceBlendFunc == srcBlendFuncEnum.SrcAlpha then
+        if destBlendFunc == dstBlendFuncEnum.OneMinusSrcAlpha then
+            self:SetFogFunc( fogFuncEnum.Enable )
+        else
+            -- Omitted call to ReportUnableToFog()
+        end
+        return
+    elseif sourceBlendFunc == srcBlendFuncEnum.OneMinusSrcAlpha then
+        if destBlendFunc == dstBlendFuncEnum.SrcAlpha then
+            self:SetFogFunc( fogFuncEnum.Enable )
+        else
+            -- Omitted call to ReportUnableToFog()
+        end
+        return
+    end
 end
