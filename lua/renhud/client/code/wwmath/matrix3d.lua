@@ -12,6 +12,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --- @class Matrix3dInstance
 --- @field Static Matrix3dClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Matrix3d" )
+INSTANCE.IsMatrix3d = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
