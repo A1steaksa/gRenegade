@@ -5,14 +5,12 @@ local CNC = CNC_RENEGADE
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dClass
---- @field Instance Render2dInstance The metatable used by Render2dInstance
 local STATIC = CNC.CreateExport()
 local CLASS = "Render2dClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dInstance
---- @field Statuc Render2dClass The static componenets of this Render2dInstance
 local INSTANCE = robustclass.Register( "Renegade_Render2d" )
 INSTANCE.IsRender2d = true
 STATIC.Instance = INSTANCE
@@ -94,8 +92,7 @@ local colorMaterial = CreateMaterial( "Renegade_2dColorMaterial", "UnlitGeneric"
  	["$model"]          = "1",
  	["$translucent"]    = "1",
  	["$vertexalpha"]    = "1",
- 	["$vertexcolor"]    = "1",
-    ["$nocull"]         = "1",
+ 	["$vertexcolor"]    = "1"
 } )
 
 --- Constructs a new Render2DInstance object

@@ -27,7 +27,7 @@ function LIB.LoadMaterial( shortPath )
     if not cachedValue then
         local filepath = "renhud/" .. shortPath .. ".png"
 
-        local loadedMaterial = Material( filepath, "nocull" ) -- Renegade does not support backface culling
+        local loadedMaterial = Material( filepath, "" )
         loadedMaterial:SetInt( "$gammacolorread", 1 )   -- Disables SRGB conversion of color texture read.  Credit: Noaccess
         loadedMaterial:SetInt( "$linearwrite", 1 )      -- Disables SRGB conversion of shader results.      Credit: Noaccess
 

@@ -308,12 +308,18 @@ function INSTANCE:Apply()
         local srcBlendFunc = srcBlendFuncConverter[ self.SrcBlendFunc ]
         render.OverrideBlend( true, srcBlendFunc, dstBlendFunc, BLENDFUNC_ADD )
     end
+
+    -- "CULLMODE"
+    render.CullMode( self:GetCullMode() and STATIC.PolygonCullMode or MATERIAL_CULLMODE_NONE )
 end
 
 --- Removes overrides set by this shader  
 --- Always apply shaders before unapplying them  
 --- @see ShaderInstance.Apply
 function INSTANCE:Unapply()
+
+    -- Cullmode
+    render.CullMode( MATERIAL_CULLMODE_CCW )
 
     --[[ Blending ]] do
 
