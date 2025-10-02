@@ -111,14 +111,25 @@ INSTANCE.Static = STATIC
         --- @param input Vector
         --- @return Vector
         function STATIC.InverseTransformVector( transformationMatrix, input )
-            typecheck.NotImplementedError( "InverseTransformVector" )
+            local row = transformationMatrix.Row
+            local diff = Vector(
+                input.x - row[1][4],
+                input.y - row[2][4],
+                input.z - row[3][4]
+            )
+            return STATIC.InverseRotateVector( transformationMatrix, diff )
         end
 
         --- @param transformationMatrix Matrix3dInstance
         --- @param input Vector
         --- @return Vector
         function STATIC.InverseRotateVector( transformationMatrix, input )
-            typecheck.NotImplementedError( "InverseRotateVector" )
+            local row = transformationMatrix.Row
+            return Vector(
+                row[1][1] * input.x + row[2][1] * input.y + row[3][1] * input.z,
+                row[1][2] * input.x + row[2][2] * input.y + row[3][2] * input.z,
+                row[1][3] * input.x + row[2][3] * input.y + row[3][3] * input.z
+            )
         end
     end
 
@@ -371,6 +382,21 @@ function INSTANCE:Renegade_Matrix3d( ... )
         self.Row[3]:Set( args[9], args[10], args[11], args[12] )
         return
     end
+end
+
+--- Directly converts this Renegade Matrix3d into a Garry's Mod VMatrix
+--- @return VMatrix
+function INSTANCE:AsVMatrix()
+    local row = self.Row
+    local row1 = row[1]
+    local row2 = row[2]
+    local row3 = row[3]
+    return Matrix( {
+        { row1.x, row1.y, row1.z, row1.w },
+        { row2.x, row2.y, row2.z, row2.w },
+        { row3.x, row3.y, row3.z, row3.w },
+        { 0,      0,      0,      1      }
+    } )
 end
 
 --- @overload fun( self: Matrix3dClass, pos: Vector ): nil
