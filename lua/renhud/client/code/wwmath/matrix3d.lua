@@ -417,11 +417,11 @@ function INSTANCE:Set( ... )
     typecheck.AssertArgCount( CLASS, argCount, { 1, 2, 3, 4, 12 } )
 
     if argCount == 1 then
-        typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "table" } )
+        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "table" } )
 
         -- ( pos: Vector )
-        if typecheck.IsOfType( args[1], "Vector" ) then
-            local pos = args[1] --[[@as Vector]]
+        if typecheck.IsOfType( arg1, "Vector" ) then
+            local pos = arg1 --[[@as Vector]]
 
             self.Row[1]:Set( 1, 0, 0, pos.x )
             self.Row[2]:Set( 0, 1, 0, pos.y )
@@ -430,8 +430,8 @@ function INSTANCE:Set( ... )
         end
 
         -- ( matrixValues: number[] )
-        if typecheck.IsOfType( args[1], "table" ) then
-            local matrixValues = args[1] --[[@as number[] ]]
+        if typecheck.IsOfType( arg1, "table" ) then
+            local matrixValues = arg1 --[[@as number[] ]]
 
             self.Row[1]:Set( matrixValues[1],  matrixValues[2],  matrixValues[3],  matrixValues[4]  )
             self.Row[2]:Set( matrixValues[5],  matrixValues[6],  matrixValues[7],  matrixValues[8]  )
@@ -441,11 +441,11 @@ function INSTANCE:Set( ... )
     end
 
     if argCount == 2 then
-        typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
+        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
 
         -- ( axis: Vector, angle: number )
-        if typecheck.IsOfType( args[1], "Vector" ) then
-            local axis  = args[1] --[[@as Vector]]
+        if typecheck.IsOfType( arg1, "Vector" ) then
+            local axis  = arg1 --[[@as Vector]]
             local angle = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
 
             local cos = math.cos( angle )
@@ -456,11 +456,9 @@ function INSTANCE:Set( ... )
         end
 
         -- ( rotation: Matrix3Instance, pos: Vector )
-        if typecheck.IsOfType( args[1], "Matrix3Instance" ) then
-            typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-
-            local rotation  = args[1] --[[@as Matrix3Instance]]
-            local pos       = args[2] --[[@as Vector]]
+        if typecheck.IsOfType( arg1, "Matrix3Instance" ) then
+            local rotation  = arg1 --[[@as Matrix3Instance]]
+            local pos       = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" ) --[[@as Vector]]
 
             typecheck.NotImplementedError( "( rotation: Matrix3Instance, pos: Vector )" )
 
@@ -468,11 +466,9 @@ function INSTANCE:Set( ... )
         end
 
         -- ( rotation: QuaternionInstance, pos: Vector )
-        if typecheck.IsOfType( args[1], "QuaternionInstance" ) then
-            typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-
-            local rotation  = args[1] --[[@as QuaternionInstance]]
-            local pos       = args[2] --[[@as Vector]]
+        if typecheck.IsOfType( arg1, "QuaternionInstance" ) then
+            local rotation  = arg1 --[[@as QuaternionInstance]]
+            local pos       = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" ) --[[@as Vector]]
 
             self:SetRotation( rotation )
             self:SetTranslation( pos )
@@ -514,15 +510,15 @@ function INSTANCE:Set( ... )
 
     -- ( x: Vector, y: Vector, z: Vector, pos: Vector )
     if argCount == 4 then
-        typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
-        typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-        typecheck.AssertArgType( CLASS, 3, args[3], "Vector" )
-        typecheck.AssertArgType( CLASS, 3, args[4], "Vector" )
+        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
+        local arg2 = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
+        local arg3 = typecheck.AssertArgType( CLASS, 3, args[3], "Vector" )
+        local arg4 = typecheck.AssertArgType( CLASS, 3, args[4], "Vector" )
 
-        local x     = args[1] --[[@as Vector]]
-        local y     = args[2] --[[@as Vector]]
-        local z     = args[3] --[[@as Vector]]
-        local pos   = args[4] --[[@as Vector]]
+        local x     = arg1 --[[@as Vector]]
+        local y     = arg2 --[[@as Vector]]
+        local z     = arg3 --[[@as Vector]]
+        local pos   = arg4 --[[@as Vector]]
 
         self.Row[1]:Set( x.x, y.x, z.x, pos.x )
         self.Row[2]:Set( x.y, y.y, z.y, pos.y )
@@ -536,35 +532,20 @@ function INSTANCE:Set( ... )
     --    m31: number, m32: number, m33: number, m34: number
     -- )
     if argCount == 12 then
-        typecheck.AssertArgType( CLASS, 1, args[1], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 3, args[3], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 4, args[4], "number" ) --[[@as number]]
+        local m11 = typecheck.AssertArgType( CLASS, 1, args[1], "number" ) --[[@as number]]
+        local m12 = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
+        local m13 = typecheck.AssertArgType( CLASS, 3, args[3], "number" ) --[[@as number]]
+        local m14 = typecheck.AssertArgType( CLASS, 4, args[4], "number" ) --[[@as number]]
 
-        typecheck.AssertArgType( CLASS, 5, args[5], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 6, args[6], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 7, args[7], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 8, args[8], "number" ) --[[@as number]]
+        local m21 = typecheck.AssertArgType( CLASS, 5, args[5], "number" ) --[[@as number]]
+        local m22 = typecheck.AssertArgType( CLASS, 6, args[6], "number" ) --[[@as number]]
+        local m23 = typecheck.AssertArgType( CLASS, 7, args[7], "number" ) --[[@as number]]
+        local m24 = typecheck.AssertArgType( CLASS, 8, args[8], "number" ) --[[@as number]]
 
-        typecheck.AssertArgType( CLASS, 9,  args[9],  "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 10, args[10], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 11, args[11], "number" ) --[[@as number]]
-        typecheck.AssertArgType( CLASS, 12, args[12], "number" ) --[[@as number]]
-
-        local m11 = args[1] --[[@as number]]
-        local m12 = args[2] --[[@as number]]
-        local m13 = args[3] --[[@as number]]
-        local m14 = args[4] --[[@as number]]
-
-        local m21 = args[5] --[[@as number]]
-        local m22 = args[6] --[[@as number]]
-        local m23 = args[7] --[[@as number]]
-        local m24 = args[8] --[[@as number]]
-
-        local m31 = args[9]  --[[@as number]]
-        local m32 = args[10] --[[@as number]]
-        local m33 = args[11] --[[@as number]]
-        local m34 = args[12] --[[@as number]]
+        local m31 = typecheck.AssertArgType( CLASS, 9,  args[9],  "number" ) --[[@as number]]
+        local m32 = typecheck.AssertArgType( CLASS, 10, args[10], "number" ) --[[@as number]]
+        local m33 = typecheck.AssertArgType( CLASS, 11, args[11], "number" ) --[[@as number]]
+        local m34 = typecheck.AssertArgType( CLASS, 12, args[12], "number" ) --[[@as number]]
 
         self.Row[1]:Set( m11, m12, m13, m14 )
         self.Row[2]:Set( m21, m22, m23, m24 )

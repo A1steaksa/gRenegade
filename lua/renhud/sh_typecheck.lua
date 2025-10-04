@@ -92,6 +92,7 @@ end
         --- @param argNumber integer
         --- @param arg any
         --- @param expectedArgTypes string|string[]
+        --- @return any arg The arg value that was passed in
         function LIB.AssertArgType( className, argNumber, arg, expectedArgTypes )
             local functionName = LIB.GetCallerFunctionName()
 
@@ -101,6 +102,8 @@ end
             if not LIB.IsOfType( arg, expectedTypes ) then
                 LIB.ArgumentTypeError( className, functionName, argNumber, LIB.GetType( arg ), expectedTypes  )
             end
+
+            return arg
         end
 
         --- Throws an error with the number of arguments a function received
