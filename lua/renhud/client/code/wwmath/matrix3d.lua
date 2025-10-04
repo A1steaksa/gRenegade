@@ -777,6 +777,7 @@ end
         row[3]:Set( 0, 0, 1, 0 )
     end
 
+    --- "Post-Multiplies the matrix by a translation matrix"
     --- @overload fun( x: number, y: number, z: number ): nil
     --- @overload fun( translation: Vector ): nil
     function INSTANCE:Translate( ... )
@@ -813,21 +814,34 @@ end
         row[3][4] = row[3][4] + row[3][1] * x + row[3][2] * y + row[3][3] * z
     end
 
+    --- "Post-Multiplies the matrix by a translation matrix with X only"
     --- @param x number
     function INSTANCE:TranslateX( x )
-        typecheck.NotImplementedError( "TranslateX" )
+        local row = self.Row
+        row[1][4] = row[1][4] + row[1][1] * x
+        row[2][4] = row[2][4] + row[2][1] * x
+        row[3][4] = row[3][4] + row[3][1] * x
     end
 
+    --- "Post-Multiplies the matrix by a translation matrix with Y only"
     --- @param y number
     function INSTANCE:TranslateY( y )
-        typecheck.NotImplementedError( "TranslateY" )
+        local row = self.Row
+        row[1][4] = row[1][4] + row[1][2] * y
+        row[2][4] = row[2][4] + row[2][2] * y
+        row[3][4] = row[3][4] + row[3][2] * y
     end
 
+    --- "Post-Multiplies the matrix by a translation matrix with Z only"
     --- @param z number
     function INSTANCE:TranslateZ( z )
-        typecheck.NotImplementedError( "TranslateZ" )
+        local row = self.Row
+        row[1][4] = row[1][4] + row[1][3] * z
+        row[2][4] = row[2][4] + row[2][3] * z
+        row[3][4] = row[3][4] + row[3][3] * z
     end
 
+    --- "Post-Multiplies the matrix by a rotation about the X axis"
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:RotateX( ... )
@@ -875,6 +889,7 @@ end
         row[3][3] = ( -sine   * temp1 + cosine * temp2 )
     end
 
+    --- "Post-multiplies the matrix by a rotation about the Y axis"
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:RotateY( ... )
@@ -922,6 +937,7 @@ end
         row[3][3] = ( sine   * temp1 + cosine * temp2 )
     end
 
+    --- "Post-multiplies the matrix by a rotation about Z" 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:RotateZ( ... )
@@ -973,16 +989,68 @@ end
 --[[ Scale ]] do
 
     --[[
-        "Use Scale methods with Extreme Caution
-        The Matrix Inverse function, only works
-        with Orthogonal Matrices, for optimization purposes"
+
     --]]
 
+    --- "Scales each Axis"  
+    --- > **"**  
+    --- > *Use Scale methods with Extreme Caution*  
+    --- > *The Matrix Inverse function, only works*  
+    --- > *with Orthogonal Matrices, for optimization purposes*  
+    --- > **"**
     --- @overload fun( scale: number ): nil
     --- @overload fun( scale: Vector ): nil
     --- @overload fun( x: number, y: number, z: number ): nil
     function INSTANCE:Scale( ... )
-        typecheck.NotImplementedError( "Scale" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 3 } )
+
+        local arg1 = args[1]
+
+        local xScalar, yScalar, zScalar
+
+        if argCount == 1 then
+
+            --- ( scale: number ): nil
+            if typecheck.IsOfType( arg1, "number" ) then
+                local scale = arg1 --[[@as number]]
+                -- "Uniform scale all 3 axis"
+                xScalar = scale
+                yScalar = scale
+                zScalar = scale
+
+            --- ( scale: Vector ): nil
+            else
+                local scale = arg1 --[[@as Vector]]
+                -- "Scale each axis"
+                xScalar = scale.x
+                yScalar = scale.y
+                zScalar = scale.z
+            end
+
+        --- ( x:number, y: number, z: number ): nil
+        else
+            -- "Separate input for each axis"
+            xScalar = arg1 --[[@as number]]
+            yScalar = args[2] --[[@as number]]
+            zScalar = args[3] --[[@as number]]
+        end
+
+        local row = self.Row
+
+        -- "X"
+        row[1][1] = row[1][1] * xScalar
+        row[2][1] = row[2][1] * xScalar
+        row[3][1] = row[3][1] * xScalar
+        -- "Y"
+        row[1][2] = row[1][2] * yScalar
+        row[2][2] = row[2][2] * yScalar
+        row[3][2] = row[3][2] * yScalar
+        -- "Z"
+        row[1][3] = row[1][3] * zScalar
+        row[2][3] = row[2][3] * zScalar
+        row[3][3] = row[3][3] * zScalar
     end
 end
 
