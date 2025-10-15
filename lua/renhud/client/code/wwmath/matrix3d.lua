@@ -384,6 +384,29 @@ function INSTANCE:Renegade_Matrix3d( ... )
     end
 end
 
+local math_round = math.Round
+
+--- @param self Matrix3dInstance
+--- @return string
+function INSTANCE:__tostring()
+    local str = ""
+    local rows = self.Row
+
+    for i = 1, 4 do
+        local row = rows[i]
+        str = str .. "[" ..
+            math_round( row.x, 2 ) .. ",\t" ..
+            math_round( row.y, 2 ) .. ",\t" ..
+            math_round( row.z, 2 ) .. ",\t" ..
+            math_round( row.w, 2 ) ..
+        "]"
+
+        if i ~= 4 then str = str .. "\n" end
+    end
+
+    return str
+end
+
 --- Directly converts this Renegade Matrix3d into a Garry's Mod VMatrix
 --- @return VMatrix
 function INSTANCE:AsVMatrix()
@@ -1046,13 +1069,105 @@ end
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:PreRotateX( ... )
-        typecheck.NotImplementedError( "PreRotateX" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+
+        --- @type number, number
+        local sine, cosine
+
+        -- ( theta: number )
+        if argCount == 1 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+
+            local theta = args[1] --[[@as number]]
+
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
+
+        -- ( sine: number, cosine: number )
+        if argCount == 2 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
+        end
+
+        local row = self.Row
+
+		local temp1 = row[2][1]
+		local temp2 = row[3][1]
+		row[2][1] = ( cosine * temp1 - sine * temp2 )
+		row[3][1] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[2][2]
+		temp2 = row[3][2]
+		row[2][2] = ( cosine * temp1 - sine * temp2 )
+		row[3][2] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[2][3]
+		temp2 = row[3][3]
+		row[2][3] = ( cosine * temp1 - sine * temp2 )
+		row[3][3] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[2][4]
+		temp2 = row[3][4]
+		row[2][4] = ( cosine * temp1 - sine * temp2 )
+		row[3][4] = ( sine * temp1 + cosine * temp2 )
     end
 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:PreRotateY( ... )
-        typecheck.NotImplementedError( "PreRotateY" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+
+        --- @type number, number
+        local sine, cosine
+
+        -- ( theta: number )
+        if argCount == 1 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+
+            local theta = args[1] --[[@as number]]
+
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
+
+        -- ( sine: number, cosine: number )
+        if argCount == 2 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
+        end
+
+        local row = self.Row
+
+        local temp1 = row[1][1]
+		local temp2 = row[3][1]
+		row[1][1] = (  cosine * temp1 + sine   * temp2 )
+		row[3][1] = ( -sine   * temp1 + cosine * temp2 )
+
+		temp1 = row[1][2]
+		temp2 = row[3][2]
+		row[1][2] = ( cosine * temp1 + sine   * temp2 )
+		row[3][2] = (  -sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][3]
+		temp2 = row[3][3]
+		row[1][3] = ( cosine * temp1 + sine   * temp2 )
+		row[3][3] = (  -sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][4]
+		temp2 = row[3][4]
+		row[1][4] = ( cosine * temp1 + sine   * temp2 )
+		row[3][4] = ( -sine  * temp1 + cosine * temp2 )
     end
 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
@@ -1063,68 +1178,189 @@ end
         typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
 
         --- @type number, number
-        local sin, cos
+        local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
             typecheck.AssertArgType( CLASS, 1, args[1], "number" )
 
-            local theta = tonumber( args[1] ) --[[@as number]]
+            local theta = args[1] --[[@as number]]
 
-            cos = math.cos( theta )
-            sin = math.sin( theta )
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
 
         -- ( sine: number, cosine: number )
-        elseif argCount == 2 then
+        if argCount == 2 then
             typecheck.AssertArgType( CLASS, 1, args[1], "number" )
             typecheck.AssertArgType( CLASS, 2, args[2], "number" )
 
-            sin = args[1] --[[@as number]]
-            cos = args[2] --[[@as number]]
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
         end
 
         local row = self.Row
 
-        --- @type number, number
-        local temp1, temp2
+		local temp1 = row[1][1]
+		local temp2 = row[2][1]
+		row[1][1] = ( cosine * temp1 - sine * temp2 )
+		row[2][1] = ( sine * temp1 + cosine * temp2 )
 
-        temp1 = row[1][1]
-        temp2 = row[2][1]
-        row[1][1] = cos * temp1 - sin * temp2
-        row[2][1] = sin * temp1 + cos * temp2
+		temp1 = row[1][2]
+		temp2 = row[2][2]
+		row[1][2] = ( cosine * temp1 - sine * temp2 )
+		row[2][2] = ( sine * temp1 + cosine * temp2 )
 
-        temp1 = row[1][2]
-        temp2 = row[2][2]
-        row[1][2] = cos * temp1 - sin * temp2
-        row[2][2] = sin * temp1 + cos * temp2
+		temp1 = row[1][3]
+		temp2 = row[2][3]
+		row[1][3] = ( cosine * temp1 - sine * temp2 )
+		row[2][3] = ( sine * temp1 + cosine * temp2 )
 
-        temp1 = row[1][3]
-        temp2 = row[2][3]
-        row[1][3] = cos * temp1 - sin * temp2
-        row[2][3] = sin * temp1 + cos * temp2
-
-        temp1 = row[1][4]
-        temp2 = row[2][4]
-        row[1][4] = cos * temp1 - sin * temp2
-        row[2][4] = sin * temp1 + cos * temp2
+		temp1 = row[1][4]
+		temp2 = row[2][4]
+		row[1][4] = ( cosine * temp1 - sine * temp2 )
+		row[2][4] = ( sine * temp1 + cosine * temp2 )
     end
 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:InPlacePreRotateX( ... )
-        typecheck.NotImplementedError( "InPlacePreRotateX" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+
+        --- @type number, number
+        local sine, cosine
+
+        -- ( theta: number )
+        if argCount == 1 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+
+            local theta = args[1] --[[@as number]]
+
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
+
+        -- ( sine: number, cosine: number )
+        if argCount == 2 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
+        end
+
+        local row = self.Row
+
+		local temp1 = row[2][1]
+		local temp2 = row[3][1]
+		row[2][1] = ( cosine * temp1 - sine * temp2 )
+		row[3][1] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[2][2]
+		temp2 = row[3][2]
+		row[2][2] = ( cosine * temp1 - sine * temp2 )
+		row[3][2] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[2][3]
+		temp2 = row[3][3]
+		row[2][3] = ( cosine * temp1 - sine * temp2 )
+		row[3][3] = ( sine * temp1 + cosine * temp2 )
     end
 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:InPlacePreRotateY( ... )
-        typecheck.NotImplementedError( "InPlacePreRotateY" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+
+        --- @type number, number
+        local sine, cosine
+
+        -- ( theta: number )
+        if argCount == 1 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+
+            local theta = args[1] --[[@as number]]
+
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
+
+        -- ( sine: number, cosine: number )
+        if argCount == 2 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
+        end
+
+        local row = self.Row
+
+        local temp1 = row[1][1]
+		local temp2 = row[3][1]
+		row[1][1] = ( cosine * temp1 + sine * temp2 )
+		row[3][1] = ( -sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][2]
+		temp2 = row[3][2]
+		row[1][2] = ( cosine * temp1 + sine * temp2 )
+		row[3][2] = ( -sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][3]
+		temp2 = row[3][3]
+		row[1][3] = ( cosine * temp1 + sine * temp2 )
+		row[3][3] = ( -sine * temp1 + cosine * temp2 )
     end
 
     --- @overload fun( self: Matrix3dInstance, theta: number ): nil
     --- @overload fun( self: Matrix3dInstance, sine: number, cosine: number ): nil
     function INSTANCE:InPlacePreRotateZ( ... )
-        typecheck.NotImplementedError( "InPlacePreRotateZ" )
+        local args = { ... }
+        local argCount = select( "#", ... )
+        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+
+        --- @type number, number
+        local sine, cosine
+
+        -- ( theta: number )
+        if argCount == 1 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+
+            local theta = args[1] --[[@as number]]
+
+            sine   = math.sin( theta )
+            cosine = math.cos( theta )
+        end
+
+        -- ( sine: number, cosine: number )
+        if argCount == 2 then
+            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+
+            sine   = args[1] --[[@as number]]
+            cosine = args[2] --[[@as number]]
+        end
+
+        local row = self.Row
+
+		local temp1 = row[1][1]
+		local temp2 = row[2][1]
+		row[1][1] = ( cosine * temp1 - sine * temp2 )
+		row[2][1] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][2]
+		temp2 = row[2][2]
+		row[1][2] = ( cosine * temp1 - sine * temp2 )
+		row[2][2] = ( sine * temp1 + cosine * temp2 )
+
+		temp1 = row[1][3]
+		temp2 = row[2][3]
+		row[1][3] = ( cosine * temp1 - sine * temp2 )
+		row[2][3] = ( sine * temp1 + cosine * temp2 )
     end
 end
 
