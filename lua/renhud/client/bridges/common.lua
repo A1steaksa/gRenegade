@@ -92,11 +92,12 @@ function LIB.IsNeutral( ent, otherEnt )
     return true
 end
 
---- Create a transformation matrix to represent a given position and angle
+--- Create a transformation matrix in Renegade's coordinate space to represent a given position and angle in Source's coordinate space
 --- @param pos Vector
 --- @param ang Angle
 --- @return Matrix3dInstance
-function LIB.CreateTransform( pos, ang )
+function LIB.CreateRenegadeTransform( pos, ang )
+    -- Create a new matrix starting with identity
     local matrix = matrix3d.New( false )
     local row = matrix.Row
     local row1, row2, row3 = row[1], row[2], row[3]
@@ -129,14 +130,14 @@ end
 --- @param ent Entity
 --- @return Matrix3dInstance
 function LIB.GetTransform( ent )
-    return LIB.CreateTransform( ent:GetPos(), ent:GetAngles() )
+    return LIB.CreateRenegadeTransform( ent:GetPos(), ent:GetAngles() )
 end
 
 --- Gets a transformation matrix that represents the local player's current viewpoint
 --- @return Matrix3dInstance
 function LIB.GetCameraTransform()
     local viewSetup = render.GetViewSetup() --[[@as ViewSetup]]
-    return LIB.CreateTransform( viewSetup.origin, viewSetup.angles )
+    return LIB.CreateRenegadeTransform( viewSetup.origin, viewSetup.angles )
 end
 
 --- Gets a transformation matrix that represents the local player's current position and rotation
@@ -144,7 +145,7 @@ function LIB.GetPlayerTransform()
     local viewSetup = render.GetViewSetup() --[[@as ViewSetup]]
     viewSetup.angles.pitch = 0
     viewSetup.angles.roll  = 0
-    return LIB.CreateTransform( viewSetup.origin, viewSetup.angles )
+    return LIB.CreateRenegadeTransform( viewSetup.origin, viewSetup.angles )
 end
 
 --- [[ Private ]]
