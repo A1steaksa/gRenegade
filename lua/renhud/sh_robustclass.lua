@@ -278,13 +278,6 @@ function robustclass.Register( reginput )
 	-- Store the class in the registry
 	RegisterMetaTable( classname, CLASS )
 
-	-- A global create-wrapper
-	_G[classname] = function( ... )
-
-		return robustclass.Create( classname, ... )
-
-	end
-
 	return CLASS
 
 end
