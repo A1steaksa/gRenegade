@@ -21,6 +21,9 @@ INSTANCE.Static = STATIC
 
     --- @type Vector4
     local vector4 = CNC.Import( "renhud/client/code/wwmath/vector4.lua" )
+
+    --- @type WWMathClass
+    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 -- #endregion
 
 --[[
@@ -291,7 +294,7 @@ function INSTANCE:Renegade_Matrix3d( ... )
             row3[2] = otherRow3[2]
             row3[3] = otherRow3[3]
             row3[4] = otherRow3[4]
-            
+
             return
         end
     end
@@ -753,21 +756,22 @@ end
     --- @return number
     function INSTANCE:GetXRotation()
         local row = self.Row
-        return math.atan2( row[3][2], row[2][2] )
+
+        return wwmath.Atan2( row[3][2], row[2][2] )
     end
 
     --- "Approximates the rotation about the Y axis"
     --- @return number
     function INSTANCE:GetYRotation()
         local row = self.Row
-        return math.atan2( row[1][3], row[3][3] )
+        return wwmath.Atan2( row[1][3], row[3][3] )
     end
 
     --- "Approximates the rotation about the Z axis"
     --- @return number
     function INSTANCE:GetZRotation()
         local row = self.Row
-        return math.atan2( row[2][1], row[1][1] )
+        return mathLib.Atan2( row[2][1], row[1][1] )
     end
 end
 
@@ -862,6 +866,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -875,7 +882,26 @@ end
             cosine = args[2] --[[@as number]]
         end
 
+        -- Don't allow -0 to exist
+        if sine == -sine   then sine = math.abs( sine ) end
+        if cosine == -sine then sine = math.abs( sine ) end
+
         local row = self.Row
+
+        -- local temp1 = row[1][2]
+        -- local temp2 = row[1][3]
+        -- row[1][2] = (  cosine * temp1 + sine   * temp2 )
+        -- row[1][3] = ( -sine   * temp1 + cosine * temp2 )
+
+        -- temp1 = row[2][2]
+        -- temp2 = row[2][3]
+        -- row[2][2] = (  cosine * temp1 + sine   * temp2 )
+        -- row[2][3] = ( -sine   * temp1 + cosine * temp2 )
+
+        -- temp1 = row[3][2]
+        -- temp2 = row[3][3]
+        -- row[3][2] = (  cosine * temp1 + sine   * temp2 )
+        -- row[3][3] = ( -sine   * temp1 + cosine * temp2 )
 
         local temp1 = row[1][2]
         local temp2 = row[1][3]
@@ -883,7 +909,7 @@ end
         row[1][3] = ( -sine   * temp1 + cosine * temp2 )
 
         temp1 = row[2][2]
-        temp2 = row[2][3];
+        temp2 = row[2][3]
         row[2][2] = (  cosine * temp1 + sine   * temp2 )
         row[2][3] = ( -sine   * temp1 + cosine * temp2 )
 
@@ -910,6 +936,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -925,13 +954,28 @@ end
 
         local row = self.Row
 
+        -- local temp1 = row[1][1]
+        -- local temp2 = row[1][3]
+        -- row[1][1] = ( cosine * temp1 - sine   * temp2 )
+        -- row[1][3] = ( sine   * temp1 + cosine * temp2 )
+
+        -- temp1 = row[2][1]
+        -- temp2 = row[2][3]
+        -- row[2][1] = ( cosine * temp1 - sine   * temp2 )
+        -- row[2][3] = ( sine   * temp1 + cosine * temp2 )
+
+        -- temp1 = row[3][1]
+        -- temp2 = row[3][3]
+        -- row[3][1] = ( cosine * temp1 - sine   * temp2 )
+        -- row[3][3] = ( sine   * temp1 + cosine * temp2 )
+
         local temp1 = row[1][1]
         local temp2 = row[1][3]
         row[1][1] = ( cosine * temp1 - sine   * temp2 )
         row[1][3] = ( sine   * temp1 + cosine * temp2 )
 
         temp1 = row[2][1]
-        temp2 = row[2][3];
+        temp2 = row[2][3]
         row[2][1] = ( cosine * temp1 - sine   * temp2 )
         row[2][3] = ( sine   * temp1 + cosine * temp2 )
 
@@ -958,6 +1002,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -979,7 +1026,7 @@ end
         row[1][2] = ( -sine   * temp1 + cosine * temp2 )
 
         temp1 = row[2][1]
-        temp2 = row[2][2];
+        temp2 = row[2][2]
         row[2][1] = (  cosine * temp1 + sine   * temp2 )
         row[2][2] = ( -sine   * temp1 + cosine * temp2 )
 
@@ -1082,6 +1129,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -1133,6 +1183,9 @@ end
             typecheck.AssertArgType( CLASS, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
+            
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
 
             sine   = math.sin( theta )
             cosine = math.cos( theta )
@@ -1186,6 +1239,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -1238,6 +1294,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -1285,6 +1344,9 @@ end
 
             local theta = args[1] --[[@as number]]
 
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
+
             sine   = math.sin( theta )
             cosine = math.cos( theta )
         end
@@ -1331,6 +1393,9 @@ end
             typecheck.AssertArgType( CLASS, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
+
+            -- Convert -0 to 0
+            if theta == -theta then theta = math.abs( theta ) end
 
             sine   = math.sin( theta )
             cosine = math.cos( theta )
