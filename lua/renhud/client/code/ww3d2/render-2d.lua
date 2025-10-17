@@ -16,6 +16,8 @@ INSTANCE.IsRender2d = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
+-- Don't bother with the rest of this class if we're being executed on the server
+if not CLIENT then return end
 
 --#region Imports
 

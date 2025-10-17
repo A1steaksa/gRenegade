@@ -69,6 +69,8 @@ local isHotload = not table.IsEmpty( STATIC )
     local directionEnum = STATIC.DIRECTION
 --#endregion
 
+-- Don't bother with the rest of this class if we're being executed on the server
+if not CLIENT then return end
 
 --#region Imports
 
