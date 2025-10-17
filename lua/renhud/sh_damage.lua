@@ -7,7 +7,7 @@ local LIB = CNC.CreateExport()
 local CLASS = "DamageLib"
 local isHotload = not table.IsEmpty( LIB )
 
---#region Enums
+--#region Exported Enums
 
     --- @enum DamageDirection
     LIB.DAMAGE_DIRECTION = {

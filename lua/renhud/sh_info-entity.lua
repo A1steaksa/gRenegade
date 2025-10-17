@@ -25,7 +25,7 @@ local dispositionEnum = LIB.DISPOSITION
 local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
 
 --- @type AABoxClass
-local aABox = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
+local aABoxClass = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
 
 --- @type CameraBridgeClass
 local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua" )
@@ -1082,7 +1082,7 @@ function LIB.GetEntityLocalBoundingBox( ent )
 
     local extent = ( maxs - mins ) / 2
 
-    local boundingBox = aABox.New( center, extent )
+    local boundingBox = aABoxClass.New( center, extent )
 
     return boundingBox
 end
@@ -1100,7 +1100,7 @@ function LIB.GetEntityWorldBoundingBox( ent )
 
     local extent = ( maxs - mins ) / 2
 
-    local boundingBox = aABox.New( center, extent )
+    local boundingBox = aABoxClass.New( center, extent )
 
     return boundingBox
 end
