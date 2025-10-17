@@ -90,15 +90,13 @@ end
 
     --- [[ Public ]]
 
-    --- @class Vector4Instance
+    --- @class Vector4Instance : table
     --- @field x number
     --- @field y number
     --- @field z number
     --- @field w number
+    --- @field private Data {x: number, y: number, z: number, w: number}
 
-    function INSTANCE:__tostring()
-        return "Vector4(" .. self.x .. ", " .. self.y .. ", " .. self.z .. ", " .. self.w .. ")"
-    end
 
     --- Constructs a new Vector4Instance
     function INSTANCE:Renegade_Vector4( ... )
@@ -106,6 +104,13 @@ end
         local argCount = select( "#", ... )
 
         typecheck.AssertArgCount( CLASS, argCount, { 0, 1, 4 } )
+
+        self.Data = {
+            x = 0,
+            y = 0,
+            z = 0,
+            w = 0
+        }
 
         -- ()
         if argCount == 0 then
@@ -156,15 +161,36 @@ end
 
     --[[ Operators ]] do
 
-        --- Array accessors
+        --- Getting values
         --- @param self Vector4Instance
         --- @param key any
+        --- @return any
         function INSTANCE.__index( self, key )
-            if key == 1 then return rawget( self, "x" ) end
-            if key == 2 then return rawget( self, "y" ) end
-            if key == 3 then return rawget( self, "z" ) end
-            if key == 4 then return rawget( self, "w" ) end
+            local data = rawget( self, "Data" )
+            if key == "x" or key == 1 then return data.x end
+            if key == "y" or key == 2 then return data.y end
+            if key == "z" or key == 3 then return data.z end
+            if key == "w" or key == 4 then return data.w end
             return rawget( INSTANCE, key )
+        end
+
+        --- Setting values
+        --- @param self Vector4Instance
+        --- @param key any
+        --- @param value any
+        function INSTANCE.__newindex( self, key, value )
+            -- Convert -0 to 0
+            if isnumber( value ) and value == -value then value = math.abs( value ) end
+
+            if key == "Data" then rawset( self, "Data", value ) return end
+
+            local data = rawget( self, "Data" )
+            if key == "x" or key == 1 then data.x = value return end
+            if key == "y" or key == 2 then data.y = value return end
+            if key == "z" or key == 3 then data.z = value return end
+            if key == "w" or key == 4 then data.w = value return end
+
+            rawset( INSTANCE, key, value )
         end
 
         --- Unary negation
@@ -259,6 +285,10 @@ end
                 )
             end
         end
+    end
+
+    function INSTANCE:__tostring()
+        return "Vector4(" .. self.x .. ", " .. self.y .. ", " .. self.z .. ", " .. self.w .. ")"
     end
 
     function INSTANCE:Normalize()
