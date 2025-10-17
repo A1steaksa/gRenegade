@@ -13,5 +13,8 @@
         "/**/"
     ],
     "editor.inlineSuggest.suppressSuggestions": true,
-    "editor.fontFamily": "'Fira Code Retina', 'monospace', monospace"
+    "editor.fontFamily": "'Fira Code Retina', 'monospace', monospace",
+    "Lua.diagnostics.globals": [
+        "MATERIAL_CULLMODE_NONE"
+    ]
 }
