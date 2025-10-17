@@ -14,8 +14,8 @@ debugdraw.ShapeType = {
     Box     = 2,
     Line    = 3,
     Sphere  = 4,
-    Text    = 4,
-    Quad    = 5,
+    Text    = 5,
+    Quad    = 6,
 }
 
 --- Draws the bounding box of a given Entity
