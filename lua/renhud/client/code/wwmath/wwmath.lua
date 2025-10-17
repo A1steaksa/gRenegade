@@ -35,3 +35,9 @@ function STATIC.Wrap( val, min, max )
 
     return val
 end
+
+--- "Inverse square root"
+--- @param val number
+function STATIC.InvSqrt( val )
+    return 1.0 / math.sqrt( val )
+end
