@@ -26,6 +26,12 @@ local isHotload = not table.IsEmpty( LIB )
 --#endregion
 
 
+--#region Imports
+
+    --- @type WWMathClass
+    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+--#endregion
+
 --[[ Networking Damage ]] do
 
     if SERVER then
@@ -173,7 +179,7 @@ local isHotload = not table.IsEmpty( LIB )
             local relativeDirection = commonBridgeClass.GetCameraTransform():InverseRotateVector( directionVector )
 
             -- "Convert direction into 0 .. 7"
-            local angle = math.atan2( relativeDirection.y, -relativeDirection.x )
+            local angle = wwmath.Atan2( relativeDirection.y, -relativeDirection.x )
             local directionInt = math.floor( 8 * angle / math.rad( 360 ) + 8.5 )
 
             combatManager.ShowStarDamageDirection( directionInt )
