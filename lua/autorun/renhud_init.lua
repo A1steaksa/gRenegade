@@ -57,6 +57,15 @@ if SERVER then
     -- Send all fonts to the clients
     resource.AddFile( "resource/fonts/54251___.ttf" )
     resource.AddFile( "resource/fonts/ARI_____.ttf" )
+
+    -- Send shared Lua to the clients
+    IterateFilesRecursively( "renhud/code", "LUA", AddCSLuaFile )
+
+    -- Send test model to clients
+    resource.AddFile( "models/cnc_renegade/vehicles/v_nod_turret.mdl" )
+    resource.AddFile( "materials/models/cnc_renegade/cement5.vmt" )
+    resource.AddFile( "materials/models/cnc_renegade/tur_01.vmt" )
+    resource.AddFile( "materials/models/cnc_renegade/sude3.vmt" )
 end
 
 --[[ Shared ]] do
