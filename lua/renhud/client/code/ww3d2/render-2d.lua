@@ -22,7 +22,7 @@ if not CLIENT then return end
 --#region Imports
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
     --- @type WW3d
     local ww3dClass = CNC.Import( "renhud/client/code/ww3d2/ww3d.lua" )

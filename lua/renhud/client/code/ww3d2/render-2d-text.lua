@@ -30,7 +30,7 @@ end
     local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 --#endregion
 
 

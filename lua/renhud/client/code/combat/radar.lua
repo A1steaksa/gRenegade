@@ -75,7 +75,7 @@ if not CLIENT then return end
 --#region Imports
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
     --- @type Render2dClass
     local render2dClass = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
@@ -93,7 +93,7 @@ if not CLIENT then return end
     local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
     --- @type WWMathClass
-    local wWMathClass = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
+    local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
     --- @type RadarBlipsLib
     local radarBlipsLib = CNC.Import( "renhud/client/cl_radar-blips.lua" )

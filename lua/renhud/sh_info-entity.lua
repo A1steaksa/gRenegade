@@ -25,7 +25,7 @@ local dispositionEnum = LIB.DISPOSITION
 local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
 
 --- @type AABoxClass
-local aABoxClass = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
+local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
 
 --- @type CameraBridgeClass
 local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua" )

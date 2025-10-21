@@ -11,7 +11,7 @@ local CLASS = "CommonBridgeClass"
 --#region Imports
 
     --- @type Matrix3dClass
-    local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
     --- @type PlayerType
     local playerType = CNC.Import( "renhud/client/code/combat/player-type.lua" )
@@ -98,7 +98,7 @@ end
 --- @return Matrix3dInstance
 function LIB.CreateRenegadeTransform( pos, ang )
     -- Create a new matrix starting with identity
-    local matrix = matrix3d.New( false )
+    local matrix = matrix3dClass.New( false )
     local row = matrix.Row
     local row1, row2, row3 = row[1], row[2], row[3]
 

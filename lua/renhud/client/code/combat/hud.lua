@@ -31,7 +31,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
     --- @type StyleManagerClass
     local styleManagerClass = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
@@ -61,13 +61,13 @@ local isHotload = not table.IsEmpty( STATIC )
     local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
     --- @type AABoxClass
-    local aABoxClass = CNC.Import( "renhud/client/code/wwmath/aabox.lua" )
+    local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
 
     --- @type WWMathClass
-    local wWMathClass = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
+    local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
     --- @type PlayerType
     local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )

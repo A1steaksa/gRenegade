@@ -26,22 +26,22 @@ end
 --#region Imports
 
     --- @type CollisionMath
-    local collisionMath = CNC.Import( "renhud/client/code/wwmath/collision-math.lua" )
+    local collisionMath = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
 
     --- @type Viewport
     local viewport = CNC.Import( "renhud/client/code/ww3d2/viewport.lua" )
 
     --- @type Frustum
-    local frustum = CNC.Import( "renhud/client/code/wwmath/frustum.lua" )
+    local frustum = CNC.Import( "renhud/code/wwmath/frustum.lua" )
 
     --- @type Matrix3dClass
-    local matrix3d = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    local matrix3d = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
     --- @type WWMathClass
-    local wWMath = CNC.Import( "renhud/client/code/wwmath/wwmath.lua" )
+    local wWMath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
     --- @type Matrix4
-    local matrix4 = CNC.Import( "renhud/client/code/wwmath/matrix4.lua" )
+    local matrix4 = CNC.Import( "renhud/code/wwmath/matrix4.lua" )
 
     --- @type Render2dClass
     local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )

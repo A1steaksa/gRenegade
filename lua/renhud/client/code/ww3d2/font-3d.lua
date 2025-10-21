@@ -29,7 +29,7 @@ end
     local font3dData = CNC.Import( "renhud/client/code/ww3d2/font-3d-data.lua" )
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/client/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 --#endregion
 
 
