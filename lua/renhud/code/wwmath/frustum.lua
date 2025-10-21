@@ -26,7 +26,7 @@ end
 --#region Imports
 
     --- @type Plane
-    local plane = CNC.Import( "renhud/client/code/wwmath/plane.lua" )
+    local plane = CNC.Import( "renhud/code/wwmath/plane.lua" )
 --#endregion
 
 

@@ -26,10 +26,10 @@ end
 --#region Imports
 
     --- @type Vector4
-    local vector4 = CNC.Import( "renhud/client/code/wwmath/vector4.lua" )
+    local vector4 = CNC.Import( "renhud/code/wwmath/vector4.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/client/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 --#endregion
 
 

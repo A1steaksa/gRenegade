@@ -18,6 +18,9 @@ LIB.SQRT3    = 1.732050808
 LIB.OOSQRT2  = 0.707106781
 LIB.OOSQRT3  = 0.577350269
 
+--- "The largest number rand will return (same as INT_MAX)."
+LIB.RAND_MAX = 2147483647
+
 --- @param val number
 --- @param min number
 --- @param max number
@@ -53,4 +56,19 @@ function LIB.Atan2( y, x )
     if math.IsNearlyEqual( x, 0, 0.01 ) then x = 0 end
 
     return math.atan2( y, x )
+end
+
+--- "Return a random integer between 0 and RAND_MAX inclusive"
+function LIB.Rand()
+    return math.random( 0, LIB.RAND_MAX )
+end
+
+function LIB.RandomFloat()
+    return bit.band( LIB.Rand(), 0xFFF ) / 0xFFF
+end
+
+--- @param x number
+--- @return boolean
+function LIB.IsValidFloat( x )
+    return x == x -- NaN doesn't equal itself
 end

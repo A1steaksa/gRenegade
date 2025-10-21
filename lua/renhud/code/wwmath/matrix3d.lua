@@ -20,7 +20,7 @@ INSTANCE.Static = STATIC
 -- #region Imports
 
     --- @type Vector4
-    local vector4 = CNC.Import( "renhud/client/code/wwmath/vector4.lua" )
+    local vector4 = CNC.Import( "renhud/code/wwmath/vector4.lua" )
 
     --- @type WWMathClass
     local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
@@ -771,7 +771,7 @@ end
     --- @return number
     function INSTANCE:GetZRotation()
         local row = self.Row
-        return mathLib.Atan2( row[2][1], row[1][1] )
+        return wwmath.Atan2( row[2][1], row[1][1] )
     end
 end
 

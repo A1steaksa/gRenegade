@@ -71,8 +71,8 @@ end
     end
 
     --[[ Populate Overlap Test Functions ]] do
-        include( "renhud/client/code/wwmath/collision-math-frustum.lua" )
-        include( "renhud/client/code/wwmath/collision-math-plane.lua" )
+        include( "renhud/code/wwmath/collision-math-frustum.lua" )
+        include( "renhud/code/wwmath/collision-math-plane.lua" )
     end
 
     --- Converts an integer mask value into its corresponding OverlapType

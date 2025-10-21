@@ -8,7 +8,7 @@ local STATIC
 --[[ Class Setup ]] do
 
     --- @class CollisionMath
-   STATIC = CNC.Import( "renhud/client/code/wwmath/collision-math.lua" )
+   STATIC = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
 end
 
 --#region Enums
