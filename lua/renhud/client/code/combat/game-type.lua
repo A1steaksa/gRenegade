@@ -65,7 +65,7 @@ end
 
     --- [[ Private ]]
 
-    --- @class GameType
+    --- @class GameTypeClass
     --- @field GameType GameTypeEnum
 
     STATIC.GameType = gameTypeEnum.NONE
