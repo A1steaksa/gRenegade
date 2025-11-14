@@ -1,0 +1,50 @@
+-- Based on BaseGameObjDef within Code/Combat/basegameobj.cpp/h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+-- Parent Class
+--- @type DefinitionClass
+local PARENT = CNC.Import( "renhud/code/wwsaveload/definition.lua" )
+
+--- @class BaseEntityDefClass : DefinitionClass
+local STATIC = CNC.CreateExport()
+local CLASS = "BaseEntityDefClass"
+local isHotload = not table.IsEmpty( STATIC )
+
+--- @class BaseEntityDefInstance : DefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_BaseEntityDefClass" )
+INSTANCE.IsBaseEntityDefClass = true
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+
+
+--[[ Static Functions and Variables ]] do
+
+    --- @class BaseEntityDefClass
+
+    --- Creates a new BaseEntityDefClass
+    --- @vararg any
+    --- @return BaseEntityDefClass
+    function STATIC.New( ... )
+        return robustclass.New( "Renegade_BaseEntityDefClass", ... )
+    end
+
+    --- @param arg any
+    --- @return boolean `true` if the passed argument is a(n) BaseEntityDefInstance, `false` otherwise
+    function STATIC.IsBaseEntityDefClass( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.IsBaseEntityDefClass and true or false
+    end
+
+    typecheck.RegisterType( "BaseEntityDefInstance", STATIC.IsBaseEntityDefClass )
+end
+
+
+--- @class BaseEntityDefInstance
+
+--- Constructs a new BaseEntityDefInstance
+function INSTANCE:Renegade_BaseEntityDefClass()
+end

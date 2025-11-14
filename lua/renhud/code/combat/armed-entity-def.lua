@@ -57,8 +57,6 @@ end
 
 --- Constructs a new ArmedEntityDefInstance
 function INSTANCE:Renegade_ArmedEntityDefClass()
-    print( "Armed Entity Definition Constructor" )
-
     self.WeaponTiltRate = 1
     self.WeaponTiltMin = -10000.0
     self.WeaponTiltMax =  10000.0

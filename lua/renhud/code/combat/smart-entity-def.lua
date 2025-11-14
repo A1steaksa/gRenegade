@@ -51,8 +51,6 @@ end
 
 --- Constructs a new SmartEntityDefInstance
 function INSTANCE:Renegade_SmartEntityDefClass()
-    print( "Smart Entity Definition Constructor" )
-
     self.SightRange = 0
     self.SightArc = math.rad( 0 )
     self.ListenerScale = 1

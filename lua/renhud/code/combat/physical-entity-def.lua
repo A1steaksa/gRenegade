@@ -3,13 +3,17 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class PhysicalEntityDefClass
-local STATIC = CNC.CreateExport()
+-- Parent Class
+--- @type DamageableEntityDefClass
+local PARENT = CNC.Import( "renhud/code/combat/damageable-entity-def.lua" )
+
+--- @class PhysicalEntityDefClass : DamageableEntityDefClass
+local STATIC = setmetatable( CNC.CreateExport(), { __index = PARENT } )
 local CLASS = "PhysicalEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class PhysicalEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_PhysicalEntityDefClass" )
+--- @class PhysicalEntityDefInstance : DamageableEntityDefInstance
+local INSTANCE = robustclass.Register( "Renegade_PhysicalEntityDefClass : Renegade_DamageableEntityDefClass" )
 INSTANCE.IsPhysicalEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -25,6 +29,7 @@ INSTANCE.Static = STATIC
 
     local blipShapeTypeEnum = radarClass.BLIP_SHAPE_TYPE
 --#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -64,8 +69,6 @@ end
 
 --- Constructs a new PhysicalEntityDefInstance
 function INSTANCE:Renegade_PhysicalEntityDefClass()
-    print( "Physical Entity Definition Constructor" )
-
     self.Type = 0
     self.BullseyeOffsetZ = 0.0
     self.RadarBlipType = blipShapeTypeEnum.None
@@ -79,7 +82,16 @@ end
 
 --- @return boolean wasValid, string? errorMessage
 function INSTANCE:IsValidConfig()
-    typecheck.NotImplementedError()
+    local returnValue = false
+
+    --- @type DefinitionInstance
+    local physDef = definitionManagerClass.FindDefinition( self.PhysDefId )
+
+    if physDef then
+        returnValue = physDef
+    end
+
+    return returnValue
 end
 
 --- @return integer
