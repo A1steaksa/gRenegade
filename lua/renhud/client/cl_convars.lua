@@ -4,6 +4,8 @@ MsgC( "[REN] Loading Client ConVars\n" )
 local standardFlags     = { FCVAR_ARCHIVE }
 local replicatedFlags   = { FCVAR_ARCHIVE, FCVAR_REPLICATED }
 
+CreateConVar( "ren_hud_enabled", "1", standardFlags, "Should the HUD draw?", 0, 1 )
+
 --[[ Info Entity / Entity Targeting ]] do
     CreateConVar( "ren_entityinfo_enabled",    "1",   standardFlags,   "Should target info draw?", 0, 1 )
     CreateConVar( "ren_entityinfo_max_length", "500", replicatedFlags, "The maximum distance, in Source units, that an Entity can be from the camera and still be targeted", 1 )

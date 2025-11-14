@@ -92,9 +92,15 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Console Variables
 
+    local hudEnabledConVar = GetConVar( "ren_hud_enabled" )
+    local hudEnabled = hudEnabledConVar:GetBool()
+    cvars.AddChangeCallback( hudEnabledConVar:GetName(), function( _, _, _ )
+        hudEnabled = hudEnabledConVar:GetBool()
+    end )
+
     local entityInfoEnabledConVar = GetConVar( "ren_entityinfo_enabled" )
     local entityInfoEnabled = entityInfoEnabledConVar:GetBool()
-    cvars.AddChangeCallback( entityInfoEnabledConVar:GetName(), function( _, _, newValue )
+    cvars.AddChangeCallback( entityInfoEnabledConVar:GetName(), function( _, _, _ )
         if entityInfoEnabledConVar:GetBool() then
             STATIC.TargetInit()
             entityInfoEnabled = true
@@ -216,6 +222,7 @@ end
 
 function STATIC.Think()
     if not STATIC.HudInited then return end
+    if not hudEnabled then return end
 
     STATIC.InfoUpdate()
     STATIC.PowerupUpdate()
@@ -303,6 +310,7 @@ end
 
 function STATIC.Render()
     if not STATIC.HudInited then return end
+    if not hudEnabled then return end
 
     render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA, BLENDFUNC_ADD )
 
