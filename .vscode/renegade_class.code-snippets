@@ -17,7 +17,7 @@
 	// }
 
 	"C&C Renegade Lua Class": {
-		"prefix": "newclass",
+		"prefix": "class",
 		"description": "A Lua class template that mimics a C++ class, created for porting aspects of Command and Conquer: Renegade to Garry's Mod",
 		"isFileTemplate": true,
 		"scope": "lua",
@@ -64,8 +64,8 @@
 			"        return robustclass.New( \"Renegade_${3}\", ... )",
 			"    end",
 			"",
-			"    ---@param arg any",
-			"    ---@return boolean `true` if the passed argument is a(n) ${3}Instance, `false` otherwise",
+			"    --- @param arg any",
+			"    --- @return boolean `true` if the passed argument is a(n) ${3}Instance, `false` otherwise",
 			"    function STATIC.Is${3}( arg )",
 			"        if not istable( arg ) then return false end",
 			"        if getmetatable( arg ) ~= INSTANCE then return false end",
@@ -88,6 +88,41 @@
 			"    ${0}",
 			"end",
 			"",
+		]
+	},
+
+	"C&C Renegade Lua Static Class": {
+		"prefix": "staticclass",
+		"description": "A Lua class template that mimics a static C++ class, created for porting aspects of Command and Conquer: Renegade to Garry's Mod",
+		"isFileTemplate": true,
+		"scope": "lua",
+		"body": [
+			"-- Based on ${1:CppClassName} within ${2:FilePath}.cpp/h",
+			"",
+			"--- @class Renegade",
+			"local CNC = CNC_RENEGADE",
+			"",
+			"--- @class ${3:LuaClassName}Class",
+			"local STATIC = CNC.CreateExport()",
+			"local CLASS = \"${3}Class\"",
+			"local isHotload = not table.IsEmpty( STATIC )",
+			"",
+			"",
+			"--#region Exported Enums",
+			"--#endregion",
+			"",
+			"",
+			"--#region Imports",
+			"--#endregion",
+			"",
+			"",
+			"--#region Imported Enums",
+			"--#endregion",
+			"",
+			"",
+			"--- @class ${3}Class",
+			"",
+			"$0",
 		]
 	},
 
