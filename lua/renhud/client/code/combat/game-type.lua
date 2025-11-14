@@ -8,7 +8,7 @@ local STATIC
 --[[ Class Setup ]] do
 
     --- The static components of GameType
-    --- @class GameType
+    --- @class GameTypeClass
     STATIC = CNC.CreateExport()
 end
 

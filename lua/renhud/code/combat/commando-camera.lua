@@ -8,7 +8,7 @@ local STATIC, INSTANCE
 --[[ Class Setup ]] do
 
     -- Import parent class
-    CNC.Import( "renhud/client/code/ww3d2/camera.lua" )
+    CNC.Import( "renhud/code/ww3d2/camera.lua" )
 
     --- The instanced components of CommandoCamera
     --- @class CommandoCameraInstance : CameraInstance
@@ -29,7 +29,7 @@ end
 --#region Imports
 
     --- @type CombatManagerClass
-    local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+    local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type HudInfoClass
     local hudInfo = CNC.Import( "renhud/client/code/combat/hud-info.lua" )

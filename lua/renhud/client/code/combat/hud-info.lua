@@ -16,9 +16,9 @@ end
 --#region Imports
 
 --- @type CombatManagerClass
-local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
---- @type GameType
+--- @type GameTypeClass
 local gameType = CNC.Import( "renhud/client/code/combat/game-type.lua" )
 
 --- @type BuildingsBridgeClass

@@ -1,4 +1,4 @@
--- Based on Quaternion within /Code/WWMath/quat.cpp/h
+-- Based on Quaternion within Code/WWMath/quat.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

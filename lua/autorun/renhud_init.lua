@@ -128,7 +128,7 @@ if CLIENT then
 
         -- Load the game's kernel file
         --- @type CombatManagerClass
-        local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+        local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
         -- Load overrides for Renegade's default settings
         include( "renhud/client/cl_updated-global-settings.lua" )

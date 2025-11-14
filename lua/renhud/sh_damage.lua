@@ -146,7 +146,7 @@ local isHotload = not table.IsEmpty( LIB )
         --#region Imports
 
             --- @type CombatManagerClass
-            local combatManager = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+            local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
             --- @type CommonBridgeClass
             local commonBridgeClass = CNC.Import( "renhud/client/bridges/common.lua" )

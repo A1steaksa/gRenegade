@@ -90,7 +90,7 @@ if not CLIENT then return end
     local styleManagerClass = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type WWMathClass
     local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
@@ -108,7 +108,7 @@ if not CLIENT then return end
     local smartGameObjectsBridge = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
 
     --- @type PlayerType
-    local playerType = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+    local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type ObjectiveManagerClass
     local objectiveManagerClass = CNC.Import( "renhud/client/code/combat/objective-manager.lua" )

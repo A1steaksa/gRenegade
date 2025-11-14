@@ -15,7 +15,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
 
     --- @type CommandoCamera
-    local commandoCamera = CNC.Import( "renhud/client/code/combat/commando-camera.lua" )
+    local commandoCamera = CNC.Import( "renhud/code/combat/commando-camera.lua" )
 
     --- @type DamageLib
     local damageLib = CNC.Import( "renhud/sh_damage.lua" )
@@ -36,7 +36,7 @@ local isHotload = not table.IsEmpty( STATIC )
         CORPSE          = 7,
         SNAPSHOT        = 8
     }
-    local combatMode = STATIC.COMBAT_MODE
+    local combatModeEnum = STATIC.COMBAT_MODE
 
     local damageDirectionEnum = damageLib.DAMAGE_DIRECTION
 --#endregion
@@ -89,7 +89,7 @@ local isHotload = not table.IsEmpty( STATIC )
             STATIC._IsHitReticleEnabled = true
             STATIC._IsGameplayPermitted = false
 
-            STATIC.CombatMode = combatMode.NONE
+            STATIC.CombatMode = combatModeEnum.NONE
             STATIC.ReloadCount = 0
             STATIC.LastLsdName = nil
             STATIC.LoadProgress = 0
@@ -127,7 +127,9 @@ local isHotload = not table.IsEmpty( STATIC )
             -- dazzleLayer.SetCurrentDazzleLayer( nil )
         end
 
-        hudClass.Init( renderAvailable )
+        if CLIENT then
+            hudClass.Init( renderAvailable )
+        end
         -- CNC_RENEGADE.ScreenFadeManager.Init()
 
         hook.Add( "Think", "A1_Renegade_CombatManager_Think", STATIC.Think )
@@ -189,7 +191,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
             STATIC.MainCamera:Update()
 
-            hudClass.Think()
+            if CLIENT then
+                hudClass.Think()
+            end
         end
 
         function STATIC.Render()
@@ -375,7 +379,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
             -- Clear the HUD if we just changed stars
             if STATIC.TheStar ~= target then
-                hudClass.Reset()
+                if CLIENT then
+                    hudClass.Reset()
+                end
             end
 
             STATIC.TheStar = target
@@ -384,7 +390,9 @@ local isHotload = not table.IsEmpty( STATIC )
             --     -- TODO: Point the camera toward the new star's direction
             -- end
 
-            hudClass.ForceWeaponChartUpdate()
+            if CLIENT then
+                hudClass.ForceWeaponChartUpdate()
+            end
             -- Omitted weapon view class resetting
 
             if not STATIC.IsLevelInitialized then

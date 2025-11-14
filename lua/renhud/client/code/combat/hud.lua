@@ -28,7 +28,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local globalSettingsClass = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/client/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
@@ -70,7 +70,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
     --- @type PlayerType
-    local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+    local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )

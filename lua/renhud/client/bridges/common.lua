@@ -14,7 +14,7 @@ local CLASS = "CommonBridgeClass"
     local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
     --- @type PlayerType
-    local playerType = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+    local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )

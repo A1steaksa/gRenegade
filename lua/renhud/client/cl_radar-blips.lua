@@ -17,7 +17,7 @@ local isHotload = not table.IsEmpty( LIB )
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
 
     --- @type PlayerType
-    local playerTypeClass = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+    local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
 --#endregion
 
 

@@ -22,7 +22,7 @@ local dispositionEnum = LIB.DISPOSITION
 --#region Imports
 
 --- @type PlayerType
-local playerTypeLib = CNC.Import( "renhud/client/code/combat/player-type.lua" )
+local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
 
 --- @type AABoxClass
 local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
