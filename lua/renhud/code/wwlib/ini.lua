@@ -17,6 +17,7 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsIni = true
 
+
 --#region Exported Enums
 
     --- @enum IntegerFormat
@@ -28,6 +29,7 @@ INSTANCE.IsIni = true
     local integerFormatEnum = STATIC.INTEGER_FORMAT
 --#endregion
 
+
 --#region Imports
 
     --- @type IniEntryClass
@@ -37,19 +39,6 @@ INSTANCE.IsIni = true
     local iniSectionClass = CNC.Import( "renhud/code/wwlib/ini-section.lua" )
 --#endregion
 
-
---#region Imported Enums
---#endregion
-
-concommand.Add( "ren_hud_ini_test", function()
-
-    local filePath = "data/renegade/always_dat/armor.txt"
-
-    local ini = STATIC.New( filePath )
-
-    print( ini:GetString( "Impervious_Fire", "9", "bad" ) )
-
-end )
 
 --[[
 Porting Notes:
