@@ -26,16 +26,28 @@ local STATIC, INSTANCE
 end
 
 
+--#region Exported Enums
+
+    --- @enum SnapshotMode
+    STATIC.SNAPSHOT_MODE = {
+        OFF      = 0,
+        ON       = 1,
+        PROGRESS = 2,
+    }
+    local snapshotEnum = STATIC.SNAPSHOT_MODE
+--#endregion
+
+
 --#region Imports
 
     --- @type CombatManagerClass
-    local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type HudInfoClass
-    local hudInfo = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
+    local hudInfoClass = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
 
     --- @type CommandoCameraProfile
-    local commandoCameraProfile = CNC.Import( "renhud/client/code/combat/commando-camera-profile.lua" )
+    local commandoCameraProfileClass = CNC.Import( "renhud/client/code/combat/commando-camera-profile.lua" )
 
     --- @type BuildingsBridgeClass
     local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
@@ -48,18 +60,6 @@ end
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua")
---#endregion
-
-
---#region Enums
-
-    --- @enum SnapshotMode
-    STATIC.SNAPSHOT_MODE = {
-        OFF      = 0,
-        ON       = 1,
-        PROGRESS = 2,
-    }
-    local snapshot = STATIC.SNAPSHOT_MODE
 --#endregion
 
 
@@ -141,7 +141,7 @@ end
 	    self.SniperZoom = 0
 	    self.SniperDistance = 0
 	    self.SniperListener = NULL
-	    self._SnapshotMode = snapshot.OFF
+	    self._SnapshotMode = snapshotEnum.OFF
 	    self.WeaponHelpTimer = 0
 	    self.WeaponHelpTarget = NULL
 	    self.LagPersistTimer = 0
@@ -151,7 +151,7 @@ end
         --self.SniperListener = listener3d.New()
 
         self.DefaultProfileName = "default"
-        self.DefaultProfile = commandoCameraProfile.Find( self.DefaultProfileName )
+        self.DefaultProfile = commandoCameraProfileClass.Find( self.DefaultProfileName )
         self:UseDefaultProfile()
     end
 
@@ -561,7 +561,7 @@ end
 
     --- @return boolean
     function INSTANCE:IsSnapshotMode()
-        return self._SnapshotMode == snapshot.ON
+        return self._SnapshotMode == snapshotEnum.ON
     end
 
 
@@ -658,8 +658,8 @@ end
     function INSTANCE:DetermineTargetingPosition()
         local lookingAtEntity = false
 
-        local combatStar = combatManager.GetTheStar() --[[@as Player]]
-        local isStarDeterminingTarget = combatManager.IsStarDeterminingTarget()
+        local combatStar = combatManagerClass.GetTheStar() --[[@as Player]]
+        local isStarDeterminingTarget = combatManagerClass.IsStarDeterminingTarget()
 
         if IsValid( combatStar ) and isStarDeterminingTarget then
 
@@ -681,11 +681,11 @@ end
                     hitEnt = NULL
                 end
 
-                hudInfo.SetInfoEntity( hitEnt, isMct )
-                hudInfo.SetWeaponTargetEntity( hitEnt )
+                hudInfoClass.SetInfoEntity( hitEnt, isMct )
+                hudInfoClass.SetWeaponTargetEntity( hitEnt )
             else
                 -- Not in original code.  Not sure where this same code lives originally.
-                hudInfo.SetWeaponTargetEntity( NULL )
+                hudInfoClass.SetWeaponTargetEntity( NULL )
             end
 
             self:SetSniperDistance( traceLength )
@@ -708,7 +708,7 @@ end
             self.WeaponHelpTarget = bestObj
             self.StarTargetingPosition = bestObj:GetPos() + bestObj:OBBCenter() -- Omitted bestObj:GetBullseyePosition()
 
-            hudInfo.SetInfoEntity( bestObj )
+            hudInfoClass.SetInfoEntity( bestObj )
         end
     end
 
