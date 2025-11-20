@@ -38,7 +38,7 @@ ENT.Spawnable = true
 ENT.Model = "models/cnc_renegade/vehicles/v_nod_turret.mdl"
 
 local def = vehicleEntityDefClass.New()
-ENT.StartingDefinition = def
+ENT.Definition = def
 
 def.BullseyeOffsetZ = 1
 def.RadarBlipType = radarShapeTypeEnum.Stationary
