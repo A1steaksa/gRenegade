@@ -415,7 +415,8 @@ end
         data.HealthPercent               = LIB.GetEntityHealthPercent( ent )
         data.ShowInteractionChevrons     = LIB.ShouldShowInteractionChevrons( ent )
 
-        data.ShouldTarget = data.ShouldTarget or data.ShowHealthBar or data.ShowInteractionChevrons
+        -- It's important that ShouldTarget is set after the other entries because it uses them in part to determine its value
+        data.ShouldTarget                = LIB.GetEntityShouldTarget( ent, ply, data )
 
         if SERVER then
             LIB.SetServerInfoEntityCacheEntry( ent, ply, data )
@@ -1060,6 +1061,22 @@ end
                     return true
                 end
             end
+
+            return false
+        end
+    end
+
+    --[[ Should Target ]] do
+
+        --- @param ent Entity
+        --- @param data InfoEntityData
+        function LIB.GetEntityShouldTarget( ent, data )
+            -- If it's obvious we should be targeting them
+            if data.ShouldTarget or data.ShowHealthBar or data.ShowInteractionChevrons then
+                return true
+            end
+
+            -- Special case handling goes here
 
             return false
         end
