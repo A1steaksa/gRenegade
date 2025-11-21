@@ -1,4 +1,4 @@
--- Based on SmartGameObj within Code/Combat/smartgameobj.cpp/h
+-- Based on PhysicalGameObj within Code/Combat/physicalgameobj.cpp/h
 
 -- Ensure that the client receives the files relevant to them
 AddCSLuaFile("cl_init.lua")
