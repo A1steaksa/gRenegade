@@ -42,12 +42,28 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as PhysicalEntityInstance]]
     --- @param definition ArmedEntityDefInstance
     function ENT:Init( definition )
         BaseClass.Init( self, definition )
-        -- self:CopySettings( definition )
+        self:CopySettings( definition )
     end
 
     --- @param definition ArmedEntityDefInstance
     function ENT:CopySettings( definition )
-        typecheck.NotImplementedError()
+        local weapon = NULL
+        if definition.WeaponDefId ~= 0 then
+            weapon = self.WeaponBag:AddWeapon( definition.WeaponDefId, definition.WeaponRounds )
+        end
+
+        if definition.SecondaryWeaponDefId ~= 0 then
+            local secondaryWeapon = self.WeaponBag:AddWepaon( definition.SecondaryWeaponDefId, definition.WeaponRounds )
+            if weapon == NULL then
+                weapon = secondaryWeapon
+            end
+        end
+
+        if weapon ~= NULL then
+            self.WeaponBag:SelectWeapon( weapon )
+        end
+
+        self:InitMuzzleBones()
     end
 
     --- @param definition ArmedEntityDefInstance
