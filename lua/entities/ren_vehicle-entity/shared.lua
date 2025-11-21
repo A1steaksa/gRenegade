@@ -96,8 +96,7 @@ end
 --- @field protected LockTimer number
 
 function ENT:RenConstructor()
-
-    print( "Vehicle Ren Constructor" )
+    BaseClass.RenConstructor( self )
 
     self.TurretBone = 0
     self.BarrelBone = 0
@@ -125,7 +124,7 @@ function ENT:Init( definition )
     --- @cast definition VehicleEntityDefInstance
     BaseClass.Init( self, definition )
 
-    -- Omitted self:AcquireTurretBones()
+    self:AcquireTurretBones()
     -- self:InitWheelEffects()
     -- self:CreateAndDestroyTransitions()
     -- self:UpdateDamageMeshes()
@@ -154,6 +153,31 @@ function ENT:RenThink()
     --         self.StealthEffect:EnableStealth( false )
     --     end
     -- end
+end
+
+function ENT:AcquireTurretBones()
+    if self.TurretBone == 0 then
+        self.TurretBone = self:LookupBone( "turret" ) or 0
+        -- Omitted bone capture
+    end
+
+    self.BarrelOffset = 0
+
+    if self.BarrelBone == 0 then
+        self.BarrelBone = self:LookupBone( "barrel" ) or 0
+        -- Omitted bone capture
+
+        -- "Find the barrel in turret space"
+        if self.TurretBone ~= 0 then
+            local turretBase = self:GetBoneTransform( self.TurretBone )
+            local barrelPos = self:GetBoneTransform( self.BarrelBone ):GetTranslation()
+            local turretSpaceBarrel = matrix3dClass.InverseTransformVector( turretBase, barrelPos )
+            self.BarrelOffset = turretSpaceBarrel.y
+            if math.abs( self.BarrelOffset ) < 0.1 then
+                self.BarrelOffset = 0
+            end
+        end
+    end
 end
 
 --- @param weaponTurn number
