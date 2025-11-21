@@ -79,8 +79,22 @@ end
 
 --[[ Thinking ]] do
 
-    function ENT:PostThink()
-        -- typecheck.NotImplementedError()
+function ENT:PostThink()
+    BaseClass.PostThink( self )
+
+    -- "Don't update if destroying... (so we don't create a new laser!)"
+    if self:IsMarkedForDeletion() then
+        return
+    end
+
+    -- "Update the weapon after the commands and update_human_animation"
+    if self:GetWeapon() ~= NULL then
+        self:GetWeapon():Update()
+    end
+
+    -- "Allow any recoil animation to progress"
+    for i = 1, #self.MuzzleRecoilController do
+        self.MuzzleRecoilController[i]:Update( self )
     end
 end
 
