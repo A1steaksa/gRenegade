@@ -22,25 +22,23 @@ local ENT = ENT --[[@as ArmedEntityInstance]]
 
     ENT.Type = "anim"
     ENT.Base = "ren_armed-entity"
-    ENT.Author = "A1steaksa"
-    ENT.Category = "C&C Renegade"
     ENT.Spawnable = false
 end
 
 local BaseClass = baseclass.Get( ENT.Base ) --[[@as ArmedEntityInstance]]
 
+--- @class SmartEntityInstance
 
 --[[ Definitions ]] do
 
     --- @param definition SmartEntityDefInstance
     function ENT:Init( definition )
         BaseClass.Init( self, definition )
-        -- self:CopySettings( definition )
+    end
+
+    --- @return SmartEntityDefInstance
+    function ENT:GetDefinition()
+        return BaseClass.GetDefinition( self ) --[[@as SmartEntityDefInstance]]
     end
 end
 
-
---- @return SmartEntityDefInstance
-function ENT:GetDefinition()
-    return BaseClass.GetDefinition( self ) --[[@as SmartEntityDefInstance]]
-end
