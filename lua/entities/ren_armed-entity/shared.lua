@@ -13,6 +13,9 @@ local ENT = ENT --[[@as PhysicalEntityInstance]]
 
 --#region Imports
 
+    --- @type WeaponBagClass
+    local weaponBagClass = CNC.Import( "renhud/code/combat/weaponbag.lua" )
+
     --- @type ArmedEntityDefClass
     local armedEntityDefClass = CNC.Import( "renhud/code/combat/armed-entity-def.lua" )
 --#endregion
@@ -22,9 +25,6 @@ local ENT = ENT --[[@as PhysicalEntityInstance]]
 
     ENT.Type = "anim"
     ENT.Base = "ren_physical-entity"
-    ENT.Author = "A1steaksa"
-    ENT.Category = "C&C Renegade"
-    ENT.Spawnable = false
 end
 
 local BaseClass = baseclass.Get( ENT.Base ) --[[@as PhysicalEntityInstance]]
@@ -36,10 +36,29 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as PhysicalEntityInstance]]
 --- @field private MuzzleA1Bone integer
 --- @field private MuzzleB0Bone integer
 --- @field private MuzzleB1Bone integer
+--- @field private MuzzleRecoilController MuzzleRecoilInstance[]
+
+local MAX_MUZZLES = 4
 
 --[[ Definitions ]] do
 
-    --- @param definition ArmedEntityDefInstance
+    function ENT:RenConstructor()
+        BaseClass.RenConstructor( self )
+
+        print( "Armed Entity Constructor" )
+
+        self.MuzzleA0Bone = 0
+        self.MuzzleA1Bone = 0
+        self.MuzzleB0Bone = 0
+        self.MuzzleB1Bone = 0
+
+        self.TargetingPos = Vector( 0, 0, 0 )
+        self.WeaponBag = weaponBagClass.New( self )
+
+        self.MuzzleRecoilController = {}
+    end
+
+    --- @param definition SmartEntityDefInstance
     function ENT:Init( definition )
         BaseClass.Init( self, definition )
         self:CopySettings( definition )
@@ -68,7 +87,34 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as PhysicalEntityInstance]]
 
     --- @param definition ArmedEntityDefInstance
     function ENT:ReInit( definition )
-        typecheck.NotImplementedError()
+        BaseClass.ReInit( self, definition --[[@as PhysicalEntityDefInstance]] )
+
+        -- "Remnove all non-beacon entries from the weapon bag..."
+        local oldBag = self.WepaonBag
+        if self.WeaponBag then
+            -- -- "Loop over all the weapons in the bag"
+            -- local weaponIndex = self.WeaponBag:GetCount()
+            -- while weaponIndex > 0 do
+            --     weaponIndex = weaponIndex - 1
+            --     local weapon = self.WeaponBag:PeekWeapon( weaponIndex )
+
+            --     -- "If this isn't a beacon, then remove it"
+            --     if weapon and weapon:GetDefinition().Style ~= WEAPON_HOLD_STYLE_BEACON then
+            --         self.WeaponBag:RemoveWepaon( weaponIndex )
+            --     end
+            -- end
+        end
+
+        -- "Re-initialize the weapon bag"
+        self.WeaponBag = weaponBagClass.New( self )
+
+        -- "Copy any internal settings from the definition"
+        self:CopySettings( definition )
+
+        -- "Now add any beacons back into the weapon bag"
+        -- if oldBag then
+        --     self.WeaponBag:MoveContents( oldBag )
+        -- end
     end
 
     --- @return ArmedEntityDefInstance
@@ -76,8 +122,6 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as PhysicalEntityInstance]]
         return BaseClass.GetDefinition( self ) --[[@as ArmedEntityDefInstance]]
     end
 end
-
---[[ Thinking ]] do
 
 function ENT:PostThink()
     BaseClass.PostThink( self )
@@ -98,11 +142,11 @@ function ENT:PostThink()
     end
 end
 
---[[ Weapon ]] do
+--[[ Weapons ]] do
 
     --- @return WeaponInstance
     function ENT:GetWeapon()
-        typecheck.NotImplementedError()
+        return self.WeaponBag:GetWeapon()
     end
 
     --- @return WeaponBagInstance
@@ -110,25 +154,83 @@ end
         return self.WeaponBag
     end
 
-    --- @param index integer? [Default: 0]
-    --- @return boolean
-    function ENT:MuzzleExists( index )
-        if not index then index = 0 end
-        typecheck.NotImplementedError()
+    function ENT:InitMuzzleBones()
+        self.MuzzleA0Bone = self:LookupBone( "muzzlea0" ) --[[@as integer]]
+        self.MuzzleA1Bone = self:LookupBone( "muzzlea1" ) --[[@as integer]]
+        self.MuzzleB0Bone = self:LookupBone( "muzzleb0" ) --[[@as integer]]
+        self.MuzzleB1Bone = self:LookupBone( "muzzleb1" ) --[[@as integer]]
+
+        if not self.MuzzleA1Bone then
+            self.MuzzleA1Bone = self.MuzzleA0Bone
+        end
+        if not self.MuzzleB0Bone then
+            self.MuzzleB0Bone = self.MuzzleA0Bone
+        end
+        if not self.MuzzleB1Bone then
+            self.MuzzleB1Bone = self.MuzzleB0Bone
+        end
+
+        self.MuzzleRecoilController[1]:Init( self.MuzzleA0Bone )
+        self.MuzzleRecoilController[2]:Init( self.MuzzleA1Bone )
+        self.MuzzleRecoilController[3]:Init( self.MuzzleB0Bone )
+        self.MuzzleRecoilController[4]:Init( self.MuzzleB1Bone )
+
+        -- "Let the weapon learn about muzzle flashes"
+        -- if self:GetWeapon() ~= NULL then
+        --     self:GetWeapon():SetModel( self:GetModel() )
+        -- end
     end
 
-    --- @param index integer? [Default: 0]
+    --- @param index integer? [Default: 1]
+    --- @return boolean
+    function ENT:MuzzleExists( index )
+        if not index then index = 1 end
+
+        if index == 1 then
+            return self.MuzzleA0Bone ~= 0
+        end
+        if index == 2 then
+            return self.MuzzleA1Bone ~= 0
+        end
+        if index == 3 then
+            return self.MuzzleB0Bone ~= 0
+        end
+        if index == 4 then
+            return self.MuzzleB1Bone ~= 0
+        end
+
+        return false
+    end
+
+    --- @param index integer? [Default: 1]
     --- @return Matrix3dInstance
     function ENT:GetMuzzle( index )
-        if not index then index = 0 end
-        typecheck.NotImplementedError()
+        if not index then index = 1 end
+
+        if index == 2 and self.MuzzleB1Bone ~= 0 then
+            return self:GetBoneTransform( self.MuzzleB1Bone )
+        end
+
+        if index == 1 and self.MuzzleB0Bone ~= 0 then
+            return self:GetBoneTransform( self.MuzzleB0Bone )
+        end
+
+        if index == 0 and self.MuzzleA1Bone ~= 0 then
+            return self:GetBoneTransform( self.MuzzleA1Bone )
+        end
+
+        if self.MuzzleA0Bone ~= 0 then
+            return self:GetBoneTransform( self.MuzzleA0Bone )
+        end
+
+        return self:GetTransform()
     end
 
     --- @param muzzleIndex integer
     --- @param recoilScale number
     --- @param recoilTime number
     function ENT:StartRecoil( muzzleIndex, recoilScale, recoilTime )
-        typecheck.NotImplementedError()
+        self.MuzzleRecoilController[muzzleIndex]:StartRecoil( recoilScale, recoilTime )
     end
 
     --- @return number
@@ -157,5 +259,10 @@ end
     end
 end
 
+--[[ Type Identification ]] do
 
-
+    --- @return ArmedEntityInstance
+    function ENT:AsArmedEntity()
+        return self
+    end
+end
