@@ -63,6 +63,10 @@ function LIB.Import( path )
     -- Execute the script if it hasn't already been imported elsewhere
     local tbl = LIB.ExportedTables[path]
     if not tbl then
+        if not file.Exists( path, "LUA" ) then
+            error( "Cannot import missing file: " .. path )
+        end
+
         include( path )
 
         -- Confirm that the script exported something for us to import
