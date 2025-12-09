@@ -76,7 +76,7 @@ function LIB.Import( path )
 
         -- Call the post-load static constructor
         if isfunction( tbl.StaticConstructor ) then
-            tbl:StaticConstructor()
+            tbl.StaticConstructor()
         end
     end
 
