@@ -13,8 +13,9 @@ LIB.ExportedTables = {}
 
 --- Retrieves or creates a table for a new class or library to populate for importing into other scripts as a dependency
 --- Other scripts can import this script's exported table by importing this script's file path starting with `/lua/` and ending in `.lua`
+--- @param parent table? The parent meta table for the newly created table to use
 --- @return table # The table for this library to use.
-function LIB.CreateExport()
+function LIB.CreateExport( parent )
     local path
     --[[ Get the calling script's file path ]] do
         local info = debug.getinfo( 2 )
@@ -39,6 +40,14 @@ function LIB.CreateExport()
 
     -- If we haven't exported this file before, create a new table for it
     tbl = {}
+
+    -- Set up inheritance if a parent was given
+    if parent then
+        setmetatable( tbl, tbl )
+        tbl.__index = parent
+    end
+
+
     LIB.ExportedTables[path] = tbl
     return tbl
 end
