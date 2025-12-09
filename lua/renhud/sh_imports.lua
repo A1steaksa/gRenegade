@@ -24,8 +24,7 @@ function LIB.CreateExport( parent )
         local startPos, endPos, _ = string.find( fullFilePath, "/lua", nil, true )
 
         if not endPos then
-            typecheck.Error( CLASS, "Export", "Could not parse export script path. It does not appear to be a Lua file: " .. fullFilePath )
-            error() -- To make LuaLS happy
+            error( "Could not parse export script path. It does not appear to be a Lua file: " .. fullFilePath )
         end
 
         path = string.sub( fullFilePath, endPos + 2 ):Trim()
