@@ -73,6 +73,11 @@ function LIB.Import( path )
         if not tbl then
             typecheck.Error( CLASS, "Import", "No table was exported by script: " .. path )
         end
+
+        -- Call the post-load static constructor
+        if isfunction( tbl.StaticConstructor ) then
+            tbl:StaticConstructor()
+        end
     end
 
     return tbl
