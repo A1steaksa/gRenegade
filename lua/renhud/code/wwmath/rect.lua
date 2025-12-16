@@ -68,6 +68,8 @@ end
         local args = { ... }
         local argCount = select( "#", ... )
 
+        typecheck.AssertArgCount( CLASS, argCount, { 0, 1, 2, 4 } )
+
         -- An empty Rect
         -- ( nil )
         if argCount == 0 then
@@ -107,16 +109,14 @@ end
             local right  = args[3] --[[@as number]]
             local bottom = args[4] --[[@as number]]
 
-            typecheck.AssertArgType( CLASS, 1, left, "number" )
-            typecheck.AssertArgType( CLASS, 2, top, "number" )
-            typecheck.AssertArgType( CLASS, 3, right, "number" )
+            typecheck.AssertArgType( CLASS, 1, left,   "number" )
+            typecheck.AssertArgType( CLASS, 2, top,    "number" )
+            typecheck.AssertArgType( CLASS, 3, right,  "number" )
             typecheck.AssertArgType( CLASS, 4, bottom, "number" )
 
             self:Replace( left, top, right, bottom )
             return
         end
-
-        typecheck.AssertArgCount( CLASS, argCount )
     end
 
     --[[ Assignment ]] do
