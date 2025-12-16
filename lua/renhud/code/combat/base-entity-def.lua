@@ -19,6 +19,21 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
 
+--#region Imports
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+--#endregion
+
+
+--[[ Chunk IDs ]] do
+
+    STATIC.ChunkIds = {
+        CHUNKID_DEF_PARENT = 1111991123,
+    }
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     --- @class BaseEntityDefClass
@@ -42,9 +57,19 @@ INSTANCE.Static = STATIC
     typecheck.RegisterType( "BaseEntityDefInstance", STATIC.IsBaseEntityDefClass )
 end
 
+--- @class PersistInstance
 
---- @class BaseEntityDefInstance
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:Load( cload )
+    Section.Start( CLASS .. " Load Start" )
 
---- Constructs a new BaseEntityDefInstance
-function INSTANCE:Renegade_BaseEntityDefClass()
+    cload:OpenChunk()
+    assert( cload:CurChunkId() == STATIC.ChunkIds.CHUNKID_DEF_PARENT )
+    PARENT.Instance.Load( self, cload )
+    cload:CloseChunk()
+
+    Section.End()
+
+    return true
 end

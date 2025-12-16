@@ -19,6 +19,18 @@ INSTANCE.Static = STATIC
 
 --#region Imports
 
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+
+    --- @type CombatChunkId
+    local combatChunkId = CNC.Import( "renhud/code/combat/combat-chunk-id.lua" )
+
+    --- @type SimpleDefinitionFactoryClass
+    local simpleDefinitionFactoryClass = CNC.Import( "renhud/code/wwsaveload/simple-definition-factory.lua" )
+
+    --- @type SimplePersistFactoryClass
+    local simplePersistFactoryClass = CNC.Import( "renhud/code/wwsaveload/simple-persist-factory.lua" )
+
     --- @type VehicleEntityClass
     local vehicleEntClass = CNC.Import( "entities/ren_vehicle-entity/shared.lua" )
 --#endregion
@@ -30,6 +42,57 @@ INSTANCE.Static = STATIC
     local engineSoundStateEnum = vehicleEntClass.ENGINE_SOUND_STATE
 --#endregion
 
+--[[ `Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_DEF_PARENT                          = enumBuilder:Set( 930991656 ),
+        CHUNKID_DEF_VARIABLES                       = enumBuilder:Next(),
+        CHUNKID_DEF_TRANSITION                      = enumBuilder:Next(),
+
+        MICROCHUNKID_TYPE                           = enumBuilder:Set( 1 ),
+        MICROCHUNKID_TYPE_NAME                      = enumBuilder:Next(),
+        MICROCHUNKID_FIRE0ANIM                      = enumBuilder:Next(),
+        MICROCHUNKID_FIRE1ANIM                      = enumBuilder:Next(),
+        MICROCHUNKID_PROFILE                        = enumBuilder:Next(),
+        MICROCHUNKID_WEAPON_TURN_TRANS              = enumBuilder:Next(),
+
+        XXXMICROCHUNKID_SOUND                       = enumBuilder:Next(),
+        MICROCHUNKID_EMITER_NAME                    = enumBuilder:Next(),
+        MICROCHUNKID_EMITER_OFFSET                  = enumBuilder:Next(),
+        MICROCHUNKID_EMITER2_NAME                   = enumBuilder:Next(),
+        MICROCHUNKID_EMITER2_OFFSET                 = enumBuilder:Next(),
+        XXX_MICROCHUNKID_MASS                       = enumBuilder:Next(),
+        XXX_MICROCHUNKID_MAX_ENGINE_TORQUE          = enumBuilder:Next(),
+        XXX_MICROCHUNKID_STEERING_ANGLE             = enumBuilder:Next(),
+        XXX_MICROCHUNKID_SPRING_CONSTANT            = enumBuilder:Next(),
+        XXX_MICROCHUNKID_DAMPING_COEFFIENT          = enumBuilder:Next(),
+        XXX_MICROCHUNKID_SPRING_LENGTH              = enumBuilder:Next(),
+        MICROCHUNKID_PHYS_ID                        = enumBuilder:Next(),
+        MICROCHUNKID_TURN_RADIUS                    = enumBuilder:Next(),
+        MICROCHUNKID_OCCUPANTS_VISIBLE              = enumBuilder:Next(),
+
+        XXX_MICROCHUNKID_ENGINE_SOUND_RPM_SCALE_MIN = enumBuilder:Next(),
+        XXX_MICROCHUNKID_ENGINE_SOUND_RPM_SCALE_MAX = enumBuilder:Next(),
+        MICROCHUNKID_ENGINE_START_SOUND             = enumBuilder:Next(),
+        MICROCHUNKID_ENGINE_RUN_SOUND               = enumBuilder:Next(),
+        MICROCHUNKID_ENGINE_STOP_SOUND              = enumBuilder:Next(),
+        MICROCHUNKID_ENGINE_OFF_SOUND               = enumBuilder:Next(),
+
+        MICROCHUNKID_DEF_SIGHT_DOWN_MUZZLE          = enumBuilder:Next(),
+        MICROCHUNKID_DEF_AIM_2D                     = enumBuilder:Next(),
+
+        MICROCHUNKID_DEF_SQUISH_VELOCITY            = enumBuilder:Next(),
+        MICROCHUNKID_ENGINE_SOUND_MAX_PITCH_FACTOR  = enumBuilder:Next(),
+        MICROCHUNKID_DEF_VEHICLE_NAME_ID            = enumBuilder:Next(),
+        MICROCHUNKID_DEF_NUM_SEATS                  = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GDI_DAMAGE_REPORT_ID       = enumBuilder:Next(),
+        MICROCHUNKID_DEF_NOD_DAMAGE_REPORT_ID       = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GDI_DESTROY_REPORT_ID      = enumBuilder:Next(),
+        MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID      = enumBuilder:Next(),
+    }
+end
 
 --[[ Static Functions and Variables ]] do
 
@@ -42,6 +105,11 @@ INSTANCE.Static = STATIC
     --- @return VehicleEntityDefInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_VehicleEntityDefClass", ... )
+    end
+
+    function STATIC.StaticConstructor()
+        STATIC.VehicleEntityDefPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_DEF_VEHICLE )
+        STATIC.VehicleEntityDefFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkId.CLASSID_GAME_OBJECT_DEF_VEHICLE, "Vehicle", nil )
     end
 
     --- @param arg any
@@ -79,8 +147,6 @@ end
 
 --- Constructs a new VehicleEntityDefInstance
 function INSTANCE:Renegade_VehicleEntityDefClass()
-    print( "Vehicle Entity Definition Constructor" )
-
     self.Type = vehicleTypeEnum.Car
     self.TurnRadius = 10.0
     self.OccupantsVisible = true
@@ -103,6 +169,66 @@ function INSTANCE:Renegade_VehicleEntityDefClass()
     -- end
 end
 
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:Load( cload )
+    -- Omitted freeing transition list
+
+    local ids = STATIC.ChunkIds
+    local dataTypeEnum = STATIC.DATA_TYPE
+
+    while cload:OpenChunk() do
+        local id = cload:CurChunkId()
+
+        if id == ids.CHUNKID_DEF_PARENT then
+            PARENT.Instance.Load( self, cload )
+
+        elseif id == ids.CHUNKID_DEF_TRANSITION then
+            Section.Print( CLASS .. " Transition Loading is not yet implemented" )
+
+        elseif id == ids.CHUNKID_DEF_VARIABLES then
+
+            while cload:OpenMicroChunk() do
+                local didRead =
+                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_TYPE, dataTypeEnum.Int, "Type" )
+                    or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_TYPE_NAME, "TypeName" )
+                    or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_FIRE0ANIM, "Fire0Anim" )
+                    or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_FIRE1ANIM, "Fire1Anim" )
+                    or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_PROFILE, "Profile" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_PHYS_ID, dataTypeEnum.Int, "PhysDefId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_TURN_RADIUS, dataTypeEnum.Float, "TurnRadius" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_OCCUPANTS_VISIBLE, dataTypeEnum.Boolean, "OccupantsVisible" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_SOUND_MAX_PITCH_FACTOR, dataTypeEnum.Float, "EngineSoundMaxPitchFactor")
+
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_START_SOUND, dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Starting  )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_RUN_SOUND,   dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Running   )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_STOP_SOUND,  dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Stopping  )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_OFF_SOUND,   dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Off       )
+
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_DOWN_MUZZLE, dataTypeEnum.Boolean, "SightDownMuzzle" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_AIM_2D, dataTypeEnum.Boolean, "Aim2d" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SQUISH_VELOCITY, dataTypeEnum.Float, "SquishVelocity" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_VEHICLE_NAME_ID, dataTypeEnum.Int, "VehicleNameId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NUM_SEATS, dataTypeEnum.Int, "NumSeats" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DAMAGE_REPORT_ID, dataTypeEnum.Int, "GdiDamageReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DAMAGE_REPORT_ID, dataTypeEnum.Int, "NodDamageReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DESTROY_REPORT_ID, dataTypeEnum.Int, "GdiDestroyReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID, dataTypeEnum.Int, "NodDestroyReportId" )
+
+                if not didRead then
+                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )
+                end
+
+                cload:CloseMicroChunk()
+            end
+        else
+            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
+        end
+    end
+
+    return true
+end
+
 --- @return integer
 function INSTANCE:GetClassId()
     -- Only used by the Sakura boss fight?
@@ -111,9 +237,7 @@ end
 
 --- @return VehicleEntityInstance
 function INSTANCE:Create()
-    local ent = vehicleEntClass.New()
-    ent:Init( self )
-    return ent
+    typecheck.NotImplementedError()
 end
 
 --- @return PersistFactoryClass

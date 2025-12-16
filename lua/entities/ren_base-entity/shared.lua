@@ -51,6 +51,19 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as Entity]]
     end
 end
 
+--[[ Save & Load ]] do
+
+    --- These functions are inherited from the persist class in the original code
+
+    --- @param save ChunkSaveInstance
+    function ENT:Save( save )
+    end
+
+    --- @param load ChunkLoadInstance
+    function ENT:Load( load )
+    end
+end
+
 --[[ Definitions ]] do
 
     --- The Renegade Entity Init function

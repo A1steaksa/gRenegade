@@ -3,23 +3,44 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class DefinitionClass
-local STATIC = CNC.CreateExport()
+--- Parent
+--- @type PersistClass
+local parent = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+
+--- @class DefinitionClass : PersistClass
+local STATIC = CNC.CreateExport( parent )
 local CLASS = "DefinitionInstance"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class DefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_Definition" )
+--- @class DefinitionInstance : PersistInstance
+local INSTANCE = robustclass.Register( "Renegade_Definition : Renegade_Persist" )
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefinition = true
 
+
 --#region Imports
+
+    --- @type DefinitionManagerClass
+    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
 --#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
     --- @class DefinitionClass
+
+    --[[ Internal Chunk IDs ]] do
+
+        STATIC.CHUNKID_VARIABLES = 0x00000100
+    end
+
+    --[[ Micro-Chunk IDs ]] do
+
+        STATIC.VARID_INSTANCEID     = 0x01
+        STATIC.XXX_VARID_PARENTID   = STATIC.VARID_INSTANCEID   + 1
+        STATIC.VARID_NAME           = STATIC.XXX_VARID_PARENTID + 1
+    end
 
     --- Creates a new DefinitionInstance
     --- @return DefinitionInstance
@@ -54,6 +75,70 @@ function INSTANCE:Renegade_Definition()
     self.DefinitionManagerLink = -1
 end
 
+--[[ Save & Load ]] do
+
+    --- @param csave ChunkSaveInstance
+    --- @return boolean
+    function INSTANCE:Save( csave )
+        local retVal = true
+
+        csave:BeginChunk( STATIC.CHUNKID_VARIABLES )
+        retVal = retVal and self:SaveVariables( csave )
+        csave:EndChunk()
+
+        return retVal
+    end
+
+    --- @param cload ChunkLoadInstance
+    --- @return boolean `true`
+    function INSTANCE:Load( cload )
+        Section.Start( CLASS .. " Load Start" )
+
+        local retVal = true
+
+        while cload:OpenChunk() do
+            local chunkId = cload:CurChunkId()
+
+            if chunkId == STATIC.CHUNKID_VARIABLES then
+                self:LoadVariables( cload )
+            end
+
+            cload:CloseChunk()
+        end
+
+        Section.End()
+
+        return retVal
+    end
+
+    --- @param csave ChunkSaveInstance
+    --- @return boolean
+    function INSTANCE:SaveVariables( csave )
+        typecheck.NotImplementedError()
+    end
+
+    --- @param cload ChunkLoadInstance
+    --- @return boolean
+    function INSTANCE:LoadVariables( cload )
+
+        Section.Start( "Loading Variables..." )
+
+        local retVal = true
+
+        -- "Loop through all the microchunks that define the variables"
+        while cload:OpenMicroChunk() do
+            self:ReadMicroChunk( cload, STATIC.VARID_INSTANCEID, STATIC.DATA_TYPE.UInt32, "Id" )
+            self:ReadMicroChunkWWString( cload, STATIC.VARID_NAME, "Name" )
+
+            cload:CloseMicroChunk()
+        end
+
+        Section.End()
+
+        return retVal
+    end
+end
+
 --[[ Type Identification ]] do
 
     --- @return integer
@@ -74,10 +159,13 @@ end
         -- If we are registered with the definition manager, 
         -- then we need to re-link ourselves back into the list
         -- "
-        -- if self.DefinitionManagerLink ~= -1 then
-        --     definitionManagerClass:UnregisterDefinition( self )
-        --     definitionManagerClass:RegisterDefinition( self )
-        -- end
+        if self.DefinitionManagerLink ~= -1 then
+            Section.Print( "Register definition!" )
+            definitionManagerClass.UnregisterDefinition( self )
+            definitionManagerClass.RegisterDefinition( self )
+        else
+            Section.Print( "I'll never register a definition, dad!" )
+        end
     end
 
     --- @return DefinitionInstance?
