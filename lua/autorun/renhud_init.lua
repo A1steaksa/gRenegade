@@ -70,9 +70,14 @@ end
 
 --[[ Shared ]] do
     include( "renhud/sh_typecheck.lua" )
+    include( "renhud/sh_binary-conversion.lua" )
     include( "renhud/sh_imports.lua" )
     include( "renhud/sh_robustclass.lua" )
     include( "renhud/sh_debugdraw.lua" )
+    include( "renhud/sh_print.lua" )
+
+    -- FOR TESTING ONLY
+    include( "renhud/code/wwlib/chunk-load.lua" )
 end
 
 if CLIENT then
