@@ -9,8 +9,6 @@ Section = LIB
 
 --- @class PrintLib
 --- @field private SectionStack string[]
---- @field private IndentCharCount integer 
---- @field private IncludeIndentLines boolean 
 --- @field private IndentLevelString string The string that is repeated for each indentation level
 --- @field private JustEndedSection boolean `true` when the last action taken by the library was to close a section
 --- @field private SectionLabelFilter string When set, the library will ignore section and print statements until a section with this label is started
@@ -20,8 +18,11 @@ Section = LIB
 --- @field private WarningMessageColor Color
 --- @field private ErrorLabelColor Color 
 --- @field private ErrorMessageColor Color 
+--- @field private IsEnabled boolean
 
 --[[ Settings ]] do
+
+    LIB.StartEnabled = false
 
     --- How many total characters (spaces and, optionally, indent lines) should be used for each level of indentation?
     LIB.IndentCharCount = 3
@@ -35,6 +36,7 @@ end
 
     LIB.SectionStack = {}
     LIB.JustEndedSection = false
+    LIB.IsEnabled = LIB.StartEnabled
 end
 
 
@@ -65,11 +67,27 @@ hook.Add( "OnLuaError", "A1_SectionLib_ResetSections", function()
     LIB.SectionStack = {}
     LIB.JustEndedSection = false
     LIB.SectionLabelFilter = nil
+    LIB.IsEnabled = LIB.StartEnabled
 end )
+
+--- @param isEnabled boolean
+function LIB.SetEnabled( isEnabled )
+    LIB.IsEnabled = isEnabled
+end
+
+function LIB.Enable()
+    LIB.IsEnabled = true
+end
+
+function LIB.Disable()
+    LIB.IsEnabled = false
+end
 
 --- Prints the label and increases the indentation of all following prints
 --- @param label string
 function LIB.Start( label )
+    if not LIB.IsEnabled then return end
+
     if LIB.SectionLabelFilter then
         local hasFilterPassed = #LIB.SectionStack ~= 0
         if not hasFilterPassed then
@@ -92,15 +110,25 @@ function LIB.Start( label )
 end
 
 --- Prints a closing message and reduces the indentation of all following prints
-function LIB.End()
+--- @param closingMessage string?
+function LIB.End( closingMessage )
+    if not LIB.IsEnabled then return end
+
     if LIB.SectionLabelFilter then
         if #LIB.SectionStack == 0 then
             return
         end
     end
 
+    local message
+    if closingMessage then
+        message = "Done - " .. tostring( message )
+    else
+        message = "Done."
+    end
+
     LIB.SectionStack[#LIB.SectionStack] = nil
-    LIB.PrivatePrint( "Done." )
+    LIB.PrivatePrint( message )
 
     LIB.JustEndedSection = true
 end
@@ -109,6 +137,8 @@ end
 --- @param label any
 --- @param func fun()
 function LIB.Section( label, func )
+    if not LIB.IsEnabled then return end
+
     LIB.Start( label )
     func()
     LIB.End()
@@ -189,6 +219,7 @@ end
 
 --- @vararg any
 function LIB.Print( ... )
+    if not LIB.IsEnabled then return end
     if LIB.SectionLabelFilter then
         if #LIB.SectionStack == 0 then
             return
