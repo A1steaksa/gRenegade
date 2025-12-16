@@ -7,8 +7,8 @@ local CNC = CNC_RENEGADE
 --- @type BaseEntityDefClass
 local PARENT = CNC.Import( "renhud/code/combat/base-entity-def.lua" )
 
---- @class ScriptableEntityDefClass : BaseEntityDefInstance
-local STATIC = CNC.CreateExport()
+--- @class ScriptableEntityDefClass : BaseEntityDefClass
+local STATIC = CNC.CreateExport( PARENT )
 local CLASS = "ScriptableEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 

@@ -8,12 +8,12 @@ local CNC = CNC_RENEGADE
 local PARENT = CNC.Import( "renhud/code/wwsaveload/definition.lua" )
 
 --- @class BaseEntityDefClass : DefinitionClass
-local STATIC = CNC.CreateExport()
+local STATIC = CNC.CreateExport( PARENT )
 local CLASS = "BaseEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class BaseEntityDefInstance : DefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_BaseEntityDefClass" )
+local INSTANCE = robustclass.Register( "Renegade_BaseEntityDefClass : Renegade_Definition" )
 INSTANCE.IsBaseEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC

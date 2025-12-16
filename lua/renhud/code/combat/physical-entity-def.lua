@@ -8,7 +8,7 @@ local CNC = CNC_RENEGADE
 local PARENT = CNC.Import( "renhud/code/combat/damageable-entity-def.lua" )
 
 --- @class PhysicalEntityDefClass : DamageableEntityDefClass
-local STATIC = setmetatable( CNC.CreateExport(), { __index = PARENT } )
+local STATIC = CNC.CreateExport( PARENT )
 local CLASS = "PhysicalEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 

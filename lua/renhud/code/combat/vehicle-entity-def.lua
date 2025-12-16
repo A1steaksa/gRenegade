@@ -3,12 +3,11 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
--- Parent Class
 --- @type SmartEntityDefClass
 local PARENT = CNC.Import( "renhud/code/combat/smart-entity-def.lua" )
 
 --- @class VehicleEntityDefClass : SmartEntityDefClass
-local STATIC = setmetatable( CNC.CreateExport(), { __index = PARENT } )
+local STATIC = CNC.CreateExport( PARENT )
 local CLASS = "VehicleEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
