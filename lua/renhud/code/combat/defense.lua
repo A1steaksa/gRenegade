@@ -99,7 +99,7 @@ end
 
 --- "[DefenseEntities] now have a pointer to their corresponding [Entity]
 --- to report damage and scoring to the PlayerData"
---- @param def DefenseDefInstance
+--- @param def DefenseEntityDefInstance
 --- @param owner DamageableEntityInstance
 function INSTANCE:Init( def, owner )
 

@@ -99,7 +99,7 @@ if not CLIENT then return end
     local radarBlipsLib = CNC.Import( "renhud/client/cl_radar-blips.lua" )
 
     --- @type ConversionLib
-    local conversionLib = CNC.Import( "renhud/sh_conversion.lua" )
+    local conversionLib = CNC.Import( "renhud/sh_unit-conversion.lua" )
 
     --- @type CommonBridgeClass
     local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
