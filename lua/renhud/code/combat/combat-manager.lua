@@ -6,23 +6,10 @@ local CNC = CNC_RENEGADE
 --- The static components of CombatManager
 --- @class CombatManagerClass
 local STATIC = CNC.CreateExport()
+local CLASS = "CombatManager"
 local isHotload = not table.IsEmpty( STATIC )
 
-
--- #region Imports
-
-    --- @type HudClass
-    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
-
-    --- @type CommandoCamera
-    local commandoCamera = CNC.Import( "renhud/code/combat/commando-camera.lua" )
-
-    --- @type DamageLib
-    local damageLib = CNC.Import( "renhud/sh_damage.lua" )
--- #endregion
-
-
---#region Enums
+--#region Exported Enums
 
     --- @enum CombatMode
     STATIC.COMBAT_MODE = {
@@ -37,14 +24,28 @@ local isHotload = not table.IsEmpty( STATIC )
         SNAPSHOT        = 8
     }
     local combatModeEnum = STATIC.COMBAT_MODE
+--#endregion
+
+-- #region Imports
+
+    --- @type HudClass
+    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
+
+    --- @type CommandoCamera
+    local commandoCamera = CNC.Import( "renhud/code/combat/commando-camera.lua" )
+
+    --- @type DamageLib
+    local damageLib = CNC.Import( "renhud/sh_damage.lua" )
+-- #endregion
+
+
+--#region Imported Enums
 
     local damageDirectionEnum = damageLib.DAMAGE_DIRECTION
 --#endregion
 
 
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "CombatManager"
 
     --- [[ Public ]]
 
