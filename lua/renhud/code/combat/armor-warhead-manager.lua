@@ -32,11 +32,35 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imported Enums
 --#endregion
 
+--[[ Section Names ]] do
+
+    STATIC.SECTION_SOFT_ARMOR_TYPES			    = "Soft_Armor_Types"
+    STATIC.SECTION_HARD_ARMOR_TYPES			    = "Hard_Armor_Types"
+    STATIC.SECTION_ARMOR_TYPES					= "Armor_Types"
+    STATIC.SECTION_WARHEAD_TYPES				= "Warhead_Types"
+    STATIC.SECTION_SCALE						= "Scale_%s"
+    STATIC.SECTION_SHIELD						= "Shield_%s"
+    STATIC.SECTION_ARMOR_SAVE_IDS				= "Armor_Save_IDs"
+    STATIC.SECTION_WARHEAD_SAVE_IDS			    = "Warhead_Save_IDs"
+    STATIC.SECTION_SOFT_ARMOR					= "Soft_Armor"
+    STATIC.SECTION_SPECIAL_DAMAGE_TYPE			= "Special_Damage_Type"
+    STATIC.SECTION_SPECIAL_DAMAGE_PROBABILITY	= "Special_Damage_Probability"
+    STATIC.SECTION_VISCEROID_PROBABILITY		= "Visceroid_Probability"
+end
+
+--[[ Entry Names ]] do
+
+    STATIC.ENTRY_WARHEAD    = "Warhead"
+    STATIC.ENTRY_DURATION   = "Duration"
+    STATIC.ENTRY_SCALE      = "Scale"
+    STATIC.ENTRY_EXPLOSION  = "Explosion"
+end
 
 --- @class ArmorWarheadManagerClass
 --- @field private Multipliers number
 --- @field private Absorbsion number
 
+STATIC.ARMOR_INI_FILENAME = "armor_ini.txt"
 
 --[[ Build ]] do
 

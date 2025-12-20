@@ -82,7 +82,7 @@ end
 --- @return boolean true
 function INSTANCE:Load( cload )
 
-    Section.Start( CLASS .. " Load Start" )
+    Section.Start( "Loading " .. CLASS )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE

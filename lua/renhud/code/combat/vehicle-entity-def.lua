@@ -174,6 +174,8 @@ end
 function INSTANCE:Load( cload )
     -- Omitted freeing transition list
 
+    Section.Start( "Loading " .. CLASS )
+
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
 
@@ -225,6 +227,8 @@ function INSTANCE:Load( cload )
             Section.Print( "Unrecognized " .. CLASS .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
         end
     end
+
+    Section.End()
 
     return true
 end

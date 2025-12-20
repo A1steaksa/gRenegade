@@ -105,7 +105,7 @@ function INSTANCE:Load( cload )
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
 
-    Section.Start( CLASS .. " Load Start" )
+    Section.Start( "Loading " .. CLASS )
 
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()

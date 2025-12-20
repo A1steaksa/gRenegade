@@ -110,7 +110,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    Section.Start( CLASS .. " Load Start" )
+    Section.Start( "Loading " .. CLASS )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = persistClass.DATA_TYPE

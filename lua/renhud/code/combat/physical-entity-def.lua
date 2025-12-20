@@ -132,6 +132,8 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
+    Section.Start( "Loading " .. CLASS )
+
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
 
@@ -175,6 +177,8 @@ function INSTANCE:Load( cload )
 
         cload:CloseChunk()
     end
+
+    Section.End()
 
     return true
 end
