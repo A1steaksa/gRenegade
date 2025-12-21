@@ -3,9 +3,9 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class W3dClass 
+--- @class WW3dClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "W3dClass"
+STATIC.Class = "WW3dClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

@@ -25,7 +25,7 @@ if not CLIENT then return end
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
-    --- @type WW3d
+    --- @type WW3dClass
     local ww3dClass = CNC.Import( "renhud/client/code/ww3d2/ww3d.lua" )
 
     --- @type ShaderClass
