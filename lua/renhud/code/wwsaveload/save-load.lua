@@ -151,7 +151,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param subsys SaveLoadSubSystemInstance
         function STATIC.RegisterSubSystem( subsys )
-            print( "Registering sub-system: \"" .. subsys:Name() .. "\" with Chunk ID: " .. subsys:ChunkId() )
+            Section.Print( "Registering sub-system: \"" .. subsys:Name() .. "\" with Chunk ID: " .. subsys:ChunkId() )
             STATIC.LinkSubSystem( subsys )
         end
 
@@ -169,7 +169,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param factory PersistFactoryInstance
         function STATIC.RegisterPersistFactory( factory )
-            print( "Registering persist factory with Chunk ID: " .. factory:ChunkId() )
+            Section.Print( "Registering persist factory with Chunk ID: " .. factory:ChunkId() )
             STATIC.LinkFactory( factory )
         end
 
@@ -182,12 +182,12 @@ local isHotload = not table.IsEmpty( STATIC )
         ---@param subsys SaveLoadSubSystemInstance
         function STATIC.LinkSubSystem( subsys )
             if STATIC.LoadedSubSystems[subsys] then
-                error( "Sub-systems should never register twice!" )
+                Section.Error( "Sub-systems should never register twice!" )
                 return
             end
 
             if STATIC.IdToSubSystem[subsys:ChunkId()] then
-                error( "Sub-system chunk ID re-use detected!" )
+                Section.Error( "Sub-system chunk ID re-use detected!" )
             end
 
             STATIC.LoadedSubSystems[subsys] = true
@@ -203,17 +203,17 @@ local isHotload = not table.IsEmpty( STATIC )
         function STATIC.LinkFactory( factory )
 
             if STATIC.LoadedFactories[factory] then
-                error( "Factories should never register twice!" )
+                Section.Error( "Factories should never register twice!" )
             end
 
             local chunkId = factory:ChunkId()
 
             if not chunkId then
-                error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
+                Section.Error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
             end
 
             if STATIC.IdToFactory[chunkId] then
-                error( "Persist Factory chunk ID re-use detected!" )
+                Section.Error( "Persist Factory chunk ID re-use detected!" )
             end
 
             STATIC.LoadedFactories[factory] = true
