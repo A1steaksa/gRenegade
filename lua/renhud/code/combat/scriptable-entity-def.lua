@@ -83,11 +83,6 @@ function INSTANCE:Load( cload )
 
     local ids = STATIC.ChunkIds
 
-    --- @class ScriptableEntityDefLoadVals
-    --- @field ScriptName string
-    --- @field ScriptParameters string
-    local readVals = {}
-
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
 
@@ -98,6 +93,12 @@ function INSTANCE:Load( cload )
             Section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
+
+                --- @class ScriptableEntityDefLoadVals
+                --- @field ScriptName string
+                --- @field ScriptParameters string
+                local readVals = {}
+
                 local microChunkId = cload:CurMicroChunkId()
 
                 if microChunkId == ids.MICROCHUNKID_DEF_SCRIPT_NAME then
