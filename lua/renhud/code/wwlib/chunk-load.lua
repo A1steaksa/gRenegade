@@ -27,9 +27,6 @@ INSTANCE.IsChunkLoad = true
 --- @type SaveLoadSystemClass
 local saveLoadSystemClass = CNC.Import( "renhud/code/wwsaveload/save-load.lua" )
 
---- @type DefinitionManagerClass
-local definitionManagerclass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
-
 --- @type ChunkHeaderClass
 local chunkHeaderClass = CNC.Import( "renhud/code/wwlib/chunk-header.lua" )
 
@@ -92,12 +89,12 @@ function PrintByteStringBinary( label, byteString )
     print( label, outputBinaryString )
 end
 
+local MAX_STACK_DEPTH = 256
+
 --[[ Static Functions and Variables ]] do
 
     --- @class ChunkLoadInstance
     --- @field Converter BinaryConverter
-
-    local MAX_STACK_DEPTH = 256
 
     --- Creates a new ChunkLoadInstance
     --- @param file File
@@ -187,6 +184,7 @@ concommand.Add( "ren_test", function()
 
     local chunkedFile = file.Open( "data/renegade/always_dat/object.ddb.txt", "rb", "THIRDPARTY" )
 
+    Section.Reset()
     Section.Enable()
 
     local cload = STATIC.New( chunkedFile )
@@ -196,12 +194,11 @@ concommand.Add( "ren_test", function()
 
         local subSystem = saveLoadSystemClass.FindSubSystem( chunkId )
         if subSystem then
+            Section.Start( "Loading Subsystem: " .. subSystem:Name() )
             subSystem:Load( cload )
+            Section.End( "Loaded Subsystem: " .. subSystem:Name() )
         else
-            local persistFactory = saveLoadSystemClass.FindPersistFactory( chunkId )
-            if persistFactory then
-                persistFactory:Load( cload )
-            end
+            Section.Warn( "No subsystem found for chunk ID " .. chunkId )
         end
 
         cload:CloseChunk()
@@ -222,20 +219,6 @@ end )
 --- @field private MicroChunkPosition integer
 --- @field private MicroChunkHeader MicroChunkHeaderInstance
 
-
---- The expected byte size of an IoVector2Instance
-local IO_VECTOR_2_SIZE = 8
-
---- The expected byte size of an IoVector3Instance
-local IO_VECTOR_3_SIZE = 12
-
---- The expected byte size of an IoVector4Instance
-local IO_VECTOR_4_SIZE = 16
-
---- The expected byte size of an IoQuaternionInstance
-local IO_QUATERNION_SIZE = 16
-
-
 --- Constructs a new ChunkLoadInstance
 --- @param file File
 function INSTANCE:Renegade_ChunkLoad( file )
@@ -253,21 +236,23 @@ end
     --- "Open a chunk in the file, reads in the chunk header"
     --- @return boolean # `true` if a chunk was opened, `false` otherwise, including if a parent chunk has run out of child chunks
     function INSTANCE:OpenChunk()
+        -- "If user didn't close any micro chunks that [they] opened, bad things could happen"
+        assert( self.InMicroChunk == false )
+
+        -- "Check for stack overflow"
+        assert( self.StackIndex < MAX_STACK_DEPTH - 1 )
+
         -- "If the parent chunk has been completely eaten, return false"
-        local stackIndex = self.StackIndex
-        if ( stackIndex > 0 ) and ( self.PositionStack[stackIndex - 1] == self.HeaderStack[stackIndex - 1]:GetSize() ) then
+        if ( self.StackIndex > 0 ) and ( self.PositionStack[self.StackIndex - 1] == self.HeaderStack[self.StackIndex - 1]:GetSize() ) then
             return false
         end
 
         -- "Read the chunk header"
-        local byteCountToRead = chunkHeaderClass.ByteSize
-        local byteString = self.File:Read( byteCountToRead )
-        if not byteString or string.len( byteString ) ~= byteCountToRead then
+        local chunkHeaderBytes = self.File:Read( chunkHeaderClass.ByteSize )
+        if not chunkHeaderBytes or #chunkHeaderBytes ~= chunkHeaderClass.ByteSize then
             return false
         end
-
-        local header = STATIC.ByteStringToChunkHeader( byteString )
-        self.HeaderStack[self.StackIndex] = header
+        self.HeaderStack[self.StackIndex] = STATIC.ByteStringToChunkHeader( chunkHeaderBytes )
 
         self.PositionStack[self.StackIndex] = 0
         self.StackIndex = self.StackIndex + 1
@@ -277,17 +262,22 @@ end
     --- "Close a chunk, seeks to the end if needed"
     --- @return boolean true
     function INSTANCE:CloseChunk()
-        local chunkSize = self.HeaderStack[self.StackIndex - 1]:GetSize()
-        local position = self.PositionStack[self.StackIndex - 1]
+        -- "If user didn't close any micro chunks that [they] opened, bad things could happen"
+        assert( self.InMicroChunk == false )
 
-        if position < chunkSize then
-            self.File:Seek( self.File:Tell() + chunkSize - position )
+        -- "Check for stack overflow"
+        assert( self.StackIndex > 0 )
+
+        local cSize = self.HeaderStack[self.StackIndex - 1]:GetSize()
+        local pos = self.PositionStack[self.StackIndex - 1]
+
+        if pos < cSize then
+            self.File:Seek( self.File:Tell() + cSize - pos )
         end
 
         self.StackIndex = self.StackIndex - 1
         if self.StackIndex > 0 then
-            local index = self.StackIndex - 1
-            self.PositionStack[index] = self.PositionStack[index] + chunkSize + chunkHeaderClass.ByteSize
+            self.PositionStack[self.StackIndex - 1] = self.PositionStack[self.StackIndex - 1] + cSize + chunkHeaderClass.ByteSize
         end
 
         return true
@@ -320,13 +310,13 @@ end
     --- "Reads in a micro-chunk header"
     --- @return boolean # `true` if the micro chunk header was opened successfully, `false` otherwise 
     function INSTANCE:OpenMicroChunk()
+        assert( not self.InMicroChunk )
 
         -- "Read the chunk header"
         -- "Calling the ChunkLoadClass:Read fn so that if we exhaust the chunk, the read will fail"
-        local byteCountToRead = microChunkHeaderClass.ByteSize
-
-        local readByteCount, byteString = self:Read( byteCountToRead )
-        if readByteCount ~= byteCountToRead then
+        local readByteCount, byteString = self:Read( microChunkHeaderClass.ByteSize )
+        if readByteCount ~= microChunkHeaderClass.ByteSize then
+            Section.Warn( "Open Micro-Chunk failed because file read returned the wrong number of bytes. Expected ", microChunkHeaderClass.ByteSize, " but got ", readByteCount )
             return false
         end
         --- @cast byteString string
@@ -335,27 +325,25 @@ end
 
         self.InMicroChunk = true
         self.MicroChunkPosition = 0
-
         return true
     end
 
     --- "Closes a micro-chunk (seeks to end)"
     --- @return boolean true
     function INSTANCE:CloseMicroChunk()
+        assert( self.InMicroChunk )
         self.InMicroChunk = false
 
-        local headerSize = self.MicroChunkHeader:GetSize()
+        local cSize = self.MicroChunkHeader:GetSize()
         local pos = self.MicroChunkPosition
 
         -- "Seek the file past this micro chunk"
-        if pos < headerSize then
-            local delta = headerSize - pos
-            self.File:Seek( self.File:Tell() + delta )
+        if pos < cSize then
+            self.File:Seek( self.File:Tell() + cSize - pos )
 
             -- "Update the tracking variables for where we are in the normal chunk"
             if self.StackIndex > 0 then
-                local index = self.StackIndex - 1
-                self.PositionStack[index] = self.PositionStack[index] + delta
+                self.PositionStack[self.StackIndex - 1] = self.PositionStack[self.StackIndex - 1] + cSize - pos
             end
         end
 
@@ -459,9 +447,10 @@ function INSTANCE:Seek( byteCount )
     end
 
     local curPos = self.File:Tell()
-    local seekPos = self.File:Seek( self.File:Tell() + byteCount )
+    self.File:Seek( self.File:Tell() + byteCount )
     local newPos = self.File:Tell()
-    if newPos - curPos ~= byteCount then
+    if newPos - curPos ~= byteCount then 
+        Section.Warn( "Chunk Load Seek has incorrect end position" )
         return 0
     end
 
@@ -499,7 +488,7 @@ function INSTANCE:PeekNextChunk()
 
     -- Revert to the position in the file we were at before we read.
     -- Without this, we wouldn't be "peeking"
-    self.File:Seek( self.File:Tell() + preReadPos )
+    self.File:Seek( preReadPos )
 
     local id = tempHeader:GetType()
     local size = tempHeader:GetSize()
