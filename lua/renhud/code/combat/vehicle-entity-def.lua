@@ -175,6 +175,7 @@ end
 function INSTANCE:Load( cload )
     -- Omitted freeing transition list
 
+    Section.Disable()
     Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
@@ -232,6 +233,8 @@ function INSTANCE:Load( cload )
     end
 
     Section.End()
+    Section.Enable()
+    Section.Print( "Loaded ", self.Name )
 
     return true
 end
