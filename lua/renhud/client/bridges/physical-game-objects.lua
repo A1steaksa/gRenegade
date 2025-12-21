@@ -3,12 +3,11 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent class
---- @type CommonBridgeClass
-local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+--- @type CommonBridgeLib
+local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class PhysicalGameObjectsBridgeClass : CommonBridgeClass
-local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
+--- @class PhysicalGameObjectsBridgeClass : CommonBridgeLib
+local LIB = CNC.CreateExport( PARENT )
 
 
 --#region Imports
@@ -18,17 +17,10 @@ local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
 --#endregion
 
 
---[[ Static Functions and Variables ]] do
-
-    local CLASS = "PhysicalGameObjectsBridge"
-
-    --- [[ Public ]]
-
-    --- @param ent Entity
-    --- @return boolean
-    function LIB.IsPhysicalGameObject( ent )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-        -- TODO: Implement something here
-        return true
-    end
+--- @param ent Entity
+--- @return boolean
+function LIB.IsPhysicalGameObject( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    -- TODO: Implement something here
+    return true
 end

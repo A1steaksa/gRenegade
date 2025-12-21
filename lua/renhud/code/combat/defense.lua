@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class DefenseClass
 --- @field instance DefenseInstance The metatable used by DefenseInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "DefenseInstance"
+STATIC.Class = "DefenseClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefenseInstance
 --- @field Static DefenseClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Defense" )
+INSTANCE.Class = "DefenseInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefense = true

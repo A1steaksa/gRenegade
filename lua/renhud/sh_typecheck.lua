@@ -1,6 +1,6 @@
 -- A library for data type validation and error reporting
 
---- @class TypeCheck
+--- @class TypeCheckLib
 local LIB
 
 --[[ Library Setup ]] do
@@ -14,13 +14,10 @@ local LIB
         typecheck = setmetatable( {}, LIB )
     end
 
-    LIB.ProjectName = "C&C Renegade"
+    LIB.Class = "TypeCheckLib"
 end
 
-
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "typecheck"
 
     --- [[ Public ]]
 
@@ -286,7 +283,7 @@ end
                         if isstring( value[1] ) then
                             return value
                         else
-                            typecheck.ArgumentTypeError( CLASS, "EnsureStringTable", 1, type( value[1] ) .. "[]", { "string", "string[]" } )
+                            typecheck.ArgumentTypeError( LIB.Class, "EnsureStringTable", 1, type( value[1] ) .. "[]", { "string", "string[]" } )
                             return {} -- To make LuaLS happy
                         end
                     else
@@ -294,12 +291,12 @@ end
                         return value
                     end
                 else
-                    typecheck.ArgumentError( CLASS, "EnsureStringTable", 1, "Table is not sequential" )
+                    typecheck.ArgumentError( LIB.Class, "EnsureStringTable", 1, "Table is not sequential" )
                     return {} -- To make LuaLS happy
                 end
 
             else
-                typecheck.ArgumentTypeError( CLASS, "EnsureStringTable", 1, type(value), { "string", "string[]" } )
+                typecheck.ArgumentTypeError( LIB.Class, "EnsureStringTable", 1, type(value), { "string", "string[]" } )
                 return {} -- To make LuaLS happy
             end
         end

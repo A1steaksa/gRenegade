@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class DefinitionFactoryManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "DefinitionFactoryManagerClass"
+STATIC.Class = "DefinitionFactoryManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

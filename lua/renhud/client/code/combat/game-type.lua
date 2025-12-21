@@ -3,17 +3,13 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
-
---[[ Class Setup ]] do
-
-    --- The static components of GameType
-    --- @class GameTypeClass
-    STATIC = CNC.CreateExport()
-end
+--- @class GameTypeClass
+local STATIC = CNC.CreateExport()
+STATIC.Class = "GameTypeClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 
---#region Enums
+--#region Exported Enums
 
     --- @enum GameTypeEnum
     STATIC.GAME_TYPE_ENUM = {
@@ -27,10 +23,6 @@ end
 
 
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "GameType"
-
-    --- [[ Public ]]
 
     ---@param gameType GameTypeEnum
     function STATIC.SetGameType( gameType )

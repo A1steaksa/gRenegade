@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class MicroChunkHeaderClass
 --- @field instance MicroChunkHeaderInstance The metatable used by MicroChunkHeaderInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "MicroChunkHeaderInstance"
+STATIC.Class = "MicroChunkHeaderClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class MicroChunkHeaderInstance
 --- @field Static MicroChunkHeaderClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_MicroChunkHeader" )
+INSTANCE.Class = "MicroChunkHeaderInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsMicroChunkHeader = true

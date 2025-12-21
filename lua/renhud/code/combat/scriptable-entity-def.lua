@@ -9,11 +9,12 @@ local PARENT = CNC.Import( "renhud/code/combat/base-entity-def.lua" )
 
 --- @class ScriptableEntityDefClass : BaseEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "ScriptableEntityDefClass"
+STATIC.Class = "ScriptableEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ScriptableEntityDefInstance : BaseEntityDefInstance
 local INSTANCE = robustclass.Register( "Renegade_ScriptableEntityDefClass : Renegade_BaseEntityDefClass" )
+INSTANCE.Class = "ScriptableEntityDefInstance"
 INSTANCE.IsScriptableEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -78,7 +79,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
 
@@ -94,7 +95,7 @@ function INSTANCE:Load( cload )
             PARENT.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
-            Section.Start( CLASS .. " Variables Start" )
+            Section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
                 local microChunkId = cload:CurMicroChunkId()
@@ -108,7 +109,7 @@ function INSTANCE:Load( cload )
                     self.ScriptParameterList[#self.ScriptParameterList + 1] = readVals.ScriptParameters
 
                 else
-                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
@@ -116,7 +117,7 @@ function INSTANCE:Load( cload )
 
             Section.End()
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID", cload:CurChunkId() )
+            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()

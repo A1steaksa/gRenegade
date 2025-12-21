@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class ObjectiveManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "ObjectiveManager"
+STATIC.Class = "ObjectiveManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 
@@ -89,7 +89,7 @@ function STATIC.AddObjective( id, type, status, shortDescriptionId, longDescript
 
     -- Skip duplicate objectives
     if STATIC.FindObjective( id ) then
-        typecheck.Error( CLASS, "AddObjective", "Adding a duplicate objective ID" )
+        typecheck.Error( STATIC.Class, "AddObjective", "Adding a duplicate objective ID" )
         return
     end
 
@@ -251,29 +251,29 @@ end
     --- @return boolean
     function STATIC.IsViewerDisplayed()
         --return STATIC.Viewer.IsDisplayed()
-        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( STATIC.Class )
     end
 
     --- @param shouldDisplayViewer boolean
     --- @return boolean
     function STATIC.DisplayViewer( shouldDisplayViewer )
         --STATIC.Viewer:Display( shouldDisplayViewer )
-        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( STATIC.Class )
     end
 
     function STATIC.PageDownViewer()
         --STATIC.Viewer:PageDown()
-        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( STATIC.Class )
     end
 
     function STATIC.RenderViewer()
         --STATIC.Viewer:Render()
-        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( STATIC.Class )
     end
 
     function STATIC.ReloadViewer()
         --STATIC.Viewer:Initialize()
-        typecheck.NotImplementedError( CLASS )
+        typecheck.NotImplementedError( STATIC.Class )
     end
 end
 

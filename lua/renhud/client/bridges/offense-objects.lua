@@ -3,24 +3,16 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent class
---- @type CommonBridgeClass
-local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+--- @type CommonBridgeLib
+local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class OffenseObjectsBridge : CommonBridgeClass
-local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
+--- @class OffenseObjectsBridge : CommonBridgeLib
+local LIB = CNC.CreateExport( PARENT )
 
 
---[[ Static Functions and Variables ]] do
-
-    local CLASS = "OffenseObjectsBridge"
-
-    --- [[ Public ]]
-
-    --- @param ent Entity
+--- @param ent Entity
     --- @return boolean
     function LIB.IsOffenseObject( ent )
         -- TODO: Implement something here
         return true
     end
-end

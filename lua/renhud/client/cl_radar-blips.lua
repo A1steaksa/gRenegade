@@ -4,7 +4,7 @@ local CNC = CNC_RENEGADE
 -- Library that handles converting Entities into radar blips and storing their related information 
 --- @class RadarBlipsLib
 local LIB = CNC.CreateExport()
-local CLASS = "RadarBlipsLib"
+LIB.Class = "RadarBlipsLib"
 local isHotload = not table.IsEmpty( LIB )
 
 

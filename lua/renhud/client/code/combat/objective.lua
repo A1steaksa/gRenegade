@@ -7,13 +7,14 @@ local CNC = CNC_RENEGADE
 --- @class ObjectiveClass
 --- @field Instance ObjectiveInstance The metatable used by ObjectiveInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "ObjectiveClass"
+STATIC.Class = "ObjectiveClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- An objective that will appear in multiple places on the HUD
 --- @class ObjectiveInstance
 --- @field Static ObjectiveClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Objective" )
+INSTANCE.Class = "ObjectiveInstance"
 INSTANCE.IsObjective = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC

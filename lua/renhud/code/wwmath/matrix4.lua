@@ -3,24 +3,19 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC, INSTANCE
+--- @class Matrix4Class
+--- @field Instance Matrix4Instance The metatable used by Matrix4Instance
+local STATIC = CNC.CreateExport()
+STATIC.Class = "Matrix4Class"
+local isHotload = not table.IsEmpty( STATIC )
 
---[[ Class Setup ]] do
-
-    --- The instanced components of Matrix4
-    --- @class Matrix4Instance
-    --- @field Static Matrix4 The static table for this instance's class
-    INSTANCE = robustclass.Register( "Renegade_Matrix4" )
-
-    --- The static components of Matrix4
-    --- @class Matrix4
-    --- @field Instance Matrix4Instance The Metatable used by Matrix4Instance
-    STATIC = CNC.CreateExport()
-
-    STATIC.Instance = INSTANCE
-    INSTANCE.Static = STATIC
-    INSTANCE.IsMatrix4 = true
-end
+--- @class Matrix4Instance
+--- @field Static Matrix4Class The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_Matrix4" )
+INSTANCE.Class = "Matrix4Instance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsMatrix4 = true
 
 
 --#region Imports
@@ -34,9 +29,6 @@ end
 
 
 --[[ Static Functions and Variables ]] do
-    local CLASS = "Matrix4"
-
-    --- [[ Public ]]
 
     --- @class Matrix4
 
@@ -61,7 +53,6 @@ end
 
 
 --[[ Instanced Functions and Variables ]] do
-    local CLASS = "Matrix4Instance"
 
     --- [[ Public ]]
 
@@ -93,7 +84,7 @@ end
         }
 
         -- Omitted constructors
-        typecheck.AssertArgCount( CLASS, argCount, 0 )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, 0 )
     end
 
     function INSTANCE:MakeIdentity()
@@ -113,12 +104,12 @@ end
     --- @overload fun( a: Matrix4Instance,  b: Vector4Instance  ): Vector4Instance
     --- @overload fun( a: Matrix3dInstance, b: Matrix4Instance  ): Matrix4Instance
     function INSTANCE.__mul( a, b )
-        typecheck.AssertArgType( CLASS, 1, a, { "number", "Matrix4Instance", "Matrix3dInstance" } )
-        typecheck.AssertArgType( CLASS, 2, b, { "number", "Vector", "Matrix4Instance", "Matrix3dInstance", "Vector4Instance" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, a, { "number", "Matrix4Instance", "Matrix3dInstance" } )
+        typecheck.AssertArgType( INSTANCE.Class, 2, b, { "number", "Vector", "Matrix4Instance", "Matrix3dInstance", "Vector4Instance" } )
 
         -- ( a: number, b: Matrix4Instance ): Matrix4Instance
         if isnumber( a ) then
-            typecheck.AssertArgType( CLASS, 2, b, "Matrix4Instance" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, b, "Matrix4Instance" )
             --- @cast a number
             --- @cast b Matrix4Instance
             return b * a
@@ -126,7 +117,7 @@ end
 
         -- ( a: Matrix4Instance|Matrix3dInstance, b: Matrix4Instance ): Matrix4Instance
         if STATIC.IsMatrix4( b ) then
-            typecheck.AssertArgType( CLASS, 1, a, { "Matrix4Instance", "Matrix3dInstance" } )
+            typecheck.AssertArgType( INSTANCE.Class, 1, a, { "Matrix4Instance", "Matrix3dInstance" } )
 
             --- @cast a Matrix4Instance|Matrix3dInstance
             --- @cast b Matrix4Instance
@@ -275,11 +266,11 @@ end
     function INSTANCE:InitPerspective( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 4, 6 } )
-        typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-        typecheck.AssertArgType( CLASS, 2, args[2], "number" )
-        typecheck.AssertArgType( CLASS, 3, args[3], "number" )
-        typecheck.AssertArgType( CLASS, 4, args[4], "number" )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 4, 6 } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "number" )
 
         -- ( self: Matrix4Instance, horizontalFov: number, verticalFov: number, zNear: number, zFar: number )
         if argCount == 4 then
@@ -303,8 +294,8 @@ end
 
         -- ( left: number, right: number, bottom: number, top: number, zNear: number, zFar: number )
         if argCount == 6 then
-            typecheck.AssertArgType( CLASS, 5, args[5], "number" )
-            typecheck.AssertArgType( CLASS, 6, args[6], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 5, args[5], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 6, args[6], "number" )
 
             local left   = args[1] --[[@as number]]
             local right  = args[2] --[[@as number]]

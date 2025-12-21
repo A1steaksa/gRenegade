@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class ArmorWarheadManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "ArmorWarheadManagerClass"
+STATIC.Class = "ArmorWarheadManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

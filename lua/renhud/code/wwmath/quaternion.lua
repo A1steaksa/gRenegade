@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class QuaternionClass
 --- @field instance QuaternionInstance The metatable used by QuaternionInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "QuaternionInstance"
+STATIC.Class = "QuaternionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class QuaternionInstance
 --- @field Static QuaternionClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Quaternion" )
+INSTANCE.Class = "QuaternionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsQuaternion = true
@@ -297,7 +298,7 @@ INSTANCE.IsQuaternion = true
     --- @param matrix Matrix3dInstance|Matrix3Instance|Matrix4Instance
     --- @return QuaternionInstance
     function STATIC.BuildQuaternion( matrix )
-        typecheck.AssertArgType( CLASS, 1, matrix, { "Matrix3dInstance", "Matrix3Instance", "Matrix4Instance" } )
+        typecheck.AssertArgType( STATIC.Class, 1, matrix, { "Matrix3dInstance", "Matrix3Instance", "Matrix4Instance" } )
 
         -- ( matrix: Matrix3dInstance ): QuaternionInstance
         if typecheck.IsOfType( matrix, "Matrix3dInstance" ) then
@@ -410,7 +411,7 @@ end
 function INSTANCE:Renegade_Quaternion( ... )
     local args = { ... }
     local argCount = select( "#", ... )
-    typecheck.AssertArgCount( CLASS, argCount, {0,1,2,4} )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, {0,1,2,4} )
 
     self.Data = {
         x = 0,
@@ -426,7 +427,7 @@ function INSTANCE:Renegade_Quaternion( ... )
 
     -- ( init: boolean )
     if argCount == 1 then
-        local init = typecheck.AssertArgType( CLASS, 1, args[1], "boolean" ) --[[@as boolean]]
+        local init = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "boolean" ) --[[@as boolean]]
 
         if init then
             self.x = 0.0
@@ -440,8 +441,8 @@ function INSTANCE:Renegade_Quaternion( ... )
 
     -- ( axis: Vector, angle: number )
     if argCount == 2 then
-        local axis  = typecheck.AssertArgType( CLASS, 1, args[1], "Vector" ) --[[@as Vector]]
-        local angle = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
+        local axis  = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" ) --[[@as Vector]]
+        local angle = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" ) --[[@as number]]
 
         local sine   = math.sin( angle / 2 )
         local cosine = math.cos( angle / 2 )
@@ -456,10 +457,10 @@ function INSTANCE:Renegade_Quaternion( ... )
 
     -- ( a: number, b: number, c: number, d: number )
     if argCount == 4 then
-        local a = typecheck.AssertArgType( CLASS, 1, args[1], "number" ) --[[@as number]]
-        local b = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
-        local c = typecheck.AssertArgType( CLASS, 3, args[3], "number" ) --[[@as number]]
-        local d = typecheck.AssertArgType( CLASS, 4, args[4], "number" ) --[[@as number]]
+        local a = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" ) --[[@as number]]
+        local b = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" ) --[[@as number]]
+        local c = typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" ) --[[@as number]]
+        local d = typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "number" ) --[[@as number]]
 
         self.x = a
         self.y = b
@@ -590,8 +591,8 @@ end
     --- @overload fun( a: QuaternionInstance, b: number ):QuaternionInstance
     --- @overload fun( a: QuaternionInstance, b: QuaternionInstance ):QuaternionInstance
     function INSTANCE.__mul( a, b )
-        typecheck.AssertArgType( CLASS, 1, a, "QuaternionInstance" )
-        typecheck.AssertArgType( CLASS, 2, b, { "number", "QuaternionInstance" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, a, "QuaternionInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, b, { "number", "QuaternionInstance" } )
 
         -- ( a: QuaternionInstance, scalar: number ): QuaternionInstance
         if typecheck.IsOfType( b, "number" ) then

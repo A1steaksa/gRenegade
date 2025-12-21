@@ -8,11 +8,12 @@ local PARENT = CNC.Import( "renhud/code/combat/smart-entity-def.lua" )
 
 --- @class VehicleEntityDefClass : SmartEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "VehicleEntityDefClass"
+STATIC.Class = "VehicleEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class VehicleEntityDefInstance : SmartEntityDefInstance
 local INSTANCE = robustclass.Register( "Renegade_VehicleEntityDefClass : Renegade_SmartEntityDefClass" )
+INSTANCE.Class = "VehicleEntityDefInstance"
 INSTANCE.IsVehicleEntityDefInstance = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -174,7 +175,7 @@ end
 function INSTANCE:Load( cload )
     -- Omitted freeing transition list
 
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
@@ -186,7 +187,7 @@ function INSTANCE:Load( cload )
             PARENT.Instance.Load( self, cload )
 
         elseif id == ids.CHUNKID_DEF_TRANSITION then
-            Section.Print( CLASS .. " Transition Loading is not yet implemented" )
+            Section.Print( INSTANCE.Class .. " Transition Loading is not yet implemented" )
 
         elseif id == ids.CHUNKID_DEF_VARIABLES then
 
@@ -218,13 +219,13 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID, dataTypeEnum.Int, "NodDestroyReportId" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )
+                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )
                 end
 
                 cload:CloseMicroChunk()
             end
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
+            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
         end
     end
 

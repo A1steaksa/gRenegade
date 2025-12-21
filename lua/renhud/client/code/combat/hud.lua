@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class HudClass
 local STATIC = CNC.CreateExport()
-local CLASS = "Hud"
+STATIC.Class = "HudClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

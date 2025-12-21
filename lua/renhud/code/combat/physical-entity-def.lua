@@ -9,14 +9,16 @@ local PARENT = CNC.Import( "renhud/code/combat/damageable-entity-def.lua" )
 
 --- @class PhysicalEntityDefClass : DamageableEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "PhysicalEntityDefClass"
+STATIC.Class = "PhysicalEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class PhysicalEntityDefInstance : DamageableEntityDefInstance
 local INSTANCE = robustclass.Register( "Renegade_PhysicalEntityDefClass : Renegade_DamageableEntityDefClass" )
+INSTANCE.Class = "PhysicalEntityDefInstance"
 INSTANCE.IsPhysicalEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
+
 
 --#region Imports
 
@@ -132,7 +134,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
@@ -163,7 +165,7 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_USE_CREATION_EFFECT, dataTypeEnum.Boolean, "UseCreationEffect" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
@@ -172,7 +174,7 @@ function INSTANCE:Load( cload )
             defenseEntityDefClass.Instance.Load( self, cload )
 
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID", cload:CurChunkId() )
+            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()

@@ -3,13 +3,11 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent class
---- @type CommonBridgeClass
-local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+--- @type CommonBridgeLib
+local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class VectorBridgeClass : CommonBridgeClass
-local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
-local CLASS = "VectorBridgeClass"
+--- @class VectorBridgeClass : CommonBridgeLib
+local LIB = CNC.CreateExport( PARENT )
 
 --- Sets each component of a Vector to the minimum value for that component between itself and another Vector
 --- @param toUpdate Vector

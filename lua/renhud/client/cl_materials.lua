@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class MaterialsLib
 local LIB = CNC.CreateExport()
-local CLASS = "MaterialsLib"
+LIB.Class = "MaterialsLib"
 local isHotload = not table.IsEmpty( LIB )
 
 --- @private

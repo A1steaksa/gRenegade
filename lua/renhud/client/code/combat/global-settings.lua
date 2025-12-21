@@ -5,7 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class GlobalSettingsClass
 local STATIC = CNC.CreateExport()
-local CLASS = "GlobalSettings"
+STATIC.Class = "GlobalSettingsClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 STATIC.Colors = {}
 

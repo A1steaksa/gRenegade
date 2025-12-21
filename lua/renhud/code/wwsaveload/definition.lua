@@ -3,17 +3,17 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent
 --- @type PersistClass
-local parent = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+local PARENT = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
 
 --- @class DefinitionClass : PersistClass
-local STATIC = CNC.CreateExport( parent )
-local CLASS = "DefinitionInstance"
+local STATIC = CNC.CreateExport( PARENT )
+STATIC.Class = "DefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefinitionInstance : PersistInstance
 local INSTANCE = robustclass.Register( "Renegade_Definition : Renegade_Persist" )
+INSTANCE.Class = "DefinitionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefinition = true
@@ -92,7 +92,7 @@ end
     --- @param cload ChunkLoadInstance
     --- @return boolean `true`
     function INSTANCE:Load( cload )
-        Section.Start( CLASS .. " Load Start" )
+        Section.Start( STATIC.Class .. " Load Start" )
 
         local retVal = true
 

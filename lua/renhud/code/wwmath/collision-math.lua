@@ -3,14 +3,10 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
-
---[[ Class Setup ]] do
-
-    --- The static components of CollisionMath
-    --- @class CollisionMath
-    STATIC = CNC.CreateExport()
-end
+--- @class CollisionMathClass
+local STATIC = CNC.CreateExport()
+STATIC.Class = "CollisionMathClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 --#region Enums
     --- Overlap Functions.
@@ -35,8 +31,8 @@ end
     local overlapType = STATIC.OVERLAP_TYPE
 --#endregion
 
+
 --[[ Static Functions and Variables ]] do
-    local CLASS = "CollisionMath"
 
     --- A map of (Type A, Type B): Func( A, B ): OverlapType
     --- @type table<string, table<string, function>>
@@ -54,9 +50,9 @@ end
     --- @param bType string
     --- @param overlapFunction fun( a: any, b: any ):OverlapType
     function STATIC.AddOverlapTest( aType, bType, overlapFunction )
-        typecheck.AssertArgType( CLASS, 1, aType, "string" )
-        typecheck.AssertArgType( CLASS, 2, bType, "string" )
-        typecheck.AssertArgType( CLASS, 3, overlapFunction, "function" )
+        typecheck.AssertArgType( STATIC.Class, 1, aType, "string" )
+        typecheck.AssertArgType( STATIC.Class, 2, bType, "string" )
+        typecheck.AssertArgType( STATIC.Class, 3, overlapFunction, "function" )
 
         aType = aType:Trim():lower()
         bType = bType:Trim():lower()

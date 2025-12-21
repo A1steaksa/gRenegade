@@ -9,20 +9,23 @@ local PARENT = CNC.Import( "renhud/code/combat/physical-entity-def.lua" )
 
 --- @class ArmedEntityDefClass : PhysicalEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "ArmedEntityDefClass"
+STATIC.Class = "ArmedEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ArmedEntityDefInstance : PhysicalEntityDefInstance
 local INSTANCE = robustclass.Register( "Renegade_ArmedEntityDefClass : Renegade_PhysicalEntityDefClass" )
+INSTANCE.Class = "ArmedEntityDefInstance"
 INSTANCE.IsArmedEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
+
 
 --#region Imports
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
 --#endregion
+
 
 --[[ Chunk IDs ]] do
 
@@ -48,6 +51,7 @@ INSTANCE.Static = STATIC
         MICROCHUNKID_DEF_SECONDARY_WEAPON_DEF_ID            = enumBuilder:Next(),
     }
 end
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -105,7 +109,7 @@ function INSTANCE:Load( cload )
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
 
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
@@ -113,7 +117,7 @@ function INSTANCE:Load( cload )
         if chunkId == STATIC.ChunkIds.CHUNKID_DEF_PARENT then
             PARENT.Instance.Load( self, cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
-            Section.Start( CLASS .. " Variables Start" )
+            Section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
                 local didRead =
@@ -129,7 +133,7 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ERROR, dataTypeEnum.Float, "WeaponError" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    Section.Print( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
@@ -137,7 +141,7 @@ function INSTANCE:Load( cload )
 
             Section.End()
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID", cload:CurChunkId() )
+            Section.Print( "Unrecognized ", INSTANCE.Class, " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()

@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class PlayerType
 local STATIC = CNC.CreateExport()
-local CLASS = "PlayerType"
+STATIC.Class = "PlayerTypeClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

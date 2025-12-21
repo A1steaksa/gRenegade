@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class WeaponBagClass
 --- @field instance WeaponBagInstance The metatable used by WeaponBagInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "WeaponBagInstance"
+STATIC.Class = "WeaponBagClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class WeaponBagInstance
 --- @field Static WeaponBagClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_WeaponBag" )
+INSTANCE.Class = "WeaponBagInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsWeaponBag = true

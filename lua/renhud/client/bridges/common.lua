@@ -3,9 +3,9 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class CommonBridgeClass
+--- @class CommonBridgeLib
 local LIB = CNC.CreateExport()
-local CLASS = "CommonBridgeClass"
+LIB.Class = "CommonBridgeLib"
 
 
 --#region Imports
@@ -33,14 +33,14 @@ local CLASS = "CommonBridgeClass"
 --- @param ent Entity
 --- @return boolean
 function LIB.IsGdi( ent )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
     return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.GDI
 end
 
 --- @param ent Entity
 --- @return boolean
 function LIB.IsNod( ent )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
     return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.Nod
 end
 
@@ -50,8 +50,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsTeammate( ent, otherEnt )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( CLASS, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
 
     if infoEntityLib.HasEntityInfo( otherEnt ) then
         local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
@@ -65,8 +65,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsEnemy( ent, otherEnt )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( CLASS, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
 
     if infoEntityLib.HasEntityInfo( otherEnt ) then
         local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
@@ -81,8 +81,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsNeutral( ent, otherEnt )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( CLASS, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
 
     if infoEntityLib.HasEntityInfo( ent ) then
         local info = infoEntityLib.GetEntityInfo( ent ) --[[@as InfoEntityData]]
@@ -155,7 +155,7 @@ end
 --- @param ent Entity
 --- @return PlayerTypeEnum
 function LIB.GetPlayerType( ent )
-    typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
 
     local class = ent:GetClass()
 

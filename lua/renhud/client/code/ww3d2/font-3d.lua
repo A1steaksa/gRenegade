@@ -3,24 +3,19 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC, INSTANCE
+--- @class Font3dClass
+--- @field instance Font3dInstance The metatable used by Font3dInstance
+local STATIC = CNC.CreateExport()
+STATIC.Class = "Font3dClass"
+local isHotload = not table.IsEmpty( STATIC )
 
---[[ Class Setup ]] do
-
-    --- The instanced components of Font3d
-    --- @class Font3dInstance
-    --- @field Static Font3dClass The static table for this instance's class
-    INSTANCE = robustclass.Register( "Renegade_Font3d" )
-
-    --- The static components of Font3d
-    --- @class Font3dClass
-    --- @field Instance Font3dInstance The Metatable used by Font3dInstance
-    STATIC = CNC.CreateExport()
-
-    STATIC.Instance = INSTANCE
-    INSTANCE.Static = STATIC
-    INSTANCE.IsFont3d = true
-end
+--- @class Font3dInstance
+--- @field Static Font3dClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_Font3d" )
+INSTANCE.Class = "Font3dInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsFont3d = true
 
 
 --#region Imports
@@ -34,10 +29,6 @@ end
 
 
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "Font3d"
-
-    --- [[ Public ]]
 
     --- Creates a new Font3dInstance
     --- @param fontMaterial IMaterial
@@ -59,131 +50,124 @@ end
 end
 
 
---[[ Instanced Functions and Variables ]] do
+--- Constructs a new Font3dInstance
+--- @param fontMaterial IMaterial
+function INSTANCE:Renegade_Font3d( fontMaterial )
+    self.ScaledSpacingTable = {}
+    self.ScaledWidthTable = {}
 
-    local CLASS = "Font3dInstance"
+    self.MonoSpacing = 0
+    self.Scale = 1
+    self.InterCharSpacing = 1
 
-    --- [[ Public ]]
+    self.FontData = font3dData.New( self, fontMaterial )
+    self.SpaceWidth = self.FontData:GetCharWidth( "H" ) / 2
 
-    --- Constructs a new Font3dInstance
-    --- @param fontMaterial IMaterial
-    function INSTANCE:Renegade_Font3d( fontMaterial )
-        self.ScaledSpacingTable = {}
-        self.ScaledWidthTable = {}
+    self:BuildCachedTables()
+end
 
-        self.MonoSpacing = 0
-        self.Scale = 1
-        self.InterCharSpacing = 1
+--- @return IMaterial
+function INSTANCE:PeekMaterial()
+    return self.FontData:PeekMaterial()
+end
 
-        self.FontData = font3dData.New( self, fontMaterial )
-        self.SpaceWidth = self.FontData:GetCharWidth( "H" ) / 2
+--- @param spacing integer The spacing between characters, in pixels, when drawn at a scale of 1
+function INSTANCE:SetInterCharSpacing( spacing )
+    self.InterCharSpacing = math.floor( spacing )
+    self:BuildCachedTables()
+end
 
-        self:BuildCachedTables()
+function INSTANCE:SetMonoSpaced()
+    self.MonoSpacing = self.FontData:GetCharWidth( "W" ) + 1
+    self:BuildCachedTables()
+end
+
+function INSTANCE:SetProportional()
+    self.MonoSpacing = 0
+    self:BuildCachedTables()
+end
+
+--- @param scale number
+function INSTANCE:SetScale( scale )
+    self.Scale = scale
+    self:BuildCachedTables()
+end
+
+--- @return integer # The spacing between characters, in pixels, when drawn at a scale of 1
+function INSTANCE:GetInterCharSpacing()
+    return self.InterCharSpacing
+end
+
+--- @param char string
+--- @return number
+function INSTANCE:GetCharWidth( char )
+    return self.ScaledWidthTable[ char ]
+end
+
+--- @param char string
+--- @return number
+function INSTANCE:GetCharSpacing( char )
+    return self.ScaledSpacingTable[ char ]
+end
+
+--- @return number
+function INSTANCE:GetCharHeight()
+    return self.ScaledHeight
+end
+
+--- @param text string
+--- @return number
+function INSTANCE:GetStringWidth( text )
+    local width = 0
+
+    for _, char in ipairs( string.Explode( "", text ) ) do
+        width = width + self:GetCharSpacing( char )
     end
 
-    --- @return IMaterial
-    function INSTANCE:PeekMaterial()
-        return self.FontData:PeekMaterial()
-    end
+    return width
+end
 
-    --- @param spacing integer The spacing between characters, in pixels, when drawn at a scale of 1
-    function INSTANCE:SetInterCharSpacing( spacing )
-        self.InterCharSpacing = math.floor( spacing )
-        self:BuildCachedTables()
-    end
+--- @param char string
+--- @return RectInstance
+function INSTANCE:GetCharUv( char )
+    return rectClass.New(
+        self.FontData:GetCharUOffset( char ),
+        self.FontData:GetCharVOffset( char ),
+        self.FontData:GetCharUOffset( char ) + self.FontData:GetCharUWidth( char ),
+        self.FontData:GetCharVOffset( char ) + self.FontData:GetCharVHeight()
+    )
+end
 
-    function INSTANCE:SetMonoSpaced()
-        self.MonoSpacing = self.FontData:GetCharWidth( "W" ) + 1
-        self:BuildCachedTables()
-    end
+--- [[ Private ]]
 
-    function INSTANCE:SetProportional()
-        self.MonoSpacing = 0
-        self:BuildCachedTables()
-    end
+--- @class Font3dInstance
+--- @field FontData Font3dDataInstance
+--- @field private SpaceWidth number The unscaled width of a space, in pixels [Default: 1/2 'H' width]
+--- @field private InterCharSpacing number The unscaled width between characters, in pixels
+--- @field private MonoSpacing number The unscaled width between monospaced characters, in pixels (Set to `0` to disable monospacing)
+--- @field private ScaledWidthTable number[] The scaled cache of character widths, in pixels
+--- @field private ScaledSpacingTable number[] The scaled cache of character spacing, in pixels
+--- @field private ScaledHeight number The scaled height of characters, in pixels
 
-    --- @param scale number
-    function INSTANCE:SetScale( scale )
-        self.Scale = scale
-        self:BuildCachedTables()
-    end
-
-    --- @return integer # The spacing between characters, in pixels, when drawn at a scale of 1
-    function INSTANCE:GetInterCharSpacing()
-        return self.InterCharSpacing
-    end
-
-    --- @param char string
-    --- @return number
-    function INSTANCE:GetCharWidth( char )
-        return self.ScaledWidthTable[ char ]
-    end
-
-    --- @param char string
-    --- @return number
-    function INSTANCE:GetCharSpacing( char )
-        return self.ScaledSpacingTable[ char ]
-    end
-
-    --- @return number
-    function INSTANCE:GetCharHeight()
-        return self.ScaledHeight
-    end
-
-    --- @param text string
-    --- @return number
-    function INSTANCE:GetStringWidth( text )
-        local width = 0
-
-        for _, char in ipairs( string.Explode( "", text ) ) do
-            width = width + self:GetCharSpacing( char )
+function INSTANCE:BuildCachedTables()
+    for i = 0, 255 do
+        local char = string.char( i )
+        local width = self.FontData:GetCharWidth( char )
+        local isSpace = char == " "
+        if isSpace then
+            width = self.SpaceWidth
         end
 
-        return width
-    end
+        self.ScaledWidthTable[char] = math.floor( self.Scale * width )
 
-    --- @param char string
-    --- @return RectInstance
-    function INSTANCE:GetCharUv( char )
-        return rectClass.New(
-            self.FontData:GetCharUOffset( char ),
-            self.FontData:GetCharVOffset( char ),
-            self.FontData:GetCharUOffset( char ) + self.FontData:GetCharUWidth( char ),
-            self.FontData:GetCharVOffset( char ) + self.FontData:GetCharVHeight()
-        )
-    end
+        if self.MonoSpacing ~= 0 then
+            self.ScaledSpacingTable[char] = math.floor( self.Scale * self.MonoSpacing )
+        else
+            local effectiveWidth = width + ( isSpace and 0 or self.InterCharSpacing )
 
-    --- [[ Private ]]
-
-    --- @class Font3dInstance
-    --- @field FontData Font3dDataInstance
-    --- @field private SpaceWidth number The unscaled width of a space, in pixels [Default: 1/2 'H' width]
-    --- @field private InterCharSpacing number The unscaled width between characters, in pixels
-    --- @field private MonoSpacing number The unscaled width between monospaced characters, in pixels (Set to `0` to disable monospacing)
-    --- @field private ScaledWidthTable number[] The scaled cache of character widths, in pixels
-    --- @field private ScaledSpacingTable number[] The scaled cache of character spacing, in pixels
-    --- @field private ScaledHeight number The scaled height of characters, in pixels
-
-    function INSTANCE:BuildCachedTables()
-        for i = 0, 255 do
-            local char = string.char( i )
-            local width = self.FontData:GetCharWidth( char )
-            local isSpace = char == " "
-            if isSpace then
-                width = self.SpaceWidth
-            end
-
-            self.ScaledWidthTable[char] = math.floor( self.Scale * width )
-
-            if self.MonoSpacing ~= 0 then
-                self.ScaledSpacingTable[char] = math.floor( self.Scale * self.MonoSpacing )
-            else
-                local effectiveWidth = width + ( isSpace and 0 or self.InterCharSpacing )
-
-                self.ScaledSpacingTable[char] = math.floor( self.Scale * effectiveWidth )
-            end
+            self.ScaledSpacingTable[char] = math.floor( self.Scale * effectiveWidth )
         end
-
-        self.ScaledHeight = math.floor( self.Scale * self.FontData:GetCharHeight() )
     end
+
+    self.ScaledHeight = math.floor( self.Scale * self.FontData:GetCharHeight() )
 end

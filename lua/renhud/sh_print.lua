@@ -2,7 +2,7 @@
 
 --- @class PrintLib
 local LIB = {}
-local CLASS = "PrintLib"
+LIB.Class = "PrintLib"
 local isHotload = not table.IsEmpty( LIB )
 
 Section = LIB
@@ -29,16 +29,11 @@ Section = LIB
 
     --- When `true`, adds a `|` to each level of indentation to make it easier to see which elements are in the same level of indentation
     LIB.IncludeIndentLines = true
+
+    --- After reaching this number of nested sections, prevent printing.
+    --- Set to `-1` to print all messages
+    LIB.MaxDepth = -1
 end
-
-
---[[ State ]] do
-
-    LIB.SectionStack = {}
-    LIB.JustEndedSection = false
-    LIB.IsEnabled = LIB.StartEnabled
-end
-
 
 --[[ Colors ]] do
 
@@ -61,18 +56,25 @@ end
     LIB.ErrorMessageColor   = Color( 255, 100, 100 )
 end
 
-
--- Errors are likely to prevent open sections from being closed properly so just reset the library's state
-hook.Add( "OnLuaError", "A1_SectionLib_ResetSections", function()
+--- Resets the state of the library
+function LIB.Reset()
     LIB.SectionStack = {}
     LIB.JustEndedSection = false
     LIB.SectionLabelFilter = nil
+    LIB.MaxDepth = -1
     LIB.IsEnabled = LIB.StartEnabled
-end )
+end
+
+-- Errors are likely to prevent open sections from being closed properly
+hook.Add( "OnLuaError", "A1_SectionLib_ResetSections", LIB.Reset )
 
 --- @param isEnabled boolean
 function LIB.SetEnabled( isEnabled )
-    LIB.IsEnabled = isEnabled
+    if isEnabled then
+        LIB.Enable()
+    else
+        LIB.Disable()
+    end
 end
 
 function LIB.Enable()
@@ -81,6 +83,21 @@ end
 
 function LIB.Disable()
     LIB.IsEnabled = false
+end
+
+--- Sets the maximum number of nested sections before printing is prevented
+--- @param newMaxDepth integer Set to `-1` to allow all printing
+function LIB.SetMaxDepth( newMaxDepth )
+    if not isnumber( newMaxDepth ) or newMaxDepth < 0 then
+        LIB.MaxDepth = -1
+    else
+        LIB.MaxDepth = math.floor( newMaxDepth )
+    end
+end
+
+--- @return boolean
+function LIB.HasHitMaxDepth()
+    return LIB.MaxDepth ~= -1 and #LIB.SectionStack >= LIB.MaxDepth
 end
 
 --- Prints the label and increases the indentation of all following prints
@@ -98,12 +115,15 @@ function LIB.Start( label )
         end
     end
 
-    -- Include an empty line between the end of sections and further print statements
-    if LIB.JustEndedSection then
-        LIB.Print()
+    if not LIB.HasHitMaxDepth() then
+        -- Include an empty line between the end of sections and further print statements
+        if LIB.JustEndedSection then
+            LIB.Print()
+        end
+
+        LIB.PrivatePrint( label )
     end
 
-    LIB.PrivatePrint( label )
     LIB.SectionStack[#LIB.SectionStack + 1] = label
 
     LIB.JustEndedSection = false
@@ -122,13 +142,16 @@ function LIB.End( closingMessage )
 
     local message
     if closingMessage then
-        message = "Done - " .. tostring( message )
+        message = "Done - " .. tostring( closingMessage )
     else
         message = "Done."
     end
 
     LIB.SectionStack[#LIB.SectionStack] = nil
-    LIB.PrivatePrint( message )
+
+    if not LIB.HasHitMaxDepth() then
+        LIB.PrivatePrint( message )
+    end
 
     LIB.JustEndedSection = true
 end
@@ -184,11 +207,11 @@ function LIB.SetIncludeIndentLines( shouldPrintIndentLines )
 end
 
 function LIB.Error( ... )
-    Section.Print( LIB.ErrorLabelColor, "[ERROR] ", LIB.ErrorMessageColor, ... )
+    error( table.concat( { ... } ) )
 end
 
 function LIB.Warn( ... )
-    Section.Print( LIB.WarningLabelColor, "[WARNING] ", LIB.WarningMessageColor, ... )
+    LIB.Print( LIB.WarningLabelColor, "[WARNING] ", LIB.WarningMessageColor, ... )
 end
 
 --- @private
@@ -220,6 +243,7 @@ end
 --- @vararg any
 function LIB.Print( ... )
     if not LIB.IsEnabled then return end
+    if LIB.HasHitMaxDepth() then return end
     if LIB.SectionLabelFilter then
         if #LIB.SectionStack == 0 then
             return

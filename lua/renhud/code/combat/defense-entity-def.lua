@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class DefenseEntityDefClass
 --- @field instance DefenseEntityDefInstance The metatable used by DefenseEntityDefInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "DefenseDefInstance"
+STATIC.Class = "DefenseDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefenseEntityDefInstance
 --- @field Static DefenseEntityDefClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_DefenseEntityDefClass" )
+INSTANCE.Class = "DefenseDefInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefenseDef = true
@@ -110,7 +111,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = persistClass.DATA_TYPE
@@ -125,7 +126,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.DEFENSEOBJECTDEF_CHUNK_VARIABLES then
-            Section.Start( CLASS .. " Variables Start" )
+            Section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
                 persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTH, dataTypeEnum.Float, "Health" )
@@ -142,7 +143,7 @@ function INSTANCE:Load( cload )
 
             Section.End()
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID", cload:CurChunkId() )
+            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
         Section.End()

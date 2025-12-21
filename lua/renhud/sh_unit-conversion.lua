@@ -6,7 +6,7 @@ local CNC = CNC_RENEGADE
 --- `1` Source Unit == `2.54` Renegade Units  
 --- @class ConversionLib
 local LIB = CNC.CreateExport()
-local CLASS = "ConversionLib"
+LIB.Class = "ConversionLib"
 local isHotload = not table.IsEmpty( LIB )
 
 --- 1 Source Unit is 2.54 Centimeters

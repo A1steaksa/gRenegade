@@ -7,12 +7,13 @@ local CNC = CNC_RENEGADE
 --- @class IniClass
 --- @field instance IniInstance The metatable used by IniInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "IniInstance"
+STATIC.Class = "IniClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class IniInstance
 --- @field Static IniClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Ini" )
+INSTANCE.Class = "IniInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsIni = true
@@ -116,7 +117,7 @@ function INSTANCE:Renegade_Ini( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 
-    typecheck.AssertArgCount( CLASS, argCount, { 0, 1 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 0, 1 } )
 
     -- ()
     if argCount == 0 then
@@ -128,7 +129,7 @@ function INSTANCE:Renegade_Ini( ... )
     if argCount == 1 then
         local arg1 = args[1]
 
-        typecheck.AssertArgType( CLASS, 1, arg1, { "string", "file" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, arg1, { "string", "file" } )
 
         -- ( filePath: string )
         if typecheck.IsOfType( arg1, "string" ) then
@@ -178,7 +179,7 @@ end
     --- @overload fun( self: IniInstance, fileToLoad: File ): boolean
     --- @overload fun( self: IniInstance, filePath: string ): boolean
     function INSTANCE:Load( arg )
-        typecheck.AssertArgType( CLASS, 1, arg, { "file", "string" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, arg, { "file", "string" } )
 
         -- I'm combining the File and Straw implementations a bit as Garry's Mod has some overlap between them
 

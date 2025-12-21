@@ -4,18 +4,19 @@ local CNC = CNC_RENEGADE
 -- A library supporting the HUD's InfoEntity rendering
 --- @class InfoEntityLib
 local LIB = CNC.CreateExport()
-local CLASS = "InfoEntityLib"
+LIB.Class = "InfoEntityLib"
 
---#region Enums
 
---- Describes how Entities feel about each other
---- @enum Disposition
-LIB.DISPOSITION = {
-    Friendly = 1,
-    Enemy    = 2,
-    Neutral  = 3
-}
-local dispositionEnum = LIB.DISPOSITION
+--#region Exported Enums
+
+    --- Describes how Entities feel about each other
+    --- @enum Disposition
+    LIB.DISPOSITION = {
+        Friendly = 1,
+        Enemy    = 2,
+        Neutral  = 3
+    }
+    local dispositionEnum = LIB.DISPOSITION
 --#endregion
 
 

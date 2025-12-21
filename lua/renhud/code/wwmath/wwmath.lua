@@ -6,7 +6,7 @@ local CNC = CNC_RENEGADE
 --- The static components of WWMath
 --- @class WWMathClass
 local LIB = CNC.CreateExport()
-local CLASS = "WWMath"
+LIB.Class = "WWMathClass"
 local isHotload = not table.IsEmpty( LIB )
 
 

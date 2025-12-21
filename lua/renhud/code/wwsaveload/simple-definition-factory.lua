@@ -9,12 +9,13 @@ local PARENT = CNC.Import( "renhud/code/wwsaveload/definition-factory.lua" )
 --- @class SimpleDefinitionFactoryClass : DefinitionFactoryClass
 --- @field instance SimpleDefinitionFactoryInstance The metatable used by SimpleDefinitionFactoryInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "SimpleDefinitionFactoryInstance"
+STATIC.Class = "SimpleDefinitionFactoryClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SimpleDefinitionFactoryInstance : DefinitionFactoryInstance
 --- @field Static SimpleDefinitionFactoryClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_SimpleDefinitionFactory : Renegade_DefinitionFactory" )
+INSTANCE.Class = "SimpleDefinitionFactoryInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsSimpleDefinitionFactory = true
@@ -38,7 +39,7 @@ INSTANCE.IsSimpleDefinitionFactory = true
 
     --- The template data stored prior to instantiation
     --- @class SimpleDefinitionFactoryTemplateData
-    --- @field Class DefinitionClass
+    --- @field _Class DefinitionClass
     --- @field ChunkId integer
     --- @field Name string
     STATIC.TemplateData = {}
@@ -83,7 +84,7 @@ end
 --- @param name string
 function INSTANCE:Renegade_SimpleDefinitionFactory( isDisplayed, class, classId, name )
     self.IsDisplayed = isDisplayed or true
-    self.Class = class
+    self._Class = class
     self.ClassId = classId
     self.Name = name
 end
@@ -96,11 +97,11 @@ end
 --- @return DefinitionClass
 function INSTANCE:GetClass()
     -- Load from the template data if it's accessed before the constructor
-    if not self.Class then
-        self.Class = STATIC.TemplateData.Class
+    if not self._Class then
+        self._Class = STATIC.TemplateData.Class
     end
 
-    return self.Class
+    return self._Class
 end
 
 --- @return string

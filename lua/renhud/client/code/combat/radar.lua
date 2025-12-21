@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class RadarManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "RadarManager"
+STATIC.Class = "RadarManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 
@@ -101,8 +101,8 @@ if not CLIENT then return end
     --- @type ConversionLib
     local conversionLib = CNC.Import( "renhud/sh_unit-conversion.lua" )
 
-    --- @type CommonBridgeClass
-    local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+    --- @type CommonBridgeLib
+    local commonBridgeLib = CNC.Import( "renhud/client/bridges/common.lua" )
 
     --- @type SmartGameObjectsBridge
     local smartGameObjectsBridge = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
@@ -119,6 +119,7 @@ if not CLIENT then return end
 
 
 --#region Imported Enums
+
     local objectiveStatusEnum = objectiveManagerClass.OBJECTIVE_STATUS
     local playerTypeEnum      = playerType.PLAYER_TYPE_ENUM
     local fontStyleEnum       = styleManagerClass.FONT_STYLE
@@ -334,7 +335,6 @@ function STATIC.Update( playerTransformationMatrix, center )
         return
     end
 
-    
     -- "Radar rings"
     local uv = rectClass.New( RADAR_RINGS_UV_UL, RADAR_RINGS_UV_LR )
     local draw = rectClass.New( uv )
@@ -425,8 +425,8 @@ function STATIC.Update( playerTransformationMatrix, center )
                 continue
             else
                 -- Assumes radar mode is teammates-only
-                local otherPlayerType = commonBridge.GetPlayerType( ent )
-                local myPlayerType    = commonBridge.GetPlayerType( combatStar )
+                local otherPlayerType = commonBridgeLib.GetPlayerType( ent )
+                local myPlayerType    = commonBridgeLib.GetPlayerType( combatStar )
 
                 local isDifferentPlayerType = myPlayerType ~= otherPlayerType
                 local isNotOnTeam = not STATIC.TeamPlayerTypes[ myPlayerType ]
@@ -439,8 +439,8 @@ function STATIC.Update( playerTransformationMatrix, center )
 
         -- "Don't show radar blips for enemy stealthed units"
         if smartGameObjectsBridge.IsStealthed( ent ) then
-            local entPlayerType = commonBridge.GetPlayerType( ent )
-            local myPlayerType  = commonBridge.GetPlayerType( combatStar )
+            local entPlayerType = commonBridgeLib.GetPlayerType( ent )
+            local myPlayerType  = commonBridgeLib.GetPlayerType( combatStar )
 
             if myPlayerType ~= entPlayerType then
                 continue

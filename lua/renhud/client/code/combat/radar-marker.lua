@@ -1,34 +1,24 @@
--- Based on RadarMarkerClass within Code/Combat/radar.cpp/h
-
--- This should probably be a struct, but it has equality overrides so it gets to be a class.
+-- Based on RadarMarekrClass within Code/Combat/radar.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC, INSTANCE
+--- @class RadarMarkerClass
+--- @field instance RadarMarkerInstance The metatable used by RadarMarkerInstance
+local STATIC = CNC.CreateExport()
+STATIC.Class = "RadarMarkerClass"
+local isHotload = not table.IsEmpty( STATIC )
 
---[[ Class Setup ]] do
-
-    --- The instanced components of RadarMarker
-    --- @class RadarMarkerInstance
-    --- @field Static RadarMarker The static table for this instance's class
-    INSTANCE = robustclass.Register( "Renegade_RadarMarker" )
-
-    --- The static components of RadarMarker
-    --- @class RadarMarker
-    --- @field Instance RadarMarkerInstance The Metatable used by RadarMarkerInstance
-    STATIC = CNC.CreateExport()
-
-    STATIC.Instance = INSTANCE
-    INSTANCE.Static = STATIC
-    INSTANCE.IsRadarMarker = true
-end
+--- @class RadarMarkerInstance
+--- @field Static RadarMarkerClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_RadarMarker" )
+INSTANCE.Class = "RadarMarkerInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsRadarMarker = true
 
 
 --[[ Static Functions and Variables ]] do
-    local CLASS = "RadarMarker"
-
-    --- [[ Public ]]
 
     --- @class RadarMarker
 
@@ -51,21 +41,15 @@ end
 end
 
 
---[[ Instanced Functions and Variables ]] do
-    local CLASS = "RadarMarkerInstance"
+--- @class RadarMarkerInstance
+--- @field Id integer
+--- @field Type BlipShapeType
+--- @field Color BlipColorType
+--- @field Position Vector
+--- @field Intensity number
 
-    --- [[ Public ]]
-
-    --- @class RadarMarkerInstance
-    --- @field Id integer
-    --- @field Type BlipShapeType
-    --- @field Color BlipColorType
-    --- @field Position Vector
-    --- @field Intensity number
-
-    --- @param other any
-    function INSTANCE:__eq( other )
-        -- This seems like lunatic code, but who am I to judge?
-        return false
-    end
+--- @param other any
+function INSTANCE:__eq( other )
+    -- This seems like lunatic code, but who am I to judge?
+    return false
 end

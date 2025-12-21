@@ -3,20 +3,17 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local LIB
+--- @class SharedCommon
+local LIB = CNC.CreateExport()
+LIB.Class = "SharedCommon"
 
---[[ Class Setup ]] do
-
-    --- @class SharedCommon
-    LIB = CNC.CreateExport()
-end
-
---[[ Static Functions and Variables ]] do
-    local CLASS = "SharedCommon"
-
-    --- [[ Public ]]
-
-    --- @class SharedCommon
-    --- The various `type()` results that constitute an Entity
-    LIB.EntTypes = { "Entity", "NPC", "Player", "Weapon", "Vehicle", "Nextbot" }
-end
+--- The various `type()` results that constitute an Entity
+--- @type string[]
+LIB.EntTypes = {
+    "Entity",
+    "NPC",
+    "Player",
+    "Weapon",
+    "Vehicle",
+    "Nextbot"
+}

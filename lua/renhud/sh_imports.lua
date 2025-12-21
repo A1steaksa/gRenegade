@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class ImportsLib
 local LIB = {}
-local CLASS = "ImportsLib"
+LIB.Class = "ImportsLib"
 
 --- @type table<string, table>
 --- @private
@@ -46,7 +46,6 @@ function LIB.CreateExport( parent )
         tbl.__index = parent
     end
 
-
     LIB.ExportedTables[path] = tbl
     return tbl
 end
@@ -55,7 +54,7 @@ end
 --- @param path string The file path, ending in .lua, of the script to import
 --- @return table
 function LIB.Import( path )
-    typecheck.AssertArgType( CLASS, 1, path, "string" )
+    typecheck.AssertArgType( LIB.Class, 1, path, "string" )
 
     path = path:Trim()
 
@@ -71,7 +70,7 @@ function LIB.Import( path )
         -- Confirm that the script exported something for us to import
         tbl = LIB.ExportedTables[path]
         if not tbl then
-            typecheck.Error( CLASS, "Import", "No table was exported by script: " .. path )
+            typecheck.Error( LIB.Class, "Import", "No table was exported by script: " .. path )
         end
 
         -- Call the post-load static constructor

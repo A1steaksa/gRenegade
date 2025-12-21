@@ -1,11 +1,11 @@
--- Based on Code/wwtranslatedb/translatedb.cpp
+-- Based on TranslateDBClass within Code/wwtranslatedb/translatedb.cpp
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
 --- @class TranslateDbClass
 local STATIC = CNC.CreateExport()
-local CLASS = "TranslateDb"
+STATIC.Class = "TranslateDbClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 

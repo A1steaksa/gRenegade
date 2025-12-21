@@ -4,7 +4,7 @@ local CNC = CNC_RENEGADE
 -- A library supporting the creation of font atlases from OS fonts
 --- @class FontsLib
 local LIB = CNC.CreateExport()
-local CLASS = "FontsLib"
+LIB.Class = "FontsLib"
 local isHotload = not table.IsEmpty( LIB )
 
 
@@ -71,21 +71,21 @@ end
 function LIB.GetCreatedFont( font )
     local fontsWithName = LIB.CreatedFonts[ font.Name ]
     if not fontsWithName then
-        typecheck.Error( CLASS, "GetCreatedFont",
+        typecheck.Error( LIB.Class, "GetCreatedFont",
             "Unable to find Renegade font with name '" .. font.Name .. "'"
         )
     end
 
     local fontsWithSize = fontsWithName[ font.PointSize ]
     if not fontsWithSize then
-        typecheck.Error( CLASS, "GetCreatedFont",
+        typecheck.Error( LIB.Class, "GetCreatedFont",
             "Unable to find Renegade font with name '" .. font.Name .. "' and size " .. font.PointSize
         )
     end
 
     local fontWithBold = fontsWithSize[font.IsBold]
     if not fontWithBold then
-        typecheck.Error( CLASS, "GetCreatedFont",
+        typecheck.Error( LIB.Class, "GetCreatedFont",
             "Unable to find Renegade font with name '" .. font.Name .. "', size " .. font.PointSize .. ", and boldness: " .. tostring( font.IsBold )
         )
     end

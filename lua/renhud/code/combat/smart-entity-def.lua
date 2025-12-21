@@ -9,11 +9,12 @@ local PARENT = CNC.Import( "renhud/code/combat/armed-entity-def.lua" )
 
 --- @class SmartEntityDefClass : ArmedEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "SmartEntityDefClass"
+STATIC.Class = "SmartEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SmartEntityDefInstance : ArmedEntityDefInstance
 local INSTANCE = robustclass.Register( "Renegade_SmartEntityDefClass : Renegade_ArmedEntityDefClass" )
+INSTANCE.Class = "SmartEntityDefInstance"
 INSTANCE.IsSmartEntityDefClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -82,7 +83,7 @@ end
 --- @return boolean true
 function INSTANCE:Load( cload )
 
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
@@ -102,13 +103,13 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_STEALTH_UNIT, dataTypeEnum.Boolean, "IsStealthUnit" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. CLASS .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
             end
         else
-            Section.Print( "Unrecognized " .. CLASS .. " Chunk ID", cload:CurChunkId() )
+            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()

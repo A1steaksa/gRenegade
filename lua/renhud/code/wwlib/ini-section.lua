@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class IniSectionClass
 --- @field instance IniSectionInstance The metatable used by IniSectionInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "IniSectionInstance"
+STATIC.Class = "IniSectionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class IniSectionInstance
 --- @field Static IniSectionClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_IniSection" )
+INSTANCE.Class = "IniSectionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsIniSection = true

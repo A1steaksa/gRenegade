@@ -9,12 +9,13 @@ local parentClass = CNC.Import( "renhud/code/wwsaveload/save-load-sub-system.lua
 --- @class DefinitionManagerClass : SaveLoadSubSystemClass
 --- @field instance DefinitionManagerInstance The metatable used by DefinitionManagerInstance
 local STATIC = CNC.CreateExport( parentClass )
-local CLASS = "DefinitionManagerInstance"
+STATIC.Class = "DefinitionManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefinitionManagerInstance : SaveLoadSubSystemInstance
 --- @field Static DefinitionManagerClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_DefinitionManager : Renegade_SaveLoadSubSystem" )
+INSTANCE.Class = "DefinitionManagerInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefinitionManager = true

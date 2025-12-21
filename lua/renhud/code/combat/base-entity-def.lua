@@ -9,7 +9,7 @@ local PARENT = CNC.Import( "renhud/code/wwsaveload/definition.lua" )
 
 --- @class BaseEntityDefClass : DefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "BaseEntityDefClass"
+STATIC.Class = "BaseEntityDefClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class BaseEntityDefInstance : DefinitionInstance
@@ -62,7 +62,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:Load( cload )
-    Section.Start( "Loading " .. CLASS )
+    Section.Start( "Loading " .. INSTANCE.Class )
 
     cload:OpenChunk()
     assert( cload:CurChunkId() == STATIC.ChunkIds.CHUNKID_DEF_PARENT )

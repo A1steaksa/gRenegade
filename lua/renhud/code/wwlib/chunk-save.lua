@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class ChunkSaveInstance
 --- @field instance ChunkSaveInstance The metatable used by ChunkSaveInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "ChunkSaveInstance"
+STATIC.Class = "ChunkSaveClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ChunkSaveInstance
 --- @field Static ChunkSaveInstance The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_ChunkSave" )
+INSTANCE.Class = "ChunkSaveInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsChunkSave = true

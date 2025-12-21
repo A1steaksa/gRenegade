@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class SaveLoadSubSystemClass
 --- @field instance SaveLoadSubSystemInstance The metatable used by SaveLoadSubSystemInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "SaveLoadSubSystemInstance"
+STATIC.Class = "SaveLoadSubSystemClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SaveLoadSubSystemInstance
 --- @field Static SaveLoadSubSystemClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_SaveLoadSubSystem" )
+INSTANCE.Class = "SaveLoadSubSystemInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsSaveLoadSubSystem = true

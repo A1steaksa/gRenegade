@@ -3,39 +3,31 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent class
---- @type CommonBridgeClass
-local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+--- @type CommonBridgeLib
+local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class SmartGameObjectsBridge : CommonBridgeClass
-local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
+--- @class SmartGameObjectsBridge : CommonBridgeLib
+local LIB = CNC.CreateExport( PARENT )
 
 
 --#region Imports
 
---- @type SharedCommon
-local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
+    --- @type SharedCommon
+    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
 --#endregion
 
---[[ Static Functions and Variables ]] do
+--- @param ent Entity
+--- @return boolean
+function LIB.IsSmartGameObject( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    -- TODO: Implement something here
+    return true
+end
 
-    local CLASS = "SmartGameObjectsBridge"
-
-    --- [[ Public ]]
-
-    --- @param ent Entity
-    --- @return boolean
-    function LIB.IsSmartGameObject( ent )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-        -- TODO: Implement something here
-        return true
-    end
-
-    --- @param ent Entity
-    --- @return boolean
-    function LIB.IsStealthed( ent )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-        -- TODO: Implement something here
-        return false
-    end
+--- @param ent Entity
+--- @return boolean
+function LIB.IsStealthed( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    -- TODO: Implement something here
+    return false
 end

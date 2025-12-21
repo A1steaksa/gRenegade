@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class Matrix3dClass
 --- @field Instance Matrix3dInstance The Metatable used by Matrix3dInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "Matrix3d"
+STATIC.Class = "Matrix3dClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class Matrix3dInstance
 --- @field Static Matrix3dClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Matrix3d" )
+INSTANCE.Class = "Matrix3dInstance"
 INSTANCE.IsMatrix3d = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -211,7 +212,7 @@ end
 function INSTANCE:Renegade_Matrix3d( ... )
     local args = { ... }
     local argCount = select( "#", ... )
-    typecheck.AssertArgCount( CLASS, argCount, { 0, 1, 2, 3, 4, 12 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 0, 1, 2, 3, 4, 12 } )
 
     self.Row = {
         vector4.New(),
@@ -226,7 +227,7 @@ function INSTANCE:Renegade_Matrix3d( ... )
     end
 
     if argCount == 1 then
-        typecheck.AssertArgType( CLASS, 1, args[1], { "boolean", "table", "Vector", "Matrix3dInstance" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "boolean", "table", "Vector", "Matrix3dInstance" } )
 
         -- ( init: boolean )
         if typecheck.IsOfType( args[1], "boolean" ) then
@@ -300,12 +301,12 @@ function INSTANCE:Renegade_Matrix3d( ... )
     end
 
     if argCount == 2 then
-        typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
-        typecheck.AssertArgType( CLASS, 2, args[2], { "number", "Vector" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], { "number", "Vector" } )
 
         -- ( axis: Vector, angle: number )
         if typecheck.IsOfType( args[1], "Vector" ) then
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
             local axis  = args[1] --[[@as Vector]]
             local angle = args[2] --[[@as number]]
 
@@ -315,7 +316,7 @@ function INSTANCE:Renegade_Matrix3d( ... )
 
         -- ( rotation: Matrix3dInstance, pos: Vector )
         if typecheck.IsOfType( args[1], "Matrix3dInstance" ) then
-            typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
             local rotation = args[1] --[[@as Matrix3dInstance]]
             local pos      = args[2] --[[@as Vector]]
 
@@ -325,7 +326,7 @@ function INSTANCE:Renegade_Matrix3d( ... )
 
         -- ( rotation: QuaternionInstance, pos: Vector )
         if typecheck.IsOfType( args[1], "QuaternionInstance" ) then
-            typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
             local rotation = args[1] --[[@as QuaternionInstance]]
             local pos      = args[2] --[[@as Vector]]
 
@@ -336,9 +337,9 @@ function INSTANCE:Renegade_Matrix3d( ... )
 
     -- ( axis: Vector, sine: number, cosine: number )
     if argCount == 3 then
-        typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
-        typecheck.AssertArgType( CLASS, 2, args[2], "number" )
-        typecheck.AssertArgType( CLASS, 3, args[3], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" )
         local axis   = args[1] --[[@as Vector]]
         local sine   = args[2] --[[@as number]]
         local cosine = args[3] --[[@as number]]
@@ -349,10 +350,10 @@ function INSTANCE:Renegade_Matrix3d( ... )
 
     -- ( x: Vector, y: Vectors, z: Vector, pos: Vector )
     if argCount == 4 then
-        typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
-        typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-        typecheck.AssertArgType( CLASS, 3, args[3], "Vector" )
-        typecheck.AssertArgType( CLASS, 4, args[4], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "Vector" )
 
         local x   = args[1] --[[@as Vector]]
         local y   = args[1] --[[@as Vector]]
@@ -367,18 +368,18 @@ function INSTANCE:Renegade_Matrix3d( ... )
     --   m21: number, m22: number, m23: number, m24: number, 
     --   m31: number, m32: number, m33: number, m34: number )
     if argCount == 12 then
-        typecheck.AssertArgType( CLASS, 1,  args[1],  "number" )
-        typecheck.AssertArgType( CLASS, 2,  args[2],  "number" )
-        typecheck.AssertArgType( CLASS, 3,  args[3],  "number" )
-        typecheck.AssertArgType( CLASS, 4,  args[4],  "number" )
-        typecheck.AssertArgType( CLASS, 5,  args[5],  "number" )
-        typecheck.AssertArgType( CLASS, 6,  args[6],  "number" )
-        typecheck.AssertArgType( CLASS, 7,  args[7],  "number" )
-        typecheck.AssertArgType( CLASS, 8,  args[8],  "number" )
-        typecheck.AssertArgType( CLASS, 9,  args[9],  "number" )
-        typecheck.AssertArgType( CLASS, 10, args[10], "number" )
-        typecheck.AssertArgType( CLASS, 11, args[11], "number" )
-        typecheck.AssertArgType( CLASS, 12, args[12], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 1,  args[1],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 2,  args[2],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 3,  args[3],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 4,  args[4],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 5,  args[5],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 6,  args[6],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 7,  args[7],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 8,  args[8],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 9,  args[9],  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 10, args[10], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 11, args[11], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 12, args[12], "number" )
 
         self.Row[1]:Set( args[1], args[2],  args[3],  args[4]  )
         self.Row[2]:Set( args[5], args[6],  args[7],  args[8]  )
@@ -440,10 +441,10 @@ end
 function INSTANCE:Set( ... )
     local args = { ... }
     local argCount = select( "#", ... )
-    typecheck.AssertArgCount( CLASS, argCount, { 1, 2, 3, 4, 12 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2, 3, 4, 12 } )
 
     if argCount == 1 then
-        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "table" } )
+        local arg1 = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "Vector", "table" } )
 
         -- ( pos: Vector )
         if typecheck.IsOfType( arg1, "Vector" ) then
@@ -467,12 +468,12 @@ function INSTANCE:Set( ... )
     end
 
     if argCount == 2 then
-        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
+        local arg1 = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "Vector", "Matrix3dInstance", "QuaternionInstance" } )
 
         -- ( axis: Vector, angle: number )
         if typecheck.IsOfType( arg1, "Vector" ) then
             local axis  = arg1 --[[@as Vector]]
-            local angle = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
+            local angle = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" ) --[[@as number]]
 
             local cos = math.cos( angle )
             local sin = math.sin( angle )
@@ -484,7 +485,7 @@ function INSTANCE:Set( ... )
         -- ( rotation: Matrix3Instance, pos: Vector )
         if typecheck.IsOfType( arg1, "Matrix3Instance" ) then
             local rotation  = arg1 --[[@as Matrix3Instance]]
-            local pos       = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" ) --[[@as Vector]]
+            local pos       = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" ) --[[@as Vector]]
 
             typecheck.NotImplementedError( "( rotation: Matrix3Instance, pos: Vector )" )
 
@@ -494,7 +495,7 @@ function INSTANCE:Set( ... )
         -- ( rotation: QuaternionInstance, pos: Vector )
         if typecheck.IsOfType( arg1, "QuaternionInstance" ) then
             local rotation  = arg1 --[[@as QuaternionInstance]]
-            local pos       = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" ) --[[@as Vector]]
+            local pos       = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" ) --[[@as Vector]]
 
             self:SetRotation( rotation )
             self:SetTranslation( pos )
@@ -506,9 +507,9 @@ function INSTANCE:Set( ... )
 
     -- ( axis: Vector, sine: number, cosine: number )
     if argCount == 3 then
-        local axis   = typecheck.AssertArgType( CLASS, 1, args[1], "Vector" ) --[[@as Vector]]
-        local sine   = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
-        local cosine = typecheck.AssertArgType( CLASS, 3, args[3], "number" ) --[[@as number]]
+        local axis   = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" ) --[[@as Vector]]
+        local sine   = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" ) --[[@as number]]
+        local cosine = typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" ) --[[@as number]]
 
         self.Row[1]:Set(
             ( axis.x * axis.x + cosine * ( 1 - axis.x * axis.x ) ),
@@ -536,10 +537,10 @@ function INSTANCE:Set( ... )
 
     -- ( x: Vector, y: Vector, z: Vector, pos: Vector )
     if argCount == 4 then
-        local arg1 = typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
-        local arg2 = typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-        local arg3 = typecheck.AssertArgType( CLASS, 3, args[3], "Vector" )
-        local arg4 = typecheck.AssertArgType( CLASS, 3, args[4], "Vector" )
+        local arg1 = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
+        local arg2 = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
+        local arg3 = typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "Vector" )
+        local arg4 = typecheck.AssertArgType( INSTANCE.Class, 3, args[4], "Vector" )
 
         local x     = arg1 --[[@as Vector]]
         local y     = arg2 --[[@as Vector]]
@@ -558,20 +559,20 @@ function INSTANCE:Set( ... )
     --    m31: number, m32: number, m33: number, m34: number
     -- )
     if argCount == 12 then
-        local m11 = typecheck.AssertArgType( CLASS, 1, args[1], "number" ) --[[@as number]]
-        local m12 = typecheck.AssertArgType( CLASS, 2, args[2], "number" ) --[[@as number]]
-        local m13 = typecheck.AssertArgType( CLASS, 3, args[3], "number" ) --[[@as number]]
-        local m14 = typecheck.AssertArgType( CLASS, 4, args[4], "number" ) --[[@as number]]
+        local m11 = typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" ) --[[@as number]]
+        local m12 = typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" ) --[[@as number]]
+        local m13 = typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" ) --[[@as number]]
+        local m14 = typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "number" ) --[[@as number]]
 
-        local m21 = typecheck.AssertArgType( CLASS, 5, args[5], "number" ) --[[@as number]]
-        local m22 = typecheck.AssertArgType( CLASS, 6, args[6], "number" ) --[[@as number]]
-        local m23 = typecheck.AssertArgType( CLASS, 7, args[7], "number" ) --[[@as number]]
-        local m24 = typecheck.AssertArgType( CLASS, 8, args[8], "number" ) --[[@as number]]
+        local m21 = typecheck.AssertArgType( INSTANCE.Class, 5, args[5], "number" ) --[[@as number]]
+        local m22 = typecheck.AssertArgType( INSTANCE.Class, 6, args[6], "number" ) --[[@as number]]
+        local m23 = typecheck.AssertArgType( INSTANCE.Class, 7, args[7], "number" ) --[[@as number]]
+        local m24 = typecheck.AssertArgType( INSTANCE.Class, 8, args[8], "number" ) --[[@as number]]
 
-        local m31 = typecheck.AssertArgType( CLASS, 9,  args[9],  "number" ) --[[@as number]]
-        local m32 = typecheck.AssertArgType( CLASS, 10, args[10], "number" ) --[[@as number]]
-        local m33 = typecheck.AssertArgType( CLASS, 11, args[11], "number" ) --[[@as number]]
-        local m34 = typecheck.AssertArgType( CLASS, 12, args[12], "number" ) --[[@as number]]
+        local m31 = typecheck.AssertArgType( INSTANCE.Class, 9,  args[9],  "number" ) --[[@as number]]
+        local m32 = typecheck.AssertArgType( INSTANCE.Class, 10, args[10], "number" ) --[[@as number]]
+        local m33 = typecheck.AssertArgType( INSTANCE.Class, 11, args[11], "number" ) --[[@as number]]
+        local m34 = typecheck.AssertArgType( INSTANCE.Class, 12, args[12], "number" ) --[[@as number]]
 
         self.Row[1]:Set( m11, m12, m13, m14 )
         self.Row[2]:Set( m21, m22, m23, m24 )
@@ -585,7 +586,7 @@ end
     --- @overload fun( self: Matrix3dInstance, other: Vector ): Vector
     --- @overload fun( self: Matrix3dInstance, other: Matrix3dInstance ): Matrix3dInstance
     function INSTANCE:__mul( other )
-        typecheck.AssertArgType( CLASS, 1, other, { "Matrix3dInstance", "Vector" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, other, { "Matrix3dInstance", "Vector" } )
 
         local selfValues = self.Row
 
@@ -724,7 +725,7 @@ end
     function INSTANCE:SetRotation( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, 1 )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, 1 )
 
         if typecheck.IsOfType( args[1], "Matrix3dInstance" ) then
             local rotation = args[1] --[[@as Matrix3dInstance]]
@@ -791,13 +792,13 @@ end
     function INSTANCE:Translate( ... )
         local args = {...}
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 3 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 3 } )
 
         --- @type number, number, number
         local x, y, z
 
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
 
             local translation = args[1] --[[@as Vector]]
 
@@ -807,9 +808,9 @@ end
         end
 
         if argCount == 3 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
-            typecheck.AssertArgType( CLASS, 3, args[3], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" )
 
             x = args[1] --[[@as number]]
             y = args[2] --[[@as number]]
@@ -855,14 +856,14 @@ end
     function INSTANCE:RotateX( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -875,8 +876,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -925,14 +926,14 @@ end
     function INSTANCE:RotateY( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -945,8 +946,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -991,14 +992,14 @@ end
     function INSTANCE:RotateZ( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1011,8 +1012,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1055,7 +1056,7 @@ end
     function INSTANCE:Scale( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 3 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 3 } )
 
         local arg1 = args[1]
 
@@ -1118,14 +1119,14 @@ end
     function INSTANCE:PreRotateX( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1138,8 +1139,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1173,14 +1174,14 @@ end
     function INSTANCE:PreRotateY( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
             
@@ -1193,8 +1194,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1228,14 +1229,14 @@ end
     function INSTANCE:PreRotateZ( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1248,8 +1249,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1283,14 +1284,14 @@ end
     function INSTANCE:InPlacePreRotateX( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1303,8 +1304,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1333,14 +1334,14 @@ end
     function INSTANCE:InPlacePreRotateY( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1353,8 +1354,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]
@@ -1383,14 +1384,14 @@ end
     function INSTANCE:InPlacePreRotateZ( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
         --- @type number, number
         local sine, cosine
 
         -- ( theta: number )
         if argCount == 1 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
             local theta = args[1] --[[@as number]]
 
@@ -1403,8 +1404,8 @@ end
 
         -- ( sine: number, cosine: number )
         if argCount == 2 then
-            typecheck.AssertArgType( CLASS, 1, args[1], "number" )
-            typecheck.AssertArgType( CLASS, 2, args[2], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
+            typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "number" )
 
             sine   = args[1] --[[@as number]]
             cosine = args[2] --[[@as number]]

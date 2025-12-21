@@ -3,14 +3,10 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
-
---[[ Class Setup ]] do
-
-    --- The static components of HudInfo
-    --- @class HudInfoClass
-    STATIC = CNC.CreateExport()
-end
+--- @class HudInfoClass
+local STATIC = CNC.CreateExport()
+STATIC.Class = "HudInfoClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 
 --#region Imports
@@ -45,10 +41,6 @@ end
 
 
 --[[ Static Functions and Variables ]] do
-
-    local CLASS = "HudInfo"
-
-    --- [[ Public ]]
 
     STATIC.WeaponTargetPosition = Vector( 0, 0, 0 )
     STATIC.WeaponTargetEntity = NULL
@@ -259,7 +251,7 @@ end
     end
 
 
-    --- [[ Private ]]
+    --- Private
 
     --- @class HudInfoClass
     --- @field private CameraTargetPosition Vector

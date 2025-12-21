@@ -4,7 +4,7 @@ local CNC = CNC_RENEGADE
 -- A library supporting the HUD's Damage Indicator rendering
 --- @class DamageLib
 local LIB = CNC.CreateExport()
-local CLASS = "DamageLib"
+LIB.Class = "DamageLib"
 local isHotload = not table.IsEmpty( LIB )
 
 --#region Exported Enums
@@ -148,8 +148,8 @@ local isHotload = not table.IsEmpty( LIB )
             --- @type CombatManagerClass
             local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
-            --- @type CommonBridgeClass
-            local commonBridgeClass = CNC.Import( "renhud/client/bridges/common.lua" )
+            --- @type CommonBridgeLib
+            local commonBridgeLib = CNC.Import( "renhud/client/bridges/common.lua" )
         --#endregion
 
         local damageIndicatorsEnabledConVar = GetConVar( "ren_damageindicator_enabled" )
@@ -176,7 +176,7 @@ local isHotload = not table.IsEmpty( LIB )
                 return
             end
 
-            local relativeDirection = commonBridgeClass.GetCameraTransform():InverseRotateVector( directionVector )
+            local relativeDirection = commonBridgeLib.GetCameraTransform():InverseRotateVector( directionVector )
 
             -- "Convert direction into 0 .. 7"
             local angle = wwmath.Atan2( relativeDirection.y, -relativeDirection.x )

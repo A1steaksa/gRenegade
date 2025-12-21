@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class SaveLoadSystemClass
 local STATIC = CNC.CreateExport()
-local CLASS = "SaveLoadSystemClass"
+STATIC.Class = "SaveLoadSystemClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --#region Exported Enums

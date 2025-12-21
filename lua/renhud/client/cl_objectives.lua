@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class ObjectivesLib
 local LIB = CNC.CreateExport()
-local CLASS = "ObjectivesLib"
+LIB.Class = "ObjectivesLib"
 local isHotload = not table.IsEmpty( LIB )
 
 

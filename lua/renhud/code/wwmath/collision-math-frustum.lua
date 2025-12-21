@@ -3,13 +3,11 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local STATIC
+--- @class CollisionMathClass
+local STATIC = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
+STATIC.Class = "CollisionMathClass"
+local isHotload = not table.IsEmpty( STATIC )
 
---[[ Class Setup ]] do
-
-    --- @class CollisionMath
-    STATIC = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
-end
 
 --#region Enums
 
@@ -18,13 +16,10 @@ end
 
 
 --[[ Static Functions and Variables ]] do
-    local CLASS = "CollisionMath"
-
-    local COLLISION_EPSILON = 0.001
-
-    --- [[ Public ]]
 
     --- @class CollisionMath
+
+    local COLLISION_EPSILON = 0.001
 
     --- @param frustum FrustumInstance
     --- @param box AABoxInstance
@@ -47,5 +42,4 @@ end
 
         return overlapType.OVERLAPPED
     end )
-
 end

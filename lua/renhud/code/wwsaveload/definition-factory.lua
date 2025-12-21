@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class DefinitionFactoryClass
 --- @field instance DefinitionFactoryInstance The metatable used by DefinitionFactoryInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "DefinitionFactoryInstance"
+STATIC.Class = "DefinitionFactoryClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefinitionFactoryInstance
 --- @field Static DefinitionFactoryClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_DefinitionFactory" )
+INSTANCE.Class = "DefinitionFactoryInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDefinitionFactory = true

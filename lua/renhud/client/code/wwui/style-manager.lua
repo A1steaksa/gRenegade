@@ -3,10 +3,10 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- The static components of StyleManager
 --- @class StyleManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "StyleManager"
+STATIC.Class = "StyleManagerClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 
 --#region Exported Enums
@@ -143,7 +143,7 @@ end
             if not cachedFont then
                 local fontDescription = STATIC.DefaultFonts[ style ]
                 if not fontsLib.IsFontCreated( fontDescription ) then
-                    typecheck.Error( CLASS, "PeekFont",
+                    typecheck.Error( STATIC.Class, "PeekFont",
                         "Unable to peek un-created font: '" .. fontDescription.Name .. "', size: " ..fontDescription.PointSize .. ", boldness:" .. tostring( fontDescription.IsBold )
                     )
                 end

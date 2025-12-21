@@ -6,7 +6,7 @@ local CNC = CNC_RENEGADE
 --- The static components of CombatManager
 --- @class CombatManagerClass
 local STATIC = CNC.CreateExport()
-local CLASS = "CombatManager"
+STATIC.Class = "CombatManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --#region Exported Enums

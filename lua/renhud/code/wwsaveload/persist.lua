@@ -10,12 +10,13 @@ local parentClass = CNC.Import( "renhud/code/wwsaveload/post-loadable.lua" )
 --- @class PersistClass : PostLoadableClass
 --- @field instance PersistInstance The metatable used by PersistInstance
 local STATIC = CNC.CreateExport( parentClass )
-local CLASS = "PersistInstance"
+STATIC.Class = "PersistClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class PersistInstance : PostLoadableInstance
 --- @field Static PersistClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Persist : Renegade_PostLoadable" )
+INSTANCE.Class = "PersistInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsPersist = true
@@ -262,7 +263,7 @@ end
                 elseif isstring( key ) then
                     tbl = self[key]
                 else
-                    typecheck.ArgumentTypeError( CLASS, "ReadMicroChunk", 4, type(key), { "string", "table" } )
+                    typecheck.ArgumentTypeError( INSTANCE.Class, "ReadMicroChunk", 4, type(key), { "string", "table" } )
                 end
 
                 tbl[subKey] = convertedData
@@ -301,7 +302,7 @@ end
                 elseif isstring( key ) then
                     tbl = self[key]
                 else
-                    typecheck.ArgumentTypeError( CLASS, "ReadMicroChunk", 4, type(key), { "string", "table" } )
+                    typecheck.ArgumentTypeError( INSTANCE.Class, "ReadMicroChunk", 4, type(key), { "string", "table" } )
                 end
 
                 assert( istable( tbl ) )

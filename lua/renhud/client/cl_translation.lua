@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- @class TranslationLib
 local LIB = CNC.CreateExport()
-local CLASS = "TranslationLib"
+LIB.Class = "TranslationLib"
 
 --#region Exported Enums
 

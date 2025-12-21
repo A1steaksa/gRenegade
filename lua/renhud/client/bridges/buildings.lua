@@ -3,58 +3,50 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent class
---- @type CommonBridgeClass
-local commonBridge = CNC.Import( "renhud/client/bridges/common.lua" )
+--- @type CommonBridgeLib
+local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
 
---- @class BuildingsBridgeClass : CommonBridgeClass
-local LIB = setmetatable( CNC.CreateExport(), { __index = commonBridge } )
+--- @class BuildingsBridgeClass : CommonBridgeLib
+local LIB = CNC.CreateExport( PARENT )
 
 
 --#region Imports
 
---- @type SharedCommon
-local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
+    --- @type SharedCommon
+    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
 --#endregion
 
 
---[[ Static Functions and Variables ]] do
+--- Any Entity present as a key in this table is a building
+--- @type table<Entity, boolean>
+LIB.BuildingEntities = {}
 
-    local CLASS = "BuildingsBridge"
+--- Marks an Entity as either being or not being a building
+--- @param ent Entity
+--- @param isBuilding boolean
+function LIB.SetIsBuilding( ent, isBuilding )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 2, isBuilding, "boolean" )
 
-    --- [[ Public ]]
+    -- Swap nil for false-y values to remove non-buildings from the table for speed or something
+    local value = ( isBuilding ) and true or nil
 
-    --- Any Entity present as a key in this table is a building
-    --- @type table<Entity, boolean>
-    LIB.BuildingEntities = {}
+    LIB.BuildingEntities[ ent ] = value
+end
 
-    --- Marks an Entity as either being or not being a building
-    --- @param ent Entity
-    --- @param isBuilding boolean
-    function LIB.SetIsBuilding( ent, isBuilding )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-        typecheck.AssertArgType( CLASS, 2, isBuilding, "boolean" )
+--- @param ent Entity
+--- @return boolean
+function LIB.IsBuilding( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
 
-        -- Swap nil for false-y values to remove non-buildings from the table for speed or something
-        local value = ( isBuilding ) and true or nil
+    -- Explicitly test the table value to ensure we return a boolean
+    return LIB.BuildingEntities[ ent ] == true
+end
 
-        LIB.BuildingEntities[ ent ] = value
-    end
-
-    --- @param ent Entity
-    --- @return boolean
-    function LIB.IsBuilding( ent )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-
-        -- Explicitly test the table value to ensure we return a boolean
-        return LIB.BuildingEntities[ ent ] == true
-    end
-
-    --- @param ent Entity
-    --- @return boolean
-    function LIB.IsMct( ent )
-        typecheck.AssertArgType( CLASS, 1, ent, sharedCommon.EntTypes )
-        -- TODO: Implement something here
-        return false
-    end
+--- @param ent Entity
+--- @return boolean
+function LIB.IsMct( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    -- TODO: Implement something here
+    return false
 end

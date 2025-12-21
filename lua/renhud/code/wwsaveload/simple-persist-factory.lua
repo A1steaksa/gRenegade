@@ -9,12 +9,13 @@ local PARENT = CNC.Import( "renhud/code/wwsaveload/persist-factory.lua" )
 --- @class SimplePersistFactoryClass : PersistFactoryClass
 --- @field instance SimplePersistFactoryInstance The metatable used by SimplePersistFactoryInstance
 local STATIC = CNC.CreateExport( PARENT )
-local CLASS = "SimplePersistFactoryInstance"
+STATIC.Class = "SimplePersistFactoryClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SimplePersistFactoryInstance : PersistFactoryInstance
 --- @field Static SimplePersistFactoryClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_SimplePersistFactory : Renegade_PersistFactory" )
+INSTANCE.Class = "SimplePersistFactoryInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsSimplePersistFactory = true
@@ -74,12 +75,12 @@ end
 
 --- @class SimplePersistFactoryInstance
 --- @field _ChunkId integer
---- @field Class PersistClass The static for the class this factory saves and loads
+--- @field _Class PersistClass The static for the class this factory saves and loads
 
 --- Constructs a new SimplePersistFactoryInstance
 function INSTANCE:Renegade_SimplePersistFactory()
     self._ChunkId = self._ChunkId or STATIC.TemplateData.ChunkId
-    self.Class = self.Class or STATIC.TemplateData.Class
+    self._Class = self._Class or STATIC.TemplateData.Class
 end
 
 function INSTANCE:ChunkId()
@@ -94,11 +95,11 @@ end
 --- @return PersistClass
 function INSTANCE:GetClass()
     -- Load from the template data if it's accessed before the constructor
-    if not self.Class then
-        self.Class = STATIC.TemplateData.Class
+    if not self._Class then
+        self._Class = STATIC.TemplateData.Class
     end
 
-    return self.Class
+    return self._Class
 end
 
 --- @param cload ChunkLoadInstance
@@ -106,6 +107,8 @@ end
 function INSTANCE:Load( cload )
     local class = self:GetClass()
     local newObj = class.New()
+
+    Section.Print( "Loading simple persist factory for ", self._Class.instance )
 
     cload:OpenChunk()
     assert( cload:CurChunkId() == STATIC.SIMPLEFACTORY_CHUNKID_OBJPOINTER )

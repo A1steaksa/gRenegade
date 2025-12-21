@@ -4,14 +4,15 @@
 local CNC = CNC_RENEGADE
 
 --- @class ShaderClass
---- @field Instance ShaderInstance The Metatable used by ShaderInstance
+--- @field instance ShaderInstance The metatable used by ShaderInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "ShaderInstance"
+STATIC.Class = "ShaderClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ShaderInstance
 --- @field Static ShaderClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Shader" )
+INSTANCE.Class = "ShaderInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsShader = true
@@ -273,7 +274,7 @@ local srcBlendFuncConverter = {
 function INSTANCE:Renegade_Shader( ... )
     local args = { ... }
     local argCount = select( "#", ... )
-    typecheck.AssertArgCount( CLASS, argCount, { 0, 1 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 0, 1 } )
 
     --- ()
     if argCount == 0 then
@@ -283,7 +284,7 @@ function INSTANCE:Renegade_Shader( ... )
 
     if argCount == 1 then
         local firstArg = args[1]
-        typecheck.AssertArgType( CLASS, 1, arg, { "ShaderInstance", "number" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, arg, { "ShaderInstance", "number" } )
 
         --- ( shader: ShaderInstance )
         if typecheck.IsOfType( firstArg, "ShaderInstance" ) then

@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dClass
 local STATIC = CNC.CreateExport()
-local CLASS = "Render2dClass"
+STATIC.Class = "Render2dClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dInstance
 local INSTANCE = robustclass.Register( "Renegade_Render2d" )
+INSTANCE.Class = "Render2dInstance"
 INSTANCE.IsRender2d = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -143,14 +144,14 @@ function INSTANCE:Render()
 
         -- Sanity check
         if #self.Vertices ~= #self.Uvs or #self.Uvs ~= #self.Colors then
-            typecheck.Error( CLASS, "Render", string.format( "Render2d:Render has mismatch in list counts: Vertices (%d), UVs (%d), Colors (%d)", #self.Vertices, #self.Uvs, #self.Colors ) )
+            typecheck.Error( INSTANCE.Class, "Render", string.format( "Render2d:Render has mismatch in list counts: Vertices (%d), UVs (%d), Colors (%d)", #self.Vertices, #self.Uvs, #self.Colors ) )
         end
 
         local triCount = #self.Vertices / 3
 
         -- Can't have partial triangles
         if triCount ~= math.floor( triCount ) then
-            typecheck.Error( CLASS, "Render", string.format(  "Render2d:Render count of Vertices (%d) must be divisible by 3", #self.Vertices ) )
+            typecheck.Error( INSTANCE.Class, "Render", string.format(  "Render2d:Render count of Vertices (%d) must be divisible by 3", #self.Vertices ) )
         end
 
         if self.Mesh then
@@ -308,15 +309,15 @@ function INSTANCE:AddQuad( ... )
     local uvs = robustclass.New( "Renegade_Rect", 0, 0, 1, 1 )
     local color = Color( 255, 255, 255, 255 )
 
-    typecheck.AssertArgType( CLASS, 1, firstArg, { "Vector", "RectInstance" } )
+    typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, { "Vector", "RectInstance" } )
 
     -- ( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, ... )
     if isvector( firstArg ) then
         --- @cast firstArg Vector
 
-        typecheck.AssertArgType( CLASS, 2, secondArg, "vector" )
-        typecheck.AssertArgType( CLASS, 3, thirdArg, "vector" )
-        typecheck.AssertArgType( CLASS, 4, fourthArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector" )
 
         vertex0 = firstArg
         vertex1 = secondArg
@@ -330,7 +331,7 @@ function INSTANCE:AddQuad( ... )
 
             -- Sixth arg must be Color
             if sixthArg then
-                typecheck.AssertArgType( CLASS, 6, sixthArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 6, sixthArg, "color" )
 
                 --- @cast sixthArg Color
                 color = sixthArg
@@ -340,7 +341,7 @@ function INSTANCE:AddQuad( ... )
         else
             -- Fifth arg must be Color
             if fifthArg then
-                typecheck.AssertArgType( CLASS, 5, fifthArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 5, fifthArg, "color" )
 
                 --- @cast fifthArg Color
                 color = fifthArg
@@ -360,7 +361,7 @@ function INSTANCE:AddQuad( ... )
 
             -- Third arg must be Color
             if thirdArg then
-                typecheck.AssertArgType( CLASS, 3, thirdArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "color" )
                 --- @cast thirdArg Color
                 color = thirdArg
             end
@@ -370,7 +371,7 @@ function INSTANCE:AddQuad( ... )
             _rect  = firstArg
 
             if secondArg then
-                typecheck.AssertArgType( CLASS, 2, secondArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "color" )
                 --- @cast secondArg Color
                 color = secondArg
             end
@@ -380,7 +381,7 @@ function INSTANCE:AddQuad( ... )
     -- One final sanity check
     local hasVertices = ( _rect or ( vertex0 and vertex1 and vertex2 and vertex3 ) )
     if not hasVertices or not uvs or not color then
-        typecheck.Error( CLASS, "AddQuad", "an unknown error occurred" )
+        typecheck.Error( INSTANCE.Class, "AddQuad", "an unknown error occurred" )
     end
 
     if _rect then
@@ -453,7 +454,7 @@ function INSTANCE:AddLine( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 
-    typecheck.AssertArgCount( CLASS, argCount, { 4, 5 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 4, 5 } )
 
     local startPos
     local endPos
@@ -463,10 +464,10 @@ function INSTANCE:AddLine( ... )
 
     -- ( startPos: Vector, endPos: Vector, width: number, color: Color )
     if argCount == 4 then
-        typecheck.AssertArgType( CLASS, 1, args[1], "Vector" )
-        typecheck.AssertArgType( CLASS, 2, args[2], "Vector" )
-        typecheck.AssertArgType( CLASS, 3, args[3], "number" )
-        typecheck.AssertArgType( CLASS, 4, args[4], "Color"  )
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "Color"  )
 
         startPos = args[1] --[[@as Vector]]
         endPos   = args[2] --[[@as Vector]]
@@ -477,11 +478,11 @@ function INSTANCE:AddLine( ... )
 
     -- ( startPos: Vector, endPos: Vector, width: number, uv: RectInstance, color: Color )
     if argCount == 5 then
-        typecheck.AssertArgType( CLASS, 1, startPos, "Vector"       )
-        typecheck.AssertArgType( CLASS, 2, endPos,   "Vector"       )
-        typecheck.AssertArgType( CLASS, 3, width,    "number"       )
-        typecheck.AssertArgType( CLASS, 4, uv,       "RectInstance" )
-        typecheck.AssertArgType( CLASS, 5, color,    "Color"        )
+        typecheck.AssertArgType( INSTANCE.Class, 1, startPos, "Vector"       )
+        typecheck.AssertArgType( INSTANCE.Class, 2, endPos,   "Vector"       )
+        typecheck.AssertArgType( INSTANCE.Class, 3, width,    "number"       )
+        typecheck.AssertArgType( INSTANCE.Class, 4, uv,       "RectInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 5, color,    "Color"        )
 
         startPos = args[1] --[[@as Vector]]
         endPos   = args[2] --[[@as Vector]]
@@ -576,19 +577,19 @@ function INSTANCE:ConvertVert( ... )
     local x, y
 
     if argCount == 1 then
-        typecheck.AssertArgType( CLASS, 1, firstArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "vector" )
         --- @cast firstArg Vector
 
         x = firstArg.x
         y = firstArg.y
     elseif argCount == 2 then
-        typecheck.AssertArgType( CLASS, 1, firstArg,  "number" )
-        typecheck.AssertArgType( CLASS, 2, secondArg, "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "number" )
 
         x = firstArg  --[[@as number]]
         y = secondArg --[[@as number]]
     else
-        typecheck.AssertArgCount( CLASS, argCount )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount )
     end
 
     return Vector(
@@ -606,7 +607,7 @@ function INSTANCE:InternalAddQuadVertices( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 
-    typecheck.AssertArgCount( CLASS, argCount, { 1, 2, 4, 5 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2, 4, 5 } )
 
     local firstArg  = args[1]
     local secondArg = args[2]
@@ -622,8 +623,8 @@ function INSTANCE:InternalAddQuadVertices( ... )
         local rect = firstArg --[[@as RectInstance]]
         isBackfaced = ( secondArg and secondArg or false ) --[[@as boolean]]
 
-        typecheck.AssertArgType( CLASS, 1, firstArg, "RectInstance" )
-        typecheck.AssertArgType( CLASS, 2, isBackfaced, "boolean" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "RectInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, isBackfaced, "boolean" )
 
         vertex0 = Vector( rect.Left,    rect.Top    )
         vertex1 = Vector( rect.Left,    rect.Bottom )
@@ -638,11 +639,11 @@ function INSTANCE:InternalAddQuadVertices( ... )
         vertex3 = fourthArg --[[@as Vector]]
         isBackfaced = ( fifthArg and fifthArg or false ) --[[@as boolean]]
 
-        typecheck.AssertArgType( CLASS, 1, firstArg,  "vector"  )
-        typecheck.AssertArgType( CLASS, 2, secondArg, "vector"  )
-        typecheck.AssertArgType( CLASS, 3, thirdArg,  "vector"  )
-        typecheck.AssertArgType( CLASS, 4, fourthArg, "vector"  )
-        typecheck.AssertArgType( CLASS, 5, isBackfaced,  "boolean" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg,  "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 5, isBackfaced,  "boolean" )
     end
 
     local convertedVertex0 = self:ConvertVert( vertex0 )

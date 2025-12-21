@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class PostLoadableClass
 --- @field instance PostLoadableInstance The metatable used by PostLoadableInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "PostLoadableInstance"
+STATIC.Class = "PostLoadableInstance"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class PostLoadableInstance
 --- @field Static PostLoadableClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_PostLoadable" )
+INSTANCE.Class = "PostLoadableClass"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsPostLoadable = true

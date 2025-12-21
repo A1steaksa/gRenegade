@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class OffenseClass
 --- @field instance OffenseInstance The metatable used by OffenseInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "OffenseInstance"
+STATIC.Class = "OffenseClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class OffenseInstance
 --- @field Static OffenseClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Offense" )
+INSTANCE.Class = "OffenseInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsOffense = true
@@ -68,7 +69,7 @@ local DEFAULT_DAMAGE = 1.0
     function INSTANCE:Renegade_Offense( ... )
         local args = { ... }
         local argCount = select( "#", ... )
-        typecheck.AssertArgCount( CLASS, argCount, { 1, 2, 3 } )
+        typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2, 3 } )
 
         local arg1 = args[1] --[[@as number|OffenseInstance|nil]] or DEFAULT_DAMAGE
 

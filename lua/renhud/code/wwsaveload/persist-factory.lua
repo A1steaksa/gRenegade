@@ -6,12 +6,13 @@ local CNC = CNC_RENEGADE
 --- @class PersistFactoryClass
 --- @field instance PersistFactoryInstance The metatable used by PersistFactoryInstance
 local STATIC = CNC.CreateExport()
-local CLASS = "PersistFactoryInstance"
+STATIC.Class = "PersistFactoryClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class PersistFactoryInstance
 --- @field Static PersistFactoryClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_PersistFactory" )
+INSTANCE.Class = "PersistFactoryInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsPersistFactory = true
