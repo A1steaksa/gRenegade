@@ -154,7 +154,7 @@ end
                 functionName = "Constructor"
             end
 
-            local prefix = "ERROR: " .. LIB.ProjectName .. ":" .. className .. ":" .. functionName .. "():"
+            local prefix = "ERROR: " .. className .. ":" .. functionName .. "():"
 
             local errorMessage = tostring( message )
 
