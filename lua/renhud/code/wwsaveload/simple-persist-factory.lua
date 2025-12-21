@@ -26,12 +26,24 @@ INSTANCE.IsSimplePersistFactory = true
 
 
 --#region Imports
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
 --#endregion
 
 
 --#region Imported Enums
 --#endregion
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        SIMPLEFACTORY_CHUNKID_OBJPOINTER    = enumBuilder:Set( 0x00100100 ),
+        SIMPLEFACTORY_CHUNKID_OBJDATA       = enumBuilder:Next()
+    }
+end
 
 --[[ Static Functions and Variables ]] do
 
@@ -42,12 +54,6 @@ INSTANCE.IsSimplePersistFactory = true
     --- @field Class PersistClass
     --- @field ChunkId integer
     STATIC.TemplateData = {}
-
-    --[[ Internal Chunk IDs ]] do
-
-        STATIC.SIMPLEFACTORY_CHUNKID_OBJPOINTER = 0x00100100
-        STATIC.SIMPLEFACTORY_CHUNKID_OBJDATA = STATIC.SIMPLEFACTORY_CHUNKID_OBJPOINTER + 1
-    end
 
     --- Creates a new SimplePersistFactoryInstance
     --- @param class PersistClass
@@ -108,15 +114,13 @@ function INSTANCE:Load( cload )
     local class = self:GetClass()
     local newObj = class.New()
 
-    Section.Print( "Loading simple persist factory for ", self._Class.instance )
-
     cload:OpenChunk()
-    assert( cload:CurChunkId() == STATIC.SIMPLEFACTORY_CHUNKID_OBJPOINTER )
+    assert( cload:CurChunkId() == STATIC.ChunkIds.SIMPLEFACTORY_CHUNKID_OBJPOINTER )
     local oldObj = cload:Read( 4 ) -- 4 bytes for a 32 bit pointer
     cload:CloseChunk()
 
     cload:OpenChunk()
-    assert( cload:CurChunkId() == STATIC.SIMPLEFACTORY_CHUNKID_OBJDATA )
+    assert( cload:CurChunkId() == STATIC.ChunkIds.SIMPLEFACTORY_CHUNKID_OBJDATA )
     newObj:Load( cload )
     cload:CloseChunk()
 
