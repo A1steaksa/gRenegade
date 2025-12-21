@@ -34,6 +34,9 @@ INSTANCE.IsDefinitionManager = true
 
 --#region Imports
 
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+
     --- @type CombatChunkId
     local combatChunkId = CNC.Import( "renhud/code/combat/combat-chunk-id.lua" )
 
@@ -55,6 +58,27 @@ INSTANCE.IsDefinitionManager = true
 --#endregion
 
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES   = enumBuilder:Set( 0x00000100 ),
+        CHUNKID_OBJECTS     = enumBuilder:Next(),
+        CHUNKID_OBJECT      = enumBuilder:Next(),
+    }
+end
+
+--[[ Micro-Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.MicroChunkIds = {
+        VARID_NEXTDEFID = enumBuilder:Set( 0x01 )
+    }
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     --- @class DefinitionManagerClass
@@ -64,21 +88,6 @@ INSTANCE.IsDefinitionManager = true
 
     --- @type table<string, DefinitionInstance>
     STATIC.NameToDefinition = {}
-
-
-    --[[ Internal Chunk IDs ]] do
-
-        STATIC.CHUNKID_VARIABLES    = 0x00000100
-        STATIC.CHUNKID_OBJECTS      = STATIC.CHUNKID_VARIABLES  + 1
-        STATIC.CHUNKID_OBJECT       = STATIC.CHUNKID_OBJECTS    + 1
-    end
-
-
-    --[[ Internal Micro Chunk IDs ]] do
-
-        STATIC.VARID_NEXTDEFID = 0x01
-    end
-
 
     --- Creates a new DefinitionManagerInstance
     --- @return DefinitionManagerInstance
@@ -212,9 +221,9 @@ end
         while cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
 
-            if chunkId == STATIC.CHUNKID_VARIABLES then
+            if chunkId == STATIC.ChunkIds.CHUNKID_VARIABLES then
                 retVal = retVal and self:LoadVariables( cload )
-            elseif chunkId == STATIC.CHUNKID_OBJECTS then
+            elseif chunkId == STATIC.ChunkIds.CHUNKID_OBJECTS then
                 retVal = retVal and self:LoadObjects( cload )
             end
 
@@ -243,63 +252,33 @@ end
     --- @return boolean
     function INSTANCE:LoadObjects( cload )
         local retVal = true
-
+        Section.Start( "Loading Definition Manager Objects" )
+        local chunkCount = 0
         while cload:OpenChunk() do
-
-            local chunkId = cload:CurChunkId()
-
+            chunkCount = chunkCount + 1
             -- "Load this definition from the chunk (if possible)"
-            local factory = saveLoadSystemClass.FindPersistFactory( chunkId )
-
+            local factory = saveLoadSystemClass.FindPersistFactory( cload:CurChunkId() )
             if factory then
-                Section.Print( "Found a Persist Factory for Chunk ID: " .. chunkId )
-
                 local definition = factory:Load( cload )
-
                 if definition then
-                    local name = definition:GetName()
-
-                    Section.Print( "Loaded definition for " .. tostring( name ) .. "!" )
-                    for k, v in ipairs( definition ) do
-                        Section.Print( "[" .. tostring( k ) .. "]: " .. tostring( v ) )
-                    end
-
                     -- "Add this definition to our array"
-                    STATIC.IdToDefinition[chunkId] = definition
-                    STATIC.NameToDefinition[name] = definition
-                else
-                    error( "No definition :(" )
+                    STATIC.IdToDefinition[definition:GetId()] = definition
+                    STATIC.NameToDefinition[definition:GetName()] = definition
                 end
-            else
-
-                local keyString = ""
-                for k, v in pairs( combatChunkId ) do
-                    if v == chunkId then
-                        keyString = " AKA Combat Chunk ID: " .. k
-                        break
-                    end
-                end
-
-                if #keyString == 0 then
-                    for k, v in pairs( chunkIdEnum ) do
-                        if v == chunkId then
-                            keyString = " AKA Save Load ID: " .. k
-                            break
-                        end
-                    end
-                end
-
-                -- print( "No factory for chunk ID " .. chunkId .. keyString )
             end
 
             cload:CloseChunk()
         end
+
+        Section.Print( "Loaded a total of ", chunkCount, " chunks" )
 
         -- "Sort the definition"
         -- Omitted sorting definitions for now
 
         -- "Assign a mgr link to each definition"
         -- Omitted manager link for now
+
+        Section.End()
 
         return retVal
     end
@@ -315,18 +294,14 @@ end
     function INSTANCE:LoadVariables( cload )
         local retVal = true
 
+        Section.Start( "Loading Definition Manager Variables" )
+
         -- "Loop through all the microchunks that define the variables"
         while cload:OpenMicroChunk() do
-
-            print( "Micro chunk: ", cload:CurMicroChunkId() )
-
-            if cload:CurMicroChunkId() == STATIC.VARID_NEXTDEFID then
-                print( "Micro chunk is VARID_NEXTDEFID" )
-                break
-            end
-
             cload:CloseMicroChunk()
         end
+
+        Section.End()
 
         return retVal
     end
