@@ -227,6 +227,8 @@ function INSTANCE:Load( cload )
         else
             Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
         end
+
+        cload:CloseChunk()
     end
 
     Section.End()
