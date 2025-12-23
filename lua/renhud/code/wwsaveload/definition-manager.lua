@@ -186,9 +186,9 @@ end
     end
 
     function STATIC.FreeDefinitions()
-        typecheck.NotImplementedError()
+        STATIC.IdToDefinition = {}
+        STATIC.NameToDefinition = {}
     end
-
 end
 
 
@@ -253,9 +253,7 @@ end
     function INSTANCE:LoadObjects( cload )
         local retVal = true
         Section.Start( "Loading Definition Manager Objects" )
-        local chunkCount = 0
         while cload:OpenChunk() do
-            chunkCount = chunkCount + 1
             -- "Load this definition from the chunk (if possible)"
             local factory = saveLoadSystemClass.FindPersistFactory( cload:CurChunkId() )
             if factory then
@@ -269,8 +267,6 @@ end
 
             cload:CloseChunk()
         end
-
-        Section.Print( "Loaded a total of ", chunkCount, " chunks" )
 
         -- "Sort the definition"
         -- Omitted sorting definitions for now
