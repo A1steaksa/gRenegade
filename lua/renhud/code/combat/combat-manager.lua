@@ -114,13 +114,13 @@ local isHotload = not table.IsEmpty( STATIC )
         -- CNC_RENEGADE.ObjectiveManager.Init()
         -- CNC_RENEGADE.CombatSoundManager.Init()
 
-        -- Create the game camera
+        -- "Create THE camera"
         STATIC.MainCamera = commandoCamera.New()
 
         -- TODO: Check if this is a good way to set up the star
         STATIC.TheStar = LocalPlayer()
 
-        -- Create the Dazzle Layer
+        -- "Create the Dazzle Layer"
         if renderAvailable then
             -- STATIC.DazzleLayer = dazzleLayer.New()
             -- dazzleLayer.SetCurrentDazzleLayer( STATIC.DazzleLayer )

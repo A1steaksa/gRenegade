@@ -21,6 +21,7 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsPersist = true
 
+
 --#region Exported Enums
 
     --- @enum DataType
@@ -32,6 +33,7 @@ INSTANCE.IsPersist = true
     }
     local dataTypeEnum = STATIC.DATA_TYPE
 --#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -115,7 +117,6 @@ end
 
 
 --- @class PersistInstance
-
 
 --- @return PersistFactoryInstance?
 function INSTANCE:GetFactory()
