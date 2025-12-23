@@ -15,29 +15,34 @@ ENT.Class = "VehicleEntityInstance"
 
 --#region Exported Enums
 
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
     --- @enum VehicleType
     STATIC.VEHICLE_TYPE = {
-        Car     = 0,
-        Tank    = 1,
-        Bike    = 2,
-        Flying  = 3,
-        Turret  = 4
+        Car     = enumBuilder:Set( 0 ),
+        Tank    = enumBuilder:Next(),
+        Bike    = enumBuilder:Next(),
+        Flying  = enumBuilder:Next(),
+        Turret  = enumBuilder:Next()
     }
     local vehicleTypeEnum = STATIC.VEHICLE_TYPE
 
     --- @enum EngineSoundState
     STATIC.ENGINE_SOUND_STATE = {
-        Starting = 0,
-        Running  = 1,
-        Stopping = 2,
-        Off      = 3
+        Starting = enumBuilder:Set( 0 ),
+        Running  = enumBuilder:Next(),
+        Stopping = enumBuilder:Next(),
+        Off      = enumBuilder:Next()
     }
     local engineSoundStateEnum = STATIC.ENGINE_SOUND_STATE
 
     --- @enum Seat
     STATIC.SEAT = {
-        Driver = 0,
-        Gunner = 1
+        Driver = enumBuilder:Set( 0 ),
+        Gunner = enumBuilder:Next()
     }
     local seatEnum = STATIC.SEAT
 --#endregion
@@ -69,7 +74,7 @@ end
 
 local BaseClass = baseclass.Get( ENT.Base ) --[[@as SmartEntityInstance]]
 
---[[ Static ]] do
+--[[ Class Statics ]] do
 
     --- @class VehicleEntityClass
     --- @field protected DefaultDriverIsGunner boolean
@@ -77,6 +82,23 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as SmartEntityInstance]]
 
     STATIC.DefaultDriverIsGunner = true
     STATIC.CameraLockedToTurret = false
+    STATIC.UseTargetSteering = false
+
+    --- @return boolean
+    function STATIC.ToggleTargetSteering()
+        STATIC.UseTargetSteering = not STATIC.UseTargetSteering
+        return STATIC.UseTargetSteering
+    end
+
+    --- @param isTargetSteering boolean
+    function STATIC.SetTargetSteering( isTargetSteering )
+        STATIC.UseTargetSteering = isTargetSteering
+    end
+
+    --- @return boolean
+    function STATIC.IsTargetSteering()
+        return STATIC.UseTargetSteering
+    end
 end
 
 --- @class VehicleEntityInstance
@@ -119,18 +141,27 @@ function ENT:RenConstructor()
     -- Omitted setting app packet type
 end
 
---- @param definition VehicleEntityDefInstance?
-function ENT:Init( definition )
-    self.DriverIsGunner = STATIC.DefaultDriverIsGunner
-    if not definition then return end
-    --- @cast definition VehicleEntityDefInstance
-    BaseClass.Init( self, definition )
+--[[ Definitions ]] do
 
-    self:AcquireTurretBones()
-    -- self:InitWheelEffects()
-    -- self:CreateAndDestroyTransitions()
-    -- self:UpdateDamageMeshes()
+    --- @param definition VehicleEntityDefInstance?
+    function ENT:Init( definition )
+        self.DriverIsGunner = STATIC.DefaultDriverIsGunner
+        if not definition then return end
+
+        --- @cast definition VehicleEntityDefInstance
+        BaseClass.Init( self, definition )
+
+        self:AcquireTurretBones()
+        -- self:InitWheelEffects()
+        -- self:CreateAndDestroyTransitions()
+        -- self:UpdateDamageMeshes()
+
+        -- Omitted setting the app packet type for turrets
+    end
+
+
 end
+
 
 function ENT:RenThink()
 

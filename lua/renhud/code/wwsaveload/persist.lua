@@ -46,6 +46,8 @@ INSTANCE.IsPersist = true
     --- "  
     --- @class PersistClass
     --- @field ByteSize integer How many bytes long is this class when saved into a file?
+    --- @field ChunkIds table<string, integer> The chunk IDs used to save/load instances of this PersistClass
+    --- @field MicroChunkIds table<string, integer> The micro-chunk IDs used to save/load instances of this PersistClass
 
     --- All of the metadata associated with a given data type
     --- @class DataTypeInfo

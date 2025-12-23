@@ -21,26 +21,39 @@ INSTANCE.IsDefinition = true
 
 --#region Imports
 
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+
     --- @type DefinitionManagerClass
     local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
 --#endregion
 
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES = enumBuilder:Set( 0x00000100 )
+    }
+end
+
+
+--[[ Micro-Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.MicroChunkIds = {
+        VARID_INSTANCEID     = enumBuilder:Set( 0x01 ),
+        XXX_VARID_PARENTID   = enumBuilder:Next(),
+        VARID_NAME           = enumBuilder:Next(),
+    }
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     --- @class DefinitionClass
-
-    --[[ Internal Chunk IDs ]] do
-
-        STATIC.CHUNKID_VARIABLES = 0x00000100
-    end
-
-    --[[ Micro-Chunk IDs ]] do
-
-        STATIC.VARID_INSTANCEID     = 0x01
-        STATIC.XXX_VARID_PARENTID   = STATIC.VARID_INSTANCEID   + 1
-        STATIC.VARID_NAME           = STATIC.XXX_VARID_PARENTID + 1
-    end
 
     --- Creates a new DefinitionInstance
     --- @return DefinitionInstance
@@ -82,7 +95,7 @@ end
     function INSTANCE:Save( csave )
         local retVal = true
 
-        csave:BeginChunk( STATIC.CHUNKID_VARIABLES )
+        csave:BeginChunk( STATIC.ChunkIds.CHUNKID_VARIABLES )
         retVal = retVal and self:SaveVariables( csave )
         csave:EndChunk()
 
@@ -99,7 +112,7 @@ end
         while cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
 
-            if chunkId == STATIC.CHUNKID_VARIABLES then
+            if chunkId == STATIC.ChunkIds.CHUNKID_VARIABLES then
                 self:LoadVariables( cload )
             end
 
@@ -123,12 +136,14 @@ end
 
         Section.Start( "Loading Variables..." )
 
+        local microIds = STATIC.MicroChunkIds
+
         local retVal = true
 
         -- "Loop through all the microchunks that define the variables"
         while cload:OpenMicroChunk() do
-            self:ReadMicroChunk( cload, STATIC.VARID_INSTANCEID, STATIC.DATA_TYPE.UInt32, "Id" )
-            self:ReadMicroChunkWWString( cload, STATIC.VARID_NAME, "Name" )
+            self:ReadMicroChunk( cload, microIds.VARID_INSTANCEID, STATIC.DATA_TYPE.UInt32, "Id" )
+            self:ReadMicroChunkWWString( cload, microIds.VARID_NAME, "Name" )
 
             cload:CloseMicroChunk()
         end
