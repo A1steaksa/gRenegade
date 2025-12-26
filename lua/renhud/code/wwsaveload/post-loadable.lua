@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @class PostLoadableClass
---- @field instance PostLoadableInstance The metatable used by PostLoadableInstance
+--- @field Instance PostLoadableInstance The metatable used by PostLoadableInstance
 local STATIC = CNC.CreateExport()
 STATIC.Class = "PostLoadableInstance"
 local isHotload = not table.IsEmpty( STATIC )

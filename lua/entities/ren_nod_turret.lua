@@ -10,6 +10,9 @@ local ENT = ENT --[[@as VehicleEntityInstance]]
 
 --#region Imports
 
+    --- @type DefinitionManagerClass
+    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
+
     --- @type VehicleEntityClass
     local vehicleEntityClass = CNC.Import( "entities/ren_vehicle-entity/shared.lua" )
 
@@ -36,50 +39,7 @@ ENT.Category = "C&C Renegade"
 ENT.Spawnable = true
 
 ENT.Model = "models/cnc_renegade/vehicles/v_nod_turret.mdl"
-
-local def = vehicleEntityDefClass.New()
-ENT.Definition = def
-
-def.BullseyeOffsetZ = 1
-def.RadarBlipType = radarShapeTypeEnum.Stationary
-def.Animation = ""
-def.DefaultHibernationEnable = true
-def.AllowInnateConversations = false
-def.UseCreationEffect = false
-
-def.WeaponTiltRate = math.rad( 57.300 )
-def.WeaponTiltMin = -20.750
-def.WeaponTiltMax = 45.750
-def.WeaponTurnRate = math.rad( 30.000 )
-def.WeaponTurnMin = -572957.750
-def.WeaponTurnMax = 572957.750
-def.WeaponError = 50.000
-def.WeaponRounds = -1
-
-def.SightRange = 80.000
-def.SightArc = 360.000
-def.ListenerScale = 1
-
-def.IsStealthUnit = false
-
-def.TypeName = ""
-def.Fire0Anim = ""
-def.Fire1Anim = ""
-def.Profile = ""
-def.TurnRadius = 0
-def.SquishVelocity = 5
-def.Aim2d = true
-def.Type = vehicleTypeEnum.Turret
-def.OccupantsVisible = true
-def.EngineSoundMaxPitchFactor = 2
--- Omitted Engine Sounds
-def.SightDownMuzzle = true
-def.VehicleNameId = -1
-def.NumSeats = 0
-def.GdiDamageReportId = -1
-def.NodDamageReportId = -1
-def.GdiDestroyReportId = -1
-def.NodDestroyReportId = -1
+ENT.Definition = definitionManagerClass.FindNamedDefinition( "Nod_Turret" )
 
 function ENT:TargetPlayer()
     local player = player.GetAll()[1]

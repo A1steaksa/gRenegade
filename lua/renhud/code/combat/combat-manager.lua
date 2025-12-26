@@ -28,6 +28,12 @@ local isHotload = not table.IsEmpty( STATIC )
 
 -- #region Imports
 
+    --- @type SaveGameManagerClass
+    local saveGameManager = CNC.Import( "renhud/code/combat/save-game.lua" )
+
+    --- @type DefinitionManagerClass
+    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
+
     --- @type HudClass
     local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
 
@@ -158,7 +164,46 @@ local isHotload = not table.IsEmpty( STATIC )
         --- @param mapName string
         ---@param preloadAssets boolean
         function STATIC.LoadLevelThreaded( mapName, preloadAssets )
-            typecheck.NotImplementedError( "LoadLevelThreaded" )
+            STATIC.IsLevelInitialized = false
+
+            -- Because we don't have threads, I'm directly placing the contents of `LoadThreadClass:Thread_Function()` below
+
+            STATIC.SetLoadProgress( 0 )
+            STATIC.IncrementLoadProgress()
+
+            -- "Reload the definition databases (to support level-specific temp ddb's)"
+            definitionManagerClass.FreeDefinitions()
+            saveGameManager.LoadDefinitions()
+
+            STATIC.IncrementLoadProgress()
+            -- "
+            -- Make sure the animated-sound system is setup.  This needs
+            -- to be done after the definition databases are loaded...
+            -- "
+            -- animatedSoundManagerClass.Initialize()
+
+            -- "Prep the level loading"
+            -- playerInfoLogClass.SetCurrentMapName( mapName )
+            local fileNameToLoad, lsdFileName = saveGameManager.PreLoadGame( mapName )
+            STATIC.SetLastLsdName( mapName )
+
+            STATIC.IncrementLoadProgress()
+
+            -- "Preload the assets"
+            if preloadAssets then
+                -- assetDependencyManager.LoadAlwaysAssets()
+                STATIC.IncrementLoadProgress()
+                -- assetDependencyManager.LoadLevelAssets( lsdFileName )
+            else
+                STATIC.IncrementLoadProgress()
+            end
+
+            STATIC.IncrementLoadProgress()
+
+            -- "Now load the level"
+            saveGameManager.LoadGame( mapName )
+
+            STATIC.IncrementLoadProgress()
         end
 
         --- @return boolean

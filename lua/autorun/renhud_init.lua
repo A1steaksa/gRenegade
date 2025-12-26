@@ -75,9 +75,6 @@ end
     include( "renhud/sh_robustclass.lua" )
     include( "renhud/sh_debugdraw.lua" )
     include( "renhud/sh_print.lua" )
-
-    -- FOR TESTING ONLY
-    include( "renhud/code/wwlib/chunk-load.lua" )
 end
 
 if CLIENT then
@@ -138,7 +135,10 @@ if CLIENT then
         -- Load overrides for Renegade's default settings
         include( "renhud/client/cl_updated-global-settings.lua" )
 
-        -- Start the HUD
+        -- This jumps a significant distance down the original game's init process
+        combatManager.LoadLevelThreaded( "data/renegade/c&c_under.mix.txt", false )
+
+        -- Start the game
         combatManager.Init( true )
     end
 

@@ -149,6 +149,8 @@ local isHotload = not table.IsEmpty( STATIC )
             STATIC.LoadedSubSystems = {}
         end
 
+        STATIC.ResetAllRegisters()
+
         ---@param subsys SaveLoadSubSystemInstance
         function STATIC.RegisterSubSystem( subsys )
             Section.Print( "Registering sub-system: \"" .. subsys:Name() .. "\" with Chunk ID: " .. subsys:ChunkId() )

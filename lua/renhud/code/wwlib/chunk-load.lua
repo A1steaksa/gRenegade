@@ -3,14 +3,14 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class ChunkLoadInstance
+--- @class ChunkLoadClass
 --- @field instance ChunkLoadInstance The metatable used by ChunkLoadInstance
 local STATIC = CNC.CreateExport()
 STATIC.Class = "ChunkLoadClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ChunkLoadInstance
---- @field Static ChunkLoadInstance The static table for this instance's class
+--- @field Static ChunkLoadClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_ChunkLoad" )
 INSTANCE.Class = "ChunkLoadInstance"
 STATIC.Instance = INSTANCE
@@ -93,7 +93,7 @@ local MAX_STACK_DEPTH = 256
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class ChunkLoadInstance
+    --- @class ChunkLoadClass
     --- @field Converter BinaryConverter
 
     --- Creates a new ChunkLoadInstance
@@ -180,32 +180,6 @@ local MAX_STACK_DEPTH = 256
     end
 end
 
-concommand.Add( "ren_test", function()
-
-    local chunkedFile = file.Open( "data/renegade/always_dat/object.ddb.txt", "rb", "THIRDPARTY" )
-
-    Section.Reset()
-    Section.Enable()
-
-    local cload = STATIC.New( chunkedFile )
-
-    while cload:OpenChunk() do
-        local chunkId = cload:CurChunkId()
-
-        local subSystem = saveLoadSystemClass.FindSubSystem( chunkId )
-        if subSystem then
-            Section.Start( "Loading Subsystem: " .. subSystem:Name() )
-            subSystem:Load( cload )
-            Section.End( "Loaded Subsystem: " .. subSystem:Name() )
-        else
-            Section.Warn( "No subsystem found for chunk ID " .. chunkId )
-        end
-
-        cload:CloseChunk()
-    end
-
-    Section.Disable()
-end )
 
 --- "Wrap an instance of one of these objects around an opened file to easily parse the chunks in the file"
 --- @class ChunkLoadInstance

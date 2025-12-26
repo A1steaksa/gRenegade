@@ -132,9 +132,15 @@ end
 
         --- @param name string
         --- @param twiddle boolean? [Default: `true`]
-        --- @return DefinitionInstance
+        --- @return DefinitionInstance?
         function STATIC.FindNamedDefinition( name, twiddle )
-            typecheck.NotImplementedError()
+            local definition = STATIC.NameToDefinition[name]
+
+            if twiddle then
+                typecheck.NotImplementedError()
+            end
+
+            return definition
         end
 
         --- @param name string

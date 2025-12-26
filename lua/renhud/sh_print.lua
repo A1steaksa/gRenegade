@@ -65,6 +65,8 @@ function LIB.Reset()
     LIB.IsEnabled = LIB.StartEnabled
 end
 
+LIB.Reset()
+
 -- Errors are likely to prevent open sections from being closed properly
 hook.Add( "OnLuaError", "A1_SectionLib_ResetSections", LIB.Reset )
 

@@ -90,7 +90,7 @@ local MAX_MUZZLES = 4
         BaseClass.ReInit( self, definition --[[@as PhysicalEntityDefInstance]] )
 
         -- "Remnove all non-beacon entries from the weapon bag..."
-        local oldBag = self.WepaonBag
+        local oldBag = self.WeaponBag
         if self.WeaponBag then
             -- -- "Loop over all the weapons in the bag"
             -- local weaponIndex = self.WeaponBag:GetCount()

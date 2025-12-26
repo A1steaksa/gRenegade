@@ -8,7 +8,7 @@ local CNC = CNC_RENEGADE
 local parentClass = CNC.Import( "renhud/code/wwsaveload/post-loadable.lua" )
 
 --- @class PersistClass : PostLoadableClass
---- @field instance PersistInstance The metatable used by PersistInstance
+--- @field Instance PersistInstance The metatable used by PersistInstance
 local STATIC = CNC.CreateExport( parentClass )
 STATIC.Class = "PersistClass"
 local isHotload = not table.IsEmpty( STATIC )
