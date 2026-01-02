@@ -49,9 +49,43 @@ function debugdraw.Entity( ent, color, duration, ignoreZ )
     end
 end
 
+--- Draws a box
+--- @param pos Vector The center point of the box
+--- @param ang Angle
+--- @param radius Vector Half of the size of the box
+--- @param color Color? [Default: `Color( 255, 255, 255, 200 )`]
+--- @param duration number? [Default: `1`] The length of time, in seconds, to draw this Entity
+--- @param ignoreZ boolean? [Default: `false`] Should the Entity draw through other objects?
+function debugdraw.Box( pos, ang, radius, color, duration, ignoreZ )
+    if not color then color = Color( 255, 255, 255, 200 ) end
+    if not duration then duration = 1 end
+    if not ignoreZ then ignoreZ = false end
+
+    if SERVER then
+        net.Start( "A1_DebugDraw" )
+
+        -- Write standard arguments
+        net.WriteColor( color )
+        net.WriteFloat( duration )
+        net.WriteBool( ignoreZ )
+
+        -- Write type-dependent arguments
+        net.WriteInt( debugdraw.ShapeType.Box, 8 )
+        net.WriteVector( pos )
+        net.WriteAngle( ang )
+        net.WriteVector( radius )
+
+        net.Broadcast()
+    end
+
+    if CLIENT then
+        debugdraw.AddEntity( ent, color, duration, ignoreZ )
+    end
+end
+
 --- Draws a sphere
---- @param pos Vector
---- @param radius number
+--- @param pos Vector The center point of the sphere
+--- @param radius number Half of the width of the sphere
 --- @param color Color? [Default: `Color( 255, 255, 255, 200 )`]
 --- @param duration number? [Default: `1`] The length of time, in seconds, to draw this Entity
 --- @param ignoreZ boolean? [Default: `false`] Should the Entity draw through other objects?
@@ -224,6 +258,15 @@ if CLIENT then
             debugdraw.AddEntity( ent, color, duration, ignoreZ )
         end
 
+        -- Boxes
+        if shapeType == debugdraw.ShapeType.Box then
+            local pos    = net.ReadVector()
+            local ang    = net.ReadAngle()
+            local radius = net.ReadVector()
+
+            debugdraw.AddBox( pos, ang, radius, color, duration, ignoreZ )
+        end
+
         -- Spheres
         if shapeType == debugdraw.ShapeType.Sphere then
             local pos    = net.ReadVector()
@@ -300,6 +343,9 @@ if CLIENT then
         debugdraw.DrawShapeList( time, debugdraw.DebugEntities, debugdraw.DrawEntity )
 
         -- Spheres
+        debugdraw.DrawShapeList( time, debugdraw.DebugBoxes, debugdraw.DrawBox )
+
+        -- Spheres
         debugdraw.DrawShapeList( time, debugdraw.DebugSpheres, debugdraw.DrawSphere )
 
         -- Lines
@@ -356,6 +402,46 @@ if CLIENT then
 
             render.DrawBox( pos, ang, mins, maxs, shapeInfo.Color )
             render.DrawWireframeBox( pos, ang, mins, maxs, wireframeColor )
+        end
+    end
+
+    --[[ Boxes ]] do
+        --- A shape for drawing a box
+        --- @class DebugDraw.Box : DebugDraw.Base
+        --- @field Pos Vector
+        --- @field Ang Angle
+        --- @field Radius Vector
+
+        --- @private
+        --- @type DebugDraw.Box[]
+        debugdraw.DebugBoxes = {}
+
+        --- @private
+        --- Registers a new box to draw
+        --- @param pos Vector
+        --- @param ang Angle
+        --- @param radius Vector
+        --- @param color Color
+        --- @param duration number The length of time, in seconds, to draw this Entity
+        --- @param ignoreZ boolean Should the Entity draw through other objects?
+        function debugdraw.AddBox( pos, ang, radius, color, duration, ignoreZ )
+            debugdraw.DebugBoxes[#debugdraw.DebugBoxes + 1] = {
+                StartTime = CurTime(),
+                Lifetime = duration,
+                Color = color,
+                IgnoreZ = ignoreZ,
+                Pos = pos,
+                Ang = ang,
+                Radius = radius
+            }
+        end
+
+        --- @private
+        --- Draws a given box
+        --- @param shapeInfo DebugDraw.Box
+        --- @return boolean? shouldStopDrawing `true` if there was an issue drawing that indicates we should stop trying early 
+        function debugdraw.DrawBox( shapeInfo )
+            render.DrawBox( shapeInfo.Pos, shapeInfo.Ang, -shapeInfo.Radius, shapeInfo.Radius, shapeInfo.Color )
         end
     end
 
