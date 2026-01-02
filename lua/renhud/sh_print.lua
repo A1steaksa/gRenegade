@@ -22,7 +22,7 @@ Section = LIB
 
 --[[ Settings ]] do
 
-    LIB.StartEnabled = false
+    LIB.StartEnabled = true
 
     --- How many total characters (spaces and, optionally, indent lines) should be used for each level of indentation?
     LIB.IndentCharCount = 3
@@ -209,7 +209,11 @@ function LIB.SetIncludeIndentLines( shouldPrintIndentLines )
 end
 
 function LIB.Error( ... )
-    error( table.concat( { ... } ) )
+    local args = { ... }
+    for k, v in ipairs( args ) do
+        args[k] = tostring( v )
+    end
+    error( table.concat( args ) )
 end
 
 function LIB.Warn( ... )
