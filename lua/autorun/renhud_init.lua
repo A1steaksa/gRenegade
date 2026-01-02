@@ -41,9 +41,6 @@ local isHotload = table.Count( CNC_RENEGADE ) ~= 0
 
 --[[ Server Setup ]]
 if SERVER then
-    -- Load ConVars
-    include( "renhud/server/sv_convars.lua" )
-
     -- Let clients know that we're running the server side of this addon
     SetGlobal2Bool( "A1_Renegade_ServerRunning", true )
 
@@ -61,11 +58,11 @@ if SERVER then
     -- Send shared Lua to the clients
     IterateFilesRecursively( "renhud/code", "LUA", AddCSLuaFile )
 
-    -- Send test model to clients
-    resource.AddFile( "models/cnc_renegade/vehicles/v_nod_turret.mdl" )
-    resource.AddFile( "materials/models/cnc_renegade/cement5.vmt" )
-    resource.AddFile( "materials/models/cnc_renegade/tur_01.vmt" )
-    resource.AddFile( "materials/models/cnc_renegade/sude3.vmt" )
+    -- Send models to clients
+    IterateFilesRecursively( "models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
+
+    -- Send materials to clients
+    IterateFilesRecursively( "materials/models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
 end
 
 --[[ Shared ]] do
@@ -75,6 +72,10 @@ end
     include( "renhud/sh_robustclass.lua" )
     include( "renhud/sh_debugdraw.lua" )
     include( "renhud/sh_print.lua" )
+end
+
+if SERVER then
+    IterateFilesRecursively( "renhud/server/", "LUA", include )
 end
 
 if CLIENT then
