@@ -32,7 +32,7 @@ INSTANCE.Static = STATIC
     local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
 
     --- @type RadarManagerClass
-    local radarClass = CNC.Import( "renhud/client/code/combat/radar.lua" )
+    local radarClass = CNC.Import( "renhud/code/combat/radar.lua" )
 --#endregion
 
 

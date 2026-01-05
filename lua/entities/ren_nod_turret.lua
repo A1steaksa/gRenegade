@@ -17,7 +17,7 @@ local ENT = ENT --[[@as VehicleEntityInstance]]
     local vehicleEntityDefClass = CNC.Import( "renhud/code/combat/vehicle-entity-def.lua" )
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/client/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
 --#endregion
 
 
@@ -35,6 +35,7 @@ ENT.Author = "A1steaksa"
 ENT.Category = "C&C Renegade"
 ENT.Spawnable = true
 
+ENT.DefinitionName = "Nod_Turret"
 ENT.Model = "models/cnc_renegade/vehicles/v_nod_turret.mdl"
 
 function ENT:TargetPlayer()

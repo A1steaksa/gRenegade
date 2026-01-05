@@ -149,7 +149,7 @@ local isHotload = not table.IsEmpty( LIB )
             local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
             --- @type CommonBridgeLib
-            local commonBridgeLib = CNC.Import( "renhud/client/bridges/common.lua" )
+            local commonBridgeLib = CNC.Import( "renhud/bridges/sh_common.lua" )
         --#endregion
 
         local damageIndicatorsEnabledConVar = GetConVar( "ren_damageindicator_enabled" )

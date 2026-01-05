@@ -29,7 +29,7 @@ local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
 local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
 
 --- @type CameraBridgeClass
-local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua" )
+local cameraBridgeClass = CNC.Import( "renhud/bridges/sh_camera.lua" )
 --#endregion
 
 

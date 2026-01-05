@@ -35,10 +35,10 @@ local isHotload = not table.IsEmpty( STATIC )
     local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
 
     --- @type HudClass
-    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
+    local hudClass = CNC.Import( "renhud/code/combat/hud.lua" )
 
-    --- @type CommandoCamera
-    local commandoCamera = CNC.Import( "renhud/code/combat/commando-camera.lua" )
+    --- @type CommandoCameraClass
+    local commandoCameraClass = CNC.Import( "renhud/code/combat/commando-camera.lua" )
 
     --- @type DamageLib
     local damageLib = CNC.Import( "renhud/sh_damage.lua" )

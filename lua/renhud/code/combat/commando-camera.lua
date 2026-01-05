@@ -36,19 +36,19 @@ INSTANCE.IsCommandoCamera = true
     local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
+    local hudInfoClass = CNC.Import( "renhud/code/combat/hud-info.lua" )
 
-    --- @type CommandoCameraProfile
-    local commandoCameraProfileClass = CNC.Import( "renhud/client/code/combat/commando-camera-profile.lua" )
+    --- @type CommandoCameraProfileClass
+    local commandoCameraProfileClass = CNC.Import( "renhud/code/combat/commando-camera-profile.lua" )
 
     --- @type BuildingsBridgeClass
-    local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
+    local buildingsBridgeClass = CNC.Import( "renhud/bridges/sh_buildings.lua" )
 
     --- @type PhysicalGameObjectsBridgeClass
-    local physicalGameObjectsBridgeClass = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
+    local physicalGameObjectsBridgeClass = CNC.Import( "renhud/bridges/sh_physical-game-objects.lua" )
 
     --- @type SmartGameObjectsBridge
-    local smartGameObjectsBridgeClass = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
+    local smartGameObjectsBridgeClass = CNC.Import( "renhud/bridges/sh_smart-game-objects.lua" )
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua")

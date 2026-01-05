@@ -5,7 +5,7 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
-local settings = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
+local settings = CNC.Import( "renhud/code/combat/global-settings.lua" )
 
 --#region Colors
 settings.Colors = {}

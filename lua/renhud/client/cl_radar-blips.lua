@@ -11,7 +11,7 @@ local isHotload = not table.IsEmpty( LIB )
 --#region Imports
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/client/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
