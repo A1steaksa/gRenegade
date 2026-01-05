@@ -4,9 +4,9 @@ local CNC = CNC_RENEGADE
 --- A library for converting Renegade's unit space (meters) to Garry's Mod's unit space (Source Units)  
 --- `1` Renegade Unit == `254` Source Units  
 --- `1` Source Unit == `2.54` Renegade Units  
---- @class ConversionLib
+--- @class UnitConversionLib
 local LIB = CNC.CreateExport()
-LIB.Class = "ConversionLib"
+LIB.Class = "UnitConversionLib"
 local isHotload = not table.IsEmpty( LIB )
 
 --- 1 Source Unit is 2.54 Centimeters
