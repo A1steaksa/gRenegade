@@ -39,8 +39,8 @@ INSTANCE.IsSimpleDefinitionFactory = true
 
     --- The template data stored prior to instantiation
     --- @class SimpleDefinitionFactoryTemplateData
-    --- @field _Class DefinitionClass
-    --- @field ChunkId integer
+    --- @field Class DefinitionClass
+    --- @field ClassId integer
     --- @field Name string
     STATIC.TemplateData = {}
 
@@ -51,9 +51,11 @@ INSTANCE.IsSimpleDefinitionFactory = true
     --- @param isDisplayed boolean? [Default: true]
     --- @return SimpleDefinitionFactoryInstance
     function STATIC.New( class, classId, name, isDisplayed )
-        STATIC.TemplateData.Class = class
-        STATIC.TemplateData.ClassId = classId
-        STATIC.TemplateData.Name = name
+        STATIC.TemplateData = {
+            Class = class,
+            ClassId = classId,
+            Name = name
+        }
 
         return robustclass.New( "Renegade_SimpleDefinitionFactory", isDisplayed )
     end
