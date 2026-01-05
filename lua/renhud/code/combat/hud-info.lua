@@ -15,10 +15,10 @@ local isHotload = not table.IsEmpty( STATIC )
 local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
 --- @type GameTypeClass
-local gameType = CNC.Import( "renhud/client/code/combat/game-type.lua" )
+local gameType = CNC.Import( "renhud/code/combat/game-type.lua" )
 
 --- @type BuildingsBridgeClass
-local buildingsBridge = CNC.Import( "renhud/client/bridges/buildings.lua" )
+local buildingsBridge = CNC.Import( "renhud/bridges/sh_buildings.lua" )
 
 --- @type InfoEntityLib
 local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )

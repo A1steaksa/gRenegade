@@ -23,16 +23,16 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "renhud/client/code/combat/objective-manager.lua" )
+    local objectiveManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
 
     --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
+    local globalSettingsClass = CNC.Import( "renhud/code/combat/global-settings.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/client/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/client/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
 
     --- @type RadarBlipsLib
     local radarBlipsLib = CNC.Import( "renhud/client/cl_radar-blips.lua" )

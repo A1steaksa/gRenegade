@@ -33,16 +33,16 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type ObjectiveClass
-    local objectiveClass = CNC.Import( "renhud/client/code/combat/objective.lua" )
+    local objectiveClass = CNC.Import( "renhud/code/combat/objective.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/client/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
 
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
 
     --- @type HudClass
-    local hudClass = CNC.Import( "renhud/client/code/combat/hud.lua" )
+    local hudClass = CNC.Import( "renhud/code/combat/hud.lua" )
 --#endregion
 
 

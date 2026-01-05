@@ -74,20 +74,23 @@ if not CLIENT then return end
 
 --#region Imports
 
+    --- @type MaterialsLib
+    local materialsLib = CNC.Import( "renhud/client/cl_materials.lua" )
+
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
     --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "renhud/client/code/ww3d2/render-2d-text.lua" )
+    local render2dTextClass = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
 
     --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
+    local globalSettingsClass = CNC.Import( "renhud/code/combat/global-settings.lua" )
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
 
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
@@ -98,23 +101,23 @@ if not CLIENT then return end
     --- @type RadarBlipsLib
     local radarBlipsLib = CNC.Import( "renhud/client/cl_radar-blips.lua" )
 
-    --- @type ConversionLib
+    --- @type UnitConversionLib
     local conversionLib = CNC.Import( "renhud/sh_unit-conversion.lua" )
 
     --- @type CommonBridgeLib
-    local commonBridgeLib = CNC.Import( "renhud/client/bridges/common.lua" )
+    local commonBridgeLib = CNC.Import( "renhud/bridges/sh_common.lua" )
 
     --- @type SmartGameObjectsBridge
-    local smartGameObjectsBridge = CNC.Import( "renhud/client/bridges/smart-game-objects.lua" )
+    local smartGameObjectsBridge = CNC.Import( "renhud/bridges/sh_smart-game-objects.lua" )
 
     --- @type PlayerType
     local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "renhud/client/code/combat/objective-manager.lua" )
+    local objectiveManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/client/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
 --#endregion
 
 
@@ -198,7 +201,7 @@ STATIC.Markers = {}
 
 local radarRangeConVar = GetConVar( "ren_radar_range" )
 
-local RADAR_MATERIAL        = CNC.LoadMaterial( "hud_main" )
+local RADAR_MATERIAL        = materialsLib.LoadMaterial( "hud_main" )
 
 local INFO_UV_SCALE        = Vector( 1 / 256, 1 / 256 )
 
@@ -353,6 +356,10 @@ function STATIC.Update( playerTransformationMatrix, center )
     -- "If the renderer object for this particular radar direction hasn't been created, create it now"
     if STATIC.CompassRenderers[ STATIC.CurrentCompassRendererIndex ] == NULL then
         local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
+
+        -- Fonts may not be created yet
+        if not font then return end
+
         local newCompassRenderer = render2dTextClass.New( font )
         newCompassRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
         STATIC.CompassRenderers[ STATIC.CurrentCompassRendererIndex ] = newCompassRenderer

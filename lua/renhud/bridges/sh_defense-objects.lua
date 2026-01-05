@@ -5,22 +5,15 @@ local CNC = CNC_RENEGADE
 
 --- Parent class
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
+local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
 
 --- @class DefenseObjectsBridge : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )
 
---#region Imports
-
-    --- @type SharedCommon
-    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
---#endregion
-
-
 --- @param ent Entity
 --- @return boolean
 function LIB.IsDefenseObject( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     -- TODO: Implement something here
     return true
 end
@@ -28,14 +21,14 @@ end
 --- @param ent Entity
 --- @return number
 function LIB.GetHealthMax( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     return ent:GetMaxHealth()
 end
 
 --- @param ent Entity
 --- @return number
 function LIB.GetShieldStrengthMax( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
 
     if typecheck.IsOfType( ent, "Player" ) then
         --- @cast ent Player
@@ -48,14 +41,14 @@ end
 --- @param ent Entity
 --- @return number
 function LIB.GetHealth( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     return ent:Health()
 end
 
 --- @param ent Entity
 --- @return number
 function LIB.GetShieldStrength( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     if typecheck.IsOfType( ent, "Player" ) then
         --- @cast ent Player
         return ent:Armor()

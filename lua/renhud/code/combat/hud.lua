@@ -24,8 +24,11 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
+    --- @type MaterialsLib
+    local materialsLib = CNC.Import( "renhud/client/cl_materials.lua" )
+
     --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "renhud/client/code/combat/global-settings.lua" )
+    local globalSettingsClass = CNC.Import( "renhud/code/combat/global-settings.lua" )
 
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
@@ -34,31 +37,31 @@ local isHotload = not table.IsEmpty( STATIC )
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/client/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
     --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "renhud/client/code/ww3d2/render-2d-text.lua" )
+    local render2dTextClass = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
 
     --- @type Font3dClass
-    local font3dClass = CNC.Import( "renhud/client/code/ww3d2/font-3d.lua" )
+    local font3dClass = CNC.Import( "renhud/code/ww3d2/font-3d.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/client/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
 
     --- @type ObjectiveManagerClass
-    local objManagerClass = CNC.Import( "renhud/client/code/combat/objective-manager.lua" )
+    local objManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
 
     --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "renhud/client/code/combat/hud-info.lua" )
+    local hudInfoClass = CNC.Import( "renhud/code/combat/hud-info.lua" )
 
     --- @type PhysicalGameObjectsBridgeClass
-    local physObjBridgeClass = CNC.Import( "renhud/client/bridges/physical-game-objects.lua" )
+    local physObjBridgeClass = CNC.Import( "renhud/bridges/sh_physical-game-objects.lua" )
 
     --- @type BuildingsBridgeClass
-    local buildingsBridgeClass = CNC.Import( "renhud/client/bridges/buildings.lua" )
+    local buildingsBridgeClass = CNC.Import( "renhud/bridges/sh_buildings.lua" )
 
     --- @type Matrix3dClass
     local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
@@ -76,10 +79,10 @@ local isHotload = not table.IsEmpty( STATIC )
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
 
     --- @type CameraBridgeClass
-    local cameraBridgeClass = CNC.Import( "renhud/client/bridges/camera.lua")
+    local cameraBridgeClass = CNC.Import( "renhud/bridges/sh_camera.lua")
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/client/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
 --#endregion
 
 
@@ -87,6 +90,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
     local dispositionEnum = infoEntityLib.DISPOSITION
     local playerTypeEnum = playerTypeLib.PLAYER_TYPE_ENUM
+    local fontStyleEnum = styleManagerClass.FONT_STYLE
 --#endregion
 
 
@@ -118,68 +122,70 @@ local isHotload = not table.IsEmpty( STATIC )
 
     -- Fonts
     STATIC.Materials.Fonts = {}
-    STATIC.Materials.Fonts.Large    = CNC.LoadMaterial( "font12x16" )
-    STATIC.Materials.Fonts.Medium   = CNC.LoadMaterial( "font12x16" )
-    STATIC.Materials.Fonts.Small    = CNC.LoadMaterial( "font6x8" )
+    STATIC.Materials.Fonts.Large    = materialsLib.LoadMaterial( "font12x16" )
+    STATIC.Materials.Fonts.Medium   = materialsLib.LoadMaterial( "font12x16" )
+    STATIC.Materials.Fonts.Small    = materialsLib.LoadMaterial( "font6x8" )
 
     -- HUD Base
     STATIC.Materials.Hud = {}
-    STATIC.Materials.Hud.Main       = CNC.LoadMaterial( "hud_main" )
-    STATIC.Materials.Hud.ChatPBox   = CNC.LoadMaterial( "hud_chatpbox" )
-    STATIC.Materials.Hud.Reticle    = CNC.LoadMaterial( "hd_reticle" )
-    STATIC.Materials.Hud.ReticleHit = CNC.LoadMaterial( "hd_reticle_hit" )
+    STATIC.Materials.Hud.Main       = materialsLib.LoadMaterial( "hud_main" )
+    STATIC.Materials.Hud.ChatPBox   = materialsLib.LoadMaterial( "hud_chatpbox" )
+    STATIC.Materials.Hud.Reticle    = materialsLib.LoadMaterial( "hd_reticle" )
+    STATIC.Materials.Hud.ReticleHit = materialsLib.LoadMaterial( "hd_reticle_hit" )
 
     -- Objective Pickups
     STATIC.Materials.Pickups = {}
-    STATIC.Materials.Pickups.Eva1   = CNC.LoadMaterial( "p_eva1" )
-    STATIC.Materials.Pickups.Eva2   = CNC.LoadMaterial( "p_eva2" )
-    STATIC.Materials.Pickups.CdRom  = CNC.LoadMaterial( "hud_cd_rom" )
+    STATIC.Materials.Pickups.Eva1   = materialsLib.LoadMaterial( "p_eva1" )
+    STATIC.Materials.Pickups.Eva2   = materialsLib.LoadMaterial( "p_eva2" )
+    STATIC.Materials.Pickups.CdRom  = materialsLib.LoadMaterial( "hud_cd_rom" )
 
     -- Keycard Pickups
-    STATIC.Materials.Pickups.GreenKeycard  = CNC.LoadMaterial( "hud_keycard_green" )
-    STATIC.Materials.Pickups.RedKeycard    = CNC.LoadMaterial( "hud_keycard_red" )
-    STATIC.Materials.Pickups.YellowKeycard = CNC.LoadMaterial( "hud_keycard_yellow" )
+    STATIC.Materials.Pickups.GreenKeycard  = materialsLib.LoadMaterial( "hud_keycard_green" )
+    STATIC.Materials.Pickups.RedKeycard    = materialsLib.LoadMaterial( "hud_keycard_red" )
+    STATIC.Materials.Pickups.YellowKeycard = materialsLib.LoadMaterial( "hud_keycard_yellow" )
 
     -- Armor Pickups
-    STATIC.Materials.Pickups.Armor1 = CNC.LoadMaterial( "hud_armor1" )
-    STATIC.Materials.Pickups.Armor2 = CNC.LoadMaterial( "hud_armor2" )
-    STATIC.Materials.Pickups.Armor3 = CNC.LoadMaterial( "hud_armor3" )
+    STATIC.Materials.Pickups.Armor1 = materialsLib.LoadMaterial( "hud_armor1" )
+    STATIC.Materials.Pickups.Armor2 = materialsLib.LoadMaterial( "hud_armor2" )
+    STATIC.Materials.Pickups.Armor3 = materialsLib.LoadMaterial( "hud_armor3" )
 
     -- Health Pickups
-    STATIC.Materials.Pickups.Health1 = CNC.LoadMaterial( "hud_health1" )
-    STATIC.Materials.Pickups.Health2 = CNC.LoadMaterial( "hud_health2" )
-    STATIC.Materials.Pickups.Health3 = CNC.LoadMaterial( "hud_health3" )
+    STATIC.Materials.Pickups.Health1 = materialsLib.LoadMaterial( "hud_health1" )
+    STATIC.Materials.Pickups.Health2 = materialsLib.LoadMaterial( "hud_health2" )
+    STATIC.Materials.Pickups.Health3 = materialsLib.LoadMaterial( "hud_health3" )
 
     -- Health and Armor Upgrades
-    STATIC.Materials.Pickups.HealthUpgrade = CNC.LoadMaterial( "hud_hemedal" )
-    STATIC.Materials.Pickups.ArmorUpgrade  = CNC.LoadMaterial( "hud_armedal" )
+    STATIC.Materials.Pickups.HealthUpgrade = materialsLib.LoadMaterial( "hud_hemedal" )
+    STATIC.Materials.Pickups.ArmorUpgrade  = materialsLib.LoadMaterial( "hud_armedal" )
 
     -- Team Icons
     STATIC.Materials.TeamIcons = {}
-    STATIC.Materials.TeamIcons.None      = CNC.LoadMaterial( "team-icons/none" )
-    STATIC.Materials.TeamIcons.GDI       = CNC.LoadMaterial( "team-icons/gdi" )
-    STATIC.Materials.TeamIcons.Nod       = CNC.LoadMaterial( "team-icons/nod" )
-    STATIC.Materials.TeamIcons.Combine   = CNC.LoadMaterial( "team-icons/combine" )
-    STATIC.Materials.TeamIcons.Rebels    = CNC.LoadMaterial( "team-icons/rebels" )
-    STATIC.Materials.TeamIcons.BlackMesa = CNC.LoadMaterial( "team-icons/black-mesa" )
-    STATIC.Materials.TeamIcons.HECU      = CNC.LoadMaterial( "team-icons/hecu" )
-    STATIC.Materials.TeamIcons.Aperture  = CNC.LoadMaterial( "team-icons/aperture" )
+    STATIC.Materials.TeamIcons.None      = materialsLib.LoadMaterial( "team-icons/none" )
+    STATIC.Materials.TeamIcons.GDI       = materialsLib.LoadMaterial( "team-icons/gdi" )
+    STATIC.Materials.TeamIcons.Nod       = materialsLib.LoadMaterial( "team-icons/nod" )
+    STATIC.Materials.TeamIcons.Combine   = materialsLib.LoadMaterial( "team-icons/combine" )
+    STATIC.Materials.TeamIcons.Rebels    = materialsLib.LoadMaterial( "team-icons/rebels" )
+    STATIC.Materials.TeamIcons.BlackMesa = materialsLib.LoadMaterial( "team-icons/black-mesa" )
+    STATIC.Materials.TeamIcons.HECU      = materialsLib.LoadMaterial( "team-icons/hecu" )
+    STATIC.Materials.TeamIcons.Aperture  = materialsLib.LoadMaterial( "team-icons/aperture" )
 
     -- Seat Icons
     STATIC.Materials.SeatIcons = {}
-    STATIC.Materials.SeatIcons[seatTypeEnum.Driver]    = CNC.LoadMaterial( "hud_driverseat" )
-    STATIC.Materials.SeatIcons[seatTypeEnum.Gunner]    = CNC.LoadMaterial( "hud_gunseat" )
-    STATIC.Materials.SeatIcons[seatTypeEnum.Passenger] = CNC.LoadMaterial( "hud_passseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Driver]    = materialsLib.LoadMaterial( "hud_driverseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Gunner]    = materialsLib.LoadMaterial( "hud_gunseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Passenger] = materialsLib.LoadMaterial( "hud_passseat" )
 end
 
 --[[ Load Font3d Instances ]] do
 
-    -- These fonts are provided by `WW3DAssetManager::Get_Instance()->Get_Font3DInstance( tgaFileName )` in the original code
-    STATIC.Font3dInstances = {}
+    if CLIENT then
+        -- These fonts are provided by `WW3DAssetManager::Get_Instance()->Get_Font3DInstance( tgaFileName )` in the original code
+        STATIC.Font3dInstances = {}
 
-    STATIC.Font3dInstances.Large  = font3dClass.New( STATIC.Materials.Fonts.Large  )
-    STATIC.Font3dInstances.Medium = font3dClass.New( STATIC.Materials.Fonts.Medium )
-    STATIC.Font3dInstances.Small  = font3dClass.New( STATIC.Materials.Fonts.Small  )
+        STATIC.Font3dInstances.Large  = font3dClass.New( STATIC.Materials.Fonts.Large  )
+        STATIC.Font3dInstances.Medium = font3dClass.New( STATIC.Materials.Fonts.Medium )
+        STATIC.Font3dInstances.Small  = font3dClass.New( STATIC.Materials.Fonts.Small  )
+    end
 end
 
 local INFO_UV_SCALE = Vector( 1 / 256, 1 / 256 )
@@ -194,10 +200,13 @@ local ACT_RELOADING = 183
 
 --- @param renderAvailable boolean
 function STATIC.Init( renderAvailable )
-    STATIC.StatusBarInit()
-    STATIC.ReticleInit()
-
     if renderAvailable then
+        -- These two function calls are outside of this if statement in the original code
+        -- I cannot imagine why it would be intentional to set up reticles and the action bar on the server
+        -- If this somehow causes a problem later, just move these two function calls up above the if statement
+        STATIC.StatusBarInit()
+        STATIC.ReticleInit()
+
         STATIC.HudEnabled = true
 
         -- SniperHudClass.Init()
@@ -414,7 +423,7 @@ end
     STATIC.LeftPowerupIconList = STATIC.LeftPowerupIconList or {}
 
     function STATIC.PowerupInit()
-        local font = styleManagerClass.PeekFont( styleManagerClass.FONT_STYLE.IngameTxt )
+        local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
         STATIC.PowerupTextRenderer = render2dTextClass.New( font )
         STATIC.PowerupTextRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
     end
@@ -774,7 +783,7 @@ end
         end
 
         --[[ Weapon Name ]] do
-            local font = styleManagerClass.PeekFont( styleManagerClass.FONT_STYLE.IngameTxt )
+            local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
 
             STATIC.WeaponNameRenderer = render2dTextClass.New( font )
             STATIC.WeaponNameRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
@@ -1054,7 +1063,7 @@ end
         STATIC.TargetBoxRenderer:EnableMaterial( false )
         STATIC.TargetBoxRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
 
-        local font = styleManagerClass.PeekFont( styleManagerClass.FONT_STYLE.IngameTxt )
+        local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
         STATIC.TargetNameRenderer = render2dTextClass.New( font )
         STATIC.TargetNameRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
 

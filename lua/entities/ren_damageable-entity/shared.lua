@@ -17,7 +17,7 @@ local ENT = ENT --[[@as Entity]]
     local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type ColorClass
-    local colorClass = CNC.Import( "renhud/client/code/combat/colors.lua" )
+    local colorClass = CNC.Import( "renhud/code/combat/colors.lua" )
 
     --- @type DamageableEntityDefClass
     local damageableEntityDefClass = CNC.Import( "renhud/code/combat/damageable-entity-def.lua" )

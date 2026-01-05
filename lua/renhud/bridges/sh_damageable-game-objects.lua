@@ -4,16 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
+local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
 
 --- @class DamageableGameObjectsBridge : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )
 
---#region Imports
-
---- @type SharedCommon
-local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
---#endregion
 
 --[[ Static Functions and Variables ]] do
 
@@ -22,7 +17,7 @@ local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
     --- @param ent Entity
     --- @return boolean
     function LIB.IsDamageableGameObject( ent )
-        typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+        typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
         -- TODO: Implement something here
 
         return ent:GetMaxHealth() ~= 0

@@ -4,22 +4,16 @@
 local CNC = CNC_RENEGADE
 
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
+local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
 
 --- @class SmartGameObjectsBridge : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )
 
 
---#region Imports
-
-    --- @type SharedCommon
-    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
---#endregion
-
 --- @param ent Entity
 --- @return boolean
 function LIB.IsSmartGameObject( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     -- TODO: Implement something here
     return true
 end
@@ -27,7 +21,7 @@ end
 --- @param ent Entity
 --- @return boolean
 function LIB.IsStealthed( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     -- TODO: Implement something here
     return false
 end

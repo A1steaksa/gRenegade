@@ -21,7 +21,7 @@ INSTANCE.IsFont3d = true
 --#region Imports
 
     --- @type Font3dData
-    local font3dData = CNC.Import( "renhud/client/code/ww3d2/font-3d-data.lua" )
+    local font3dData = CNC.Import( "renhud/code/ww3d2/font-3d-data.lua" )
 
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )

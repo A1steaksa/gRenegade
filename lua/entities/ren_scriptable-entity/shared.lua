@@ -33,7 +33,6 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as BaseEntityInstance]]
     --- @param definition ScriptableEntityDefInstance
     function ENT:Init( definition )
         BaseClass:Init( definition )
-
     end
 
     function ENT:ReInit()

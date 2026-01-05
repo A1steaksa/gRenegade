@@ -4,17 +4,10 @@
 local CNC = CNC_RENEGADE
 
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/client/bridges/common.lua" )
+local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
 
 --- @class BuildingsBridgeClass : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )
-
-
---#region Imports
-
-    --- @type SharedCommon
-    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
---#endregion
 
 
 --- Any Entity present as a key in this table is a building
@@ -25,7 +18,7 @@ LIB.BuildingEntities = {}
 --- @param ent Entity
 --- @param isBuilding boolean
 function LIB.SetIsBuilding( ent, isBuilding )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     typecheck.AssertArgType( LIB.Class, 2, isBuilding, "boolean" )
 
     -- Swap nil for false-y values to remove non-buildings from the table for speed or something
@@ -37,7 +30,7 @@ end
 --- @param ent Entity
 --- @return boolean
 function LIB.IsBuilding( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
 
     -- Explicitly test the table value to ensure we return a boolean
     return LIB.BuildingEntities[ ent ] == true
@@ -46,7 +39,7 @@ end
 --- @param ent Entity
 --- @return boolean
 function LIB.IsMct( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     -- TODO: Implement something here
     return false
 end

@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type Render2dClass
-local PARENT = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
+local PARENT = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
 --- @class Render2dTextClass
 --- @field instance Render2dTextInstance The metatable used by Render2dTextInstance
@@ -24,7 +24,7 @@ INSTANCE.IsRender2dText = true
 --#region Imports
 
     --- @type Render2dClass
-    local render2d = CNC.Import( "renhud/client/code/ww3d2/render-2d.lua" )
+    local render2d = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )

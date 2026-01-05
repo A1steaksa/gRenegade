@@ -18,9 +18,6 @@ LIB.Class = "CommonBridgeLib"
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
-
-    --- @type SharedCommon
-    local sharedCommon = CNC.Import( "renhud/sh_common.lua" )
 --#endregion
 
 
@@ -29,18 +26,24 @@ LIB.Class = "CommonBridgeLib"
     local dispositionEnum = infoEntityLib.DISPOSITION
 --#endregion
 
+--[[
+    Note to maintainers:
+    I hate these bridge files.  They need to be replaced with a better system to bridge the gap between Renegade and Source.
+    Might be a rewrite, might be a different approach entirely.  I don't care.
+
+--]]
 
 --- @param ent Entity
 --- @return boolean
 function LIB.IsGdi( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.GDI
 end
 
 --- @param ent Entity
 --- @return boolean
 function LIB.IsNod( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
     return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.Nod
 end
 
@@ -50,8 +53,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsTeammate( ent, otherEnt )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
 
     if infoEntityLib.HasEntityInfo( otherEnt ) then
         local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
@@ -65,8 +68,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsEnemy( ent, otherEnt )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
 
     if infoEntityLib.HasEntityInfo( otherEnt ) then
         local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
@@ -81,8 +84,8 @@ end
 --- @param otherEnt Entity  
 --- @return boolean
 function LIB.IsNeutral( ent, otherEnt )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
-    typecheck.AssertArgType( LIB.Class, 2, otherEnt, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
 
     if infoEntityLib.HasEntityInfo( ent ) then
         local info = infoEntityLib.GetEntityInfo( ent ) --[[@as InfoEntityData]]
@@ -155,7 +158,7 @@ end
 --- @param ent Entity
 --- @return PlayerTypeEnum
 function LIB.GetPlayerType( ent )
-    typecheck.AssertArgType( LIB.Class, 1, ent, sharedCommon.EntTypes )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
 
     local class = ent:GetClass()
 
@@ -181,7 +184,7 @@ end
 --- @return boolean
 --- @private
 function LIB.CanHaveRelationships( ent )
-    if not typecheck.IsOfType( ent, sharedCommon.EntTypes ) then
+    if not typecheck.IsOfType( ent, "Entity" ) then
         return false
     end
 

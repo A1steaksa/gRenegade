@@ -1,0 +1,368 @@
+-- Based on StyleMgrClass within Code/wwui/stylemgr.cpp/h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+--- @class StyleManagerClass
+local STATIC = CNC.CreateExport()
+STATIC.Class = "StyleManagerClass"
+local isHotload = not table.IsEmpty( STATIC )
+
+--#region Exported Enums
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+    --- @enum FontStyle
+    STATIC.FONT_STYLE = {
+        Title             = enumBuilder:Set( 0 ),
+        LgControls        = enumBuilder:Next(),
+        Controls          = enumBuilder:Next(),
+        Lists             = enumBuilder:Next(),
+        Tooltips          = enumBuilder:Next(),
+        Menu              = enumBuilder:Next(),
+        SmMenu            = enumBuilder:Next(),
+        Header            = enumBuilder:Next(),
+        BigHeader         = enumBuilder:Next(),
+        Credits           = enumBuilder:Next(),
+        CreditsBold       = enumBuilder:Next(),
+        IngameTxt         = enumBuilder:Next(),
+        IngameBigTxt      = enumBuilder:Next(),
+        IngameSubtitleTxt = enumBuilder:Next(),
+        IngameHeaderTxt   = enumBuilder:Next(),
+    }
+    local fontStyleEnum = STATIC.FONT_STYLE
+
+    --- @enum Justification
+    STATIC.JUSTIFICATION = {
+        Left    = enumBuilder:Set( 0 ),
+        Right   = enumBuilder:Next(),
+        Center  = enumBuilder:Next(),
+    }
+    local justificationEnum = STATIC.JUSTIFICATION
+
+    --- @enum EventAudio
+    STATIC.EVENT_AUDIO = {
+        MouseClick = enumBuilder:Set( 0 ),
+        MouseOver  = enumBuilder:Next(),
+        MenuBack   = enumBuilder:Next(),
+        Popup      = enumBuilder:Next(),
+        AudioMax   = enumBuilder:Next(),
+    }
+    local eventAudioEnum = STATIC.EVENT_AUDIO
+--#endregion
+
+
+--#region Imports
+
+    --- @type Render2dClass
+    local render2d = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+
+    --- @type FontsLib
+    local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
+--#endregion
+
+
+--[[ Default Fonts ]] do
+
+    --- @class FontDescription
+    --- @field Name string
+    --- @field PointSize integer
+    --- @field InterCharSpacing integer
+    --- @field IsBold boolean
+
+    --- The amount to multiply Renegade font point sizes by to convert them to the same visual size in Garry's Mod
+    --- This value was determined by experimentation and is not yet understood.
+    STATIC.FontSizeMultipler = 1.75
+
+    --- The font defaults as found in stylemgr.cpp and, seemingly identically, in data/stylemgr.ini
+    --- @type FontDescription[]
+    STATIC.DefaultFonts = {
+        [ fontStyleEnum.Title            ] = { Name = "Regatta Condensed LET", PointSize = 52,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.LgControls       ] = { Name = "Arial MT",              PointSize = 12,  InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Controls         ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Lists            ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Tooltips         ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Menu             ] = { Name = "Regatta Condensed LET", PointSize = 32,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.SmMenu           ] = { Name = "Regatta Condensed LET", PointSize = 20,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.Header           ] = { Name = "Arial MT",              PointSize = 9,   InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.BigHeader        ] = { Name = "Arial MT",              PointSize = 12,  InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.Credits          ] = { Name = "Arial MT",              PointSize = 10,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.CreditsBold      ] = { Name = "Arial MT",              PointSize = 10,  InterCharSpacing = 2, IsBold = true  },
+        [ fontStyleEnum.IngameTxt        ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameBigTxt     ] = { Name = "Arial MT",              PointSize = 16,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameSubtitleTxt] = { Name = "Arial MT",              PointSize = 14,  InterCharSpacing = 2, IsBold = false },
+        [ fontStyleEnum.IngameHeaderTxt  ] = { Name = "Arial MT",              PointSize = 9,   InterCharSpacing = 2, IsBold = true  },
+    }
+end
+
+
+--- @class StyleManagerClass
+--- @field private BackdropMaterial IMaterial
+--- @field private TitleColor Color
+--- @field private TitleHilightColor Color
+--- @field private TitleShadowColor Color
+--- @field private TextColor Color
+--- @field private TextShadowColor Color
+--- @field private LineColor Color
+--- @field private BkColor Color
+--- @field private DisabledTextColor Color
+--- @field private DisabledTextShadowColor Color
+--- @field private DisabledLineColor Color
+--- @field private DisabledBkColor Color
+--- @field private HilightColor Color
+--- @field private TabTextColor Color
+--- @field private TabGlowColor Color
+--- @field private ScaleX number
+--- @field private ScaleY number
+--- @field private FontFileList string[]
+--- @field private EventAudioList string[]
+
+--- @private
+--- A map of FONT_STYLE to its matching Font3dInstance
+--- @type table<FontStyle, Font3dInstance>
+STATIC.Fonts = {}
+
+--[[ Initialization ]] do
+
+    function STATIC.Initialize()
+        -- This is never used in the original code
+        typecheck.NotImplementedError()
+
+        -- "Compute the scale"
+        local screenRes = render2d.GetScreenResolution()
+        STATIC.ScaleX = screenRes:Width() / 800
+        STATIC.ScaleY = screenRes:Height() / 600
+
+        -- "Load each font"
+        for _, font in pairs( STATIC.DefaultFonts ) do
+            -- "Scale the point size to fit this resolution"
+            local pointSize = math.floor( font.PointSize * STATIC.ScaleY )
+
+            Section.Print( "Loading font '", font.Name, ", ", ( font.IsBold and "bold" or "regular" ), " weight, size ", font.PointSize, " adjusted to ", pointSize )
+
+            -- "Create the font"
+            fontsLib.QueueRenegadeFontCreation(
+                font.Name,
+                pointSize,
+                font.IsBold,
+                font.InterCharSpacing
+            )
+        end
+
+        -- Not loading backdrop here because I don't need it (yet?)
+    end
+
+    --- @param fileName string
+    function STATIC.InitializeFromIni( fileName )
+        typecheck.NotImplementedError()
+    end
+
+    function STATIC.Shutdown()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Font methods ]] do
+
+    --- @param style FontStyle
+    --- @return FontCharsInstance
+    function STATIC.GetFont( style )
+        -- Barely used in the original code
+        typecheck.NotImplementedError()
+    end
+
+    --- @param style FontStyle
+    --- @return Font3dInstance?
+    function STATIC.PeekFont( style )
+        -- Pull the font from the cache
+        local cachedFont = STATIC.Fonts[ style ]
+
+        -- If this font isn't already cached, cache it
+        if not cachedFont then
+            local font = STATIC.DefaultFonts[ style ]
+            if not fontsLib.IsFontCreated( font ) then
+                return nil
+                -- Section.Error( "Unable to peek un-created font: '", font.Name, "', size: ", font.PointSize, ", boldness: ", font.IsBold)
+            end
+
+            STATIC.Fonts[ style ] = fontsLib.GetCreatedFont( font )
+            cachedFont = STATIC.Fonts[ style ]
+        end
+
+        return cachedFont
+    end
+
+    --- @param renderer Render2dTextInstance
+    --- @param style FontStyle
+    function STATIC.AssignFont( renderer, style )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Sound methods ]] do
+
+    --- @param event EventAudio
+    function STATIC.PlaySound( event )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Configuration methods ]] do
+
+    --- @param renderer Render2dTextInstance
+    function STATIC.ConfigureRenderer( renderer )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Scale support ]] do
+
+    --- @return number
+    function STATIC.GetXScale()
+        return STATIC.ScaleX
+    end
+
+    --- @return number
+    function STATIC.GetYScale()
+        return STATIC.ScaleY
+    end
+end
+
+
+--[[ Color methods ]] do
+
+    --- @return Color
+    function STATIC.GetTextColor()
+        return STATIC.TextColor
+    end
+
+    --- @return Color
+    function STATIC.GetTextShadowColor()
+        return STATIC.TextShadowColor
+    end
+
+    --- @return Color
+    function STATIC.GetDisabledTextColor()
+        return STATIC.DisabledTextColor
+    end
+
+    --- @return Color
+    function STATIC.GetDisabledTextShadowColor()
+        return STATIC.DisabledTextShadowColor
+    end
+
+    --- @return Color
+    function STATIC.GetLineColor()
+        return STATIC.LineColor
+    end
+
+    --- @return Color
+    function STATIC.GetBkColor()
+        return STATIC.BkColor
+    end
+
+    --- @return Color
+    function STATIC.GetDisabledLineColor()
+        return STATIC.DisabledLineColor
+    end
+
+    --- @return Color
+    function STATIC.GetDisabledBkColor()
+        return STATIC.DisabledBkColor
+    end
+
+    --- @return Color
+    function STATIC.GetTabTextColor()
+        return STATIC.TabTextColor
+    end
+
+    --- @return Color
+    function STATIC.GetTabGlowColor()
+        return STATIC.TabGlowColor
+    end
+end
+
+
+--[[ Backdrop support ]] do
+
+    --- @param renderer Render2dTextInstance
+    --- @param rect RectInstance
+    function STATIC.RenderBackdrop( renderer, rect )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Text support ]] do
+
+    --- @overload fun( text: string, renderer:Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doClip: boolean, justify: Justification?, isVCentered: boolean? )
+    --- @overload fun( text: string, renderer:Render2dTextInstance, rect:RectInstance, doShadow: boolean?, doClip: boolean?, justify: Justification?, isEnabled:boolean?, isVCentered: boolean? )
+    function STATIC.RenderText( ... )
+        local args = { ... }
+        local argCount = select( "#", ... )
+
+        typecheck.NotImplementedError()
+    end
+
+    --- @param text string
+    --- @param renderer Render2dTextInstance
+    --- @param rect RectInstance
+    function STATIC.RenderTitleText( text, renderer, rect )
+        typecheck.NotImplementedError()
+    end
+
+    --- @overload fun( text: string, renderer: Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doVCenter: boolean? )
+    --- @overload fun( text: string, renderer: Render2dTextInstance, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, isEnabled: boolean? )
+    function STATIC.RenderWrappedText( ... )
+        local args = { ... }
+        local argCount = select( "#", ... )
+
+        typecheck.NotImplementedError()
+    end
+
+    --- @overload fun( text: string, renderer: Render2dTextInstance, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, isEnabled:boolean?, justify: Justification? )
+    --- @overload fun( text: string, renderer: Render2dTextInstance, textColor: Color, shadowColor: Color, rect: RectInstance, doShadow: boolean?, doVCenter: boolean?, justify: Justification? )
+    function STATIC.RenderWrappedTextEx( ... )
+        local args = { ... }
+        local argCount = select( "#", ... )
+
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Hilight support ]] do
+
+    --- @param renderer Render2dTextInstance
+    function STATIC.ConfigureHilighter( renderer )
+        typecheck.NotImplementedError()
+    end
+
+    --- @param renderer Render2dTextInstance
+    --- @param rect RectInstance
+    function STATIC.RenderHilight( renderer, rect )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Text "glow" support ]] do
+
+    --- @param text string
+    --- @param renderer Render2dTextInstance
+    --- @param rect RectInstance
+    --- @param radiusX integer
+    --- @param radiusY integer
+    --- @param color Color
+    --- @param justify Justification
+    function STATIC.RenderGlow( text, renderer, rect, radiusX, radiusY, color, justify )
+        typecheck.NotImplementedError()
+    end
+end
