@@ -92,10 +92,18 @@ function LIB.GetCreatedFont( font )
 end
 
 --- Schedules a font to have a character atlas created for it during the next frame
---- @param fontToCreate FontDescription
-function LIB.QueueRenegadeFontCreation( fontToCreate )
+--- @param name string
+--- @param pointSize integer
+--- @param isBold boolean
+--- @param interCharSpacing integer
+function LIB.QueueRenegadeFontCreation( name, pointSize, isBold, interCharSpacing )
     -- Add the font atlas to the queue
-    LIB.FontsToCreate[#LIB.FontsToCreate + 1] = fontToCreate
+    LIB.FontsToCreate[#LIB.FontsToCreate + 1] = {
+        Name = name,
+        PointSize = pointSize,
+        IsBold = isBold,
+        InterCharSpacing = interCharSpacing
+    }
 
     -- Ensure that we render font atlases next frame
     hook.Add( "PreRender", "A1_Renegade_Fonts_RenderFontAtlases", LIB.CreateAllQueuedFonts )
