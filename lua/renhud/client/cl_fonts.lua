@@ -53,10 +53,10 @@ LIB.FontsToCreate = {}
 --- @param font FontDescription
 --- @return boolean
 function LIB.IsFontCreated( font )
-    local fontsWithName = LIB.CreatedFonts[ font.Name ]
+    local fontsWithName = LIB.CreatedFonts[font.Name]
     if not fontsWithName then return false end
 
-    local fontsWithSize = fontsWithName[ font.PointSize ]
+    local fontsWithSize = fontsWithName[font.PointSize]
     if not fontsWithSize then return false end
 
     local fontWithBold = fontsWithSize[font.IsBold]
@@ -69,24 +69,22 @@ end
 --- @param font FontDescription
 --- @return Font3dInstance
 function LIB.GetCreatedFont( font )
-    local fontsWithName = LIB.CreatedFonts[ font.Name ]
+    local fontsWithName = LIB.CreatedFonts[font.Name]
     if not fontsWithName then
-        typecheck.Error( LIB.Class, "GetCreatedFont",
-            "Unable to find Renegade font with name '" .. font.Name .. "'"
-        )
+        Section.Error( "Unable to find Renegade font named '", font.Name, "'" )
     end
 
-    local fontsWithSize = fontsWithName[ font.PointSize ]
+    local fontsWithSize = fontsWithName[font.PointSize]
     if not fontsWithSize then
-        typecheck.Error( LIB.Class, "GetCreatedFont",
-            "Unable to find Renegade font with name '" .. font.Name .. "' and size " .. font.PointSize
-        )
+        Section.Error( "Unable to find Renegade font named '", font.Name, "' and size ", font.PointSize )
     end
 
     local fontWithBold = fontsWithSize[font.IsBold]
     if not fontWithBold then
-        typecheck.Error( LIB.Class, "GetCreatedFont",
-            "Unable to find Renegade font with name '" .. font.Name .. "', size " .. font.PointSize .. ", and boldness: " .. tostring( font.IsBold )
+        Section.Error(
+            "Unable to find Renegade font named '", font.Name, "', ",
+            "size ", font.PointSize, "', ",
+            "and ", ( font.IsBold and "bold" or "regular" ), " font weight"
         )
     end
 
@@ -112,7 +110,7 @@ function LIB.CreateAllQueuedFonts()
         LIB.FontsToCreate[i] = nil
     end
 
-    -- Now that there are no remaining atlases in the queue we can remove this hook
+    -- Now that there are no remaining atlases in the queue
     hook.Remove( "PreRender", "A1_Renegade_Fonts_RenderFontAtlases" )
 end
 
