@@ -516,9 +516,11 @@ end
     --- > "
     --- @param sectionName string "...the section name to search under."
     --- @param entryName string "The entry identifier to search for."
-    --- @param defaultValue string "If no entry could be found, then this text will be returned."
+    --- @param defaultValue string? "If no entry could be found, then this text will be returned."
     --- @return string # "...the retrieved string..."
     function INSTANCE:GetString( sectionName, entryName, defaultValue )
+        if not defaultValue then defaultValue = "" end
+
         -- "Verify that the parameters are nominally legal"
         if not sectionName or not entryName then return defaultValue end
 
