@@ -13,6 +13,7 @@ local isHotload = not table.IsEmpty( STATIC )
 local ENT = ENT --[[@as SmartEntityInstance]]
 ENT.Class = "VehicleEntityInstance"
 
+
 --#region Exported Enums
 
     --- @type EnumBuilderClass
@@ -62,6 +63,7 @@ ENT.Class = "VehicleEntityInstance"
     --- @type Matrix3dClass
     local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 --#endregion
+
 
 --[[ Garry's Mod Entity Setup ]] do
 
@@ -145,11 +147,11 @@ end
 
     --- @param definition VehicleEntityDefInstance?
     function ENT:Init( definition )
-        self.DriverIsGunner = STATIC.DefaultDriverIsGunner
-        if not definition then return end
-
         --- @cast definition VehicleEntityDefInstance
         BaseClass.Init( self, definition )
+
+        self.DriverIsGunner = STATIC.DefaultDriverIsGunner
+        if not definition then return end
 
         self:AcquireTurretBones()
         -- self:InitWheelEffects()
