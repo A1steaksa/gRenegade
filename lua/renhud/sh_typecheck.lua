@@ -17,6 +17,16 @@ local LIB
     LIB.Class = "TypeCheckLib"
 end
 
+--- The type values that constitute an Entity
+LIB.EntityTypes = {
+    ["Entity"]  = true,
+    ["NPC"]     = true,
+    ["Player"]  = true,
+    ["Weapon"]  = true,
+    ["Vehicle"] = true,
+    ["Nextbot"] = true,
+}
+
 --[[ Static Functions and Variables ]] do
 
     --- [[ Public ]]
@@ -47,6 +57,10 @@ end
 
         -- Register built-in type checks
         LIB.RegisterType( "Color", IsColor )
+        LIB.RegisterType( "Entity", function( value )
+            local typeString = type( value )
+            return LIB.EntityTypes[typeString] and true or false
+        end )
     end
 
 
