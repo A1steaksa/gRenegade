@@ -45,8 +45,6 @@ local MAX_MUZZLES = 4
     function ENT:RenConstructor()
         BaseClass.RenConstructor( self )
 
-        print( "Armed Entity Constructor" )
-
         self.MuzzleA0Bone = 0
         self.MuzzleA1Bone = 0
         self.MuzzleB0Bone = 0
@@ -67,20 +65,20 @@ local MAX_MUZZLES = 4
     --- @param definition ArmedEntityDefInstance
     function ENT:CopySettings( definition )
         local weapon = NULL
-        if definition.WeaponDefId ~= 0 then
-            weapon = self.WeaponBag:AddWeapon( definition.WeaponDefId, definition.WeaponRounds )
-        end
+        -- if definition.WeaponDefId ~= 0 then
+        --     weapon = self.WeaponBag:AddWeapon( definition.WeaponDefId, definition.WeaponRounds )
+        -- end
 
-        if definition.SecondaryWeaponDefId ~= 0 then
-            local secondaryWeapon = self.WeaponBag:AddWepaon( definition.SecondaryWeaponDefId, definition.WeaponRounds )
-            if weapon == NULL then
-                weapon = secondaryWeapon
-            end
-        end
+        -- if definition.SecondaryWeaponDefId ~= 0 then
+        --     local secondaryWeapon = self.WeaponBag:AddWepaon( definition.SecondaryWeaponDefId, definition.WeaponRounds )
+        --     if weapon == NULL then
+        --         weapon = secondaryWeapon
+        --     end
+        -- end
 
-        if weapon ~= NULL then
-            self.WeaponBag:SelectWeapon( weapon )
-        end
+        -- if weapon ~= NULL then
+        --     self.WeaponBag:SelectWeapon( weapon )
+        -- end
 
         self:InitMuzzleBones()
     end
@@ -123,24 +121,24 @@ local MAX_MUZZLES = 4
     end
 end
 
-function ENT:PostThink()
-    BaseClass.PostThink( self )
+-- function ENT:PostThink()
+--     BaseClass.PostThink( self )
 
-    -- "Don't update if destroying... (so we don't create a new laser!)"
-    if self:IsMarkedForDeletion() then
-        return
-    end
+--     -- "Don't update if destroying... (so we don't create a new laser!)"
+--     if self:IsMarkedForDeletion() then
+--         return
+--     end
 
-    -- "Update the weapon after the commands and update_human_animation"
-    if self:GetWeapon() ~= NULL then
-        self:GetWeapon():Update()
-    end
+--     -- "Update the weapon after the commands and update_human_animation"
+--     if self:GetWeapon() ~= NULL then
+--         self:GetWeapon():Update()
+--     end
 
-    -- "Allow any recoil animation to progress"
-    for i = 1, #self.MuzzleRecoilController do
-        self.MuzzleRecoilController[i]:Update( self )
-    end
-end
+--     -- "Allow any recoil animation to progress"
+--     for i = 1, #self.MuzzleRecoilController do
+--         self.MuzzleRecoilController[i]:Update( self )
+--     end
+-- end
 
 --[[ Weapons ]] do
 
@@ -170,10 +168,10 @@ end
             self.MuzzleB1Bone = self.MuzzleB0Bone
         end
 
-        self.MuzzleRecoilController[1]:Init( self.MuzzleA0Bone )
-        self.MuzzleRecoilController[2]:Init( self.MuzzleA1Bone )
-        self.MuzzleRecoilController[3]:Init( self.MuzzleB0Bone )
-        self.MuzzleRecoilController[4]:Init( self.MuzzleB1Bone )
+        -- self.MuzzleRecoilController[1]:Init( self.MuzzleA0Bone )
+        -- self.MuzzleRecoilController[2]:Init( self.MuzzleA1Bone )
+        -- self.MuzzleRecoilController[3]:Init( self.MuzzleB0Bone )
+        -- self.MuzzleRecoilController[4]:Init( self.MuzzleB1Bone )
 
         -- "Let the weapon learn about muzzle flashes"
         -- if self:GetWeapon() ~= NULL then
