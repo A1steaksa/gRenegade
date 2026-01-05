@@ -175,9 +175,9 @@ end
 
     --- Creates a new ladder
     --- @param ladderName string The unique identifier that is used to reference this ladder
-    --- @param topPos Vector The local position of the top of the ladder, relative to the ladder's parent
     --- @param bottomPos Vector The local position of the bottom of the ladder, relative to the ladder's parent
-    function INSTANCE:AddLadder( ladderName, topPos, bottomPos )
+    --- @param topPos Vector The local position of the top of the ladder, relative to the ladder's parent
+    function INSTANCE:AddLadder( ladderName, bottomPos, topPos )
         local ladderEnt = ents.Create( "func_useableladder" )
         ladderEnt:Spawn()
         ladderEnt:Activate()

@@ -18,7 +18,7 @@ local SetupFunctions = {
         local ladderName = "sniper_tower_ladder"
         local topPos    = Vector( 73.5, 10, 200 )
         local bottomPos = Vector( 73.5, 10, 20 )
-        builder:AddLadder( ladderName, topPos, bottomPos )
+        builder:AddLadder( ladderName, bottomPos, topPos )
 
         local offset = 40
 
@@ -28,7 +28,7 @@ local SetupFunctions = {
         builder:AddDismount( ladderName, "Bottom Rear", bottomPos       + Vector(       0, offset, -2 ) )
         builder:AddDismount( ladderName, "Bottom Right", bottomPos      + Vector( -offset, offset, -2 ) )
         builder:AddDismount( ladderName, "Bottom Rear Right", bottomPos + Vector( -offset,      0, -2 ) )
-    end
+    end,
 }
 
 -- Set up ladders for props with ladder setup functions defined
