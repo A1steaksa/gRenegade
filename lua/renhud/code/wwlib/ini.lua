@@ -54,8 +54,9 @@ Porting Notes:
     --- @field private _KeepBlankEntries boolean "The flag used to control the blank entry loading behavior."
 
     --- Creates a new IniInstance
-    --- @vararg any
-    --- @return IniInstance
+    --- @overload fun(): IniInstance
+    --- @overload fun( file: File ): IniInstance
+    --- @overload fun( filePath: string ): IniInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_Ini", ... )
     end
