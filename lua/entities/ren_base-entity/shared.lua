@@ -36,13 +36,13 @@ local BaseClass = baseclass.Get( ENT.Base ) --[[@as Entity]]
 --- @field _EnableCinematicFreeze boolean "This keeps certain object alive during cinematic freeze"
 ---
 --- Additions:
+--- @field DefinitionName string The name of the definition to be loaded into this Entity when it spawns
 --- @field Model string The path of the model this Entity should use.
 
 --[[ Constructor and Destructor ]] do
 
     --- Called just before `ENT:Init()` when this Entity is created and is the appropriate place to put elements from C++ constructors
     function ENT:RenConstructor()
-        self.Definition = NULL
         self._IsPostThinkAllowed = false
         self._EnableCinematicFreeze = true
 
@@ -101,8 +101,20 @@ end
         -- Call our pretend C++ constructor
         self:RenConstructor()
 
+        -- Load the definition
+        if not self.DefinitionName then
+            Section.Error(
+                "Definition name is missing from '",
+                self.PrintName or "unnamed",
+                "' Entity during initialization."
+            )
+        end
+        local definition = definitionManagerClass.FindNamedDefinition( self.DefinitionName ) --[[@as BaseEntityDefInstance]]
+
+        Section.Print( "Calling base init with definition name '", self.DefinitionName, "' and definition: '", tostring( definition ), "'" )
+
         -- Call the Renegade Init function last
-        self:Init( self.Definition )
+        self:Init( definition )
     end
 end
 

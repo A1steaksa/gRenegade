@@ -10,9 +10,6 @@ local ENT = ENT --[[@as VehicleEntityInstance]]
 
 --#region Imports
 
-    --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
-
     --- @type VehicleEntityClass
     local vehicleEntityClass = CNC.Import( "entities/ren_vehicle-entity/shared.lua" )
 
@@ -39,7 +36,6 @@ ENT.Category = "C&C Renegade"
 ENT.Spawnable = true
 
 ENT.Model = "models/cnc_renegade/vehicles/v_nod_turret.mdl"
-ENT.Definition = definitionManagerClass.FindNamedDefinition( "Nod_Turret" )
 
 function ENT:TargetPlayer()
     local player = player.GetAll()[1]
