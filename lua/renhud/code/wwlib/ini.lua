@@ -113,6 +113,7 @@ local MAX_LINE_LENGTH = 512
 
 --- Constructs a new IniInstance
 --- @overload fun()
+--- @overload fun( file: File )
 --- @overload fun( filePath: string )
 function INSTANCE:Renegade_Ini( ... )
     local args = { ... }
