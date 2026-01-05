@@ -71,7 +71,7 @@ function INSTANCE:Renegade_WeaponBag( owner )
     self.IsChanged = true
     self.HudIsChanged = true
 
-    self.WeaponList.Add( NULL )
+    self.WeaponList = {}
 end
 
 
@@ -81,6 +81,6 @@ function INSTANCE:FindWeapon( definition )
     if not IsValid( definition ) then
         return NULL
     end
-
-    
+ 
 end
+
