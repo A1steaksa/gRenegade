@@ -2,10 +2,9 @@
 
 --- @class PrintLib
 local LIB = {}
-LIB.Class = "PrintLib"
+Section = LIB -- Global variable for easy access
+LIB.Class = "SectionLib"
 local isHotload = not table.IsEmpty( LIB )
-
-Section = LIB
 
 --- @class PrintLib
 --- @field private SectionStack string[]
@@ -238,7 +237,7 @@ function LIB.PrivatePrint( ... )
             continue
         end
 
-        MsgC( currentColor, v )
+        MsgC( currentColor, tostring( v ) or "nil" )
     end
 
     Msg( "\n" )
