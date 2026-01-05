@@ -28,8 +28,10 @@ INSTANCE.Static = STATIC
 
 --[[ Chunk IDs ]] do
 
+    local builder = enumBuilderClass.New()
+
     STATIC.ChunkIds = {
-        CHUNKID_DEF_PARENT = 1111991123,
+        CHUNKID_DEF_PARENT = builder:Set( 1111991123 ),
     }
 end
 
