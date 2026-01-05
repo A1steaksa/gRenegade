@@ -1,4 +1,4 @@
--- Handles loading materials
+-- Handles loading Materials
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -37,5 +37,3 @@ function LIB.LoadMaterial( shortPath )
 
     return cachedValue
 end
-
-CNC.LoadMaterial = LIB.LoadMaterial
