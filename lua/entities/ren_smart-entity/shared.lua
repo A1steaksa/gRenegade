@@ -3,12 +3,18 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class SmartEntityClass
-local STATIC = CNC.CreateExport()
+--- @type ArmedEntityClass
+local PARENT = CNC.Import( "entities/ren_armed-entity/shared.lua" )
+
+--- @class SmartEntityClass : ArmedEntityClass
+local STATIC = CNC.CreateExport( PARENT )
+STATIC.Class = "ArmedEntityClass"
+local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SmartEntityInstance : ArmedEntityInstance
 --- @field BaseClass ArmedEntityInstance
 local ENT = ENT --[[@as ArmedEntityInstance]]
+ENT.Class = "ArmedEntityInstance"
 
 
 --#region Imports
