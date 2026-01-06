@@ -29,7 +29,7 @@ INSTANCE.Static = STATIC
     local defenseEntityDefClass = CNC.Import( "renhud/code/combat/defense-entity-def.lua" )
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 
     --- @type RadarManagerClass
     local radarClass = CNC.Import( "renhud/code/combat/radar.lua" )

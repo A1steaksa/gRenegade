@@ -23,7 +23,7 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 --#endregion
 
 

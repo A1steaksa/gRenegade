@@ -31,7 +31,7 @@ INSTANCE.IsDefenseDef = true
     local persistClass = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum.lua" )
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 --#endregion
 
 --[[ Chunk IDs ]] do

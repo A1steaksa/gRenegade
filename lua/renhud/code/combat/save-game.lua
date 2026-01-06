@@ -28,7 +28,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local chunkLoadClass = CNC.Import( "renhud/code/wwlib/chunk-load.lua" )
 
     --- @type EnumBuilderClass
-    local enumBaseClass = CNC.Import( "renhud/sh_enum.lua" )
+    local enumBaseClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 --#endregion
 
 
