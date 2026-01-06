@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/ref_gdilogo"
+	"$alphatest" 1
+	"$surfaceprop" "Metal"
+}

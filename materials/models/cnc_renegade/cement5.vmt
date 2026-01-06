@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/cement5"
+	"$alphatest" 1
+	"$surfaceprop" "Concrete"
+}
