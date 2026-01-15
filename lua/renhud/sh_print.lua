@@ -101,10 +101,22 @@ function LIB.HasHitMaxDepth()
     return LIB.MaxDepth ~= -1 and #LIB.SectionStack >= LIB.MaxDepth
 end
 
+--- @varargs any
+--- @return string
+function LIB.VarArgsToString( ... )
+    local args = { ... }
+    for k, v in ipairs( args ) do
+        args[k] = tostring( v )
+    end
+    return table.concat( args )
+end
+
 --- Prints the label and increases the indentation of all following prints
---- @param label string
-function LIB.Start( label )
+--- @varargs any
+function LIB.Start( ... )
     if not LIB.IsEnabled then return end
+
+    local label = LIB.VarArgsToString( ... )
 
     if LIB.SectionLabelFilter then
         local hasFilterPassed = #LIB.SectionStack ~= 0
@@ -131,8 +143,8 @@ function LIB.Start( label )
 end
 
 --- Prints a closing message and reduces the indentation of all following prints
---- @param closingMessage string?
-function LIB.End( closingMessage )
+--- @varargs any
+function LIB.End( ... )
     if not LIB.IsEnabled then return end
 
     if LIB.SectionLabelFilter then
@@ -141,9 +153,11 @@ function LIB.End( closingMessage )
         end
     end
 
+    local closureMessage = LIB.VarArgsToString( ... )
+
     local message
-    if closingMessage then
-        message = "Done - " .. tostring( closingMessage )
+    if closureMessage and closureMessage:len() ~= 0 then
+        message = "Done - " .. tostring( closureMessage )
     else
         message = "Done."
     end
@@ -208,17 +222,16 @@ function LIB.SetIncludeIndentLines( shouldPrintIndentLines )
 end
 
 function LIB.Error( ... )
-    local args = { ... }
-    for k, v in ipairs( args ) do
-        args[k] = tostring( v )
-    end
-    error( table.concat( args ) )
+    local message = LIB.VarArgsToString( ... )
+    LIB.PrivatePrint( LIB.ErrorLabelColor, "ERROR: ", LIB.ErrorMessageColor, message )
+    error( "", 4 )
 end
 
 function LIB.Warn( ... )
     LIB.Print( LIB.WarningLabelColor, "[WARNING] ", LIB.WarningMessageColor, ... )
 end
 
+--- Prints provided arguments with indentation and Colors applied without checking whether or not it should print
 --- @private
 --- @vararg any
 function LIB.PrivatePrint( ... )
@@ -231,7 +244,7 @@ function LIB.PrivatePrint( ... )
 
     local currentColor = LIB.DefaultMessageColor
 
-    for k, v in ipairs( {...} ) do
+    for k, v in pairs( {...} ) do
         if IsColor( v ) then
             currentColor = v
             continue
