@@ -16,6 +16,15 @@
 	// 	"description": "Log output to console"
 	// }
 
+	"Not Implemented": {
+		"prefix": "noi",
+		"description": "Shortcut for typecheck.NotImplementedError()",
+		"scope": "lua",
+		"body": [
+			"typecheck.NotImplementedError()"
+		]
+	},
+
 	"C&C Renegade Lua Class": {
 		"prefix": "class",
 		"description": "A Lua class template that mimics a C++ class, created for porting aspects of Command and Conquer: Renegade to Garry's Mod",
