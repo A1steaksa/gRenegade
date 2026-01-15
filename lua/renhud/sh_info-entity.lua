@@ -22,7 +22,7 @@ LIB.Class = "InfoEntityLib"
 
 --#region Imports
 
---- @type PlayerType
+--- @type PlayerTypeClass
 local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
 
 --- @type AABoxClass

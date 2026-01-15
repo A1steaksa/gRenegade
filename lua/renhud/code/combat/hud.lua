@@ -72,7 +72,7 @@ local isHotload = not table.IsEmpty( STATIC )
     --- @type WWMathClass
     local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
-    --- @type PlayerType
+    --- @type PlayerTypeClass
     local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type InfoEntityLib

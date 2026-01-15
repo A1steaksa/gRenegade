@@ -110,7 +110,7 @@ if not CLIENT then return end
     --- @type SmartGameObjectsBridge
     local smartGameObjectsBridge = CNC.Import( "renhud/bridges/sh_smart-game-objects.lua" )
 
-    --- @type PlayerType
+    --- @type PlayerTypeClass
     local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type ObjectiveManagerClass

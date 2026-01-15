@@ -13,7 +13,7 @@ local ENT = ENT --[[@as Entity]]
 
 --#region Imports
 
-    --- @type PlayerType
+    --- @type PlayerTypeClass
     local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type ColorClass

@@ -43,7 +43,7 @@ INSTANCE.Static = STATIC
     local engineSoundStateEnum = vehicleEntClass.ENGINE_SOUND_STATE
 --#endregion
 
---[[ `Chunk IDs ]] do
+--[[ Chunk IDs ]] do
 
     local enumBuilder = enumBuilderClass.New()
 

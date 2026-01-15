@@ -13,7 +13,7 @@ LIB.Class = "CommonBridgeLib"
     --- @type Matrix3dClass
     local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
-    --- @type PlayerType
+    --- @type PlayerTypeClass
     local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 
     --- @type InfoEntityLib

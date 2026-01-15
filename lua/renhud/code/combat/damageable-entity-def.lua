@@ -31,7 +31,7 @@ INSTANCE.Static = STATIC
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 
-    --- @type PlayerType
+    --- @type PlayerTypeClass
     local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
 --#endregion
 
