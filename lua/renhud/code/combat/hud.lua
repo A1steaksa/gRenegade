@@ -224,7 +224,7 @@ end
 
 function STATIC.Think()
     if not STATIC.HudInited then return end
-    if not hudEnabled then return end
+    if not STATIC.HudEnabled then return end
 
     STATIC.InfoUpdate()
     STATIC.PowerupUpdate()
@@ -309,40 +309,29 @@ function STATIC.Think()
 end
 
 function STATIC.Render()
-    if not STATIC.HudInited then return end
-    if not hudEnabled then return end
 
-    render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA, BLENDFUNC_ADD )
-
-    render.PushFilterMin( TEXFILTER.POINT )
-    render.PushFilterMag( TEXFILTER.POINT )
-
-    STATIC.PowerupRender()
-    STATIC.WeaponRender()
-    -- STATIC.WeaponChartRender()
-    STATIC.InfoRender()
-    STATIC.DamageRender()
-
-    if entityInfoEnabled then
-        STATIC.TargetRender()
+    local camera = combatManagerClass.GetCamera()
+    if camera and camera:DrawSniper() then
+        sniperHudClass.Render()
     end
 
-    -- STATIC.HudHelpTextRender()
-    -- STATIC.ObjectiveRender()
-    radarManagerClass:Render()
+    -- "Only render if Combat is active, and Menu ios not, and we have a star who is not sniping"
 
-    CNC.DEBUG = true
-    STATIC.ReticleRenderer:Render()
-    CNC.DEBUG = false
-    STATIC.ReticleHitRenderer:Render()
+    if STATIC.IsHudDisplayed() then
 
-    render.OverrideBlend( false )
+        STATIC.PowerupRender()
+        STATIC.WeaponRender()
+        -- STATIC.WeaponChartRender()
+        STATIC.InfoRender()
+        STATIC.DamageRender()
+        STATIC.TargetRender()
 
-    render.PopFilterMag()
-    render.PopFilterMin()
+        -- STATIC.HudHelpTextRender()
+        -- STATIC.ObjectiveRender()
+        radarManagerClass:Render()
 
-    if cameraBridgeClass.ViewOverride then
-        combatManagerClass.GetCamera():DebugDraw()
+        STATIC.ReticleRenderer:Render()
+        STATIC.ReticleHitRenderer:Render()
     end
 end
 
