@@ -3,19 +3,19 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class LuaClassNameClass
---- @field instance LuaClassNameInstance The metatable used by LuaClassNameInstance
+--- @class AABoxClass
+--- @field instance AABoxInstance The metatable used by AABoxInstance
 local STATIC = CNC.CreateExport()
-STATIC.Class = "LuaClassNameClass"
+STATIC.Class = "AABoxClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class LuaClassNameInstance
---- @field Static LuaClassNameClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_LuaClassName" )
-INSTANCE.Class = "LuaClassNameInstance"
+--- @class AABoxInstance
+--- @field Static AABoxClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_AABox" )
+INSTANCE.Class = "AABoxInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsLuaClassName = true
+INSTANCE.IsAABox = true
 
 
 --#region Imports
