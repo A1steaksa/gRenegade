@@ -3,15 +3,18 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class CameraClass
+--- @type RenderObjectClass
+local PARENT = CNC.Import( "renhud/code/ww3d2/render-object.lua" )
+
+--- @class CameraClass : RenderObjectClass
 --- @field instance CameraInstance The metatable used by CameraInstance
-local STATIC = CNC.CreateExport()
+local STATIC = CNC.CreateExport( PARENT )
 STATIC.Class = "CameraClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class CameraInstance
+--- @class CameraInstance : RenderObjectInstance
 --- @field Static CameraClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_Camera" )
+local INSTANCE = robustclass.Register( "Renegade_Camera : Renegade_RenderObject" )
 INSTANCE.Class = "CameraInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -20,26 +23,26 @@ INSTANCE.IsCamera = true
 
 --#region Imports
 
-    --- @type CollisionMath
-    local collisionMath = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
+    --- @type OBBoxClass
+    local oBBoxClass = CNC.Import( "renhud/code/wwmath/obbox.lua" )
 
-    --- @type Viewport
-    local viewport = CNC.Import( "renhud/code/ww3d2/viewport.lua" )
+    --- @type CollisionMathClass
+    local collisionMathClass = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
 
-    --- @type Frustum
-    local frustum = CNC.Import( "renhud/code/wwmath/frustum.lua" )
+    --- @type ViewportClass
+    local viewportClass = CNC.Import( "renhud/code/ww3d2/viewport.lua" )
+
+    --- @type FrustumClass
+    local frustumClass = CNC.Import( "renhud/code/wwmath/frustum.lua" )
 
     --- @type Matrix3dClass
-    local matrix3d = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
 
     --- @type WWMathClass
-    local wWMath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
 
-    --- @type Matrix4
-    local matrix4 = CNC.Import( "renhud/code/wwmath/matrix4.lua" )
-
-    --- @type Render2dClass
-    local render2d = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    --- @type Matrix4Class
+    local matrix4Class = CNC.Import( "renhud/code/wwmath/matrix4.lua" )
 
     --- @type CameraBridgeClass
     local cameraBridge = CNC.Import( "renhud/bridges/sh_camera.lua" )
@@ -68,7 +71,7 @@ INSTANCE.IsCamera = true
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class Camera
+    --- @class CameraClass
 
     --- Creates a new CameraInstance
     --- @overload fun(): CameraInstance
@@ -91,45 +94,63 @@ end
 
 
 --- @class CameraInstance
+--- @field Projection ProjectionType "Projection type, orthographic or perspective"
+--- @field Viewport ViewportInstance "Pixel viewport to render into"
+--- @field ViewPlane ViewportInstance "Corners of a slice through the frustum at z=1.0"
+--- @field AspectRatio number "Aspect ratio of the camera, width / height"
+--- @field ZNear number "Near clip plane distance"
+--- @field ZFar number "Far clip plane distance"
+--- @field ZBufferMin number "Smallest value we'll write into the z-Buffer (usually 0)"
+--- @field ZBufferMax number "Largest value we'll write into the z-buffer (usually 1)"
+--- @field FrustumValid boolean
+--- @field Frustum FrustumInstance "World-space frustum and clip planes"
+--- @field NearClipBBox OBBoxInstance "OBBox which bounds the near clip plane"
+--- @field ProjectionTransform Matrix4Instance
+--- @field CameraInverseTransform Matrix3dInstance
+
 
 --- Constructs a new CameraInstance
---- @vararg any
-function INSTANCE:Renegade_Camera( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
-
-    self.ViewPlane = viewport.New()
-    self.Frustum = frustum.New()
-
-    -- ( nil )
-    if argCount == 0 then
-        self.Projection = projectionType.PERSPECTIVE
-        self.ZBufferMin = 0
-        self.ZBufferMax = 1
-
-        self.ProjectionTransform = matrix4.New()
-        return
-    end
+--- @param src CameraInstance
+function INSTANCE:Renegade_Camera( src )
 
     -- ( src: CameraInstance )
-    if argCount == 1 then
-        local src = args[1] --[[@as CameraInstance]]
-
-        typecheck.AssertArgType( INSTANCE.Class, 1, src, "Camera" )
-
-        self.Projection = src.Projection
-        self.Viewport = src.Viewport
-        self.ViewPlane = src.ViewPlane
-        self.Frustum = src.Frustum
-        self.NearClipBBox = src.NearClipBBox
-        self.ProjectionTransform = src.ProjectionTransform
+    if src then
+        PARENT.instance.Renegade_RenderObject( self, src )
+        self.Projection             = src.Projection
+        self.Viewport               = src.Viewport
+        self.ViewPlane              = src.ViewPlane
+        self.ZNear                  = src.ZNear
+        self.ZFar                   = src.ZFar
+        self.FrustumValid           = src.FrustumValid
+        self.Frustum                = src.Frustum
+        self.NearClipBBox           = src.NearClipBBox
+        self.ProjectionTransform    = src.ProjectionTransform
         self.CameraInverseTransform = src.CameraInverseTransform
-        self.ZBufferMin = src.ZBufferMin
-        self.ZBufferMax = src.ZBufferMax
-        return
-    end
+        self.AspectRatio            = src.AspectRatio
 
-    typecheck.AssertArgCount( INSTANCE.Class, argCount )
+        -- "Just being paraniod in case any parent class doesn't completely copy the entire state..."
+        self.FrustumValid = false
+
+    -- ()
+    else
+
+        self.Projection = projectionType.PERSPECTIVE
+        self.Viewport = viewportClass.New( Vector( 0, 0 ), Vector( 1, 1 ) ) -- "Pixel viewport to render into"
+        self.AspectRatio = 4.0/3.0
+        self.ZNear = 1.0 -- "Near clip plane distance"
+        self.ZFar = 1000.0 -- "Far clip plane distance"
+        self.ZBufferMin = 0.0 -- "Smallest value we'll write into the z-buffer"
+        self.ZBufferMax = 1.0 -- "Largest value we'll write into the z-buffer"
+        self.FrustumValid = false
+
+        self.Frustum = frustumClass.New()
+        self.ProjectionTransform = matrix4Class.New()
+        self.ViewPlane = viewportClass.New()
+        self.NearClipBBox = oBBoxClass.New()
+
+        self:SetTransform( matrix3dClass.New( true ) )
+        self:SetViewPlane( math.rad( 50.0 ) )
+    end
 end
 
 function INSTANCE:DebugDraw()
@@ -140,7 +161,7 @@ end
 --- @return boolean
 function INSTANCE:CullBox( box )
     -- If the box is outside of our frustum, it should be culled
-    return collisionMath.OverlapTest( self:GetFrustum(), box ) == collisionMath.OVERLAP_TYPE.OUTSIDE
+    return collisionMathClass.OverlapTest( self:GetFrustum(), box ) == collisionMathClass.OVERLAP_TYPE.OUTSIDE
 end
 
 --- @return FrustumInstance
@@ -150,6 +171,23 @@ function INSTANCE:GetFrustum()
     return self.Frustum
 end
 
+--[[ Render Object Interface - Scene Graph ]] do
+    -- "Cameras cache their frustum description, this is invalidated whenever the transform/position is changed"
+
+    --- @param m Matrix3dInstance
+    function INSTANCE:SetTransform( m )
+        PARENT.Instance.SetTransform( self, m )
+        self.FrustumValid = false
+    end
+
+    --- @param v Vector
+    function INSTANCE:SetPosition( v )
+        PARENT.Instance.SetPosition( self, v )
+        self.FrustumValid = false
+    end
+end
+
+
 --- Originally part of RenderObjClass in Code/ww3d2/rendobj.h/cpp
 --- Camera extends RenderObjClass but I don't feel like porting that right now
 --- @return Matrix3dInstance
@@ -158,7 +196,7 @@ function INSTANCE:GetTransform()
 
     local viewAng = viewSetup.angles
 
-    local matrix = matrix3d.New( false )
+    local matrix = matrix3dClass.New( false )
     local row = matrix.Row
     local row1, row2, row3 = row[1], row[2], row[3]
 
@@ -178,6 +216,7 @@ function INSTANCE:GetTransform()
     return matrix
 end
 
+--- "Get the corners of the current view plane"
 --- @return Vector viewPlaneMin, Vector viewPlaneMax
 function INSTANCE:GetViewPlane()
     return self.ViewPlane.Min, self.ViewPlane.Max
@@ -195,28 +234,47 @@ function INSTANCE:SetViewPlane( ... )
     if isvector( args[1] ) then
         typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "vector" )
 
-        self.ViewPlane.Min = args[1] --[[@as Vector]]
-        self.ViewPlane.Max = args[2] --[[@as Vector]]
+        local vMin = args[1] --[[@as Vector]]
+        local vMax = args[2] --[[@as Vector]]
 
-    -- ( horizontalFov: number, verticalFov: number? )
-    else
+        self.ViewPlane.Min = vMin
+        self.ViewPlane.Max = vMax
+        self.AspectRatio = ( vMax.x - vMin.x ) / ( vMax.y - vMin.y )
+        self.FrustumValid = false
+
+    -- ( horizontalFov: number, verticalFov: number )
+    end
+
+    if isnumber( args[1] ) and isnumber( args[2] ) then
         typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
-
-        local viewSetup = cameraBridge.GetViewSetup()
 
         local horizontalFov = args[1] --[[@as number]]
         local verticalFov   = args[2] --[[@as number]]
 
-        if not verticalFov then
-            verticalFov = 2 * math.atan( math.tan( horizontalFov / 2 ) / viewSetup.aspect )
+        local widthHalf = math.tan( horizontalFov / 2 )
+        local heightHalf = 0
+
+        if verticalFov == -1 then
+            heightHalf = ( 1 / self.AspectRatio ) * widthHalf -- "Use the aspect ratio"
+        else
+            heightHalf = math.tan( verticalFov / 2 )
+            self.AspectRatio = widthHalf / heightHalf -- "Or, initialize the aspect ratio"
         end
 
-        local halfWidth = math.tan( horizontalFov / 2 )
-        local halfHeight = math.tan( verticalFov / 2 )
+        self.ViewPlane.Min:SetUnpacked( -widthHalf, -heightHalf, 0 )
+        self.ViewPlane.Max:SetUnpacked( widthHalf, heightHalf, 0 )
 
-        self.ViewPlane.Min = Vector( -halfWidth, -halfHeight )
-        self.ViewPlane.Max = Vector( halfWidth, halfHeight )
+        self.FrustumValid = false
     end
+end
+
+--- "Sets the aspect ratio of the camera"
+--- @param widthToHeight number
+function INSTANCE:SetAspectRatio( widthToHeight )
+    self.AspectRatio = widthToHeight
+    self.ViewPlane.Min.y = self.ViewPlane.Min.x / self.AspectRatio
+    self.ViewPlane.Max.y = self.ViewPlane.Max.x / self.AspectRatio
+    self.FrustumValid = false
 end
 
 --- @param camPoint Vector
@@ -228,7 +286,7 @@ function INSTANCE:ProjectCameraSpacePoint( camPoint )
     local projectedPoint = Vector()
 
     -- If the camPoint is behind the near clipping plane, just return (0,0,0)
-    if camPoint.z > -self.ZNear + wWMath.EPSILON then
+    if camPoint.z > -self.ZNear + wWMathClass.EPSILON then
         projectedPoint:SetUnpacked( 0, 0, 0 )
         return projectedPoint, projectionResultType.OUTSIDE_NEAR_CLIP
     end
@@ -256,6 +314,7 @@ end
 ---@param zNear number
 ---@param zFar number
 function INSTANCE:SetClipPlanes( zNear, zFar )
+    self.FrustumValid = false
     self.ZNear = zNear
     self.ZFar = zFar
 end
@@ -265,27 +324,13 @@ function INSTANCE:GetClipPlanes()
     return self.ZNear, self.ZFar
 end
 
---- [[ Protected ]]
-
---- @class CameraInstance
---- @field protected Projection ProjectionType
---- @field protected Viewport ViewportInstance "pixel viewport to render into"
---- @field protected ViewPlane ViewportInstance "Corners of a slice through the frustum at z=1.0"
---- @field protected ZBufferMin number "Smallest value we'll write into the z-Buffer (usually 0)"
---- @field protected ZBufferMax number "Largest value we'll write into the z-buffer (usually 1)"
---- @field protected Frustum FrustumInstance "World-space frustum and clip planes"
---- @field protected NearClipBBox OBBoxInstance "OBBox which bounds the near clip plane"
---- @field protected ProjectionTransform Matrix4Instance
---- @field protected CameraInverseTransform Matrix3dInstance
-
 --- @protected
 function INSTANCE:UpdateFrustum()
-    local viewSetup = cameraBridge.GetViewSetup()
-    self:SetClipPlanes( viewSetup.znear, viewSetup.zfar )
-    self:SetViewPlane( math.rad( viewSetup.fov ) )
+    if self.FrustumValid then
+        return
+    end
 
     local cameraMatrix = self:GetTransform()
-
     local viewportMin, viewportMax = self:GetViewPlane() -- "Normalized view plane at a depth of 1"
     local zNearDistance, zFarDistance = self:GetClipPlanes()
 
@@ -294,19 +339,32 @@ function INSTANCE:UpdateFrustum()
     local zFar = -zFarDistance
 
     -- "Update the frustum"
+    self.FrustumValid = true
     self.Frustum:Init( cameraMatrix, viewportMin, viewportMax, zNear, zFar )
+
+    -- "Update the OBB around the near clip rectangle"
+    local nearOBBox = self.NearClipBBox
+    nearOBBox.Center = cameraMatrix * Vector( 0, 0, zNear )
+    nearOBBox.Extent.x = ( viewportMax.x - viewportMin.x ) * ( -zNear ) * 0.5
+    nearOBBox.Extent.y = ( viewportMax.y - viewportMin.y ) * ( -zNear ) * 0.5
+    nearOBBox.Extent.z = 0.01
+    nearOBBox.Basis:Set( cameraMatrix )
 
     -- "Update the inverse camera matrix"
     self.CameraInverseTransform = self:GetTransform():GetInverse()
 
     -- "Update the projection matrix"
     if self.Projection == projectionType.PERSPECTIVE then
-        local horizontalFov = math.rad( viewSetup.fov )
-        local verticalFov = 2 * math.atan( math.tan( horizontalFov / 2 ) / viewSetup.aspect )
+        -- local horizontalFov = math.rad( viewSetup.fov )
+        -- local verticalFov = 2 * math.atan( math.tan( horizontalFov / 2 ) / viewSetup.aspect )
 
         self.ProjectionTransform:InitPerspective(
-            horizontalFov, verticalFov,
-            zNearDistance, zFarDistance
+			viewportMin.x * zNearDistance,
+			viewportMax.x * zNearDistance,
+			viewportMin.y * zNearDistance,
+			viewportMax.y * zNearDistance,
+			zNearDistance,
+			zFarDistance
         )
     else
         self.ProjectionTransform:InitOrthographic(
