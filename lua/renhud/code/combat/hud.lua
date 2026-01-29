@@ -345,7 +345,18 @@ function STATIC.Render()
         combatManagerClass.GetCamera():DebugDraw()
     end
 end
-hook.Add( "HUDPaint", "A1_Renegade_RenderHUD", STATIC.Render )
+
+--- @return boolean
+function STATIC.IsHudDisplayed()
+    local combatStar = combatManagerClass.GetTheStar()
+    return ( STATIC.HudEnabled and combatStar ~= nil )
+    -- return (
+    --     and combatStar
+    --     and not combatStar:IsDead()
+    --     and not combatStar:IsDestroyed()
+    -- )
+end
+
 
 function STATIC.Reset()
     STATIC.PowerupReset()
