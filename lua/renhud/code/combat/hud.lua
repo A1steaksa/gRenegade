@@ -94,28 +94,6 @@ local isHotload = not table.IsEmpty( STATIC )
 --#endregion
 
 
---#region Console Variables
-
-    local hudEnabledConVar = GetConVar( "ren_hud_enabled" )
-    local hudEnabled = hudEnabledConVar:GetBool()
-    cvars.AddChangeCallback( hudEnabledConVar:GetName(), function( _, _, _ )
-        hudEnabled = hudEnabledConVar:GetBool()
-    end )
-
-    local entityInfoEnabledConVar = GetConVar( "ren_entityinfo_enabled" )
-    local entityInfoEnabled = entityInfoEnabledConVar:GetBool()
-    cvars.AddChangeCallback( entityInfoEnabledConVar:GetName(), function( _, _, _ )
-        if entityInfoEnabledConVar:GetBool() then
-            STATIC.TargetInit()
-            entityInfoEnabled = true
-        else
-            STATIC.TargetShutdown()
-            entityInfoEnabled = false
-        end
-    end, "Default" )
---#endregion
-
-
 --[[ Load Materials ]] do
 
     STATIC.Materials = {}
@@ -216,10 +194,8 @@ function STATIC.Init( renderAvailable )
         STATIC.InfoInit()
         STATIC.DamageInit()
 
-        if entityInfoEnabled then
-            STATIC.TargetInit()
-            infoEntityLib.Init()
-        end
+        STATIC.TargetInit()
+        infoEntityLib.Init()
 
         -- STATIC.ObjectiveInit()
 
@@ -239,9 +215,7 @@ function STATIC.Think()
     -- STATIC.WeaponChartUpdate()
     STATIC.DamageUpdate()
 
-    if entityInfoEnabled then
-        STATIC.TargetUpdate()
-    end
+    STATIC.TargetUpdate()
 
     -- STATIC.ObjectiveUpdate()
 
@@ -387,6 +361,20 @@ end
 
 function STATIC.ForceWeaponChartDisplay()
     typecheck.NotImplementedError()
+end
+
+--[[ Console Variables ]] do
+
+    local hudEnabledConVar = GetConVar( "ren_hud_enabled" )
+    cvars.AddChangeCallback( hudEnabledConVar:GetName(), function( _, _, _ )
+        if hudEnabledConVar:GetBool() then
+            STATIC.Shutdown()
+            STATIC.Enable( true )
+        else
+            STATIC.Init( CLIENT )
+            STATIC.Enable( false )
+        end
+    end, "Default" )
 end
 
 --[[ Powerups ]] do
@@ -1079,8 +1067,6 @@ end
     end
 
     function STATIC.TargetUpdate()
-        if not entityInfoEnabled then return end
-
         STATIC.TargetRenderer:Reset()
         STATIC.TargetTeamIconRenderer:Reset()
         STATIC.TargetBoxRenderer:Reset()
@@ -1324,7 +1310,6 @@ end
                 return
             end
         end
-
         STATIC.TargetRenderer:Render()
         STATIC.TargetTeamIconRenderer:Render()
         STATIC.TargetBoxRenderer:Render()
