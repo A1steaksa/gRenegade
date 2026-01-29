@@ -172,8 +172,7 @@ LIB.EntityTypes = {
 
             local errorMessage = tostring( message )
 
-            MsgC( LIB.ErrorPrefixColor, prefix, LIB.ErrorTextColor, " " .. errorMessage )
-            error( "", 3 )
+            Section.Error( errorMessage )
         end
 
         --- Throws an error about a specific argument number
