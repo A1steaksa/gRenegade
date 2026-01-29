@@ -20,6 +20,11 @@ INSTANCE.IsViewport = true
 
 --[[ Static Functions and Variables ]] do
 
+    --- "  
+    --- This class is used to define a "normalized" screen space rectangle for the
+    --- camera to render into.  A viewport which filled the entire screen would be
+    --- (0,0) - (1,1) with 0,0 being the upper left and 1,1 being the lower right.  
+    --- "  
     --- @class Viewport
 
     --- Creates a new ViewportInstance
