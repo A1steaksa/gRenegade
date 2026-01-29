@@ -28,6 +28,15 @@ local isHotload = not table.IsEmpty( STATIC )
 
 -- #region Imports
 
+    --- @type CombatManagerClass
+    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+
+    --- @type MessageWindowClass
+    local messageWindowClass = CNC.Import( "renhud/code/combat/message-window.lua" )
+
+    --- @type ObjectiveManagerClass
+    local objectiveManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
+
     --- @type SaveGameManagerClass
     local saveGameManagerClass = CNC.Import( "renhud/code/combat/save-game.lua" )
 
@@ -275,18 +284,63 @@ local isHotload = not table.IsEmpty( STATIC )
         end
 
         function STATIC.Think()
+            local frameTime = FrameTime()
+            local mainCamera = STATIC.MainCamera
 
             -- Omitting over the vast majority of this function for now
 
-            STATIC.MainCamera:Update()
+            objectiveManagerClass.Update( frameTime )
 
+            -- This if statement is added because I don't yet know why the dedicated server DOESN'T render frames
             if CLIENT then
-                hudClass.Think()
+                STATIC.MainCamera:Update()
+
+                -- STATIC.MessageWindow:OnFrameUpdate()
             end
+
+
+            -- spawnManagerClass.Update()
+
+            if STATIC.SoundEnvironment then
+                -- STATIC.SoundEnvironment:Update( combatScene, mainCamera )
+            end
+
+            -- backgroundManagerClass.Update( combatScene, mainCamera )
+
+            -- weatherManagerClass.Update( combatScene, mainCamera )
+
+            hudClass.Think()
+            -- weaponViewClass.Think()
+            -- screenFadeManagerClass.Think()
         end
 
         function STATIC.Render()
-            typecheck.NotImplementedError( "Render" )
+            if combatManagerClass.GetTheStar() then
+                STATIC.MultiplayRenderingAllowed = true
+            end
+
+            if STATIC.MultiplayRenderingAllowed then
+                -- Omitted system info log record frame
+
+                -- combatManagerClass.GetScene():ApplyCameraShakes( STATIC.MainCamera )
+
+                -- dazzleRenderObjClass.InstallDazzleVisibilityHandler( STATIC._TheCombatDazzleHandler )
+
+                -- wW3dClass.Render( STATIC.BackgroundScene, STATIC.MainCamera )
+
+                -- wW3dClass.Render( combatManagerClass.GetScene(), STATIC.MainCamera )
+
+                -- local dazzleLayer = combatManagerClass.GetDazzleLayer()
+                -- if dazzleLayer then
+                --     dazzleLayer:Render( combatManagerClass.GetCamera() )
+                -- end
+
+                -- dazzleRenderObjClass.InstallDazzleVisibilityHandler( nil )
+
+                hudClass.Render()
+
+                -- screenFadeManager.Render()
+            end
         end
 
         function STATIC.HandleInput()
