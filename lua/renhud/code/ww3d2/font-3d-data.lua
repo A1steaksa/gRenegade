@@ -18,6 +18,12 @@ INSTANCE.Static = STATIC
 INSTANCE.IsFont3dData = true
 
 
+-- #region Imports
+
+    --- @type Render2dClass
+    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+-- #endregion
+
 --[[ Static Functions and Variables ]] do
 
     --- Creates a new Font3dData
@@ -106,6 +112,8 @@ function INSTANCE:Renegade_Font3dData( font3dInstance, fontMaterial )
     self.UWidthTable = {}
     self.UOffsetTable = {}
     self.VOffsetTable = {}
+
+    self.IsProportional = false
 
     self:LoadFontImage( fontMaterial )
 end
@@ -229,15 +237,17 @@ end
 function INSTANCE:MakeProportional()
     -- Make sure we have a Render Target that we can do our processing on
     if not STATIC.ProcessingRenderTarget then
+        local resolution = render2dClass:GetScreenResolution()
+
         STATIC.ProcessingRenderTarget = GetRenderTargetEx(
-        "Renegade_Font3dData_FontProcessing",
-        ScrW(), ScrH(),
-        RT_SIZE_NO_CHANGE,
-        MATERIAL_RT_DEPTH_NONE,
-        TEXTUREFLAGS_POINTSAMPLE,
-        0,
-        IMAGE_FORMAT_RGBA8888
-    )
+            "Renegade_Font3dData_FontProcessing",
+            resolution:Width(), resolution:Height(),
+            RT_SIZE_NO_CHANGE,
+            MATERIAL_RT_DEPTH_NONE,
+            TEXTUREFLAGS_POINTSAMPLE,
+            0,
+            IMAGE_FORMAT_RGBA8888
+        )
     end
 
     cam.Start2D()
@@ -267,6 +277,8 @@ function INSTANCE:MakeProportional()
 
     render.PopRenderTarget()
     cam.End2D()
+
+    self.IsProportional = true
 end
 
 --- @private
