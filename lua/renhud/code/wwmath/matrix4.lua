@@ -20,8 +20,8 @@ INSTANCE.IsMatrix4 = true
 
 --#region Imports
 
-    --- @type Vector4
-    local vector4 = CNC.Import( "renhud/code/wwmath/vector4.lua" )
+    --- @type Vector4Class
+    local vector4Class = CNC.Import( "renhud/code/wwmath/vector4.lua" )
 
     --- @type Matrix3dClass
     local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
@@ -77,10 +77,10 @@ end
         local argCount = select( "#", ... )
 
         self.Row = {
-            vector4.New(),
-            vector4.New(),
-            vector4.New(),
-            vector4.New()
+            vector4Class.New(),
+            vector4Class.New(),
+            vector4Class.New(),
+            vector4Class.New()
         }
 
         -- Omitted constructors
@@ -227,7 +227,7 @@ end
 
                 -- "Assumes w=1.0"
 
-                return vector4.New(
+                return vector4Class.New(
                     aRow[1][1] * b.x + aRow[1][2] * b.y + aRow[1][3] * b.z + aRow[1][4] * 1,
                     aRow[2][1] * b.x + aRow[2][2] * b.y + aRow[2][3] * b.z + aRow[2][4] * 1,
                     aRow[3][1] * b.x + aRow[3][2] * b.y + aRow[3][3] * b.z + aRow[3][4] * 1,
@@ -241,7 +241,7 @@ end
                 --- @cast b Vector4Instance
                 local aRow = a.Row
 
-                return vector4.New(
+                return vector4Class.New(
                     aRow[1][1] * b.x + aRow[1][2] * b.y + aRow[1][3] * b.z + aRow[1][4] * b.w,
                     aRow[2][1] * b.x + aRow[2][2] * b.y + aRow[2][3] * b.z + aRow[2][4] * b.w,
                     aRow[3][1] * b.x + aRow[3][2] * b.y + aRow[3][3] * b.z + aRow[3][4] * b.w,
