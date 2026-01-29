@@ -3,15 +3,18 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class CommandoCameraClass
+--- @type CameraClass
+local PARENT = CNC.Import( "renhud/code/ww3d2/camera.lua" )
+
+--- @class CommandoCameraClass : CameraClass
 --- @field instance CommandoCameraInstance The metatable used by CommandoCameraInstance
-local STATIC = CNC.CreateExport()
+local STATIC = CNC.CreateExport( PARENT )
 STATIC.Class = "CommandoCameraClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class CommandoCameraInstance
+--- @class CommandoCameraInstance : CameraInstance
 --- @field Static CommandoCameraClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_CommandoCamera" )
+local INSTANCE = robustclass.Register( "Renegade_CommandoCamera : Renegade_Camera" )
 INSTANCE.Class = "CommandoCameraInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -77,7 +80,7 @@ INSTANCE.IsCommandoCamera = true
     typecheck.RegisterType( "CommandoCameraInstance", STATIC.IsCommandoCamera )
 
     function STATIC.Init()
-        typecheck.NotImplementedError( "Init" )
+        commandoCameraProfileClass.Init()
     end
 end
 
@@ -129,6 +132,25 @@ function INSTANCE:Renegade_CommandoCamera()
     self.LagPersistTimer = 0
     self.DisableLag = false
 
+
+
+
+
+
+
+
+
+
+    -- Temporary hack while I understand what the host model is and why it controls camera validity
+    self._IsValid = true
+
+
+
+
+
+
+
+
     -- Omitted sniper listener
     --self.SniperListener = listener3d.New()
 
@@ -140,9 +162,11 @@ end
 --- Updates the camera's parameters each frame
 function INSTANCE:Update()
 
-    self:ApplyWeaponHelp()
-
-    self:DetermineTargetingPosition()
+    -- "First, set the aiming point to where the camera is looking"
+    if self:DetermineTargetingPosition() == false then
+        -- "Then, modify the aiming point for weapon help, if not on a target"
+        self:ApplyWeaponHelp()
+    end
 
     -- Omitted camera update logic
     --[[
@@ -487,7 +511,11 @@ end
 
     --- @return boolean
     function INSTANCE:DrawSniper()
-        typecheck.NotImplementedError( "DrawSniper" )
+        if self:IsUsingHostModel() then
+            return self.CinematicSnipingEnabled
+        else
+            return self._IsStarSniping
+        end
     end
 
     --- @param isEnabled boolean
