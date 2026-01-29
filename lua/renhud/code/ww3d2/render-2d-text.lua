@@ -6,13 +6,13 @@ local CNC = CNC_RENEGADE
 --- @type Render2dClass
 local PARENT = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
---- @class Render2dTextClass
---- @field instance Render2dTextInstance The metatable used by Render2dTextInstance
+--- @class Render2dTextClass : Render2dClass
+--- @field Instance Render2dTextInstance The metatable used by Render2dTextInstance
 local STATIC = CNC.CreateExport( PARENT )
 STATIC.Class = "Render2dTextClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class Render2dTextInstance
+--- @class Render2dTextInstance : Render2dInstance
 --- @field Static Render2dTextClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Render2dText : Renegade_Render2d" )
 INSTANCE.Class = "Render2dTextInstance"
@@ -23,9 +23,6 @@ INSTANCE.IsRender2dText = true
 
 --#region Imports
 
-    --- @type Render2dClass
-    local render2d = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
-
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
 --#endregion
@@ -34,7 +31,7 @@ INSTANCE.IsRender2dText = true
 --[[ Static Functions and Variables ]] do
 
     --- Creates a new Render2dTextInstance
-    --- @param font Font3dInstance?
+    --- @param font Font3dInstance
     --- @return Render2dTextInstance
     function STATIC.New( font )
         return robustclass.New( "Renegade_Render2dText", font )
@@ -67,6 +64,9 @@ end
 --- Constructs a new Render2DTextInstance
 --- @param font Font3dInstance
 function INSTANCE:Renegade_Render2dText( font )
+
+    PARENT.Instance.Renegade_Render2d( self )
+
     self.Location = Vector( 0, 0 )
     self.Cursor = Vector( 0, 0 )
     self.WrapWidth = 0
@@ -83,13 +83,13 @@ function INSTANCE:Renegade_Render2dText( font )
 end
 
 function INSTANCE:Reset()
-    render2d.Instance.Reset( self )
+    PARENT.Instance.Reset( self )
 
     self.Cursor       = self.Location
     self.WrapWidth    = 0
-    self.DrawExtents  = robustclass.New( "Renegade_Rect", 0, 0, 0, 0 )
-    self.TotalExtents = robustclass.New( "Renegade_Rect", 0, 0, 0, 0 )
-    self.ClipRect     = robustclass.New( "Renegade_Rect", 0, 0, 0, 0 )
+    self.DrawExtents  = rectClass.New( 0, 0, 0, 0 )
+    self.TotalExtents = rectClass.New( 0, 0, 0, 0 )
+    self.ClipRect     = rectClass.New( 0, 0, 0, 0 )
     self.IsClippedEnabled = false
 end
 
