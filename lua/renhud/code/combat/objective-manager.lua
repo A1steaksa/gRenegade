@@ -32,6 +32,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+
     --- @type ObjectiveClass
     local objectiveClass = CNC.Import( "renhud/code/combat/objective.lua" )
 
@@ -46,11 +49,33 @@ local isHotload = not table.IsEmpty( STATIC )
 --#endregion
 
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_OBJECTIVE_ENTRY     = enumBuilder:Set( 629001432 ),
+        CHUNKID_MANAGER_VARIABLES   = enumBuilder:Next(),
+        CHUNKID_DEF_TRANSITION      = enumBuilder:Next(),
+
+        MICROCHUNKID_NUM_SPECIFIED_TERTIARY_OBJECTIVES  = enumBuilder:Set( 1 ),
+    }
+end
+
+
 --- @class ObjectiveManagerClass
 --- @field protected ObjectiveList ObjectiveInstance[]
 --- @field private Viewer ObjectiveViewer
+--- @field private DebugMode boolean
 --- @field private HudUpdate boolean
 --- @field private NumSpecifiedTertiaryObjectives integer
+
+--- @type ObjectiveInstance[]
+STATIC.ObjectiveList = {}
+
+STATIC.DebugMode = false
+STATIC.HudUpdate = true
+
 
 function STATIC.Init()
     --STATIC.Viewer:Initialize()
