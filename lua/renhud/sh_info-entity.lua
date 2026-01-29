@@ -272,100 +272,101 @@ end
     end
 end
 
-if CLIENT then
-    --[[ Finding InfoEntities ]] do
+--[[ Finding InfoEntities ]] do
 
-        local traceLengthConVar = GetConVar( "ren_entityinfo_max_length" )
+    local traceLengthConVar = GetConVar( "ren_entityinfo_max_length" )
 
-        --- @private
-        --- This table provides a blacklist of classes that are never targetable regardless of other factors.  
-        --- * It is used to quickly determine if an Entity might ever be a valid target before doing more expensive data gathering.  
-        --- * Entries should be lowercase.
-        --- @type table<string, boolean>
-        LIB.UntargetableClasses = {
-            ["func_wall"]             = true,
-            ["func_brush"]            = true,
-            ["func_lod"]              = true,
-            ["func_reflective_glass"] = true, -- It looks weird to target mirrors
-            ["func_breakable_surf"]   = true, -- Shatterable glass in Renegade does not get targeted
-        }
+    --- @private
+    --- This table provides a blacklist of classes that are never targetable regardless of other factors.  
+    --- * It is used to quickly determine if an Entity might ever be a valid target before doing more expensive data gathering.  
+    --- * Entries should be lowercase.
+    --- @type table<string, boolean>
+    LIB.UntargetableClasses = {
+        ["func_wall"]             = true,
+        ["func_brush"]            = true,
+        ["func_lod"]              = true,
+        ["func_reflective_glass"] = true, -- It looks weird to target mirrors
+        ["func_breakable_surf"]   = true, -- Shatterable glass in Renegade does not get targeted
+    }
 
 
-        --- Performs a trace from the camera to find a valid Entity to be our new InfoEntity
-        --- @return Entity?
-        --- @return number traceDistance
-        function LIB.TraceForInfoEntity()
-            local viewSetup = cameraBridgeClass.GetViewSetup()
+    --- Performs a trace from the camera to find a valid Entity to be our new InfoEntity
+    --- @return Entity?
+    --- @return number traceDistance
+    function LIB.TraceForInfoEntity()
+        local viewSetup = cameraBridgeClass.GetViewSetup()
 
-            local startPos = viewSetup.origin
-            local endPos = startPos + viewSetup.angles:Forward() * traceLengthConVar:GetFloat()
+        local startPos = viewSetup.origin
+        local endPos = startPos + viewSetup.angles:Forward() * traceLengthConVar:GetFloat()
 
-            local ply = LocalPlayer()
-            local filter
-            if ply:InVehicle() then
-                filter = { ply, ply:GetVehicle() }
+        local ply = LocalPlayer()
+        local filter
+        if ply:InVehicle() then
+            filter = { ply, ply:GetVehicle() }
 
-                -- Support for Glide vehicles
-                if Glide then
-                    local glideVehicle = ply:GlideGetVehicle()
-                    if IsValid( glideVehicle ) then
-                        filter[#filter + 1] = glideVehicle
-                    end
-                end
-            else
-                filter = ply
-            end
-
-            local trace = util.TraceLine( {
-                start = startPos,
-                endpos = endPos,
-                filter = filter,
-                hitclientonly = true
-            } )
-
-            local newInfoEntity = trace.Entity
-
-            -- If the normal trace failed to find anything, run a backup
-            -- to find secret buttons
-            if not IsValid( newInfoEntity ) or newInfoEntity:IsWorld() then
-                local foundEnts = ents.FindAlongRay( startPos, trace.HitPos )
-
-                for _, ent in ipairs( foundEnts ) do
-                    if  ent:GetClass() == "class C_BaseToggle" then
-                        newInfoEntity = ent
-                        break
-                    end
+            -- Support for Glide vehicles
+            if Glide then
+                local glideVehicle = ply:GlideGetVehicle()
+                if IsValid( glideVehicle ) then
+                    filter[#filter + 1] = glideVehicle
                 end
             end
-
-            if IsValid( newInfoEntity ) then
-                local distance = startPos:Distance( newInfoEntity:GetPos() )
-                return newInfoEntity, distance
-            end
-
-            local distance = startPos:Distance( trace.HitPos )
-            return nil, distance
+        else
+            filter = ply
         end
 
-        --- Determines if a given Entity can be targeted by the HUD
-        --- @param ent Entity?
-        --- @return boolean
-        function LIB.IsEntityTargetable( ent )
-            if not IsValid( ent ) then return false end
-            --- @cast ent Entity
+        local trace = util.TraceLine( {
+            start = startPos,
+            endpos = endPos,
+            filter = filter,
+            hitclientonly = true
+        } )
 
-            -- Check the class blacklist
-            local class = ent:GetClass():lower()
-            if LIB.UntargetableClasses[class] then return false end
+        local newInfoEntity = trace.Entity
 
-            if DarkRP then
-                if ent:isKeysOwnable() then
-                    return true
+        -- If the normal trace failed to find anything, run a backup
+        -- to find secret buttons
+        if not IsValid( newInfoEntity ) or newInfoEntity:IsWorld() then
+            local foundEnts = ents.FindAlongRay( startPos, trace.HitPos )
+
+            for _, ent in ipairs( foundEnts ) do
+                if  ent:GetClass() == "class C_BaseToggle" then
+                    newInfoEntity = ent
+                    break
                 end
             end
-
-            return true
         end
+
+        if IsValid( newInfoEntity ) then
+            local distance = startPos:Distance( newInfoEntity:GetPos() )
+            return newInfoEntity, distance
+        end
+
+        local distance = startPos:Distance( trace.HitPos )
+        return nil, distance
+    end
+
+    --- Determines if a given Entity can be targeted by the HUD
+    --- @param ent Entity?
+    --- @return boolean
+    function LIB.IsEntityTargetable( ent )
+        if not IsValid( ent ) then return false end
+        --- @cast ent Entity
+
+        -- Check the class blacklist
+        local class = ent:GetClass():lower()
+        if LIB.UntargetableClasses[class] then return false end
+
+        if DarkRP then
+            if ent:isKeysOwnable() then
+                return true
+            end
+        end
+
+        return true
+    end
+
+    if CLIENT then
 
         --- @private
         --- Makes a given button solid so that it can be found by 
