@@ -84,9 +84,6 @@ end
 
 --- @class CommandoCameraInstance
 
-local MIN_FOV = 0.02
-local MAX_FOV = 2.6
-
 local CCAMERA_NEARZ             = 0.26 -- "Near clip plane distance"
 local CCAMERA_FARZ              = 300  -- "Far clip plane distance"
 local CCAMERA_SHRINK_NEARZ_DIST = 0.5  -- "Third person distance below which we start shrinking nearz"

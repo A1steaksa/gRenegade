@@ -5,20 +5,19 @@ local CNC = CNC_RENEGADE
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dClass
+--- @field Instance Render2dInstance The metatable used by Render2dInstance
 local STATIC = CNC.CreateExport()
 STATIC.Class = "Render2dClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dInstance
+--- @field Static Render2dClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_Render2d" )
 INSTANCE.Class = "Render2dInstance"
-INSTANCE.IsRender2d = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-
--- Don't bother with the rest of this class if we're being executed on the server
-if not CLIENT then return end
+INSTANCE.IsRender2d = true
 
 --#region Imports
 
@@ -37,6 +36,18 @@ if not CLIENT then return end
 
     --- @class Render2dClass
     --- @field protected ScreenResolution RectInstance
+
+    if CLIENT then
+        --- Material used for non-materialing renderers
+        STATIC.ColorMaterial = CreateMaterial( "Renegade_2dColorMaterial", "UnlitGeneric", {
+            ["$basetexture"]    = "color/white",
+            ["$model"]          = "1",
+            ["$translucent"]    = "1",
+            ["$vertexalpha"]    = "1",
+            ["$vertexcolor"]    = "1"
+        } )
+    end
+
 
     --- Creates a new Render2d
     --- @param material IMaterial?
@@ -88,15 +99,6 @@ end
 
 
 local math_remap = math.Remap
-
---- Material used for non-materialing renderers
-local colorMaterial = CreateMaterial( "Renegade_2dColorMaterial", "UnlitGeneric", {
-    ["$basetexture"]    = "color/white",
- 	["$model"]          = "1",
- 	["$translucent"]    = "1",
- 	["$vertexalpha"]    = "1",
- 	["$vertexcolor"]    = "1"
-} )
 
 --- Constructs a new Render2DInstance object
 --- @param material IMaterial?
@@ -192,7 +194,7 @@ function INSTANCE:Render()
         if material then
             render.SetMaterial( material )
         else
-            render.SetMaterial( colorMaterial )
+            render.SetMaterial( STATIC.ColorMaterial )
         end
 
         cam.Start2D()
@@ -599,7 +601,6 @@ function INSTANCE:ConvertVert( ... )
 end
 
 --- Adds the Vertices of a Quad to the internal list of Vertices
---- @param ... unknown
 --- @overload fun( self: Render2dInstance, vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, isBackfaced: boolean )
 --- @overload fun( self: Render2dInstance, rect: RectInstance, isBackfaced: boolean )
 --- @protected

@@ -20,14 +20,10 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
 
---#region Imports
+--[[ Chunk IDs ]] do
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
---#endregion
-
-
---[[ Chunk IDs ]] do
 
     local enumBuilder = enumBuilderClass.New()
 

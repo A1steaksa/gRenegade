@@ -37,12 +37,12 @@ local isHotload = not table.IsEmpty( LIB )
     LIB.FontAtlasTextColor = Color( 255, 255, 255, 255 )
 end
 
-
 --- @private
 --- All of the font atlases that have been created and their corresponding Font3dInstance
 --- A map of [string: System Font Name][integer: Point Size][boolean: Is Bold?] -> Font3dInstance
 --- @type table<string, table<integer, table<boolean, Font3dInstance>>>
 LIB.CreatedFonts = {}
+
 
 --- @private
 --- A queue of the fonts that need to have atlases created for them in the next batch of conversions

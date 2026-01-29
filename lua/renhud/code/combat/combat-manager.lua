@@ -29,7 +29,7 @@ local isHotload = not table.IsEmpty( STATIC )
 -- #region Imports
 
     --- @type SaveGameManagerClass
-    local saveGameManager = CNC.Import( "renhud/code/combat/save-game.lua" )
+    local saveGameManagerClass = CNC.Import( "renhud/code/combat/save-game.lua" )
 
     --- @type DefinitionManagerClass
     local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
@@ -56,7 +56,42 @@ local isHotload = not table.IsEmpty( STATIC )
     --- [[ Public ]]
 
     --- @class CombatManagerClass
-    --- @field GameScene unknown
+    --- @field GameScene GameSceneInstance
+    --- @field private _IAmServer boolean
+    --- @field private _IAmClient boolean
+    --- @field private MyId integer
+    --- @field private SyncTime integer
+    --- @field private _IsGamePaused boolean
+    --- @field private IsLevelInitialized boolean
+    --- @field private _IsFriendlyFirePermitted boolean
+    --- @field private BeaconPlacementEndsGame boolean
+    --- @field private MainCamera CommandoCameraInstance
+    --- @field private BackgroundScene unknown
+    --- @field private SoundEnvironment unknown
+    --- @field private DazzleLayer unknown
+    --- @field private MessageWindow MessageWindowInstance
+    --- @field private TheStar Entity
+    --- @field private _IsStarDeterminingTarget boolean
+    --- @field private _IsFirstLoad boolean
+    --- @field private _AreObserversActive boolean
+    --- @field private DifficultyLevel integer
+    --- @field private AutoTransitions boolean
+    --- @field private StarDamageDirection integer
+    --- @field private StarKillerId integer
+    --- @field private NetworkHandler unknown
+    --- @field private MiscHandler unknown
+    --- @field private StartScript string
+    --- @field private RespawnScript string
+    --- @field private ReloadCount integer
+    --- @field private _IsHitReticleEnabled boolean
+    --- @field private _IsGameplayPermitted boolean
+    --- @field private CombatMode CombatMode
+    --- @field private _IsAutosaveRequested boolean
+    --- @field private LastRoundTripPingMs number
+    --- @field private AvgRoundTripPingMs number
+    --- @field private LastLsdName string
+    --- @field private LoadProgress integer
+    --- @field private MultiplayRenderingAllowed boolean
 
     --[[ Default Values ]] do
 
@@ -110,34 +145,42 @@ local isHotload = not table.IsEmpty( STATIC )
     function STATIC.Init( renderAvailable )
         STATIC._IsGameplayPermitted = false
 
-        -- CNC_RENEGADE.ConversationManager.Init()
-        -- STATIC.MessageWindow = messageWindow.New()
-        -- STATIC.MessageWindow:Init()
-        -- CNC_RENEGADE.ScriptManager.Init()
-        -- CNC_RENEGADE.BonesManager.Init()
-        -- CNC_RENEGADE.CameraClass.Init()
-        -- CNC_RENEGADE.SurfaceEffectsManager.Init()
-        -- CNC_RENEGADE.ObjectiveManager.Init()
-        -- CNC_RENEGADE.CombatSoundManager.Init()
+        -- conversationManagerClass.Initialize()
+
+        -- STATIC.MessageWindow = messageWindowClass.New()
+        -- STATIC.MessageWindow:Initialize()
+
+        -- scriptManagerClass.Init()
+
+        -- bonesManagerClass.Init()
+
+        commandoCameraClass.Init()
+
+        -- surfaceEffectsManagerClass.Init()
+
+        -- objectiveManagerClass.Init()
+
+        -- combatSoundManagerClass.Init()
 
         -- "Create THE camera"
-        STATIC.MainCamera = commandoCamera.New()
-
-        -- TODO: Check if this is a good way to set up the star
-        STATIC.TheStar = LocalPlayer()
+        STATIC.MainCamera = commandoCameraClass.New()
 
         -- "Create the Dazzle Layer"
         if renderAvailable then
-            -- STATIC.DazzleLayer = dazzleLayer.New()
-            -- dazzleLayer.SetCurrentDazzleLayer( STATIC.DazzleLayer )
+            -- STATIC.DazzleLayer = dazzleLayerClass.New()
+            -- dazzleLayerClass.SetCurrentDazzleLayer( STATIC.DazzleLayer )
         else
-            -- dazzleLayer.SetCurrentDazzleLayer( nil )
+            -- dazzleLayerClass.SetCurrentDazzleLayer( nil )
         end
 
-        if CLIENT then
-            hudClass.Init( renderAvailable )
-        end
-        -- CNC_RENEGADE.ScreenFadeManager.Init()
+        -- "Pass the main camera onto the 3D audio library as the listener's position"
+        -- local soundScene = wWAudioClass.GetInstance():GetSoundScene()
+        -- if soundScene then
+        --     soundScene:AttachListenerToEntity( STATIC.MainCamera )
+        -- end
+
+        hudClass.Init( renderAvailable )
+        -- screenFadeManagerClass.Init()
 
         hook.Add( "Think", "A1_Renegade_CombatManager_Think", STATIC.Think )
     end
@@ -147,7 +190,7 @@ local isHotload = not table.IsEmpty( STATIC )
     end
 
     function STATIC.SceneInit()
-        typecheck.NotImplementedError( "SceneInit" )
+        typecheck.NotImplementedError()
     end
 
     --[[ Level Loading ]] do
@@ -173,7 +216,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
             -- "Reload the definition databases (to support level-specific temp ddb's)"
             definitionManagerClass.FreeDefinitions()
-            saveGameManager.LoadDefinitions()
+            saveGameManagerClass.LoadDefinitions()
 
             STATIC.IncrementLoadProgress()
             -- "
@@ -184,7 +227,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
             -- "Prep the level loading"
             -- playerInfoLogClass.SetCurrentMapName( mapName )
-            local fileNameToLoad, lsdFileName = saveGameManager.PreLoadGame( mapName )
+            local fileNameToLoad, lsdFileName = saveGameManagerClass.PreLoadGame( mapName )
             STATIC.SetLastLsdName( mapName )
 
             STATIC.IncrementLoadProgress()
@@ -201,7 +244,7 @@ local isHotload = not table.IsEmpty( STATIC )
             STATIC.IncrementLoadProgress()
 
             -- "Now load the level"
-            saveGameManager.LoadGame( mapName )
+            saveGameManagerClass.LoadGame( mapName )
 
             STATIC.IncrementLoadProgress()
         end
@@ -226,7 +269,7 @@ local isHotload = not table.IsEmpty( STATIC )
     end
 
     --[[ Main Loop ]] do
-      
+
         function STATIC.GenerateControl()
             typecheck.NotImplementedError( "GenerateControl" )
         end
@@ -425,20 +468,16 @@ local isHotload = not table.IsEmpty( STATIC )
 
             -- Clear the HUD if we just changed stars
             if STATIC.TheStar ~= target then
-                if CLIENT then
-                    hudClass.Reset()
-                end
+                hudClass.Reset()
             end
 
             STATIC.TheStar = target
             STATIC._IsStarDeterminingTarget = isStarDeterminingTarget
-            -- if IsValid( target ) then
-            --     -- TODO: Point the camera toward the new star's direction
-            -- end
-
-            if CLIENT then
-                hudClass.ForceWeaponChartUpdate()
+            if IsValid( target ) then
+                -- TODO: Point the camera toward the new star's direction
             end
+
+            hudClass.ForceWeaponChartUpdate()
             -- Omitted weapon view class resetting
 
             if not STATIC.IsLevelInitialized then
@@ -450,10 +489,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         --- @return Entity
         function STATIC.GetTheStar()
-
-            if LocalPlayer() and not IsValid( STATIC.TheStar ) then
-                STATIC.TheStar = LocalPlayer()
-            end
+            if CLIENT then return LocalPlayer() end
 
             return STATIC.TheStar
         end
@@ -584,7 +620,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --[[ Message Window ]] do
 
-        --- @return unknown
+        --- @return MessageWindowInstance
         function STATIC.GetMessageWindow()
             return STATIC.MessageWindow
         end
@@ -717,45 +753,6 @@ local isHotload = not table.IsEmpty( STATIC )
             return STATIC._IsGamePaused
         end
     end
-
-    --- [[ Private ]]
-
-    --- @class CombatManagerClass
-    --- @field private _IAmServer boolean
-    --- @field private _IAmClient boolean
-    --- @field private MyId integer
-    --- @field private SyncTime integer
-    --- @field private _IsGamePaused boolean
-    --- @field private IsLevelInitialized boolean
-    --- @field private _IsFriendlyFirePermitted boolean
-    --- @field private BeaconPlacementEndsGame boolean
-    --- @field private MainCamera CommandoCameraInstance
-    --- @field private BackgroundScene unknown
-    --- @field private SoundEnvironment unknown
-    --- @field private DazzleLayer unknown
-    --- @field private MessageWindow unknown
-    --- @field private TheStar Entity
-    --- @field private _IsStarDeterminingTarget boolean
-    --- @field private _IsFirstLoad boolean
-    --- @field private _AreObserversActive boolean
-    --- @field private DifficultyLevel integer
-    --- @field private AutoTransitions boolean
-    --- @field private StarDamageDirection integer
-    --- @field private StarKillerId integer
-    --- @field private NetworkHandler unknown
-    --- @field private MiscHandler unknown
-    --- @field private StartScript string
-    --- @field private RespawnScript string
-    --- @field private ReloadCount integer
-    --- @field private _IsHitReticleEnabled boolean
-    --- @field private _IsGameplayPermitted boolean
-    --- @field private CombatMode CombatMode
-    --- @field private _IsAutosaveRequested boolean
-    --- @field private LastRoundTripPingMs number
-    --- @field private AvgRoundTripPingMs number
-    --- @field private LastLsdName string
-    --- @field private LoadProgress integer
-    --- @field private MultiplayRenderingAllowed boolean
 
     --- @param mode CombatMode
     function STATIC.SetCombatMode( mode )

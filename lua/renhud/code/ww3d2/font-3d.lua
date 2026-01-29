@@ -20,8 +20,8 @@ INSTANCE.IsFont3d = true
 
 --#region Imports
 
-    --- @type Font3dData
-    local font3dData = CNC.Import( "renhud/code/ww3d2/font-3d-data.lua" )
+    --- @type Font3dDataClass
+    local font3dDataClass = CNC.Import( "renhud/code/ww3d2/font-3d-data.lua" )
 
     --- @type RectClass
     local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
@@ -60,7 +60,7 @@ function INSTANCE:Renegade_Font3d( fontMaterial )
     self.Scale = 1
     self.InterCharSpacing = 1
 
-    self.FontData = font3dData.New( self, fontMaterial )
+    self.FontData = font3dDataClass.New( self, fontMaterial )
     self.SpaceWidth = self.FontData:GetCharWidth( "H" ) / 2
 
     self:BuildCachedTables()

@@ -13,16 +13,20 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @enum GameTypeEnum
     STATIC.GAME_TYPE_ENUM = {
-        NONE      = 0, -- Unassigned
-        MISSION   = 1, -- Traditional soloplay
-        SKIRMISH  = 2, -- C&C practice against AI
-        MULTIPLAY = 3, -- C&C against humans
+        NONE      = 0, -- "Unassigned"
+        MISSION   = 1, -- "Traditional soloplay"
+        SKIRMISH  = 2, -- "C&C practice against AI"
+        MULTIPLAY = 3, -- "C&C against humans"
     }
     local gameTypeEnum = STATIC.GAME_TYPE_ENUM
 --#endregion
 
 
 --[[ Static Functions and Variables ]] do
+
+    --- @class GameTypeClass
+
+    STATIC.GameType = gameTypeEnum.NONE
 
     ---@param gameType GameTypeEnum
     function STATIC.SetGameType( gameType )
@@ -53,12 +57,4 @@ local isHotload = not table.IsEmpty( STATIC )
     function STATIC.IsSoloplay()
         return STATIC.GameType ~= gameTypeEnum.MULTIPLAY
     end
-
-
-    --- [[ Private ]]
-
-    --- @class GameTypeClass
-    --- @field GameType GameTypeEnum
-
-    STATIC.GameType = gameTypeEnum.NONE
 end

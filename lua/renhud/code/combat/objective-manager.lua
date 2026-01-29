@@ -86,10 +86,9 @@ end
 --- @param longDescriptionId string|integer
 --- @param descriptionSoundFilename string?
 function STATIC.AddObjective( id, type, status, shortDescriptionId, longDescriptionId, descriptionSoundFilename )
-
     -- Skip duplicate objectives
     if STATIC.FindObjective( id ) then
-        typecheck.Error( STATIC.Class, "AddObjective", "Adding a duplicate objective ID" )
+        Section.Error( "Adding a duplicate objective ID" )
         return
     end
 
@@ -125,6 +124,8 @@ function STATIC.RemoveObjective( id )
         combatManagerClass:GetMessageWindow():AddMessage( message, objective:TypeToBaseColor() )
 
         table.RemoveByValue( STATIC.ObjectiveList, objective )
+    else
+        Section.Error( "Objective not found to delete with ID: ", id )
     end
 
     --STATIC.Viewer:Update()
@@ -162,6 +163,10 @@ function STATIC.SetObjectiveStatus( id, status )
                 message = string.format( formatString, objective:TypeToName(), objective:StatusToName() )
             end
         end
+
+        combatManagerClass.GetMessageWindow():AddMessage( message, objective:TypeToBaseColor() )
+    else
+        Section.Print( "Objective not found to set status" )
     end
 
     STATIC.SortObjectives()
@@ -176,6 +181,8 @@ function STATIC.ChangeObjectiveType( id, type )
     if objective then
         objective.Type = type
         objective:UpdateEntityBlip()
+    else
+        Section.Print( "Objective not found to change type" )
     end
 
     --STATIC.Viewer:Update()
@@ -200,6 +207,8 @@ function STATIC.SetObjectiveRadarBlip( id, ent )
             objective.Position = pos
             objective.DrawBlip = true
         end
+    else
+        Section.Print( "Objective not found to set radar blip with id: ", id )
     end
 end
 

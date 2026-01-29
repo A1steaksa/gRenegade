@@ -198,11 +198,11 @@ function INSTANCE:LoadFontImage( fontMaterial )
     self.Material = fontMaterial
 
     -- The size of the texture atlas, just to cut down on function calls
-    -- Assume all font materials are an atlas of 16x16 elements
     local atlasPixelWidth = fontMaterial:Width()
     local atlasPixelHeight = fontMaterial:Height()
 
     -- The monospaced size of each character
+    -- (Assumes all font materials are an atlas of 16x16 elements)
     local monoCharPixelHeight = atlasPixelHeight / 16
     local monoCharPixelWidth = atlasPixelWidth / 16
 
@@ -225,7 +225,6 @@ function INSTANCE:LoadFontImage( fontMaterial )
     return true
 end
 
---- @private
 --- Immediately converts this font into a proportional font rather than a monospaced font
 function INSTANCE:MakeProportional()
     -- Make sure we have a Render Target that we can do our processing on
