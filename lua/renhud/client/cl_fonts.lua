@@ -45,10 +45,22 @@ LIB.CreatedFonts = {}
 
 
 --- @private
---- A queue of the fonts that need to have atlases created for them in the next batch of conversions
---- @type FontDescription[]
+--- A queue of the Garry's Mod font names that need to have atlases created for them in the next batch of conversions
+--- @type string[]
 LIB.FontsToCreate = {}
 
+
+--- @class FontDebugData
+--- @field CreatedFontName string
+--- @field RenderTarget ITexture
+--- @field Name string
+--- @field PointSize number
+--- @field IsBold boolean
+--- @field InterCharSpacing integer
+
+--- A map of Garry's Mod font names to their corresponding font atlas Render Target
+--- @type FontDebugData[]
+LIB.FontRenderTargets = LIB.FontRenderTargets or {}
 
 --- @param font FontDescription
 --- @return boolean
@@ -91,48 +103,17 @@ function LIB.GetCreatedFont( font )
     return fontWithBold
 end
 
---- Schedules a font to have a character atlas created for it during the next frame
+--- Creates a font atlas for a given font configuration  
+--- Note: The font atlas is populated in the following frame and will be empty until then
 --- @param name string
 --- @param pointSize integer
 --- @param isBold boolean
 --- @param interCharSpacing integer
-function LIB.QueueRenegadeFontCreation( name, pointSize, isBold, interCharSpacing )
-    -- Add the font atlas to the queue
-    LIB.FontsToCreate[#LIB.FontsToCreate + 1] = {
-        Name = name,
-        PointSize = pointSize,
-        IsBold = isBold,
-        InterCharSpacing = interCharSpacing
-    }
-
-    -- Ensure that we render font atlases next frame
-    hook.Add( "PreRender", "A1_Renegade_Fonts_RenderFontAtlases", LIB.CreateAllQueuedFonts )
-end
-
---- @private
---- Immediately renders all queued font atlases
-function LIB.CreateAllQueuedFonts()
-    -- Render each queued font atlas
-    for i = 1, #LIB.FontsToCreate do
-        LIB.CreateFont( LIB.FontsToCreate[i] )
-        LIB.FontsToCreate[i] = nil
-    end
-
-    -- Now that there are no remaining atlases in the queue
-    hook.Remove( "PreRender", "A1_Renegade_Fonts_RenderFontAtlases" )
-end
-
---- @private
---- Immediately renders a single font atlas
---- @param font FontDescription
---- @return Font3dInstance # The font for the created font atlas
-function LIB.CreateFont( font )
+--- @return Font3dInstance
+function LIB.CreateFont( name, pointSize, isBold, interCharSpacing )
     -- Register this font with Garry's Mod so we can draw it
     local fontChars = fontCharsClass.New()
-    fontChars:InitializeGdiFont( font.Name, font.PointSize, font.IsBold )
-
-    -- Use the newly created Garry's Mod font
-    local createdFontName = fontChars:GetCreatedFontName()
+    local createdFontName = fontChars:InitializeGdiFont( name, pointSize, isBold )
     surface.SetFont( createdFontName )
 
     -- Find the font's widest character width and height
@@ -153,7 +134,18 @@ function LIB.CreateFont( font )
     -- Create a Render Target to store the font atlas
     local atlasWidth = maxCharWidth * LIB.FontAtlasGridSize.x
     local atlasHeight = maxCharHeight * LIB.FontAtlasGridSize.y
-    local atlasRenderTarget = GetRenderTargetEx( "RENEGADE_FONT-ATLAS-RT_" .. createdFontName, atlasWidth, atlasHeight, RT_SIZE_OFFSCREEN, MATERIAL_RT_DEPTH_NONE, bit.bor( 1 ), 0, IMAGE_FORMAT_RGBA8888 )
+    local atlasRenderTarget = GetRenderTargetEx(
+        "RENEGADE_FONT-ATLAS-RT_" .. createdFontName,
+        atlasWidth, atlasHeight,
+        RT_SIZE_OFFSCREEN,
+        MATERIAL_RT_DEPTH_NONE,
+        bit.bor(
+            1, -- TEXTUREFLAGS_POINTSAMPLE
+            512 -- TEXTUREFLAGS_NOMIP
+        ),
+        0,
+        IMAGE_FORMAT_RGBA8888
+    )
 
     --[[ Populate Atlas ]] do
 
@@ -209,24 +201,33 @@ function LIB.CreateFont( font )
 
     -- This font3d will ultimately be used to set the font of a Render2dTextInstance
     local font3d = font3dClass.New( atlasMaterial )
-    font3d:SetInterCharSpacing( font.InterCharSpacing )
+    font3d:SetInterCharSpacing( interCharSpacing )
 
     --[[ Store the New Font ]] do
 
-        local matchingNames = LIB.CreatedFonts[font.Name]
+        local matchingNames = LIB.CreatedFonts[name]
         if not matchingNames then
-            LIB.CreatedFonts[font.Name] = {}
-            matchingNames = LIB.CreatedFonts[font.Name]
+            LIB.CreatedFonts[name] = {}
+            matchingNames = LIB.CreatedFonts[name]
         end
 
-        local matchingSizes = matchingNames[font.PointSize]
+        local matchingSizes = matchingNames[pointSize]
         if not matchingSizes then
-            matchingNames[font.PointSize] = {}
-            matchingSizes = matchingNames[font.PointSize]
+            matchingNames[pointSize] = {}
+            matchingSizes = matchingNames[pointSize]
         end
 
-        LIB.CreatedFonts[font.Name][font.PointSize][font.IsBold] = font3d
+        LIB.CreatedFonts[name][pointSize][isBold] = font3d
     end
+
+    LIB.FontRenderTargets[#LIB.FontRenderTargets + 1] = {
+        CreatedFontName = createdFontName,
+        RenderTarget = atlasRenderTarget,
+        Name = name, 
+        PointSize = pointSize,
+        IsBold = isBold,
+        InterCharSpacing = interCharSpacing
+    }
 
     return font3d
 end
