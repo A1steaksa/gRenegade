@@ -205,6 +205,23 @@ function STATIC.Init( renderAvailable )
     end
 end
 
+function STATIC.Shutdown()
+    if STATIC.HudInited then
+
+        STATIC.ObjectiveShutdown()
+        STATIC.TargetShutdown()
+        STATIC.DamageShutdown()
+        STATIC.InfoShutdown()
+        STATIC.WeaponChartShutdown()
+        STATIC.WeaponShutdown()
+        STATIC.PowerupShutdown()
+        STATIC.HudHelpTextShutdown()
+        sniperHudClass.Shutdown()
+
+        STATIC.HudInited = false
+    end
+end
+
 function STATIC.Think()
     if not STATIC.HudInited then return end
     if not hudEnabled then return end
