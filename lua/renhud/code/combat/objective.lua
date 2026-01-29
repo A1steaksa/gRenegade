@@ -48,6 +48,36 @@ INSTANCE.Static = STATIC
 --#endregion
 
 
+--[[ Chunk IDs ]] do
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+
+    local builder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES   = builder:Set( 629001440 ),
+        CHUNKID_OBJECT      = builder:Next(),
+
+        MICROCHUNKID_ID                     = builder:Set( 1 ),
+        MICROCHUNKID_TYPE                   = builder:Next(),
+        MICROCHUNKID_STATUS                 = builder:Next(),
+        MICROCHUNKID_DESCRIPTION            = builder:Next(),
+        MICROCHUNKID_DESCRIPTION_SOUND      = builder:Next(),
+        XXXMICROCHUNKID_RADAR_MARKER_ID     = builder:Next(),
+        MICROCHUNKID_DESCRIPTION_ID         = builder:Next(),
+        MICROCHUNKID_DRAW_BLIP              = builder:Next(),
+        MICROCHUNKID_POSITION               = builder:Next(),
+        MICROCHUNKID_LONG_DESCRIPTION_ID    = builder:Next(),
+        MICROCHUNKID_AGE                    = builder:Next(),
+        MICROCHUNKID_HUD_POG_TEXTURE_NAME   = builder:Next(),
+        MICROCHUNKID_HUD_MESSAGE_STRING_ID  = builder:Next(),
+        MICROCHUNKID_HUD_PRIORITY           = builder:Next(),
+        MICROCHUNKID_HUD_AGE                = builder:Next(),
+    }
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     STATIC.Red      = Color( 255,   0,   0 )
@@ -108,6 +138,16 @@ function INSTANCE:Renegade_Objective()
     self.ShortDescriptionId = 0
     self.HudPriotity        = 0
     self.Age                = 0
+end
+
+--- @param csave ChunkSaveInstance
+function INSTANCE:Save( csave )
+    typecheck.NotImplementedError()
+end
+
+--- @param cload ChunkLoadInstance
+function INSTANCE:Load( cload )
+    typecheck.NotImplementedError()
 end
 
 --- @return Color
