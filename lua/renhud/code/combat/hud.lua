@@ -767,15 +767,17 @@ end
 
     function STATIC.WeaponInit()
 
+        local resolution = render2dClass.GetScreenResolution()
+
         --[[ Weapon Background ]] do
             STATIC.WeaponBoxRenderer = render2dClass.New()
             STATIC.WeaponBoxRenderer:SetMaterial( STATIC.Materials.Hud.Main )
-            STATIC.WeaponBoxRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
+            STATIC.WeaponBoxRenderer:SetCoordinateRange( resolution )
 
             local boxUv = rectClass.New( STATIC.WeaponBoxUvUpperLeft, STATIC.WeaponBoxUvLowerRight )
             local drawBox = rectClass.New( boxUv )
             boxUv = boxUv / 256
-            drawBox = drawBox + Vector( ScrW(), ScrH() ) - WEAPON_OFFSET - drawBox:UpperLeft()
+            drawBox = drawBox + Vector( resolution:Width(), resolution:Height() ) - WEAPON_OFFSET - drawBox:UpperLeft()
             --- @cast drawBox RectInstance
 
             STATIC.WeaponBoxRenderer:AddQuad( drawBox, boxUv )
@@ -784,24 +786,24 @@ end
 
         --[[ Weapon Image ]] do
             STATIC.WeaponImageRenderer = render2dClass.New()
-            STATIC.WeaponImageRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
+            STATIC.WeaponImageRenderer:SetCoordinateRange( resolution )
         end
 
         --[[ Weapon Name ]] do
             local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
 
             STATIC.WeaponNameRenderer = render2dTextClass.New( font )
-            STATIC.WeaponNameRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
+            STATIC.WeaponNameRenderer:SetCoordinateRange( resolution )
         end
 
         --[[ Weapon Clip Count ]] do
             STATIC.WeaponClipCountRenderer = render2dTextClass.New( STATIC.Font3dInstances.Large )
-            STATIC.WeaponClipCountRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
+            STATIC.WeaponClipCountRenderer:SetCoordinateRange( resolution )
         end
 
         --[[ Reserve Ammo ]] do
             STATIC.WeaponTotalCountRenderer = render2dTextClass.New( STATIC.Font3dInstances.Small )
-            STATIC.WeaponTotalCountRenderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
+            STATIC.WeaponTotalCountRenderer:SetCoordinateRange( resolution )
         end
 
         STATIC.LastHudWeapon = NULL
