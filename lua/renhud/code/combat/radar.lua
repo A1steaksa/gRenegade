@@ -502,7 +502,7 @@ function STATIC.Render()
         STATIC.Renderer:Render()
 
         local compassRenderer = STATIC.CompassRenderers[STATIC.CurrentCompassRendererIndex]
-        if compassRenderer ~= NULL then
+        if compassRenderer then
             compassRenderer:Render()
         end
     end
@@ -581,6 +581,19 @@ end
                 marker.Color = color
             end
         end
+    end
+end
+
+--[[ Multiplayer Support ]] do
+
+    --- @param newMode RadarMode
+    function STATIC.SetRadarMode( newMode )
+        STATIC.RadarMode = newMode
+    end
+
+    --- @return RadarMode
+    function STATIC.GetRadarMode()
+        return STATIC.RadarMode
     end
 end
 
