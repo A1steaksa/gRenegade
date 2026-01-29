@@ -57,8 +57,11 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
+    --- @type IniClass
+    local iniClass = CNC.Import( "renhud/code/wwlib/ini.lua" )
+
     --- @type Render2dClass
-    local render2d = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
 
     --- @type FontsLib
     local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
@@ -76,6 +79,9 @@ local isHotload = not table.IsEmpty( STATIC )
     --- The amount to multiply Renegade font point sizes by to convert them to the same visual size in Garry's Mod
     --- This value was determined by experimentation and is not yet understood.
     STATIC.FontSizeMultipler = 1.75
+
+    --- How many extra pixels of space to border each character on font atlases with 
+    STATIC.DefaultInterCharSpacing = 2
 
     --- The font defaults as found in stylemgr.cpp and, seemingly identically, in data/stylemgr.ini
     --- @type FontDescription[]
@@ -125,6 +131,26 @@ end
 --- @type table<FontStyle, Font3dInstance>
 STATIC.Fonts = {}
 
+STATIC.FONT_FILE_SECTION = "Font File List"
+STATIC.FONT_NAME_SECTION = "Font Names"
+STATIC.FONT_INI_ENTRIES = {
+    "FONT_TITLE",
+    "FONT_LG_CONTROLS",
+    "FONT_CONTROLS",
+    "FONT_LISTS",
+    "FONT_TOOLTIPS",
+    "FONT_MENU",
+    "FONT_SM_MENU",
+    "FONT_HEADER",
+    "FONT_BIG_HEADER",
+    "FONT_CREDITS",
+    "FONT_CREDITS_BOLD",
+    "FONT_INGAME_TXT",
+    "FONT_INGAME_BIG_TXT",
+    "FONT_INGAME_SUBTITLE_TXT",
+    "FONT_INGAME_HEADER_TXT"
+}
+
 --[[ Initialization ]] do
 
     function STATIC.Initialize()
@@ -132,7 +158,7 @@ STATIC.Fonts = {}
         typecheck.NotImplementedError()
 
         -- "Compute the scale"
-        local screenRes = render2d.GetScreenResolution()
+        local screenRes = render2dClass.GetScreenResolution()
         STATIC.ScaleX = screenRes:Width() / 800
         STATIC.ScaleY = screenRes:Height() / 600
 
@@ -157,11 +183,61 @@ STATIC.Fonts = {}
 
     --- @param fileName string
     function STATIC.InitializeFromIni( fileName )
-        typecheck.NotImplementedError()
-    end
+        -- Omitted shutdown
 
-    function STATIC.Shutdown()
-        typecheck.NotImplementedError()
+        -- "Compute the scale"
+        local screenResolution = render2dClass.GetScreenResolution()
+        STATIC.ScaleX = screenResolution:Width() / 800.0
+        STATIC.ScaleY = screenResolution:Height() / 600
+
+        -- "Get the INI file"
+        local file = file.Open( fileName, "rb", "THIRDPARTY" )
+        if not file then
+            Section.Error( "Unable to load ini file: '", fileName, "'" )
+        end
+        local ini = iniClass.New( file )
+        if not ini then
+            Section.Error( "Unable to create ini loader for file: '", fileName, "'" )
+        end
+
+        -- Omitted loading fonts into Windows
+
+        -- "Read information about each font and load it into the system"
+        Section.Start( "Creating font atlases from style manager INI" )
+        local count = table.Count( STATIC.FONT_STYLE )
+        for index = 1, count do
+            -- "Read information about this font"
+            local fontEntry = ini:GetString( STATIC.FONT_NAME_SECTION, STATIC.FONT_INI_ENTRIES[index] )
+
+            -- "Parse the information"
+            local splitEntry = fontEntry:Split( "," ) --[[@as string[] ]]
+            local fontName = splitEntry[1]:Trim()
+            local fontSize = splitEntry[2]:Trim()
+            local fontBold = splitEntry[3]:Trim()
+
+            local isBold = ( fontBold == "1" )
+
+            -- "Scale the point size to fit this resolution"
+            local pointSize = math.floor( tonumber( fontSize ) * STATIC.FontSizeMultipler ) --[[@as number]] -- * STATIC.ScaleY
+
+            -- "Remove bold from "small" fonts if they're scaled down"
+            -- pointSize = math.max( pointSize, 8.0 )
+            if pointSize < 10.0 and STATIC.ScaleY < 1.0 then
+                isBold = false
+            end
+
+            STATIC.Fonts[index] = fontsLib.CreateFont(
+                fontName,
+                pointSize,
+                isBold,
+                STATIC.DefaultInterCharSpacing
+            )
+
+            Section.Print( "Created font '", fontName, "', ", pointSize, " pt, ", ( isBold and "Bold" or "Regular" ) )
+        end
+        Section.End( "Created ", count, " fonts" )
+
+        hook.Run( "Renegade_PostStyleManagerInit", fileName )
     end
 end
 
@@ -183,13 +259,11 @@ end
 
         -- If this font isn't already cached, cache it
         if not cachedFont then
-            local font = STATIC.DefaultFonts[ style ]
-            if not fontsLib.IsFontCreated( font ) then
-                return nil
-                -- Section.Error( "Unable to peek un-created font: '", font.Name, "', size: ", font.PointSize, ", boldness: ", font.IsBold)
+            local font = STATIC.Fonts[ style ]
+            if not font then
+                Section.Error( "Could not peek font that does not exist: ", style )
             end
-
-            STATIC.Fonts[ style ] = fontsLib.GetCreatedFont( font )
+            STATIC.Fonts[ style ] = font
             cachedFont = STATIC.Fonts[ style ]
         end
 
