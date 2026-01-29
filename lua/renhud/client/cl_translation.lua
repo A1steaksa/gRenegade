@@ -97,4 +97,12 @@ end
         LIB.RegisterString( languageEnum.English, "IDS_HUD_COMPASS_NW", "NW" )
     end
 
+    --[[ Multiplayer ]] do
+        
+        LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_SINGLE_PLAYER", "Single Player" )
+        LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_CNC", "Command & Conquer" )
+        LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_SINGLE_PLAYER", "Single Player" )
+
+    end
+
 end
