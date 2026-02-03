@@ -16,9 +16,27 @@
 	// 	"description": "Log output to console"
 	// }
 
+	"@As Cast": {
+		"prefix": "as",
+		"description": "Shortcut for --[[@as <type>]]",
+		"scope": "lua",
+		"body": [
+			"--[[@as $0]]"
+		]
+	},
+
+	"Print": {
+		"prefix": "pr",
+		"description": "Shortcut for `Section.Print()`",
+		"scope": "lua",
+		"body": [
+			"Section.Print( $0 )"
+		]
+	},
+
 	"Not Implemented": {
 		"prefix": "noi",
-		"description": "Shortcut for typecheck.NotImplementedError()",
+		"description": "Shortcut for `typecheck.NotImplementedError()`",
 		"scope": "lua",
 		"body": [
 			"typecheck.NotImplementedError()"
