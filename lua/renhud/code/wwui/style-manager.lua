@@ -203,7 +203,6 @@ STATIC.FONT_INI_ENTRIES = {
         -- Omitted loading fonts into Windows
 
         -- "Read information about each font and load it into the system"
-        Section.Start( "Creating font atlases from style manager INI" )
         local count = table.Count( STATIC.FONT_STYLE )
         for index = 1, count do
             -- "Read information about this font"
@@ -226,18 +225,13 @@ STATIC.FONT_INI_ENTRIES = {
                 isBold = false
             end
 
-            STATIC.Fonts[index] = fontsLib.CreateFont(
+            STATIC.Fonts[index] = fontsLib.GetOrCreateFont(
                 fontName,
                 pointSize,
                 isBold,
                 STATIC.DefaultInterCharSpacing
             )
-
-            Section.Print( "Created font '", fontName, "', ", pointSize, " pt, ", ( isBold and "Bold" or "Regular" ) )
         end
-        Section.End( "Created ", count, " fonts" )
-
-        hook.Run( "Renegade_PostStyleManagerInit", fileName )
     end
 end
 
