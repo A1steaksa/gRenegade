@@ -17,6 +17,12 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsFontChars = true
 
+--#region Imports
+
+    --- @type FontsLib
+    local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
+--#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -66,19 +72,14 @@ end
 --- @param fontName string The OS font name of the font to be used 
 --- @param pointSize integer The height of the font
 --- @param isBold boolean
---- @return string # The name of the Garry's Mod font that was registered
 function INSTANCE:InitializeGdiFont( fontName, pointSize, isBold )
+    -- "Build a unique name from the font name and its size [and its boldness]"
+    self.CreatedFontName = fontsLib.FormatFontAtlasName( fontName, pointSize, isBold )
 
-    -- Remove spaces form the font name
-    local cleanedFontName = string.Replace( fontName, " ", "-" )
-
-    -- The font name that the font will be created under within Garry's Mod
-    self.CreatedFontName = string.format( "RENEGADE_%s_%d%s", cleanedFontName, pointSize, isBold and "_bold" or "" )
-
-    self.SystemFontName  = fontName
-    self.PointSize   = math.floor( pointSize )
-    self.IsBold      = isBold
-    self.IsArialMt = string.lower( fontName ) == "arial mt"
+    self.SystemFontName = fontName
+    self.PointSize      = math.floor( pointSize )
+    self.IsBold         = isBold
+    self.IsArialMt      = string.lower( fontName ) == "arial mt"
 
     surface.CreateFont ( self.CreatedFontName, {
         font    = self.SystemFontName,
@@ -86,8 +87,6 @@ function INSTANCE:InitializeGdiFont( fontName, pointSize, isBold )
         weight  = self.IsBold and 1000 or 0,
         antialias = false
     } )
-
-    return self.CreatedFontName
 end
 
 --- Checks if another font's values match this font's values
