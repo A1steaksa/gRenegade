@@ -35,7 +35,7 @@ INSTANCE.IsDialogFactory = true
 --#endregion
 
 --[[
-    Notes to maintainers:
+    Note to maintainers:
     This class is a complete mess because the original code is short but confusing.
     It's either using a factory pattern with a base class for a good reason I don't understand
     or It's doing those things for no reason.  I do not know which.

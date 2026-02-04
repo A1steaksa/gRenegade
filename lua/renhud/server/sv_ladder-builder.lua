@@ -19,12 +19,11 @@ INSTANCE.IsLadderBuilder = true
 
 
 --[[
-    Notes to maintainers:
+    Note to maintainers:
     Ladders are defined by top and bottom points in world-space and cannot actually be parented to Entities.
     (Moving the points while a Player is on the ladder just makes them fall off of it)
     To work around this, I'm going to try to disable ladders whenever their parent Entity is unfrozen, then
     re-position the top and bottom points and re-enable the ladder when it is frozen again.
-
 --]]
 
 

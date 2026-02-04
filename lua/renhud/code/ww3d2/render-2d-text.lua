@@ -64,7 +64,6 @@ end
 --- Constructs a new Render2DTextInstance
 --- @param font Font3dInstance
 function INSTANCE:Renegade_Render2dText( font )
-
     PARENT.Instance.Renegade_Render2d( self )
 
     self.Location = Vector( 0, 0 )

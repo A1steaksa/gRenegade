@@ -30,7 +30,6 @@ LIB.Class = "CommonBridgeLib"
     Note to maintainers:
     I hate these bridge files.  They need to be replaced with a better system to bridge the gap between Renegade and Source.
     Might be a rewrite, might be a different approach entirely.  I don't care.
-
 --]]
 
 --- @param ent Entity
