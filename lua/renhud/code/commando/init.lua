@@ -45,7 +45,7 @@ function STATIC.GameInit()
     if SERVER then
         hook.Remove( "InitPostEntity", "A1_Renegade_GameInit_Server" )
     else
-        hook.Remove( "PreRender", "A1_Renegade_GameInit_Client" )
+        hook.Remove( "HUDPaint", "A1_Renegade_GameInit_Client" )
     end
 
     Section.Start( "Running Renegade GameInit" )

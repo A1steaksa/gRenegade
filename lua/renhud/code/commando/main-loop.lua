@@ -92,7 +92,7 @@ function STATIC.GameMainLoop()
     end
 
     if CLIENT then
-        hook.Add( "PreRender", "A1_Renegade_GameInit_Client", initClass.GameInit )
+        hook.Add( "HUDPaint", "A1_Renegade_GameInit_Client", initClass.GameInit )
     end
 end
 
