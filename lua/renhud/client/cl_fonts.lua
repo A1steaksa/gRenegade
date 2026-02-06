@@ -10,6 +10,9 @@ local isHotload = not table.IsEmpty( LIB )
 
 --#region Imports
 
+    --- @type Render2dClass
+    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+
     --- @type FontCharsClass
     local fontCharsClass = CNC.Import( "renhud/code/ww3d2/font-chars.lua" )
 
@@ -35,85 +38,207 @@ local isHotload = not table.IsEmpty( LIB )
     --- @private
     --- What color text should be when it is rendered to a new font atlas
     LIB.FontAtlasTextColor = Color( 255, 255, 255, 255 )
+
+    --- @private
+    --- Where, relative to the `garrysmod/dataTbl` folder, font atlas images should be saved and loaded
+    LIB.FontAtlasSaveLocation = "renegade/font-atlases/"
 end
 
---- @private
---- All of the font atlases that have been created and their corresponding Font3dInstance
---- A map of [string: System Font Name][integer: Point Size][boolean: Is Bold?] -> Font3dInstance
---- @type table<string, table<integer, table<boolean, Font3dInstance>>>
-LIB.CreatedFonts = {}
-
-
---- @private
---- A queue of the Garry's Mod font names that need to have atlases created for them in the next batch of conversions
---- @type string[]
-LIB.FontsToCreate = {}
-
-
---- @class FontDebugData
---- @field CreatedFontName string
---- @field RenderTarget ITexture
+--- @class FontAtlasData
+--- @field Font3dInstance Font3dInstance
+--- @field CreatedFontName string? Only populated if this atlas was generated instead of loaded from a file
+--- @field RenderTarget ITexture? Only populated if this atlas was generated instead of loaded from a file
+--- @field Material IMaterial
 --- @field Name string
 --- @field PointSize number
 --- @field IsBold boolean
 --- @field InterCharSpacing integer
 
---- A map of Garry's Mod font names to their corresponding font atlas Render Target
---- @type FontDebugData[]
-LIB.FontRenderTargets = LIB.FontRenderTargets or {}
+--- @private
+--- A map of [string: System Font Name][integer: Point Size][boolean: Is Bold?] -> FontAtlasData
+--- @type table<string, table<integer, table<boolean, FontAtlasData>>>
+LIB.FontAtlasData = {}
 
---- @param font FontDescription
---- @return boolean
-function LIB.IsFontCreated( font )
-    local fontsWithName = LIB.CreatedFonts[font.Name]
-    if not fontsWithName then return false end
+--- @return FontAtlasData[]
+function LIB.GetAllFontAtlasData()
+    local result = {}
 
-    local fontsWithSize = fontsWithName[font.PointSize]
-    if not fontsWithSize then return false end
+    for _, pointSizes in pairs( LIB.FontAtlasData ) do
+        for _, boldnesses in pairs( pointSizes ) do
+            for _, fontAtlasData in pairs( boldnesses ) do
+                result[#result+1] = fontAtlasData
+            end
+        end
+    end
 
-    local fontWithBold = fontsWithSize[font.IsBold]
-    if not fontWithBold then return false end
-
-    return true
+    return result
 end
 
---- Retrieves an existing font
---- @param font FontDescription
---- @return Font3dInstance
-function LIB.GetCreatedFont( font )
-    local fontsWithName = LIB.CreatedFonts[font.Name]
-    if not fontsWithName then
-        Section.Error( "Unable to find Renegade font named '", font.Name, "'" )
+--- @param fontName string
+--- @param pointSize number
+--- @param isBold boolean
+--- @return FontAtlasData? `nil` if the font has not been loaded
+function LIB.GetFontAtlasData( fontName, pointSize, isBold )
+    local pointSizes = LIB.FontAtlasData[fontName]
+    if not pointSizes then
+        return nil
     end
 
-    local fontsWithSize = fontsWithName[font.PointSize]
-    if not fontsWithSize then
-        Section.Error( "Unable to find Renegade font named '", font.Name, "' and size ", font.PointSize )
+    local boldnesses = pointSizes[pointSize]
+    if not boldnesses then
+        return nil
     end
 
-    local fontWithBold = fontsWithSize[font.IsBold]
-    if not fontWithBold then
-        Section.Error(
-            "Unable to find Renegade font named '", font.Name, "', ",
-            "size ", font.PointSize, "', ",
-            "and ", ( font.IsBold and "bold" or "regular" ), " font weight"
-        )
-    end
-
-    return fontWithBold
+    return boldnesses[isBold]
 end
 
---- Creates a font atlas for a given font configuration  
---- Note: The font atlas is populated in the following frame and will be empty until then
---- @param name string
+--- @param fontName string
+--- @param pointSize number
+--- @param isBold boolean
+--- @param fontData FontAtlasData
+function LIB.SetFontAtlasData( fontName, pointSize, isBold, fontData )
+    local pointSizes = LIB.FontAtlasData[fontName]
+    if not pointSizes then
+        pointSizes = {}
+        LIB.FontAtlasData[fontName] = pointSizes
+    end
+
+    local boldnesses = pointSizes[pointSize]
+    if not boldnesses then
+        boldnesses = {}
+        pointSizes[pointSize] = boldnesses
+    end
+
+    boldnesses[isBold] = fontData
+end
+
+--- Formats given font information into a unique name
+--- @param fontName string
+--- @param pointSize number
+--- @param isBold boolean
+--- @return string # The file name (excluding the file extension) an atlas should be saved under for the given input
+function LIB.FormatFontAtlasName( fontName, pointSize, isBold )
+    local cleanedFontName = string.Replace( fontName, " ", "-" )
+    return string.format( "renegade_%s_%d%s", cleanedFontName, pointSize, isBold and "_bold" or "" )
+end
+
+--- Formats given font information into a file path relative to the data folder and ending in `.png`
+--- @param fontName string
+--- @param pointSize number
+--- @param isBold boolean
+--- @return string
+function LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    local atlasName = LIB.FormatFontAtlasName( fontName, pointSize, isBold )
+    return LIB.FontAtlasSaveLocation .. atlasName .. ".png"
+end
+
+--- @param fontName string
+--- @param pointSize integer
+--- @param isBold boolean
+function LIB.SaveFontAtlas( fontName, pointSize, isBold )
+    local fontAtlasData = LIB.GetFontAtlasData( fontName, pointSize, isBold )
+    if not fontAtlasData then
+        Section.Error( "Can't find font data to save for: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
+    end
+    --- @cast fontAtlasData FontAtlasData
+
+    local renderTarget = fontAtlasData.RenderTarget
+    if not renderTarget then
+        Section.Error( "Can't save Render Target for font that was loaded from a file: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
+    end
+    --- @cast renderTarget ITexture
+
+    -- Get the Render Target's image data
+    render.PushRenderTarget( renderTarget )
+    local imageData = render.Capture( {
+        format = "png",
+        x = 0,
+        y = 0,
+        w = renderTarget:Width(),
+        h = renderTarget:Height(),
+        alpha = true
+    } )
+    render.PopRenderTarget()
+
+    -- Ensure the font atlas directory exists
+    file.CreateDir( LIB.FontAtlasSaveLocation )
+
+    if not imageData then
+        Section.Print( "Skipping saving empty atlas: ", fontName, " ", pointSize, " pt, ", ( isBold and "bold" or "regular" ) )
+        return
+    end
+
+    -- Write the image data to a file
+    local filePath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    file.Write( filePath, imageData )
+end
+
+--- @param fontName string
+--- @param pointSize integer
+--- @param isBold boolean
+--- @return FontAtlasData
+function LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
+    local filePath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    local loadedMaterial = Material( filePath, "" )
+    local font3dInstance = font3dClass.New( loadedMaterial )
+    font3dInstance:SetInterCharSpacing( interCharSpacing )
+
+    local fontAtlasData = LIB.GetFontAtlasData( fontName, pointSize, isBold ) or {}
+    fontAtlasData = {
+        Name = fontName,
+        PointSize = pointSize,
+        IsBold = isBold,
+        InterCharSpacing = interCharSpacing,
+        Font3dInstance = font3dInstance,
+        Material = loadedMaterial
+    }
+    LIB.SetFontAtlasData( fontName, pointSize, isBold, fontAtlasData )
+
+    return fontAtlasData
+end
+
+--- Retrieves an existing atlas-based font if one exists or creates one if it does not
+--- @param fontName string
 --- @param pointSize integer
 --- @param isBold boolean
 --- @param interCharSpacing integer
 --- @return Font3dInstance
-function LIB.CreateFont( name, pointSize, isBold, interCharSpacing )
+function LIB.GetOrCreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )
+    -- Use already-loaded font data if it's available
+    local fontAtlasData = LIB.GetFontAtlasData( fontName, pointSize, isBold )
+    if fontAtlasData then
+        if fontAtlasData.Font3dInstance then
+            return fontAtlasData.Font3dInstance
+        else
+            Section.Error( "Font data exists but isn't populated" )
+        end
+    end
+
+    -- Use existing atlas images from the disk if they're available
+    -- local atlasPath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    -- if file.Exists( atlasPath, "DATA" ) then
+    --     fontAtlasData = LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
+    --     return fontAtlasData.Font3dInstance
+    -- end
+
+    --- If nothing is already available, create a new font atlas
+    return LIB.CreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )
+end
+
+
+--- Creates a font atlas for a given font configuration
+--- Note: The font atlas is populated in the following frame and will be empty until then
+--- @param fontName string
+--- @param pointSize integer
+--- @param isBold boolean
+--- @param interCharSpacing integer
+--- @return Font3dInstance
+function LIB.CreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )
     -- Register this font with Garry's Mod so we can draw it
+    local createdFontName = LIB.FormatFontAtlasName( fontName, pointSize, isBold )
     local fontChars = fontCharsClass.New()
-    local createdFontName = fontChars:InitializeGdiFont( name, pointSize, isBold )
+    fontChars:InitializeGdiFont( fontName, pointSize, isBold )
+
     surface.SetFont( createdFontName )
 
     -- Find the font's widest character width and height
@@ -134,10 +259,11 @@ function LIB.CreateFont( name, pointSize, isBold, interCharSpacing )
     -- Create a Render Target to store the font atlas
     local atlasWidth = maxCharWidth * LIB.FontAtlasGridSize.x
     local atlasHeight = maxCharHeight * LIB.FontAtlasGridSize.y
+
     local atlasRenderTarget = GetRenderTargetEx(
         "RENEGADE_FONT-ATLAS-RT_" .. createdFontName,
         atlasWidth, atlasHeight,
-        RT_SIZE_OFFSCREEN,
+        RT_SIZE_LITERAL,
         MATERIAL_RT_DEPTH_NONE,
         bit.bor(
             1, -- TEXTUREFLAGS_POINTSAMPLE
@@ -146,6 +272,19 @@ function LIB.CreateFont( name, pointSize, isBold, interCharSpacing )
         0,
         IMAGE_FORMAT_RGBA8888
     )
+
+    if createdFontName:StartsWith( "renegade_Regatta-Condensed-LET" ) then
+
+        Section.Print(
+            pointSize, " pt | ",
+            "char: ",  maxCharWidth, " x ", maxCharHeight, " | ",
+            "attempt: ", atlasWidth, " x ", atlasHeight, " | ",
+            "actual: ", atlasRenderTarget:Width(), " x ", atlasRenderTarget:Height(), " | ",
+            createdFontName
+        )
+
+
+    end
 
     --[[ Populate Atlas ]] do
 
@@ -203,31 +342,30 @@ function LIB.CreateFont( name, pointSize, isBold, interCharSpacing )
     local font3d = font3dClass.New( atlasMaterial )
     font3d:SetInterCharSpacing( interCharSpacing )
 
-    --[[ Store the New Font ]] do
+    -- Adjust the scale of the font to compensate for the screen's DPI
+    -- In the original code this is done within FontCharsClass::Create_GDI_Font but
+    -- it's being done here so we can use the original font size to create the atlas
+    -- and then draw that atlas at a larger size to get the pixelated text I crave
+    font3d.Scale = 1.75
 
-        local matchingNames = LIB.CreatedFonts[name]
-        if not matchingNames then
-            LIB.CreatedFonts[name] = {}
-            matchingNames = LIB.CreatedFonts[name]
-        end
-
-        local matchingSizes = matchingNames[pointSize]
-        if not matchingSizes then
-            matchingNames[pointSize] = {}
-            matchingSizes = matchingNames[pointSize]
-        end
-
-        LIB.CreatedFonts[name][pointSize][isBold] = font3d
-    end
-
-    LIB.FontRenderTargets[#LIB.FontRenderTargets + 1] = {
-        CreatedFontName = createdFontName,
-        RenderTarget = atlasRenderTarget,
-        Name = name, 
+    -- Store the new font data
+    LIB.SetFontAtlasData( fontName, pointSize, isBold, {
+        Name = fontName,
         PointSize = pointSize,
         IsBold = isBold,
-        InterCharSpacing = interCharSpacing
-    }
+        InterCharSpacing = interCharSpacing,
+        Font3dInstance = font3d,
+        CreatedFontName = createdFontName,
+        RenderTarget = atlasRenderTarget,
+        Material = atlasMaterial,
+    } )
+
+    -- Export the atlas as a file so we can re-use it next time
+    LIB.SaveFontAtlas( fontName, pointSize, isBold )
 
     return font3d
+end
+
+if isHotload then
+    -- RunConsoleCommand( "ren_debug_cycle_refresh" )
 end
