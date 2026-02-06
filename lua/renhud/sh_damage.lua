@@ -4,8 +4,8 @@ local CNC = CNC_RENEGADE
 -- A library supporting the HUD's Damage Indicator rendering
 --- @class DamageLib
 local LIB = CNC.CreateExport()
-LIB.Class = "DamageLib"
 local isHotload = not table.IsEmpty( LIB )
+LIB.Class = "DamageLib"
 
 --#region Exported Enums
 

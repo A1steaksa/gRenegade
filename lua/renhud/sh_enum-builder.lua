@@ -5,8 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class EnumBuilderClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "EnumBuilder"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "EnumBuilder"
 
 --- @class EnumBuilderInstance
 local INSTANCE = robustclass.Register( "Renegade_EnumBuilder" )

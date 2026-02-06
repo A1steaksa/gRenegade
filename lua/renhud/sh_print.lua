@@ -4,7 +4,6 @@
 local LIB = {}
 Section = LIB -- Global variable for easy access
 LIB.Class = "SectionLib"
-local isHotload = not table.IsEmpty( LIB )
 
 --- @class PrintLib
 --- @field private SectionStack string[]

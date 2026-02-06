@@ -7,8 +7,8 @@ local CNC = CNC_RENEGADE
 --- @class Render2dClass
 --- @field Instance Render2dInstance The metatable used by Render2dInstance
 local STATIC = CNC.CreateExport()
-STATIC.Class = "Render2dClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "Render2dClass"
 
 --- A 2D renderer that constructs an internal IMesh
 --- @class Render2dInstance

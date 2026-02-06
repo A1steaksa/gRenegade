@@ -5,8 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class HudClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "HudClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "HudClass"
 
 
 --#region Exported Enums
