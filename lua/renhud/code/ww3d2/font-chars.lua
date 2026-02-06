@@ -95,7 +95,7 @@ end
 --- @param isBold boolean
 --- @return boolean
 function INSTANCE:IsFont( fontName, pointSize, isBold )
-    typecheck.NotImplementedError( "IsFont" )
+    typecheck.NotImplementedError()
 end
 
 --- @return string
@@ -117,12 +117,12 @@ end
 --- @param char string
 --- @return integer
 function INSTANCE:GetCharWidth( char )
-    if not self.CharWidths[ char ] then
+    if not self.CharWidths[char] then
         surface.SetFont( self.CreatedFontName )
-        self.CharWidths[ char ] = ( surface.GetTextSize( char ) )
+        self.CharWidths[char] = ( surface.GetTextSize( char ) )
     end
 
-    return self.CharWidths[ char ]
+    return self.CharWidths[char]
 end
 
 --- @param char string
