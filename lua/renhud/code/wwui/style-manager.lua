@@ -82,26 +82,6 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- How many extra pixels of space to border each character on font atlases with 
     STATIC.DefaultInterCharSpacing = 2
-
-    --- The font defaults as found in stylemgr.cpp and, seemingly identically, in data/stylemgr.ini
-    --- @type FontDescription[]
-    STATIC.DefaultFonts = {
-        [ fontStyleEnum.Title            ] = { Name = "Regatta Condensed LET", PointSize = 52,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.LgControls       ] = { Name = "Arial MT",              PointSize = 12,  InterCharSpacing = 2, IsBold = true  },
-        [ fontStyleEnum.Controls         ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = true  },
-        [ fontStyleEnum.Lists            ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.Tooltips         ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.Menu             ] = { Name = "Regatta Condensed LET", PointSize = 32,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.SmMenu           ] = { Name = "Regatta Condensed LET", PointSize = 20,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.Header           ] = { Name = "Arial MT",              PointSize = 9,   InterCharSpacing = 2, IsBold = true  },
-        [ fontStyleEnum.BigHeader        ] = { Name = "Arial MT",              PointSize = 12,  InterCharSpacing = 2, IsBold = true  },
-        [ fontStyleEnum.Credits          ] = { Name = "Arial MT",              PointSize = 10,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.CreditsBold      ] = { Name = "Arial MT",              PointSize = 10,  InterCharSpacing = 2, IsBold = true  },
-        [ fontStyleEnum.IngameTxt        ] = { Name = "Arial MT",              PointSize = 8,   InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.IngameBigTxt     ] = { Name = "Arial MT",              PointSize = 16,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.IngameSubtitleTxt] = { Name = "Arial MT",              PointSize = 14,  InterCharSpacing = 2, IsBold = false },
-        [ fontStyleEnum.IngameHeaderTxt  ] = { Name = "Arial MT",              PointSize = 9,   InterCharSpacing = 2, IsBold = true  },
-    }
 end
 
 
@@ -156,29 +136,6 @@ STATIC.FONT_INI_ENTRIES = {
     function STATIC.Initialize()
         -- This is never used in the original code
         typecheck.NotImplementedError()
-
-        -- "Compute the scale"
-        local screenRes = render2dClass.GetScreenResolution()
-        STATIC.ScaleX = screenRes:Width() / 800
-        STATIC.ScaleY = screenRes:Height() / 600
-
-        -- "Load each font"
-        for _, font in pairs( STATIC.DefaultFonts ) do
-            -- "Scale the point size to fit this resolution"
-            local pointSize = math.floor( font.PointSize * STATIC.ScaleY )
-
-            Section.Print( "Loading font '", font.Name, ", ", ( font.IsBold and "bold" or "regular" ), " weight, size ", font.PointSize, " adjusted to ", pointSize )
-
-            -- "Create the font"
-            fontsLib.QueueRenegadeFontCreation(
-                font.Name,
-                pointSize,
-                font.IsBold,
-                font.InterCharSpacing
-            )
-        end
-
-        -- Not loading backdrop here because I don't need it (yet?)
     end
 
     --- @param fileName string
