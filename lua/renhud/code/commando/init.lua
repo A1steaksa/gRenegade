@@ -41,7 +41,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --- @return boolean
 function STATIC.GameInit()
-    -- Ensure GameInit only runs once
+    -- Ensure we don't initialize more than once
     if SERVER then
         hook.Remove( "InitPostEntity", "A1_Renegade_GameInit_Server" )
     else

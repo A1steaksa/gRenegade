@@ -5,8 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class VehicleEntityClass : SmartEntityClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "VehicleEntityClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "VehicleEntityClass"
 
 --- @class VehicleEntityInstance : SmartEntityInstance
 --- @field BaseClass SmartEntityInstance

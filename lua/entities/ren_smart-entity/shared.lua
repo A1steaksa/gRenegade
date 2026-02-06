@@ -8,8 +8,8 @@ local PARENT = CNC.Import( "entities/ren_armed-entity/shared.lua" )
 
 --- @class SmartEntityClass : ArmedEntityClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "ArmedEntityClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "ArmedEntityClass"
 
 --- @class SmartEntityInstance : ArmedEntityInstance
 --- @field BaseClass ArmedEntityInstance
