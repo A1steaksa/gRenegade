@@ -791,6 +791,10 @@ end
 
         --[[ Weapon Name ]] do
             local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
+            if not font then
+                Section.Error( "Could not peek font for weapon name on HUD" )
+            end
+            --- @cast font Font3dInstance
 
             STATIC.WeaponNameRenderer = render2dTextClass.New( font )
             STATIC.WeaponNameRenderer:SetCoordinateRange( resolution )
