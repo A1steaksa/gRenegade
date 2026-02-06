@@ -152,6 +152,7 @@ STATIC.FONT_INI_ENTRIES = {
         if not file then
             Section.Error( "Unable to load ini file: '", fileName, "'" )
         end
+
         local ini = iniClass.New( file )
         if not ini then
             Section.Error( "Unable to create ini loader for file: '", fileName, "'" )
@@ -177,12 +178,12 @@ STATIC.FONT_INI_ENTRIES = {
             local pointSize = math.floor( tonumber( fontSize ) * STATIC.FontSizeMultipler ) --[[@as number]] -- * STATIC.ScaleY
 
             -- "Remove bold from "small" fonts if they're scaled down"
-            -- pointSize = math.max( pointSize, 8.0 )
+            pointSize = math.max( pointSize, 8.0 )
             if pointSize < 10.0 and STATIC.ScaleY < 1.0 then
                 isBold = false
             end
 
-            STATIC.Fonts[index] = fontsLib.GetOrCreateFont(
+            STATIC.Fonts[index - 1] = fontsLib.GetOrCreateFontAtlas(
                 fontName,
                 pointSize,
                 isBold,
