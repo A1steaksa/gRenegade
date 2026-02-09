@@ -11,6 +11,30 @@ LIB.Class = "ImportsLib"
 --- @private
 LIB.ExportedTables = {}
 
+--- A prefix that will be added to the front of all paths passed to the Import function  
+--- For example: Setting this to `"my-addon"` would turn an Import path from `"some-dir/cool-script.lua"` to `"my-addon/some-dir/cool-script.lua"`
+LIB.ImportPathPrefix = "renhud"
+
+--- Applies the ImportPathPrefix to a given path
+--- @param path string
+--- @return string prefixedPath
+function LIB.PrefixPath( path )
+    -- If the path already has the prefix, don't add it again
+    if string.StartsWith( path, LIB.ImportPathPrefix ) then
+        return path
+    end
+
+    -- Ensure the path has a leading slash
+    if not string.StartsWith( path, "/" ) then
+        path = "/" .. path
+    end
+
+    -- Add the prefix
+    path = LIB.ImportPathPrefix .. path
+
+    return path
+end
+
 --- Retrieves or creates a table for a new class or library to populate for importing into other scripts as a dependency
 --- Other scripts can import this script's exported table by importing this script's file path starting with `/lua/` and ending in `.lua`
 --- @param parent table? The parent meta table for the newly created table to use
@@ -57,6 +81,7 @@ function LIB.Import( path )
     typecheck.AssertArgType( LIB.Class, 1, path, "string" )
 
     path = path:Trim()
+    path = LIB.PrefixPath( path )
 
     -- Execute the script if it hasn't already been imported elsewhere
     local tbl = LIB.ExportedTables[path]
