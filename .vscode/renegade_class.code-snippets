@@ -16,6 +16,18 @@
 	// 	"description": "Log output to console"
 	// }
 
+	"Note to maintainers": {
+		"prefix": "note",
+		"description": "Shortcut for a block comment intended for future maintainers",
+		"scope": "lua",
+		"body": [
+			"--[[",
+			"    Note to maintainers:",
+			"    $0",
+			"--]]",
+		]
+	},
+
 	"@As Cast": {
 		"prefix": "as",
 		"description": "Shortcut for --[[@as <type>]]",
@@ -55,10 +67,10 @@
 			"local CNC = CNC_RENEGADE",
 			"",
 			"--- @class ${3:LuaClassName}Class",
-			"--- @field instance ${3}Instance The metatable used by ${3}Instance",
+			"--- @field Instance ${3}Instance The metatable used by ${3}Instance",
 			"local STATIC = CNC.CreateExport()",
-			"STATIC.Class = \"${3}Class\"",
 			"local isHotload = not table.IsEmpty( STATIC )",
+			"STATIC.Class = \"${3}Class\"",
 			"",
 			"--- @class ${3}Instance",
 			"--- @field Static ${3}Class The static table for this instance's class",
@@ -132,8 +144,8 @@
 			"",
 			"--- @class ${3:LuaClassName}Class",
 			"local STATIC = CNC.CreateExport()",
-			"STATIC.Class = \"${3}Class\"",
 			"local isHotload = not table.IsEmpty( STATIC )",
+			"STATIC.Class = \"${3}Class\"",
 			"",
 			"",
 			"--#region Exported Enums",
