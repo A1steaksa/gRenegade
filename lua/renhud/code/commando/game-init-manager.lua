@@ -12,7 +12,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 
@@ -32,13 +32,13 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type GameDataSinglePlayerClass
-    local gameDataSinglePlayerClass = CNC.Import( "renhud/code/commando/game-data-single-player.lua" )
+    local gameDataSinglePlayerClass = CNC.Import( "code/commando/game-data-single-player.lua" )
 
     --- @type GameDataClass
-    local gameDataClass = CNC.Import( "renhud/code/commando/game-data.lua" )
+    local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
 
     --- @type GameModeManagerClass
-    local gameModeManagerClass = CNC.Import( "renhud/code/commando/game-mode-manager.lua" )
+    local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
 --#endregion
 
 

@@ -21,10 +21,10 @@ INSTANCE.IsMatrix4 = true
 --#region Imports
 
     --- @type Vector4Class
-    local vector4Class = CNC.Import( "renhud/code/wwmath/vector4.lua" )
+    local vector4Class = CNC.Import( "code/wwmath/vector4.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 --#endregion
 
 

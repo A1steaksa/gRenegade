@@ -17,7 +17,7 @@ ENT.Class = "VehicleEntityInstance"
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 
@@ -52,16 +52,16 @@ ENT.Class = "VehicleEntityInstance"
 --#region Imports
 
     --- @type QuaternionClass
-    local quaternionClass = CNC.Import( "renhud/code/wwmath/quaternion.lua" )
+    local quaternionClass = CNC.Import( "code/wwmath/quaternion.lua" )
 
     --- @type WWMathClass
-    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wwmath = CNC.Import( "code/wwmath/wwmath.lua" )
 
     --- @type VehicleEntityDefClass
-    local vehicleEntityDefClass = CNC.Import( "renhud/code/combat/vehicle-entity-def.lua" )
+    local vehicleEntityDefClass = CNC.Import( "code/combat/vehicle-entity-def.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 --#endregion
 
 

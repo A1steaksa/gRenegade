@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type ScriptableEntityDefClass
-local PARENT = CNC.Import( "renhud/code/combat/scriptable-entity-def.lua" )
+local PARENT = CNC.Import( "code/combat/scriptable-entity-def.lua" )
 
 --- @class DamageableEntityDefClass : ScriptableEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -23,16 +23,16 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type ScriptableEntityDefClass
-    local scriptableEntityDefClass = CNC.Import( "renhud/code/combat/scriptable-entity-def.lua" )
+    local scriptableEntityDefClass = CNC.Import( "code/combat/scriptable-entity-def.lua" )
 
     --- @type DefenseEntityDefClass
-    local defenseEntityDefClass = CNC.Import( "renhud/code/combat/defense-entity-def.lua" )
+    local defenseEntityDefClass = CNC.Import( "code/combat/defense-entity-def.lua" )
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type PlayerTypeClass
-    local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerType = CNC.Import( "code/combat/player-type.lua" )
 --#endregion
 
 

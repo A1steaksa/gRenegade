@@ -34,10 +34,10 @@ INSTANCE.IsIni = true
 --#region Imports
 
     --- @type IniEntryClass
-    local iniEntryClass = CNC.Import( "renhud/code/wwlib/ini-entry.lua" )
+    local iniEntryClass = CNC.Import( "code/wwlib/ini-entry.lua" )
 
     --- @type IniSectionClass
-    local iniSectionClass = CNC.Import( "renhud/code/wwlib/ini-section.lua" )
+    local iniSectionClass = CNC.Import( "code/wwlib/ini-section.lua" )
 --#endregion
 
 

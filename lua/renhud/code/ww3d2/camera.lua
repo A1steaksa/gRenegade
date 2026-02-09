@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type RenderObjectClass
-local PARENT = CNC.Import( "renhud/code/ww3d2/render-object.lua" )
+local PARENT = CNC.Import( "code/ww3d2/render-object.lua" )
 
 --- @class CameraClass : RenderObjectClass
 --- @field instance CameraInstance The metatable used by CameraInstance
@@ -24,28 +24,28 @@ INSTANCE.IsCamera = true
 --#region Imports
 
     --- @type OBBoxClass
-    local oBBoxClass = CNC.Import( "renhud/code/wwmath/obbox.lua" )
+    local oBBoxClass = CNC.Import( "code/wwmath/obbox.lua" )
 
     --- @type CollisionMathClass
-    local collisionMathClass = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
+    local collisionMathClass = CNC.Import( "code/wwmath/collision-math.lua" )
 
     --- @type ViewportClass
-    local viewportClass = CNC.Import( "renhud/code/ww3d2/viewport.lua" )
+    local viewportClass = CNC.Import( "code/ww3d2/viewport.lua" )
 
     --- @type FrustumClass
-    local frustumClass = CNC.Import( "renhud/code/wwmath/frustum.lua" )
+    local frustumClass = CNC.Import( "code/wwmath/frustum.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
     --- @type WWMathClass
-    local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
 
     --- @type Matrix4Class
-    local matrix4Class = CNC.Import( "renhud/code/wwmath/matrix4.lua" )
+    local matrix4Class = CNC.Import( "code/wwmath/matrix4.lua" )
 
     --- @type CameraBridgeClass
-    local cameraBridge = CNC.Import( "renhud/bridges/sh_camera.lua" )
+    local cameraBridge = CNC.Import( "bridges/sh_camera.lua" )
 --#endregion
 
 

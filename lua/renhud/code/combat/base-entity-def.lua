@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type DefinitionClass
-local PARENT = CNC.Import( "renhud/code/wwsaveload/definition.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/definition.lua" )
 
 --- @class BaseEntityDefClass : DefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -22,7 +22,7 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 

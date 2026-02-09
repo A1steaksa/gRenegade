@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type EnumBuilderClass
-local PARENT = CNC.Import( "renhud/sh_enum-builder.lua" )
+local PARENT = CNC.Import( "sh_enum-builder.lua" )
 
 --- @class SaveLoadIds : EnumBuilderClass
 local STATIC = CNC.CreateExport( PARENT )

@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameModeClass
-local PARENT = CNC.Import( "renhud/code/commando/game-mode.lua" )
+local PARENT = CNC.Import( "code/commando/game-mode.lua" )
 
 --- @class GameMajorModeClass : GameModeClass
 --- @field instance GameMajorModeInstance The metatable used by GameMajorModeInstance

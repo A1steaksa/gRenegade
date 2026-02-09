@@ -16,19 +16,19 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type PersistClass
-    local persistClass = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+    local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
     --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "renhud/code/wwsaveload/save-load.lua" )
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
     --- @type ChunkLoadClass
-    local chunkLoadClass = CNC.Import( "renhud/code/wwlib/chunk-load.lua" )
+    local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
 
     --- @type EnumBuilderClass
-    local enumBaseClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBaseClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 

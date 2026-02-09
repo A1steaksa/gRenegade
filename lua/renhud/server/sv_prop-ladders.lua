@@ -7,7 +7,7 @@ local CNC = CNC_RENEGADE
 --#region Imports
 
     --- @type LadderBuilderClass
-    local ladderBuilderClass = CNC.Import( "renhud/server/sv_ladder-builder.lua" )
+    local ladderBuilderClass = CNC.Import( "server/sv_ladder-builder.lua" )
 --#endregion
 
 --- A map of model names to a function that sets up their ladder(s)

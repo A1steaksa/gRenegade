@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type SmartEntityDefClass
-local PARENT = CNC.Import( "renhud/code/combat/smart-entity-def.lua" )
+local PARENT = CNC.Import( "code/combat/smart-entity-def.lua" )
 
 --- @class VehicleEntityDefClass : SmartEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -21,16 +21,16 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type CombatChunkId
-    local combatChunkId = CNC.Import( "renhud/code/combat/combat-chunk-id.lua" )
+    local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type SimpleDefinitionFactoryClass
-    local simpleDefinitionFactoryClass = CNC.Import( "renhud/code/wwsaveload/simple-definition-factory.lua" )
+    local simpleDefinitionFactoryClass = CNC.Import( "code/wwsaveload/simple-definition-factory.lua" )
 
     --- @type SimplePersistFactoryClass
-    local simplePersistFactoryClass = CNC.Import( "renhud/code/wwsaveload/simple-persist-factory.lua" )
+    local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
 
     --- @type VehicleEntityClass
     local vehicleEntClass = CNC.Import( "entities/ren_vehicle-entity/shared.lua" )

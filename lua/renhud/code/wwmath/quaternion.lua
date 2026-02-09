@@ -25,10 +25,10 @@ INSTANCE.IsQuaternion = true
 --#region Imports
 
     --- @type WWMathClass
-    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wwmath = CNC.Import( "code/wwmath/wwmath.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 --#endregion
 
 

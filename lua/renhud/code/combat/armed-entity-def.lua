@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type PhysicalEntityDefClass
-local PARENT = CNC.Import( "renhud/code/combat/physical-entity-def.lua" )
+local PARENT = CNC.Import( "code/combat/physical-entity-def.lua" )
 
 --- @class ArmedEntityDefClass : PhysicalEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -23,7 +23,7 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 

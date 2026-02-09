@@ -16,19 +16,19 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type GodClass
-    local godClass = CNC.Import( "renhud/code/commando/god.lua" )
+    local godClass = CNC.Import( "code/commando/god.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type RenegadeDialogManagerClass
-    local renegadeDialogManagerClass = CNC.Import( "renhud/code/commando/renegade-dialog-manager.lua" )
+    local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
 
     --- @type AssetsClass
-    local assetsClass = CNC.Import( "renhud/code/combat/assets.lua" )
+    local assetsClass = CNC.Import( "code/combat/assets.lua" )
 
     --- @type BackdropDescriptionClass
-    local backdropDescriptionClass = CNC.Import( "renhud/code/commando/backdrop-description.lua" )
+    local backdropDescriptionClass = CNC.Import( "code/commando/backdrop-description.lua" )
 --#endregion
 
 

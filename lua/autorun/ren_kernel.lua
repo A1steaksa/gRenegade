@@ -104,5 +104,5 @@ end
 
 -- Execute Renegade's entrypoint script 
 --- @type MainLoopClass
-local mainLoopClass = CNC.Import( "renhud/code/commando/main-loop.lua" )
+local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
 mainLoopClass.GameMainLoop()

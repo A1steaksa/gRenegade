@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @class CollisionMathClass
-local STATIC = CNC.Import( "renhud/code/wwmath/collision-math.lua" )
+local STATIC = CNC.Import( "code/wwmath/collision-math.lua" )
 STATIC.Class = "CollisionMathClass"
 local isHotload = not table.IsEmpty( STATIC )
 

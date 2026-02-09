@@ -16,7 +16,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 --#endregion
 
 

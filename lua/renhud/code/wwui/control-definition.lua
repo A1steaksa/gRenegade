@@ -20,7 +20,7 @@ INSTANCE.IsControlDefinition = true
 --#region Imports
 
     --- @type DialogParserClass
-    local dialogParserClass = CNC.Import( "renhud/code/wwui/control-definition.lua" )
+    local dialogParserClass = CNC.Import( "code/wwui/control-definition.lua" )
 --#endregion
 
 

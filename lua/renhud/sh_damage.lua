@@ -29,7 +29,7 @@ LIB.Class = "DamageLib"
 --#region Imports
 
     --- @type WWMathClass
-    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wwmath = CNC.Import( "code/wwmath/wwmath.lua" )
 --#endregion
 
 --[[ Networking Damage ]] do
@@ -146,10 +146,10 @@ LIB.Class = "DamageLib"
         --#region Imports
 
             --- @type CombatManagerClass
-            local combatManager = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+            local combatManager = CNC.Import( "code/combat/combat-manager.lua" )
 
             --- @type CommonBridgeLib
-            local commonBridgeLib = CNC.Import( "renhud/bridges/sh_common.lua" )
+            local commonBridgeLib = CNC.Import( "bridges/sh_common.lua" )
         --#endregion
 
         local damageIndicatorsEnabledConVar = GetConVar( "ren_damageindicator_enabled" )

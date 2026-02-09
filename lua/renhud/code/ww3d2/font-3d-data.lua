@@ -21,7 +21,7 @@ INSTANCE.IsFont3dData = true
 -- #region Imports
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 -- #endregion
 
 --[[ Static Functions and Variables ]] do

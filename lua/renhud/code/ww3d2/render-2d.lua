@@ -22,13 +22,13 @@ INSTANCE.IsRender2d = true
 --#region Imports
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "code/wwmath/rect.lua" )
 
     --- @type WW3dClass
-    local ww3dClass = CNC.Import( "renhud/code/ww3d2/ww3d.lua" )
+    local ww3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
 
     --- @type ShaderClass
-    local shaderClass = CNC.Import( "renhud/code/ww3d2/shader.lua" )
+    local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
 --#endregion
 
 

@@ -14,13 +14,13 @@ local ENT = ENT --[[@as Entity]]
 --#region Imports
 
     --- @type PlayerTypeClass
-    local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
     --- @type ColorClass
-    local colorClass = CNC.Import( "renhud/code/combat/colors.lua" )
+    local colorClass = CNC.Import( "code/combat/colors.lua" )
 
     --- @type DamageableEntityDefClass
-    local damageableEntityDefClass = CNC.Import( "renhud/code/combat/damageable-entity-def.lua" )
+    local damageableEntityDefClass = CNC.Import( "code/combat/damageable-entity-def.lua" )
 --#endregion
 
 

@@ -33,19 +33,19 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type ObjectiveClass
-    local objectiveClass = CNC.Import( "renhud/code/combat/objective.lua" )
+    local objectiveClass = CNC.Import( "code/combat/objective.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type HudClass
-    local hudClass = CNC.Import( "renhud/code/combat/hud.lua" )
+    local hudClass = CNC.Import( "code/combat/hud.lua" )
 --#endregion
 
 

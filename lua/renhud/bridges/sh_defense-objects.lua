@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 --- Parent class
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
+local PARENT = CNC.Import( "bridges/sh_common.lua" )
 
 --- @class DefenseObjectsBridge : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )

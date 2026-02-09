@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type PersistClass
-local PARENT = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/persist.lua" )
 
 --- @class BaseEntityClass : PersistClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -16,13 +16,13 @@ local ENT = ENT --[[@as Entity]]
 --#region Imports
 
     --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
+    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 
     --- @type BaseEntityDefClass
-    local baseEntityDefClass = CNC.Import( "renhud/code/combat/base-entity-def.lua" )
+    local baseEntityDefClass = CNC.Import( "code/combat/base-entity-def.lua" )
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 --[[ Chunk IDs ]] do

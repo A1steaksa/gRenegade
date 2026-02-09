@@ -11,7 +11,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
     --- @type TranslationLib
-    local translationLib = CNC.Import( "renhud/client/cl_translation.lua" )
+    local translationLib = CNC.Import( "client/cl_translation.lua" )
 --#endregion
 
 

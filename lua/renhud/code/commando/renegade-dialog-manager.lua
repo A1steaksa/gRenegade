@@ -12,7 +12,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 
@@ -39,19 +39,19 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type RenegadeUIInputClass
-    local renegadeUIInputClass = CNC.Import( "renhud/code/commando/renegade-ui-input.lua" )
+    local renegadeUIInputClass = CNC.Import( "code/commando/renegade-ui-input.lua" )
 
     --- @type DialogManagerClass
-    local dialogManagerClass = CNC.Import( "renhud/code/wwui/dialog-manager.lua" )
+    local dialogManagerClass = CNC.Import( "code/wwui/dialog-manager.lua" )
 
     --- @type DialogBaseClass
-    local dialogBaseClass = CNC.Import( "renhud/code/wwui/dialog-base.lua" )
+    local dialogBaseClass = CNC.Import( "code/wwui/dialog-base.lua" )
 
     --- @type DialogResourceClass
-    local dialogResourcesClass = CNC.Import( "renhud/code/commando/dialog-resource.lua" )
+    local dialogResourcesClass = CNC.Import( "code/commando/dialog-resource.lua" )
 
     --- @type DialogFactoryClass
-    local dialogFactoryClass = CNC.Import( "renhud/code/wwui/dialog-factory.lua" )
+    local dialogFactoryClass = CNC.Import( "code/wwui/dialog-factory.lua" )
 
 --#endregion
 

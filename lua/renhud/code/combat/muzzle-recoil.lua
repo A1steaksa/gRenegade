@@ -20,7 +20,7 @@ INSTANCE.IsMuzzleRecoil = true
 
 --#region Imports
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 --#endregion
 
 

@@ -21,7 +21,7 @@ INSTANCE.IsAABox = true
 --#region Imports
 
     --- @type VectorBridgeClass
-    local vectorBridgeClass = CNC.Import( "renhud/bridges/sh_vector.lua" )
+    local vectorBridgeClass = CNC.Import( "bridges/sh_vector.lua" )
 --#endregion
 
 

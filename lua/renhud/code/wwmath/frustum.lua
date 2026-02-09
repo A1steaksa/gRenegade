@@ -21,7 +21,7 @@ INSTANCE.IsFrustum = true
 --#region Imports
 
     --- @type PlaneClass
-    local planeClass = CNC.Import( "renhud/code/wwmath/plane.lua" )
+    local planeClass = CNC.Import( "code/wwmath/plane.lua" )
 --#endregion
 
 

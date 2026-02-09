@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type SaveLoadSubSystemClass
-local parentClass = CNC.Import( "renhud/code/wwsaveload/save-load-sub-system.lua" )
+local parentClass = CNC.Import( "code/wwsaveload/save-load-sub-system.lua" )
 
 --- @class DefinitionManagerClass : SaveLoadSubSystemClass
 --- @field instance DefinitionManagerInstance The metatable used by DefinitionManagerInstance
@@ -35,19 +35,19 @@ INSTANCE.IsDefinitionManager = true
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type CombatChunkId
-    local combatChunkId = CNC.Import( "renhud/code/combat/combat-chunk-id.lua" )
+    local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "renhud/code/wwsaveload/save-load.lua" )
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
     --- @type SaveLoadIds
-    local saveLoadIdsClass = CNC.Import( "renhud/code/wwsaveload/save-load-ids.lua" )
+    local saveLoadIdsClass = CNC.Import( "code/wwsaveload/save-load-ids.lua" )
 
     --- @type DefinitionClassIds
-    local definitionClassIds = CNC.Import( "renhud/code/wwsaveload/definition-class-ids.lua" )
+    local definitionClassIds = CNC.Import( "code/wwsaveload/definition-class-ids.lua" )
 --#endregion
 
 

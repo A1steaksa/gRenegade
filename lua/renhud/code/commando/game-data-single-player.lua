@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameDataClass
-local PARENT = CNC.Import( "renhud/code/commando/game-data.lua" )
+local PARENT = CNC.Import( "code/commando/game-data.lua" )
 
 --- @class GameDataSinglePlayerClass : GameDataClass
 --- @field instance GameDataSinglePlayerInstance The metatable used by GameDataSinglePlayerInstance
@@ -24,7 +24,7 @@ INSTANCE.IsGameDataSinglePlayer = true
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 
@@ -41,10 +41,10 @@ INSTANCE.IsGameDataSinglePlayer = true
 --#region Imports
 
     --- @type PlayerTypeClass
-    local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
     --- @type TranslateDbClass
-    local translationDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
+    local translationDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
 --#endregion
 
 

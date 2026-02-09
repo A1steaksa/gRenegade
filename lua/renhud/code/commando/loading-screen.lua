@@ -25,19 +25,19 @@ INSTANCE.IsLoadingScreen = true
 --#region Imports
 
     --- @type MenuBackdropClass
-    local menuBackdropClass = CNC.Import( "renhud/code/wwui/menu-backdrop.lua" )
+    local menuBackdropClass = CNC.Import( "code/wwui/menu-backdrop.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerclass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerclass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type CampaignManagerClass
-    local campaignManagerClass = CNC.Import( "renhud/code/commando/campaign.lua" )
+    local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 
     --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
+    local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
 --#endregion
 
 

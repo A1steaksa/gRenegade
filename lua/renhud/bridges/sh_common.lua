@@ -11,13 +11,13 @@ LIB.Class = "CommonBridgeLib"
 --#region Imports
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
     --- @type PlayerTypeClass
-    local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerType = CNC.Import( "code/combat/player-type.lua" )
 
     --- @type InfoEntityLib
-    local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
+    local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
 --#endregion
 
 

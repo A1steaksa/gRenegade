@@ -20,7 +20,7 @@ ENT.Class = "ArmedEntityInstance"
 --#region Imports
 
     --- @type SmartEntityDefClass
-    local smartEntityDefClass = CNC.Import( "renhud/code/combat/smart-entity-def.lua" )
+    local smartEntityDefClass = CNC.Import( "code/combat/smart-entity-def.lua" )
 --#endregion
 
 

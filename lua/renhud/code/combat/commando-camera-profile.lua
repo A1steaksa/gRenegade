@@ -21,10 +21,10 @@ INSTANCE.IsCommandoCameraProfile = true
 --#region Imports
 
     --- @type AssetsClass
-    local assetsClass = CNC.Import( "renhud/code/combat/assets.lua" )
+    local assetsClass = CNC.Import( "code/combat/assets.lua" )
 
     --- @type UnitConversionLib
-    local unitConversionLib = CNC.Import( "renhud/sh_unit-conversion.lua" )
+    local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --[[ Static Functions and Variables ]] do

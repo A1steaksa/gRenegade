@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type CameraClass
-local PARENT = CNC.Import( "renhud/code/ww3d2/camera.lua" )
+local PARENT = CNC.Import( "code/ww3d2/camera.lua" )
 
 --- @class CommandoCameraClass : CameraClass
 --- @field instance CommandoCameraInstance The metatable used by CommandoCameraInstance
@@ -36,25 +36,25 @@ INSTANCE.IsCommandoCamera = true
 --#region Imports
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "renhud/code/combat/hud-info.lua" )
+    local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
 
     --- @type CommandoCameraProfileClass
-    local commandoCameraProfileClass = CNC.Import( "renhud/code/combat/commando-camera-profile.lua" )
+    local commandoCameraProfileClass = CNC.Import( "code/combat/commando-camera-profile.lua" )
 
     --- @type BuildingsBridgeClass
-    local buildingsBridgeClass = CNC.Import( "renhud/bridges/sh_buildings.lua" )
+    local buildingsBridgeClass = CNC.Import( "bridges/sh_buildings.lua" )
 
     --- @type PhysicalGameObjectsBridgeClass
-    local physicalGameObjectsBridgeClass = CNC.Import( "renhud/bridges/sh_physical-game-objects.lua" )
+    local physicalGameObjectsBridgeClass = CNC.Import( "bridges/sh_physical-game-objects.lua" )
 
     --- @type SmartGameObjectsBridge
-    local smartGameObjectsBridgeClass = CNC.Import( "renhud/bridges/sh_smart-game-objects.lua" )
+    local smartGameObjectsBridgeClass = CNC.Import( "bridges/sh_smart-game-objects.lua" )
 
     --- @type InfoEntityLib
-    local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua")
+    local infoEntityLib = CNC.Import( "sh_info-entity.lua")
 --#endregion
 
 

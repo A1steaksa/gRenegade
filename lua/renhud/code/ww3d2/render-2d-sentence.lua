@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type Render2dTextClass
-local PARENT = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
+local PARENT = CNC.Import( "code/ww3d2/render-2d-text.lua" )
 
 --- @class Render2dSentenceClass : Render2dTextClass
 --- @field Instance Render2dSentenceInstance The metatable used by Render2dSentenceInstance

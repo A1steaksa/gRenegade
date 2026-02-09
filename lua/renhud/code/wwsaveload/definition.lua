@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type PersistClass
-local PARENT = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/persist.lua" )
 
 --- @class DefinitionClass : PersistClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -22,10 +22,10 @@ INSTANCE.IsDefinition = true
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
+    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 --#endregion
 
 

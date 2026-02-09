@@ -29,28 +29,28 @@ local isHotload = not table.IsEmpty( STATIC )
 -- #region Imports
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type MessageWindowClass
-    local messageWindowClass = CNC.Import( "renhud/code/combat/message-window.lua" )
+    local messageWindowClass = CNC.Import( "code/combat/message-window.lua" )
 
     --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
+    local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
     --- @type SaveGameManagerClass
-    local saveGameManagerClass = CNC.Import( "renhud/code/combat/save-game.lua" )
+    local saveGameManagerClass = CNC.Import( "code/combat/save-game.lua" )
 
     --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
+    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 
     --- @type HudClass
-    local hudClass = CNC.Import( "renhud/code/combat/hud.lua" )
+    local hudClass = CNC.Import( "code/combat/hud.lua" )
 
     --- @type CommandoCameraClass
-    local commandoCameraClass = CNC.Import( "renhud/code/combat/commando-camera.lua" )
+    local commandoCameraClass = CNC.Import( "code/combat/commando-camera.lua" )
 
     --- @type DamageLib
-    local damageLib = CNC.Import( "renhud/sh_damage.lua" )
+    local damageLib = CNC.Import( "sh_damage.lua" )
 -- #endregion
 
 

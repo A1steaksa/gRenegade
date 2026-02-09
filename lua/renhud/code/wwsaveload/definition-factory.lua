@@ -25,7 +25,7 @@ INSTANCE.IsDefinitionFactory = true
 --#region Imports
 
     --- @type DefinitionFactoryManagerClass
-    local definitionFactoryManager = CNC.Import( "renhud/code/wwsaveload/definition-factory-manager.lua" )
+    local definitionFactoryManager = CNC.Import( "code/wwsaveload/definition-factory-manager.lua" )
 --#endregion
 
 

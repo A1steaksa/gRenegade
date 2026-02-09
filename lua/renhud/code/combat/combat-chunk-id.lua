@@ -9,13 +9,13 @@ local STATIC = CNC.CreateExport()
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBaseClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBaseClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type DefinitionClassIds
-    local definitionClassIds = CNC.Import( "renhud/code/wwsaveload/definition-class-ids.lua" )
+    local definitionClassIds = CNC.Import( "code/wwsaveload/definition-class-ids.lua" )
 
     --- @type SaveLoadIds
-    local saveLoadIds = CNC.Import( "renhud/code/wwsaveload/save-load-ids.lua" )
+    local saveLoadIds = CNC.Import( "code/wwsaveload/save-load-ids.lua" )
 --#endregion
 
 local enumBuilder = enumBaseClass.New()

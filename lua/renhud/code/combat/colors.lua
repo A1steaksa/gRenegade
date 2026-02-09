@@ -10,7 +10,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type PlayerTypeClass
-    local playerType = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerType = CNC.Import( "code/combat/player-type.lua" )
 --#endregion
 
 

@@ -25,13 +25,13 @@ INSTANCE.IsChunkLoad = true
 --#region Imports
 
 --- @type SaveLoadSystemClass
-local saveLoadSystemClass = CNC.Import( "renhud/code/wwsaveload/save-load.lua" )
+local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
 --- @type ChunkHeaderClass
-local chunkHeaderClass = CNC.Import( "renhud/code/wwlib/chunk-header.lua" )
+local chunkHeaderClass = CNC.Import( "code/wwlib/chunk-header.lua" )
 
 --- @type MicroChunkHeaderClass
-local microChunkHeaderClass = CNC.Import( "renhud/code/wwlib/micro-chunk-header.lua" )
+local microChunkHeaderClass = CNC.Import( "code/wwlib/micro-chunk-header.lua" )
 --#endregion
 
 

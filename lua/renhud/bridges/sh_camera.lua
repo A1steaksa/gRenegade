@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type CommonBridgeLib
-local PARENT = CNC.Import( "renhud/bridges/sh_common.lua" )
+local PARENT = CNC.Import( "bridges/sh_common.lua" )
 
 --- @class CameraBridgeClass : CommonBridgeLib
 local LIB = CNC.CreateExport( PARENT )

@@ -14,10 +14,10 @@ local ENT = ENT --[[@as PhysicalEntityInstance]]
 --#region Imports
 
     --- @type WeaponBagClass
-    local weaponBagClass = CNC.Import( "renhud/code/combat/weaponbag.lua" )
+    local weaponBagClass = CNC.Import( "code/combat/weaponbag.lua" )
 
     --- @type ArmedEntityDefClass
-    local armedEntityDefClass = CNC.Import( "renhud/code/combat/armed-entity-def.lua" )
+    local armedEntityDefClass = CNC.Import( "code/combat/armed-entity-def.lua" )
 --#endregion
 
 

@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type PersistFactoryClass
-local PARENT = CNC.Import( "renhud/code/wwsaveload/persist-factory.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/persist-factory.lua" )
 
 --- @class SimplePersistFactoryClass : PersistFactoryClass
 --- @field instance SimplePersistFactoryInstance The metatable used by SimplePersistFactoryInstance
@@ -28,7 +28,7 @@ INSTANCE.IsSimplePersistFactory = true
 --#region Imports
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 

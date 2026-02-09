@@ -11,13 +11,13 @@ local isHotload = not table.IsEmpty( LIB )
 --#region Imports
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
     --- @type FontCharsClass
-    local fontCharsClass = CNC.Import( "renhud/code/ww3d2/font-chars.lua" )
+    local fontCharsClass = CNC.Import( "code/ww3d2/font-chars.lua" )
 
     --- @type Font3dClass
-    local font3dClass = CNC.Import( "renhud/code/ww3d2/font-3d.lua" )
+    local font3dClass = CNC.Import( "code/ww3d2/font-3d.lua" )
 --#endregion
 
 

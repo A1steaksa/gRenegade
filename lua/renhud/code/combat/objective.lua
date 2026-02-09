@@ -23,19 +23,19 @@ INSTANCE.Static = STATIC
 --#region Imports
 
     --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
+    local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
     --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "renhud/code/combat/global-settings.lua" )
+    local globalSettingsClass = CNC.Import( "code/combat/global-settings.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 
     --- @type RadarBlipsLib
-    local radarBlipsLib = CNC.Import( "renhud/client/cl_radar-blips.lua" )
+    local radarBlipsLib = CNC.Import( "client/cl_radar-blips.lua" )
 --#endregion
 
 
@@ -51,7 +51,7 @@ INSTANCE.Static = STATIC
 --[[ Chunk IDs ]] do
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local builder = enumBuilderClass.New()
 

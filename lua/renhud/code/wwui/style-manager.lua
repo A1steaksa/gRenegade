@@ -11,7 +11,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 
@@ -58,13 +58,13 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type IniClass
-    local iniClass = CNC.Import( "renhud/code/wwlib/ini.lua" )
+    local iniClass = CNC.Import( "code/wwlib/ini.lua" )
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
     --- @type FontsLib
-    local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
+    local fontsLib = CNC.Import( "client/cl_fonts.lua" )
 --#endregion
 
 

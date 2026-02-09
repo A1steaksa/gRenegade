@@ -23,13 +23,13 @@ LIB.Class = "InfoEntityLib"
 --#region Imports
 
 --- @type PlayerTypeClass
-local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
+local playerTypeLib = CNC.Import( "code/combat/player-type.lua" )
 
 --- @type AABoxClass
-local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
+local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
 --- @type CameraBridgeClass
-local cameraBridgeClass = CNC.Import( "renhud/bridges/sh_camera.lua" )
+local cameraBridgeClass = CNC.Import( "bridges/sh_camera.lua" )
 --#endregion
 
 

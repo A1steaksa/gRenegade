@@ -20,7 +20,7 @@ INSTANCE.IsFontChars = true
 --#region Imports
 
     --- @type FontsLib
-    local fontsLib = CNC.Import( "renhud/client/cl_fonts.lua" )
+    local fontsLib = CNC.Import( "client/cl_fonts.lua" )
 --#endregion
 
 

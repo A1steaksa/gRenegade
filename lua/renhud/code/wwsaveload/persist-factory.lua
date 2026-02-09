@@ -21,7 +21,7 @@ INSTANCE.IsPersistFactory = true
 --#region Imports
 
     --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "renhud/code/wwsaveload/save-load.lua" )
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 --#endregion
 
 

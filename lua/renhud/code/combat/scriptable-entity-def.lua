@@ -5,7 +5,7 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type BaseEntityDefClass
-local PARENT = CNC.Import( "renhud/code/combat/base-entity-def.lua" )
+local PARENT = CNC.Import( "code/combat/base-entity-def.lua" )
 
 --- @class ScriptableEntityDefClass : BaseEntityDefClass
 local STATIC = CNC.CreateExport( PARENT )
@@ -23,7 +23,7 @@ INSTANCE.Static = STATIC
 --[[ Chunk IDs ]] do
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     local enumBuilder = enumBuilderClass.New()
 

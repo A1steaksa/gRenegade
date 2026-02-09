@@ -21,10 +21,10 @@ INSTANCE.Static = STATIC
 -- #region Imports
 
     --- @type Vector4
-    local vector4 = CNC.Import( "renhud/code/wwmath/vector4.lua" )
+    local vector4 = CNC.Import( "code/wwmath/vector4.lua" )
 
     --- @type WWMathClass
-    local wwmath = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wwmath = CNC.Import( "code/wwmath/wwmath.lua" )
 -- #endregion
 
 --[[

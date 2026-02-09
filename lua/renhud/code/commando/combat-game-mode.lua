@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameMajorModeClass
-local PARENT = CNC.Import( "renhud/code/commando/game-major-mode.lua" )
+local PARENT = CNC.Import( "code/commando/game-major-mode.lua" )
 
 --- @class CombatGameModeClass : GameMajorModeClass
 --- @field instance CombatGameModeInstance The metatable used by CombatGameModeInstance
@@ -28,28 +28,28 @@ INSTANCE.IsCombatGameMode = true
 --#region Imports
 
     --- @type GameModeClass
-    local gameModeClass = CNC.Import( "renhud/code/commando/game-mode.lua" )
+    local gameModeClass = CNC.Import( "code/commando/game-mode.lua" )
 
     --- @type GameTypeClass
-    local gameTypeClass = CNC.Import( "renhud/code/combat/game-type.lua" )
+    local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
 
     --- @type GameModeManagerClass
-    local gameModeManagerClass = CNC.Import( "renhud/code/commando/game-mode-manager.lua" )
+    local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
 
     --- @type LoadingScreenClass
-    local loadingScreenClass = CNC.Import( "renhud/code/commando/loading-screen.lua" )
+    local loadingScreenClass = CNC.Import( "code/commando/loading-screen.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type GameDataClass
-    local gameDataClass = CNC.Import( "renhud/code/commando/game-data.lua" )
+    local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 
     --- @type RenegadeDialogManagerClass
-    local renegadeDialogManagerClass = CNC.Import( "renhud/code/commando/renegade-dialog-manager.lua" )
+    local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
 --#endregion
 
 

@@ -16,7 +16,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type IniClass
-    local iniClass = CNC.Import( "renhud/code/wwlib/ini.lua" )
+    local iniClass = CNC.Import( "code/wwlib/ini.lua" )
 --#endregion
 
 

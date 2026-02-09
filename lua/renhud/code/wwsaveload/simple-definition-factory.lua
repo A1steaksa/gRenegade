@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type DefinitionFactoryClass
-local PARENT = CNC.Import( "renhud/code/wwsaveload/definition-factory.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/definition-factory.lua" )
 
 --- @class SimpleDefinitionFactoryClass : DefinitionFactoryClass
 --- @field instance SimpleDefinitionFactoryInstance The metatable used by SimpleDefinitionFactoryInstance

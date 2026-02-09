@@ -14,10 +14,10 @@ local ENT = ENT --[[@as Entity]]
 --#region Imports
 
     --- @type QuaternionClass
-    local quaternionClass = CNC.Import( "renhud/code/wwmath/quaternion.lua" )
+    local quaternionClass = CNC.Import( "code/wwmath/quaternion.lua" )
 
     --- @type PhysicalEntityDefClass
-    local physicalEntityDefClass = CNC.Import( "renhud/code/combat/physical-entity-def.lua" )
+    local physicalEntityDefClass = CNC.Import( "code/combat/physical-entity-def.lua" )
 --#endregion
 
 

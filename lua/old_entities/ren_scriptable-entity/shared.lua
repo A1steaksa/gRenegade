@@ -14,7 +14,7 @@ local ENT = ENT --[[@as Entity]]
 --#region Imports
 
     --- @type ScriptableEntityDefClass
-    local scriptableEntityDefClass = CNC.Import( "renhud/code/combat/scriptable-entity-def.lua" )
+    local scriptableEntityDefClass = CNC.Import( "code/combat/scriptable-entity-def.lua" )
 --#endregion
 
 

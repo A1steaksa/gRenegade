@@ -25,64 +25,64 @@ STATIC.Class = "HudClass"
 --#region Imports
 
     --- @type MaterialsLib
-    local materialsLib = CNC.Import( "renhud/client/cl_materials.lua" )
+    local materialsLib = CNC.Import( "client/cl_materials.lua" )
 
     --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "renhud/code/combat/global-settings.lua" )
+    local globalSettingsClass = CNC.Import( "code/combat/global-settings.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type RectClass
-    local rectClass = CNC.Import( "renhud/code/wwmath/rect.lua" )
+    local rectClass = CNC.Import( "code/wwmath/rect.lua" )
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
     --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
+    local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
 
     --- @type Font3dClass
-    local font3dClass = CNC.Import( "renhud/code/ww3d2/font-3d.lua" )
+    local font3dClass = CNC.Import( "code/ww3d2/font-3d.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "renhud/code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
 
     --- @type ObjectiveManagerClass
-    local objManagerClass = CNC.Import( "renhud/code/combat/objective-manager.lua" )
+    local objManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
     --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "renhud/code/combat/hud-info.lua" )
+    local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
 
     --- @type PhysicalGameObjectsBridgeClass
-    local physObjBridgeClass = CNC.Import( "renhud/bridges/sh_physical-game-objects.lua" )
+    local physObjBridgeClass = CNC.Import( "bridges/sh_physical-game-objects.lua" )
 
     --- @type BuildingsBridgeClass
-    local buildingsBridgeClass = CNC.Import( "renhud/bridges/sh_buildings.lua" )
+    local buildingsBridgeClass = CNC.Import( "bridges/sh_buildings.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
     --- @type AABoxClass
-    local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
+    local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
     --- @type WWMathClass
-    local wWMathClass = CNC.Import( "renhud/code/wwmath/wwmath.lua" )
+    local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
 
     --- @type PlayerTypeClass
-    local playerTypeLib = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerTypeLib = CNC.Import( "code/combat/player-type.lua" )
 
     --- @type InfoEntityLib
-    local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
+    local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
 
     --- @type CameraBridgeClass
-    local cameraBridgeClass = CNC.Import( "renhud/bridges/sh_camera.lua")
+    local cameraBridgeClass = CNC.Import( "bridges/sh_camera.lua")
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 --#endregion
 
 

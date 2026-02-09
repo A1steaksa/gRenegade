@@ -11,13 +11,13 @@ local isHotload = not table.IsEmpty( LIB )
 --#region Imports
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 
     --- @type InfoEntityLib
-    local infoEntityLib = CNC.Import( "renhud/sh_info-entity.lua" )
+    local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
 
     --- @type PlayerTypeClass
-    local playerTypeClass = CNC.Import( "renhud/code/combat/player-type.lua" )
+    local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 --#endregion
 
 

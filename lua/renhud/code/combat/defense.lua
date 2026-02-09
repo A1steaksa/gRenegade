@@ -25,10 +25,10 @@ INSTANCE.IsDefense = true
 --#region Imports
 
     --- @type GameTypeClass
-    local gameTypeClass = CNC.Import( "renhud/code/combat/game-type.lua" )
+    local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 --#endregion
 
 

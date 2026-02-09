@@ -25,19 +25,19 @@ INSTANCE.IsGameData = true
 --#region Imports
 
     --- @type Render2dClass
-    local render2dClass = CNC.Import( "renhud/code/ww3d2/render-2d.lua" )
+    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
     --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "renhud/code/ww3d2/render-2d-text.lua" )
+    local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
 
     --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "renhud/code/wwui/style-manager.lua" )
+    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 
     --- @type PlayerManagerClass
-    local playerManagerClass = CNC.Import( "renhud/code/commando/player-manager.lua" )
+    local playerManagerClass = CNC.Import( "code/commando/player-manager.lua" )
 
     --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "renhud/code/combat/radar.lua" )
+    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 --#endregion
 
 

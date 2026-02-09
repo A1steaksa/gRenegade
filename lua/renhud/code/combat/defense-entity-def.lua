@@ -25,13 +25,13 @@ INSTANCE.IsDefenseDef = true
 --#region Imports
 
     --- @type ArmorWarheadManagerClass
-    local armorWarheadManagerClass = CNC.Import( "renhud/code/combat/armor-warhead-manager.lua" )
+    local armorWarheadManagerClass = CNC.Import( "code/combat/armor-warhead-manager.lua" )
 
     --- @type PersistClass
-    local persistClass = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
+    local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 --[[ Chunk IDs ]] do

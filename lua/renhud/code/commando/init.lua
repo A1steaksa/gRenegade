@@ -11,28 +11,28 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imports
 
     --- @type GameInitManagerClass
-    local gameInitManagerClass = CNC.Import( "renhud/code/commando/game-init-manager.lua" )
+    local gameInitManagerClass = CNC.Import( "code/commando/game-init-manager.lua" )
 
     --- @type GameDataClass
-    local gameDataClass = CNC.Import( "renhud/code/commando/game-data.lua" )
+    local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
 
     --- @type GameModeManagerClass
-    local gameModeManagerClass = CNC.Import( "renhud/code/commando/game-mode-manager.lua" )
+    local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
 
     --- @type CombatGameModeClass
-    local combatGameModeClass = CNC.Import( "renhud/code/commando/combat-game-mode.lua" )
+    local combatGameModeClass = CNC.Import( "code/commando/combat-game-mode.lua" )
 
     --- @type CampaignManagerClass
-    local campaignManagerClass = CNC.Import( "renhud/code/commando/campaign.lua" )
+    local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
 
     --- @type RenegadeDialogManagerClass
-    local renegadeDialogManagerClass = CNC.Import( "renhud/code/commando/renegade-dialog-manager.lua" )
+    local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
 
     --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "renhud/code/combat/combat-manager.lua" )
+    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
     --- @type MainLoopClass
-    local mainLoopClass = CNC.Import( "renhud/code/commando/main-loop.lua" )
+    local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
 --#endregion
 
 

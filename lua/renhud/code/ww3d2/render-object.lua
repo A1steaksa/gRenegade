@@ -25,19 +25,19 @@ INSTANCE.IsRenderObject = true
 --#region Imports
 
     --- @type SphereClass
-    local sphereClass = CNC.Import( "renhud/code/wwmath/sphere.lua" )
+    local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
 
     --- @type WW3dClass
-    local wW3dClass = CNC.Import( "renhud/code/ww3d2/ww3d.lua" )
+    local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
 
     --- @type AABoxClass
-    local aABoxClass = CNC.Import( "renhud/code/wwmath/aabox.lua" )
+    local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
     --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "renhud/code/wwmath/matrix3d.lua" )
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
     --- @type CollisionTypeClass
-    local collisionTypesClass = CNC.Import( "renhud/code/ww3d2/collision-types.lua" )
+    local collisionTypesClass = CNC.Import( "code/ww3d2/collision-types.lua" )
 --#endregion
 
 
