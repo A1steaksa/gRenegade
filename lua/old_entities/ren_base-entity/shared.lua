@@ -3,20 +3,42 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class BaseEntityClass
-local STATIC = CNC.CreateExport()
+--- @type PersistClass
+local PARENT = CNC.Import( "renhud/code/wwsaveload/persist.lua" )
 
---- @class BaseEntityInstance : Entity
+--- @class BaseEntityClass : PersistClass
+local STATIC = CNC.CreateExport( PARENT )
+
+--- @class BaseEntityInstance : Entity, PersistInstance
 --- @field BaseClass Entity
 local ENT = ENT --[[@as Entity]]
 
-
 --#region Imports
+
+    --- @type DefinitionManagerClass
+    local definitionManagerClass = CNC.Import( "renhud/code/wwsaveload/definition-manager.lua" )
 
     --- @type BaseEntityDefClass
     local baseEntityDefClass = CNC.Import( "renhud/code/combat/base-entity-def.lua" )
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "renhud/sh_enum-builder.lua" )
 --#endregion
 
+--[[ Chunk IDs ]] do
+
+    local builder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES = builder:Set( 910991407 ),
+
+        XXX_MICROCHUNKID_DESTROY_TYPE           = builder:Set( 1 ),
+        MICROCHUNKID_DEFINITION_ID              = builder:Next(),
+        MICROCHUNKID_INSTANCE_ID                = builder:Next(),
+        MICROCHUNKID_IS_PENDING_DELETE          = builder:Next(),
+        MICROCHUNKID_ENABLE_CINEMATIC_FREEZE    = builder:Next(),
+    }
+end
 
 --[[ Garry's Mod Entity Setup ]] do
 
@@ -26,8 +48,6 @@ local ENT = ENT --[[@as Entity]]
     ENT.Category = "C&C Renegade"
     ENT.Spawnable = false
 end
-
-local BaseClass = baseclass.Get( ENT.Base ) --[[@as Entity]]
 
 --- @class BaseEntityInstance
 --- Original:
@@ -56,11 +76,38 @@ end
     --- These functions are inherited from the persist class in the original code
 
     --- @param save ChunkSaveInstance
+    --- @return boolean
     function ENT:Save( save )
     end
 
-    --- @param load ChunkLoadInstance
-    function ENT:Load( load )
+    --- @param cload ChunkLoadInstance
+    --- @return boolean
+    function ENT:Load( cload )
+        local id = 0
+
+        local ids = STATIC.ChunkIds
+
+        cload:OpenChunk()
+        while cload:OpenMicroChunk() do
+            local microChunkId = cload:CurMicroChunkId()
+
+            if microChunkId == ids.MICROCHUNKID_IS_PENDING_DELETE then
+                typecheck.NotImplementedError()
+            elseif microChunkId == ids.MICROCHUNKID_INSTANCE_ID then
+                typecheck.NotImplementedError()
+            elseif microChunkId == ids.MICROCHUNKID_DEFINITION_ID then
+                typecheck.NotImplementedError()
+            else
+                self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENABLE_CINEMATIC_FREEZE, STATIC.DATA_TYPE.Boolean, "EnableCinematicFreeze" )
+            end
+
+            cload:CloseMicroChunk()
+        end
+        cload:CloseChunk()
+
+        -- Skipping setting the network ID
+
+        return true
     end
 end
 
@@ -69,9 +116,13 @@ end
     --- The Renegade Entity Init function
     --- @param definition BaseEntityDefInstance?
     function ENT:Init( definition )
+
+        Section.Print( "Base init ran with def: ", definition )
         if not definition then return end
 
         self.Definition = definition
+
+        Section.Print( "Did parent setup work? ", type( self.ReadMicroChunk ) == "function" and "Yes!" or "Nope" )
     end
 
     --- @return BaseEntityDefInstance

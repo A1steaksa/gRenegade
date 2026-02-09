@@ -3,7 +3,7 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class ArmedEntityClass
+--- @class ArmedEntityClass : PhysicalEntityClass
 local STATIC = CNC.CreateExport()
 
 --- @class ArmedEntityInstance : PhysicalEntityInstance
