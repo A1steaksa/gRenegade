@@ -4,17 +4,20 @@
         "${addons}/garrysmod/module/library"
     ],
     "Lua.runtime.version": "LuaJIT",
-    "Lua.runtime.special": {
-        "include": "dofile",
-        "IncludeCS": "dofile"
-    },
     "Lua.runtime.nonstandardSymbol": [
-        "continue",
-        "/**/"
+        "continue"
     ],
     "editor.inlineSuggest.suppressSuggestions": true,
     "editor.fontFamily": "'Fira Code Retina', 'monospace', monospace",
     "Lua.diagnostics.globals": [
         "MATERIAL_CULLMODE_NONE"
+    ],
+    "Lua.workspace.checkThirdParty": false,
+    "Lua.runtime.special": {
+        "include": "dofile",
+        "IncludeCS": "dofile"
+    },
+    "Lua.diagnostics.disable": [
+        "duplicate-set-field"
     ]
 }
