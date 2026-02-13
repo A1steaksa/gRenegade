@@ -10,36 +10,36 @@ local CNC = CNC_RENEGADE
 --#region Helper Functions
 
     --- Iterates over all files within a directory and its sub-directories and calls a given function with each file's path passed as the arugment 
-    --- @param name string
-    --- @param path string
+    --- @param directoryPath string The directory to search through
+    --- @param gameLocation string The virtual folder structure location to search (E.g. DATA or THIRDPARTY)
     --- @param func fun( filePath: string )
-    local function IterateFilesRecursively( name, path, func )
-        if not string.EndsWith( name, "/" ) then name = name .. "/" end
-        local files, directories = file.Find( name .. "*", path )
+    function CNC_RENEGADE.IterateFilesRecursively( directoryPath, gameLocation, func )
+        if not string.EndsWith( directoryPath, "/" ) then directoryPath = directoryPath .. "/" end
+        local files, directories = file.Find( directoryPath .. "*", gameLocation )
 
         -- Run the function on each file in the directory
         for _, file in ipairs( files ) do
-            func( name .. file )
+            func( directoryPath .. file )
         end
 
         -- Recurse on each sub-directory
         for _, directory in ipairs( directories ) do
-            local nextDir = name .. directory .. "/"
-            IterateFilesRecursively( nextDir, path, func )
+            local nextDir = directoryPath .. directory .. "/"
+            CNC_RENEGADE.IterateFilesRecursively( nextDir, gameLocation, func )
         end
     end
 
     --- Finds all files within a directory and call a function for each file, passing in the file's path 
-    --- @param name string
-    --- @param path string
+    --- @param directoryPath string The directory to search through
+    --- @param gameLocation string The virtual folder structure location to search (E.g. DATA or THIRDPARTY)
     --- @param func fun( filePath: string )
-    local function IterateFiles( name, path, func )
-        if not string.EndsWith( name, "/" ) then name = name .. "/" end
-        local files, directories = file.Find( name .. "*", path )
+    function CNC_RENEGADE.IterateFiles( directoryPath, gameLocation, func )
+        if not string.EndsWith( directoryPath, "/" ) then directoryPath = directoryPath .. "/" end
+        local files, directories = file.Find( directoryPath .. "*", gameLocation )
 
         -- Run the function on each file in the directory
         for _, file in ipairs( files ) do
-            func( name .. file )
+            func( directoryPath .. file )
         end
     end
 --#endregion
@@ -72,27 +72,27 @@ if SERVER then
     --[[ Send Files to Clients ]] do
 
         -- Shared scripts
-        IterateFiles( "renhud/", "LUA", AddCSLuaFile )
-        IterateFiles( "renhud/bridges", "LUA", AddCSLuaFile )
-        IterateFilesRecursively( "renhud/code", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renhud/", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renhud/bridges", "LUA", AddCSLuaFile )
+        CNC.IterateFilesRecursively( "renhud/code", "LUA", AddCSLuaFile )
 
         -- Client-only scripts
-        IterateFiles( "renhud/client/", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renhud/client/", "LUA", AddCSLuaFile )
 
         -- Fonts
         resource.AddFile( "resource/fonts/54251___.ttf" )
         resource.AddFile( "resource/fonts/ARI_____.ttf" )
 
         -- Materials
-        IterateFilesRecursively( "materials/renhud/", "THIRDPARTY", resource.AddFile )
-        IterateFilesRecursively( "materials/models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
+        CNC.IterateFilesRecursively( "materials/renhud/", "THIRDPARTY", resource.AddFile )
+        CNC.IterateFilesRecursively( "materials/models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
 
         -- Models
-        IterateFilesRecursively( "models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
+        CNC.IterateFilesRecursively( "models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
     end
 
     -- Run non-Renegade Server scripts
-    IterateFilesRecursively( "renhud/server/", "LUA", include )
+    CNC.IterateFilesRecursively( "renhud/server/", "LUA", include )
 end
 
 -- Client-Side Garry's Mod Init
