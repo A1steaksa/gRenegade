@@ -25,7 +25,7 @@ function LIB.LoadMaterial( shortPath )
 
     -- Load the material if it isn't already cached
     if not cachedValue then
-        local filepath = "renhud/" .. shortPath .. ".png"
+        local filepath = "data/renegade/" .. shortPath .. ".png"
 
         local loadedMaterial = Material( filepath, "" )
         loadedMaterial:SetInt( "$gammacolorread", 1 )   -- Disables SRGB conversion of color texture read.  Credit: Noaccess
