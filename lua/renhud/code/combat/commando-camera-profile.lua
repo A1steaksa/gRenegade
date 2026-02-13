@@ -35,7 +35,7 @@ INSTANCE.IsCommandoCameraProfile = true
     STATIC._ProfilesInitted = false
     STATIC.ProfileHash = {}
 
-    STATIC.CAMERAS_INI_FILENAME  = "data/renegade/always_dat/cameras.ini.txt"
+    STATIC.CAMERAS_INI_FILENAME  = "renegade/always_dat/cameras.ini.txt"
     STATIC.SECTION_PROFILE_LIST  = "Profile_List"
     STATIC.ENTRY_NAME            = "Name"
     STATIC.ENTRY_FOV             = "FOV"

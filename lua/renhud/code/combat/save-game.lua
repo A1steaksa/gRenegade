@@ -58,7 +58,7 @@ end
 --- @field Description string
 --- @field MissionDescriptionId integer
 
-STATIC.DefaultDefinitionFilename = "data/renegade/always_dat/objects.ddb.txt"
+STATIC.DefaultDefinitionFilename = "renegade/always_dat/objects.ddb.txt"
 STATIC.MissionDescriptionId = 0
 
 --[[ Map Filename (LSD) Access ]] do

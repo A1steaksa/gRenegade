@@ -201,7 +201,7 @@ STATIC.Markers = {}
 
 local radarRangeConVar = GetConVar( "ren_radar_range" )
 
-local RADAR_MATERIAL        = materialsLib.LoadMaterial( "hud_main" )
+local RADAR_MATERIAL        = materialsLib.LoadMaterial( "always_dat/hud_main" )
 
 local INFO_UV_SCALE        = Vector( 1 / 256, 1 / 256 )
 

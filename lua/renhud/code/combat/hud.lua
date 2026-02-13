@@ -100,58 +100,58 @@ STATIC.Class = "HudClass"
 
     -- Fonts
     STATIC.Materials.Fonts = {}
-    STATIC.Materials.Fonts.Large    = materialsLib.LoadMaterial( "font12x16" )
-    STATIC.Materials.Fonts.Medium   = materialsLib.LoadMaterial( "font12x16" )
-    STATIC.Materials.Fonts.Small    = materialsLib.LoadMaterial( "font6x8" )
+    STATIC.Materials.Fonts.Large    = materialsLib.LoadMaterial( "always_dat/font12x16" )
+    STATIC.Materials.Fonts.Medium   = materialsLib.LoadMaterial( "always_dat/font12x16" )
+    STATIC.Materials.Fonts.Small    = materialsLib.LoadMaterial( "always_dat/font6x8" )
 
     -- HUD Base
     STATIC.Materials.Hud = {}
-    STATIC.Materials.Hud.Main       = materialsLib.LoadMaterial( "hud_main" )
-    STATIC.Materials.Hud.ChatPBox   = materialsLib.LoadMaterial( "hud_chatpbox" )
-    STATIC.Materials.Hud.Reticle    = materialsLib.LoadMaterial( "hd_reticle" )
-    STATIC.Materials.Hud.ReticleHit = materialsLib.LoadMaterial( "hd_reticle_hit" )
+    STATIC.Materials.Hud.Main       = materialsLib.LoadMaterial( "always_dat/hud_main" )
+    STATIC.Materials.Hud.ChatPBox   = materialsLib.LoadMaterial( "always_dat/hud_chatpbox" )
+    STATIC.Materials.Hud.Reticle    = materialsLib.LoadMaterial( "always_dat/hd_reticle" )
+    STATIC.Materials.Hud.ReticleHit = materialsLib.LoadMaterial( "always_dat/hd_reticle_hit" )
 
     -- Objective Pickups
     STATIC.Materials.Pickups = {}
-    STATIC.Materials.Pickups.Eva1   = materialsLib.LoadMaterial( "p_eva1" )
-    STATIC.Materials.Pickups.Eva2   = materialsLib.LoadMaterial( "p_eva2" )
-    STATIC.Materials.Pickups.CdRom  = materialsLib.LoadMaterial( "hud_cd_rom" )
+    STATIC.Materials.Pickups.Eva1   = materialsLib.LoadMaterial( "always_dat/p_eva1" )
+    STATIC.Materials.Pickups.Eva2   = materialsLib.LoadMaterial( "always_dat/p_eva2" )
+    STATIC.Materials.Pickups.CdRom  = materialsLib.LoadMaterial( "always_dat/hud_cd_rom" )
 
     -- Keycard Pickups
-    STATIC.Materials.Pickups.GreenKeycard  = materialsLib.LoadMaterial( "hud_keycard_green" )
-    STATIC.Materials.Pickups.RedKeycard    = materialsLib.LoadMaterial( "hud_keycard_red" )
-    STATIC.Materials.Pickups.YellowKeycard = materialsLib.LoadMaterial( "hud_keycard_yellow" )
+    STATIC.Materials.Pickups.GreenKeycard  = materialsLib.LoadMaterial( "always_dat/hud_keycard_green" )
+    STATIC.Materials.Pickups.RedKeycard    = materialsLib.LoadMaterial( "always_dat/hud_keycard_red" )
+    STATIC.Materials.Pickups.YellowKeycard = materialsLib.LoadMaterial( "always_dat/hud_keycard_yellow" )
 
     -- Armor Pickups
-    STATIC.Materials.Pickups.Armor1 = materialsLib.LoadMaterial( "hud_armor1" )
-    STATIC.Materials.Pickups.Armor2 = materialsLib.LoadMaterial( "hud_armor2" )
-    STATIC.Materials.Pickups.Armor3 = materialsLib.LoadMaterial( "hud_armor3" )
+    STATIC.Materials.Pickups.Armor1 = materialsLib.LoadMaterial( "always_dat/hud_armor1" )
+    STATIC.Materials.Pickups.Armor2 = materialsLib.LoadMaterial( "always_dat/hud_armor2" )
+    STATIC.Materials.Pickups.Armor3 = materialsLib.LoadMaterial( "always_dat/hud_armor3" )
 
     -- Health Pickups
-    STATIC.Materials.Pickups.Health1 = materialsLib.LoadMaterial( "hud_health1" )
-    STATIC.Materials.Pickups.Health2 = materialsLib.LoadMaterial( "hud_health2" )
-    STATIC.Materials.Pickups.Health3 = materialsLib.LoadMaterial( "hud_health3" )
+    STATIC.Materials.Pickups.Health1 = materialsLib.LoadMaterial( "always_dat/hud_health1" )
+    STATIC.Materials.Pickups.Health2 = materialsLib.LoadMaterial( "always_dat/hud_health2" )
+    STATIC.Materials.Pickups.Health3 = materialsLib.LoadMaterial( "always_dat/hud_health3" )
 
     -- Health and Armor Upgrades
-    STATIC.Materials.Pickups.HealthUpgrade = materialsLib.LoadMaterial( "hud_hemedal" )
-    STATIC.Materials.Pickups.ArmorUpgrade  = materialsLib.LoadMaterial( "hud_armedal" )
+    STATIC.Materials.Pickups.HealthUpgrade = materialsLib.LoadMaterial( "always_dat/hud_hemedal" )
+    STATIC.Materials.Pickups.ArmorUpgrade  = materialsLib.LoadMaterial( "always_dat/hud_armedal" )
 
     -- Team Icons
     STATIC.Materials.TeamIcons = {}
-    STATIC.Materials.TeamIcons.None      = materialsLib.LoadMaterial( "team-icons/none" )
-    STATIC.Materials.TeamIcons.GDI       = materialsLib.LoadMaterial( "team-icons/gdi" )
-    STATIC.Materials.TeamIcons.Nod       = materialsLib.LoadMaterial( "team-icons/nod" )
-    STATIC.Materials.TeamIcons.Combine   = materialsLib.LoadMaterial( "team-icons/combine" )
-    STATIC.Materials.TeamIcons.Rebels    = materialsLib.LoadMaterial( "team-icons/rebels" )
-    STATIC.Materials.TeamIcons.BlackMesa = materialsLib.LoadMaterial( "team-icons/black-mesa" )
-    STATIC.Materials.TeamIcons.HECU      = materialsLib.LoadMaterial( "team-icons/hecu" )
-    STATIC.Materials.TeamIcons.Aperture  = materialsLib.LoadMaterial( "team-icons/aperture" )
+    STATIC.Materials.TeamIcons.None      = materialsLib.LoadMaterial( "always_dat/team-icons/none" )
+    STATIC.Materials.TeamIcons.GDI       = materialsLib.LoadMaterial( "always_dat/team-icons/gdi" )
+    STATIC.Materials.TeamIcons.Nod       = materialsLib.LoadMaterial( "always_dat/team-icons/nod" )
+    STATIC.Materials.TeamIcons.Combine   = materialsLib.LoadMaterial( "always_dat/team-icons/combine" )
+    STATIC.Materials.TeamIcons.Rebels    = materialsLib.LoadMaterial( "always_dat/team-icons/rebels" )
+    STATIC.Materials.TeamIcons.BlackMesa = materialsLib.LoadMaterial( "always_dat/team-icons/black-mesa" )
+    STATIC.Materials.TeamIcons.HECU      = materialsLib.LoadMaterial( "always_dat/team-icons/hecu" )
+    STATIC.Materials.TeamIcons.Aperture  = materialsLib.LoadMaterial( "always_dat/team-icons/aperture" )
 
     -- Seat Icons
     STATIC.Materials.SeatIcons = {}
-    STATIC.Materials.SeatIcons[seatTypeEnum.Driver]    = materialsLib.LoadMaterial( "hud_driverseat" )
-    STATIC.Materials.SeatIcons[seatTypeEnum.Gunner]    = materialsLib.LoadMaterial( "hud_gunseat" )
-    STATIC.Materials.SeatIcons[seatTypeEnum.Passenger] = materialsLib.LoadMaterial( "hud_passseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Driver]    = materialsLib.LoadMaterial( "always_dat/hud_driverseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Gunner]    = materialsLib.LoadMaterial( "always_dat/hud_gunseat" )
+    STATIC.Materials.SeatIcons[seatTypeEnum.Passenger] = materialsLib.LoadMaterial( "always_dat/hud_passseat" )
 end
 
 --[[ Load Font3d Instances ]] do

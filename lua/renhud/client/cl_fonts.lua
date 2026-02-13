@@ -178,7 +178,7 @@ end
 --- @param isBold boolean
 --- @return FontAtlasData
 function LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
-    local filePath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    local filePath = "data/" .. LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
     local loadedMaterial = Material( filePath, "" )
     local font3dInstance = font3dClass.New( loadedMaterial )
     font3dInstance:SetInterCharSpacing( interCharSpacing )
@@ -215,11 +215,12 @@ function LIB.GetOrCreateFontAtlas( fontName, pointSize, isBold, interCharSpacing
     end
 
     -- Use existing atlas images from the disk if they're available
-    -- local atlasPath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
-    -- if file.Exists( atlasPath, "DATA" ) then
-    --     fontAtlasData = LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
-    --     return fontAtlasData.Font3dInstance
-    -- end
+    local atlasPath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
+    if file.Exists( atlasPath, "DATA" ) then
+        fontAtlasData = LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
+        Section.Print( "Loaded atlas from '", atlasPath, "' - ", fontAtlasData.Material:GetName() )
+        return fontAtlasData.Font3dInstance
+    end
 
     --- If nothing is already available, create a new font atlas
     return LIB.CreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )

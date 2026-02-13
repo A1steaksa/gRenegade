@@ -148,12 +148,12 @@ STATIC.FONT_INI_ENTRIES = {
         STATIC.ScaleY = screenResolution:Height() / 600
 
         -- "Get the INI file"
-        local file = file.Open( fileName, "rb", "THIRDPARTY" )
-        if not file then
+        local openFile = file.Open( fileName, "rb", "DATA" )
+        if not openFile then
             Section.Error( "Unable to load ini file: '", fileName, "'" )
         end
 
-        local ini = iniClass.New( file )
+        local ini = iniClass.New( openFile )
         if not ini then
             Section.Error( "Unable to create ini loader for file: '", fileName, "'" )
         end
