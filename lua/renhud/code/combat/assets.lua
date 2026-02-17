@@ -33,7 +33,12 @@ local isHotload = not table.IsEmpty( STATIC )
     function STATIC.GetIni( fileName )
         local ini
 
-        local iniFile = file.Open( fileName, "rb", "DATA" )
+        local iniFile
+        if SERVER then
+            iniFile = file.Open( "data/" .. fileName, "rb", "THIRDPARTY" )
+        else
+            iniFile = file.Open( fileName, "rb", "DATA" )
+        end
 
         if iniFile then
             ini = iniClass.New( iniFile )
