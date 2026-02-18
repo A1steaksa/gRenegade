@@ -9,8 +9,8 @@ local parentClass = CNC.Import( "code/wwsaveload/save-load-sub-system.lua" )
 --- @class DefinitionManagerClass : SaveLoadSubSystemClass
 --- @field instance DefinitionManagerInstance The metatable used by DefinitionManagerInstance
 local STATIC = CNC.CreateExport( parentClass )
-STATIC.Class = "DefinitionManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "DefinitionManagerClass"
 
 --- @class DefinitionManagerInstance : SaveLoadSubSystemInstance
 --- @field Static DefinitionManagerClass The static table for this instance's class

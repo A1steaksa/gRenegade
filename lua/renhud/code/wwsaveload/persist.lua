@@ -3,15 +3,14 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- Parent
 --- @type PostLoadableClass
-local parentClass = CNC.Import( "code/wwsaveload/post-loadable.lua" )
+local PARENT = CNC.Import( "code/wwsaveload/post-loadable.lua" )
 
 --- @class PersistClass : PostLoadableClass
 --- @field Instance PersistInstance The metatable used by PersistInstance
-local STATIC = CNC.CreateExport( parentClass )
-STATIC.Class = "PersistClass"
+local STATIC = CNC.CreateExport( PARENT )
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "PersistClass"
 
 --- @class PersistInstance : PostLoadableInstance
 --- @field Static PersistClass The static table for this instance's class
