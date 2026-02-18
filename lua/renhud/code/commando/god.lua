@@ -89,12 +89,12 @@ function STATIC.Load( cload )
     typecheck.NotImplementedError()
 end
 
---- @param soldier SoldierEntityInstance
+--- @param soldier SoldierGameObjectInstance
 function STATIC.StoreInventory( soldier )
     typecheck.NotImplementedError()
 end
 
---- @param soldier SoldierEntityInstance
+--- @param soldier SoldierGameObjectInstance
 function STATIC.RestoreInventory( soldier )
     typecheck.NotImplementedError()
 end
@@ -103,8 +103,8 @@ function STATIC.ResetInventory()
     typecheck.NotImplementedError()
 end
 
---- @overload fun( clientId: integer, playerType: integer ): SoldierEntityInstance
---- @overload fun( player: Player ): SoldierEntityInstance
+--- @overload fun( clientId: integer, playerType: integer ): SoldierGameObjectInstance
+--- @overload fun( player: Player ): SoldierGameObjectInstance
 function STATIC.CreateCommando( ... )
     typecheck.NotImplementedError()
 end
