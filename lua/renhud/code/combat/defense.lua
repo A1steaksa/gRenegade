@@ -71,7 +71,7 @@ end
 --- @field DamagePoints number
 --- @field DeathPoints number
 --- @field CanEntityDie boolean
---- @field Owner ScriptableEntityInstance
+--- @field Owner ScriptableGameObjectInstance
 
 local DEFAULT_HEALTH          = 100.0
 local MAX_MAX_HEALTH          = 2000
@@ -100,8 +100,8 @@ end
 
 --- "[DefenseEntities] now have a pointer to their corresponding [Entity]
 --- to report damage and scoring to the PlayerData"
---- @param def DefenseEntityDefInstance
---- @param owner DamageableEntityInstance
+--- @param def DefenseObjectDefinitionInstance
+--- @param owner DamageableGameObjectInstance
 function INSTANCE:Init( def, owner )
 
     self:SetHealthMax( def.HealthMax )
@@ -120,14 +120,14 @@ end
 
 --[[ Owner ]] do
 
-    --- @param owner DamageableEntityInstance
+    --- @param owner DamageableGameObjectInstance
     function INSTANCE:SetOwner( owner )
         self.Owner = owner
     end
 
-    --- @return DamageableEntityInstance
+    --- @return DamageableGameObjectInstance
     function INSTANCE:GetOwner()
-        return self.Owner --[[@as DamageableEntityInstance]]
+        return self.Owner --[[@as DamageableGameObjectInstance]]
     end
 end
 
@@ -281,7 +281,7 @@ end
 
 --[[ Apply Damage ]] do
 
-    --- @param offense OffenseInstance
+    --- @param offense OffenseObjectInstance
     --- @param scale number? [Default: 1.0]
     --- @param alternateSkin integer? [Default: -1]
     --- @return number
@@ -298,7 +298,7 @@ end
         end
     end
 
-    --- @param offense OffenseInstance
+    --- @param offense OffenseObjectInstance
     --- @param scale number? [Default: 1.0]
     --- @param alternateSkin integer? [Default: -1]
     --- @return number

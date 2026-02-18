@@ -3,21 +3,22 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @type ArmedEntityClass
-local PARENT = CNC.Import( "code/combat/armed-entity.lua" )
+--- @type ArmedGameObjectClass
+local PARENT = CNC.Import( "code/combat/armed-game-object.lua" )
 
---- @class SmartEntityClass : ArmedEntityClass
---- @field Instance SmartEntityInstance The metatable used by SmartEntityInstance
+--- @class SmartGameObjectClass : ArmedGameObjectClass
+--- @field Instance SmartGameObjectInstance The metatable used by SmartGameObjectInstance
 local STATIC = CNC.CreateExport( PARENT )
 local isHotload = not table.IsEmpty( STATIC )
-STATIC.Class = "SmartEntityClass"
---- @class SmartEntityInstance : ArmedEntityInstance
---- @field Static SmartEntityClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_SmartEntity : Renegade_ArmedEntity" )
-INSTANCE.Class = "SmartEntityInstance"
+STATIC.Class = "SmartGameObjectClass"
+--- @class SmartGameObjectInstance : ArmedGameObjectInstance
+--- @field Static SmartGameObjectClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_SmartGameObject : Renegade_ArmedGameObject" )
+INSTANCE.Class = "SmartGameObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsSmartEntity = true
+INSTANCE.IsSmartGameObject = true
+
 
 
 --#region Imports
@@ -28,7 +29,6 @@ INSTANCE.IsSmartEntity = true
 
 --#region Imported Enums
 --#endregion
-
 
 --[[ Chunk IDs ]] do
 
@@ -41,35 +41,36 @@ INSTANCE.IsSmartEntity = true
 end
 
 
+
 --[[ Static Functions and Variables ]] do
 
-    --- @class SmartEntityClass
+    --- @class SmartGameObjectClass
 
-    --- Creates a new SmartEntityInstance
+    --- Creates a new SmartGameObjectInstance
     --- @vararg any
-    --- @return SmartEntityInstance
+    --- @return SmartGameObjectInstance
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_SmartEntity", ... )
+        return robustclass.New( "Renegade_SmartGameObject", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) SmartEntityInstance, `false` otherwise
-    function STATIC.IsSmartEntity( arg )
+    --- @return boolean `true` if the passed argument is a(n) SmartGameObjectInstance, `false` otherwise
+    function STATIC.IsSmartGameObject( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsSmartEntity and true or false
+        return arg.IsSmartGameObject and true or false
     end
 
-    typecheck.RegisterType( "SmartEntityInstance", STATIC.IsSmartEntity )
+    typecheck.RegisterType( "SmartGameObjectInstance", STATIC.IsSmartGameObject )
 end
 
 
---- @class SmartEntityInstance
+--- @class SmartGameObjectInstance
 
---- Constructs a new SmartEntityInstance
+--- Constructs a new SmartGameObjectInstance
 --- @vararg any
-function INSTANCE:Renegade_SmartEntity( ... )
+function INSTANCE:Renegade_SmartGameObject( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 

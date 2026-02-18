@@ -37,7 +37,7 @@ INSTANCE.IsWeaponBag = true
     --- @class WeaponBagClass
 
     --- Creates a new WeaponBagInstance
-    --- @param owner ArmedEntityInstance
+    --- @param owner ArmedGameObjectInstance
     --- @return WeaponBagInstance
     function STATIC.New( owner )
         return robustclass.New( "Renegade_WeaponBag", owner )
@@ -57,14 +57,14 @@ end
 
 
 --- @class WeaponBagInstance
---- @field private Owner ArmedEntityInstance
+--- @field private Owner ArmedGameObjectInstance
 --- @field private WeaponList table<integer,Weapon>
 --- @field private WeaponIndex integer
 --- @field private IsChanged boolean
 --- @field private HudIsChanged boolean
 
 --- Constructs a new WeaponBagInstance
---- @param owner ArmedEntityInstance
+--- @param owner ArmedGameObjectInstance
 function INSTANCE:Renegade_WeaponBag( owner )
     self.Owner = owner
     self.WeaponIndix = 0

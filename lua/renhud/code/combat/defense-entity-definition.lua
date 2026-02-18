@@ -3,19 +3,19 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class DefenseEntityDefClass
---- @field instance DefenseEntityDefInstance The metatable used by DefenseEntityDefInstance
+--- @class DefenseObjectDefinitionClass
+--- @field instance DefenseObjectDefinitionInstance The metatable used by DefenseObjectDefinitionInstance
 local STATIC = CNC.CreateExport()
-STATIC.Class = "DefenseDefClass"
+STATIC.Class = "DefenseDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class DefenseEntityDefInstance
---- @field Static DefenseEntityDefClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_DefenseEntityDefClass" )
-INSTANCE.Class = "DefenseDefInstance"
+--- @class DefenseObjectDefinitionInstance
+--- @field Static DefenseObjectDefinitionClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_DefenseObjectDefinitionClass" )
+INSTANCE.Class = "DefenseDefinitionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsDefenseDef = true
+INSTANCE.IsDefenseDefinition = true
 
 
 --#region Exported Enums
@@ -33,6 +33,7 @@ INSTANCE.IsDefenseDef = true
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
+
 
 --[[ Chunk IDs ]] do
 
@@ -55,24 +56,24 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class DefenseEntityDefClass
+    --- @class DefenseObjectDefinitionClass
 
-    --- Creates a new DefenseEntityDefInstance
-    --- @return DefenseEntityDefInstance
+    --- Creates a new DefenseObjectDefinitionInstance
+    --- @return DefenseObjectDefinitionInstance
     function STATIC.New()
-        return robustclass.New( "Renegade_DefenseDef")
+        return robustclass.New( "Renegade_DefenseDefinition")
     end
 
     ---@param arg any
-    ---@return boolean `true` if the passed argument is a(n) DefenseEntityDefInstance, `false` otherwise
-    function STATIC.IsDefenseDef( arg )
+    ---@return boolean `true` if the passed argument is a(n) DefenseObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsDefenseDefinition( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsDefenseDef and true or false
+        return arg.IsDefenseDefinition and true or false
     end
 
-    typecheck.RegisterType( "DefenseEntityDefInstance", STATIC.IsDefenseDef )
+    typecheck.RegisterType( "DefenseObjectDefinitionInstance", STATIC.IsDefenseDefinition )
 end
 
 --- > "  
@@ -80,7 +81,7 @@ end
 --- > object which contains a [Defense].  Use the associated macro to make all of
 --- > the member variables editable in your class.  
 --- > "
---- @class DefenseEntityDefInstance
+--- @class DefenseObjectDefinitionInstance
 --- @field Health number
 --- @field HealthMax number
 --- @field Skin ArmorType
@@ -90,9 +91,9 @@ end
 --- @field DamagePoints number
 --- @field DeathPoints number
 
---- Constructs a new DefenseEntityDefInstance
+--- Constructs a new DefenseObjectDefinitionInstance
 --- @vararg any
-function INSTANCE:Renegade_DefenseEntityDefClass()
+function INSTANCE:Renegade_DefenseObjectDefinitionClass()
     self.Health = 100.0
     self.HealthMax = 100.0
     self.Skin = 0
@@ -117,7 +118,7 @@ function INSTANCE:Load( cload )
     local dataTypeEnum = persistClass.DATA_TYPE
     local persist = persistClass.Instance
 
-    --- @class DefenseEntityDefLoadReadIds
+    --- @class DefenseObjectDefinitionLoadReadIds
     --- @field SkinSaveId integer
     --- @field ShieldSaveId integer
     local readIds = {}

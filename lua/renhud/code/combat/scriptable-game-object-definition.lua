@@ -4,18 +4,18 @@
 local CNC = CNC_RENEGADE
 
 -- Parent Class
---- @type BaseEntityDefClass
-local PARENT = CNC.Import( "code/combat/base-entity-def.lua" )
+--- @type BaseGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/base-game-object-definition.lua" )
 
---- @class ScriptableEntityDefClass : BaseEntityDefClass
+--- @class ScriptableGameObjectDefinitionClass : BaseGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "ScriptableEntityDefClass"
+STATIC.Class = "ScriptableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class ScriptableEntityDefInstance : BaseEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_ScriptableEntityDefClass : Renegade_BaseEntityDefClass" )
-INSTANCE.Class = "ScriptableEntityDefInstance"
-INSTANCE.IsScriptableEntityDefClass = true
+--- @class ScriptableGameObjectDefinitionInstance : BaseGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_ScriptableGameObjectDefinitionClass : Renegade_BaseGameObjectDefinitionClass" )
+INSTANCE.Class = "ScriptableGameObjectDefinitionInstance"
+INSTANCE.IsScriptableGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
@@ -40,34 +40,34 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class ScriptableEntityDefClass
+    --- @class ScriptableGameObjectDefinitionClass
 
-    --- Creates a new ScriptableEntityDefClass
+    --- Creates a new ScriptableGameObjectDefinitionClass
     --- @vararg any
-    --- @return ScriptableEntityDefClass
+    --- @return ScriptableGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_ScriptableEntityDefClass", ... )
+        return robustclass.New( "Renegade_ScriptableGameObjectDefinitionClass", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) ScriptableEntityDefInstance, `false` otherwise
-    function STATIC.IsScriptableEntityDefClass( arg )
+    --- @return boolean `true` if the passed argument is a(n) ScriptableGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsScriptableGameObjectDefinitionClass( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsScriptableEntityDefClass and true or false
+        return arg.IsScriptableGameObjectDefinitionClass and true or false
     end
 
-    typecheck.RegisterType( "ScriptableEntityDefInstance", STATIC.IsScriptableEntityDefClass )
+    typecheck.RegisterType( "ScriptableGameObjectDefinitionInstance", STATIC.IsScriptableGameObjectDefinitionClass )
 end
 
 
---- @class ScriptableEntityDefInstance
+--- @class ScriptableGameObjectDefinitionInstance
 --- @field ScriptNameList string[]
 --- @field ScriptParameterList string[]
 
---- Constructs a new ScriptableEntityDefInstance
-function INSTANCE:Renegade_ScriptableEntityDefClass()
+--- Constructs a new ScriptableGameObjectDefinitionInstance
+function INSTANCE:Renegade_ScriptableGameObjectDefinitionClass()
     self.ScriptNameList = {}
     self.ScriptParameterList = {}
 end
@@ -90,7 +90,7 @@ function INSTANCE:Load( cload )
 
             while cload:OpenMicroChunk() do
 
-                --- @class ScriptableEntityDefLoadVals
+                --- @class ScriptableGameObjectDefinitionLoadVals
                 --- @field ScriptName string
                 --- @field ScriptParameters string
                 local readVals = {}

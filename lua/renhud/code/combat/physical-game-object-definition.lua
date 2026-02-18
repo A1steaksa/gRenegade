@@ -4,29 +4,29 @@
 local CNC = CNC_RENEGADE
 
 -- Parent Class
---- @type DamageableEntityDefClass
-local PARENT = CNC.Import( "code/combat/damageable-entity-def.lua" )
+--- @type DamageableGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/damageable-game-object-definition.lua" )
 
---- @class PhysicalEntityDefClass : DamageableEntityDefClass
+--- @class PhysicalGameObjectDefinitionClass : DamageableGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "PhysicalEntityDefClass"
+STATIC.Class = "PhysicalGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class PhysicalEntityDefInstance : DamageableEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_PhysicalEntityDefClass : Renegade_DamageableEntityDefClass" )
-INSTANCE.Class = "PhysicalEntityDefInstance"
-INSTANCE.IsPhysicalEntityDefClass = true
+--- @class PhysicalGameObjectDefinitionInstance : DamageableGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_PhysicalGameObjectDefinitionClass : Renegade_DamageableGameObjectDefinitionClass" )
+INSTANCE.Class = "PhysicalGameObjectDefinitionInstance"
+INSTANCE.IsPhysicalGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
 
 --#region Imports
 
-    --- @type ScriptableEntityDefClass
-    local scriptableEntityDefClass = CNC.Import( "code/combat/scriptable-entity-def.lua" )
+    --- @type ScriptableGameObjectDefinitionClass
+    local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
 
-    --- @type DefenseEntityDefClass
-    local defenseEntityDefClass = CNC.Import( "code/combat/defense-entity-def.lua" )
+    --- @type DefenseObjectDefinitionClass
+    local defenseGameObjectDefinitionClass = CNC.Import( "code/combat/defense-game-object-definition.lua" )
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
@@ -84,29 +84,29 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class PhysicalEntityDefClass
+    --- @class PhysicalGameObjectDefinitionClass
 
-    --- Creates a new PhysicalEntityDefClass
+    --- Creates a new PhysicalGameObjectDefinitionClass
     --- @vararg any
-    --- @return PhysicalEntityDefClass
+    --- @return PhysicalGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_PhysicalEntityDefClass", ... )
+        return robustclass.New( "Renegade_PhysicalGameObjectDefinitionClass", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) PhysicalEntityDefInstance, `false` otherwise
-    function STATIC.IsPhysicalEntityDefClass( arg )
+    --- @return boolean `true` if the passed argument is a(n) PhysicalGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsPhysicalGameObjectDefinitionClass( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsPhysicalEntityDefClass and true or false
+        return arg.IsPhysicalGameObjectDefinitionClass and true or false
     end
 
-    typecheck.RegisterType( "PhysicalEntityDefInstance", STATIC.IsPhysicalEntityDefClass )
+    typecheck.RegisterType( "PhysicalGameObjectDefinitionInstance", STATIC.IsPhysicalGameObjectDefinitionClass )
 end
 
 
---- @class PhysicalEntityDefInstance
+--- @class PhysicalGameObjectDefinitionInstance
 --- @field Type integer
 --- @field RadarBlipType BlipShapeType
 --- @field BullseyeOffsetZ number
@@ -118,8 +118,8 @@ end
 --- @field OratorType integer
 --- @field UseCreationEffect boolean
 
---- Constructs a new PhysicalEntityDefInstance
-function INSTANCE:Renegade_PhysicalEntityDefClass()
+--- Constructs a new PhysicalGameObjectDefinitionInstance
+function INSTANCE:Renegade_PhysicalGameObjectDefinitionClass()
     self.Type = 0
     self.BullseyeOffsetZ = 0.0
     self.RadarBlipType = blipShapeTypeEnum.None
@@ -143,7 +143,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.LEGACY_CHUNKID_DEF_PARENT_OLD then
-            scriptableEntityDefClass.Instance.Load( self, cload )
+            scriptableGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_PARENT then
             PARENT.Instance.Load( self, cload )
@@ -171,7 +171,7 @@ function INSTANCE:Load( cload )
                 cload:CloseMicroChunk()
             end
         elseif chunkId == ids.LEGACY_CHUNKID_DEF_DEFENSEOBJECTDEF then
-            defenseEntityDefClass.Instance.Load( self, cload )
+            defenseGameObjectDefinitionClass.Instance.Load( self, cload )
 
         else
             Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )

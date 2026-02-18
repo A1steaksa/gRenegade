@@ -83,7 +83,7 @@ function INSTANCE:StartRecoil( recoilScale, recoilTime )
     end
 end
 
---- @param ent ArmedEntityInstance
+--- @param ent ArmedGameObjectInstance
 function INSTANCE:Update( ent )
     if self.RecoilTimer <= 0.0 or not self.BoneIndex or self.BoneIndex <= 0 then
         return

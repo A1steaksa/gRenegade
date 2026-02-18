@@ -4,29 +4,29 @@
 local CNC = CNC_RENEGADE
 
 -- Parent Class
---- @type ScriptableEntityDefClass
-local PARENT = CNC.Import( "code/combat/scriptable-entity-def.lua" )
+--- @type ScriptableGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
 
---- @class DamageableEntityDefClass : ScriptableEntityDefClass
+--- @class DamageableGameObjectDefinitionClass : ScriptableGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "DamageableEntityDefClass"
+STATIC.Class = "DamageableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class DamageableEntityDefInstance: ScriptableEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_DamageableEntityDefClass : Renegade_ScriptableEntityDefClass" )
-INSTANCE.Class = "DamageableEntityDefInstance"
-INSTANCE.IsDamageableEntityDefClass = true
+--- @class DamageableGameObjectDefinitionInstance: ScriptableGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_DamageableGameObjectDefinitionClass : Renegade_ScriptableGameObjectDefinitionClass" )
+INSTANCE.Class = "DamageableGameObjectDefinitionInstance"
+INSTANCE.IsDamageableGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
 
 --#region Imports
 
-    --- @type ScriptableEntityDefClass
-    local scriptableEntityDefClass = CNC.Import( "code/combat/scriptable-entity-def.lua" )
+    --- @type ScriptableGameObjectDefinitionClass
+    local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
 
-    --- @type DefenseEntityDefClass
-    local defenseEntityDefClass = CNC.Import( "code/combat/defense-entity-def.lua" )
+    --- @type DefenseObjectDefinitionClass
+    local defenseGameObjectDefinitionClass = CNC.Import( "code/combat/defense-game-object-definition.lua" )
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
@@ -63,30 +63,30 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class DamageableEntityDefClass
+    --- @class DamageableGameObjectDefinitionClass
 
-    --- Creates a new DamageableEntityDefClass
+    --- Creates a new DamageableGameObjectDefinitionClass
     --- @vararg any
-    --- @return DamageableEntityDefClass
+    --- @return DamageableGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_DamageableEntityDefClass", ... )
+        return robustclass.New( "Renegade_DamageableGameObjectDefinitionClass", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) DamageableEntityDefInstance, `false` otherwise
-    function STATIC.IsDamageableEntityDefClass( arg )
+    --- @return boolean `true` if the passed argument is a(n) DamageableGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsDamageableGameObjectDefinitionClass( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsDamageableEntityDefClass and true or false
+        return arg.IsDamageableGameObjectDefinitionClass and true or false
     end
 
-    typecheck.RegisterType( "DamageableEntityDefInstance", STATIC.IsDamageableEntityDefClass )
+    typecheck.RegisterType( "DamageableGameObjectDefinitionInstance", STATIC.IsDamageableGameObjectDefinitionClass )
 end
 
 
---- @class DamageableEntityDefInstance
---- @field DefenseEntityDef DefenseEntityDefClass
+--- @class DamageableGameObjectDefinitionInstance
+--- @field DefenseObjectDefinition DefenseObjectDefinitionClass
 --- @field InfoIconMaterial IMaterial
 --- @field TranslatedNameId integer
 --- @field EncyclopediaType EncyclopediaTypeEnum
@@ -94,8 +94,8 @@ end
 --- @field NotTargetable boolean
 --- @field DefaultPlayerType integer
 
---- Constructs a new DamageableEntityDefInstance
-function INSTANCE:Renegade_DamageableEntityDefClass()
+--- Constructs a new DamageableGameObjectDefinitionInstance
+function INSTANCE:Renegade_DamageableGameObjectDefinitionClass()
     self.TranslatedNameId = 0
     -- self.EncyclopediaType = encyclopediaTypeEnum.Unknown
     self.EncyclopediaId = 0
@@ -114,7 +114,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.CHUNKID_DEF_PARENT then
-            scriptableEntityDefClass.Instance.Load( self, cload )
+            scriptableGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
             Section.Start( INSTANCE.Class .. " Variables Start" )
@@ -138,7 +138,7 @@ function INSTANCE:Load( cload )
             Section.End()
 
         elseif chunkId == ids.CHUNKID_DEF_DEFENSEOBJECTDEF then
-            defenseEntityDefClass.Instance.Load( self, cload )
+            defenseGameObjectDefinitionClass.Instance.Load( self, cload )
 
         else
             Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
@@ -188,9 +188,9 @@ function INSTANCE:GetTranslatedNameId()
     return self.TranslatedNameId
 end
 
---- @return DefenseEntityDefClass
-function INSTANCE:GetDefenseEntityDef()
-    return self.DefenseEntityDef
+--- @return DefenseObjectDefinitionClass
+function INSTANCE:GetDefenseObjectDefinition()
+    return self.DefenseObjectDefinition
 end
 
 --[[ Accessors (Added as needed) ]] do

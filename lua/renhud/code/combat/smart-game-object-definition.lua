@@ -4,18 +4,18 @@
 local CNC = CNC_RENEGADE
 
 -- Parent Class
---- @type ArmedEntityDefClass
-local PARENT = CNC.Import( "code/combat/armed-entity-def.lua" )
+--- @type ArmedGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/armed-game-object-definition.lua" )
 
---- @class SmartEntityDefClass : ArmedEntityDefClass
+--- @class SmartGameObjectDefinitionClass : ArmedGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "SmartEntityDefClass"
+STATIC.Class = "SmartGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class SmartEntityDefInstance : ArmedEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_SmartEntityDefClass : Renegade_ArmedEntityDefClass" )
-INSTANCE.Class = "SmartEntityDefInstance"
-INSTANCE.IsSmartEntityDefClass = true
+--- @class SmartGameObjectDefinitionInstance : ArmedGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_SmartGameObjectDefinitionClass : Renegade_ArmedGameObjectDefinitionClass" )
+INSTANCE.Class = "SmartGameObjectDefinitionInstance"
+INSTANCE.IsSmartGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
@@ -44,36 +44,36 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class SmartEntityDefClass
+    --- @class SmartGameObjectDefinitionClass
 
-    --- Creates a new SmartEntityDefClass
+    --- Creates a new SmartGameObjectDefinitionClass
     --- @vararg any
-    --- @return SmartEntityDefClass
+    --- @return SmartGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_SmartEntityDefClass", ... )
+        return robustclass.New( "Renegade_SmartGameObjectDefinitionClass", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) SmartEntityDefInstance, `false` otherwise
-    function STATIC.IsSmartEntityDefClass( arg )
+    --- @return boolean `true` if the passed argument is a(n) SmartGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsSmartGameObjectDefinitionClass( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsSmartEntityDefClass and true or false
+        return arg.IsSmartGameObjectDefinitionClass and true or false
     end
 
-    typecheck.RegisterType( "SmartEntityDefInstance", STATIC.IsSmartEntityDefClass )
+    typecheck.RegisterType( "SmartGameObjectDefinitionInstance", STATIC.IsSmartGameObjectDefinitionClass )
 end
 
 
---- @class SmartEntityDefInstance
+--- @class SmartGameObjectDefinitionInstance
 --- @field SightRange number
 --- @field SightArc number
 --- @field ListenerScale number
 --- @field IsStealthUnit boolean
 
---- Constructs a new SmartEntityDefInstance
-function INSTANCE:Renegade_SmartEntityDefClass()
+--- Constructs a new SmartGameObjectDefinitionInstance
+function INSTANCE:Renegade_SmartGameObjectDefinitionClass()
     self.SightRange = 0
     self.SightArc = math.rad( 0 )
     self.ListenerScale = 1

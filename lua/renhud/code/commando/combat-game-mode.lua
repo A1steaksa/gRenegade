@@ -170,7 +170,7 @@ function INSTANCE:Init()
     -- radioCommandDisplayClass.Initialize()
 
     -- "Notify combat about the state of the CameraLockedToTurret user option."
-    -- vehicleEntityClass.SetCameraLockedToTurret( userOpotions.CameraLockedToTurret:Get() )
+    -- vehicleGameObjectClass.SetCameraLockedToTurret( userOpotions.CameraLockedToTurret:Get() )
 end
 
 -- "Called when the mode is deactivated"

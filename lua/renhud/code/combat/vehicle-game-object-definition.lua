@@ -3,18 +3,18 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @type SmartEntityDefClass
-local PARENT = CNC.Import( "code/combat/smart-entity-def.lua" )
+--- @type SmartGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/smart-game-object-definition.lua" )
 
---- @class VehicleEntityDefClass : SmartEntityDefClass
+--- @class VehicleGameObjectDefinitionClass : SmartGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "VehicleEntityDefClass"
+STATIC.Class = "VehicleGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class VehicleEntityDefInstance : SmartEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_VehicleEntityDefClass : Renegade_SmartEntityDefClass" )
-INSTANCE.Class = "VehicleEntityDefInstance"
-INSTANCE.IsVehicleEntityDefInstance = true
+--- @class VehicleGameObjectDefinitionInstance : SmartGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_VehicleGameObjectDefinitionClass : Renegade_SmartGameObjectDefinitionClass" )
+INSTANCE.Class = "VehicleGameObjectDefinitionInstance"
+INSTANCE.IsVehicleGameObjectDefinitionInstance = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
@@ -32,7 +32,7 @@ INSTANCE.Static = STATIC
     --- @type SimplePersistFactoryClass
     local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
 
-    --- @type VehicleEntityClass
+    --- @type VehicleGameObjectClass
     local vehicleEntClass = CNC.Import( "entities/ren_vehicle-entity/shared.lua" )
 --#endregion
 
@@ -97,35 +97,35 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class VehicleEntityDefClass
+    --- @class VehicleGameObjectDefinitionClass
     --- @field protected DefaultDriverIsGunner boolean
     --- @field protected CameraLockedToTurret boolean
 
-    --- Creates a new VehicleEntityDefInstance
+    --- Creates a new VehicleGameObjectDefinitionInstance
     --- @vararg any
-    --- @return VehicleEntityDefInstance
+    --- @return VehicleGameObjectDefinitionInstance
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_VehicleEntityDefClass", ... )
+        return robustclass.New( "Renegade_VehicleGameObjectDefinitionClass", ... )
     end
 
     function STATIC.StaticConstructor()
-        STATIC.VehicleEntityDefPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_DEF_VEHICLE )
-        STATIC.VehicleEntityDefFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkId.CLASSID_GAME_OBJECT_DEF_VEHICLE, "Vehicle", nil )
+        STATIC.VehicleGameObjectDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_DEF_VEHICLE )
+        STATIC.VehicleGameObjectDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkId.CLASSID_GAME_OBJECT_DEF_VEHICLE, "Vehicle", nil )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) VehicleEntityDefInstance, `false` otherwise
-    function STATIC.IsVehicleEntityDefInstance( arg )
+    --- @return boolean `true` if the passed argument is a(n) VehicleGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsVehicleGameObjectDefinitionInstance( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsVehicleEntityDefInstance and true or false
+        return arg.IsVehicleGameObjectDefinitionInstance and true or false
     end
 
-    typecheck.RegisterType( "VehicleEntityDefInstance", STATIC.IsVehicleEntityDefInstance )
+    typecheck.RegisterType( "VehicleGameObjectDefinitionInstance", STATIC.IsVehicleGameObjectDefinitionInstance )
 end
 
---- @class VehicleEntityDefInstance
+--- @class VehicleGameObjectDefinitionInstance
 --- @field Type VehicleType
 --- @field TypeName string
 --- @field Fire0Anim string
@@ -146,8 +146,8 @@ end
 --- @field GdiDestroyReportId integer
 --- @field NodDestroyReportId integer
 
---- Constructs a new VehicleEntityDefInstance
-function INSTANCE:Renegade_VehicleEntityDefClass()
+--- Constructs a new VehicleGameObjectDefinitionInstance
+function INSTANCE:Renegade_VehicleGameObjectDefinitionClass()
     self.Type = vehicleTypeEnum.Car
     self.TurnRadius = 10.0
     self.OccupantsVisible = true
@@ -245,7 +245,7 @@ function INSTANCE:GetClassId()
     typecheck.NotImplementedError()
 end
 
---- @return VehicleEntityInstance
+--- @return VehicleGameObjectInstance
 function INSTANCE:Create()
     typecheck.NotImplementedError()
 end

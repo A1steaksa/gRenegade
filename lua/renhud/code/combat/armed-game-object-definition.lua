@@ -4,18 +4,18 @@
 local CNC = CNC_RENEGADE
 
 -- Parent Class
---- @type PhysicalEntityDefClass
-local PARENT = CNC.Import( "code/combat/physical-entity-def.lua" )
+--- @type PhysicalGameObjectDefinitionClass
+local PARENT = CNC.Import( "code/combat/physical-game-object-definition.lua" )
 
---- @class ArmedEntityDefClass : PhysicalEntityDefClass
+--- @class ArmedGameObjectDefinitionClass : PhysicalGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "ArmedEntityDefClass"
+STATIC.Class = "ArmedGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---- @class ArmedEntityDefInstance : PhysicalEntityDefInstance
-local INSTANCE = robustclass.Register( "Renegade_ArmedEntityDefClass : Renegade_PhysicalEntityDefClass" )
-INSTANCE.Class = "ArmedEntityDefInstance"
-INSTANCE.IsArmedEntityDefClass = true
+--- @class ArmedGameObjectDefinitionInstance : PhysicalGameObjectDefinitionInstance
+local INSTANCE = robustclass.Register( "Renegade_ArmedGameObjectDefinitionClass : Renegade_PhysicalGameObjectDefinitionClass" )
+INSTANCE.Class = "ArmedGameObjectDefinitionInstance"
+INSTANCE.IsArmedGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
@@ -55,29 +55,29 @@ end
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class ArmedEntityDefClass
+    --- @class ArmedGameObjectDefinitionClass
 
-    --- Creates a new ArmedEntityDefClass
+    --- Creates a new ArmedGameObjectDefinitionClass
     --- @vararg any
-    --- @return ArmedEntityDefClass
+    --- @return ArmedGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_ArmedEntityDefClass", ... )
+        return robustclass.New( "Renegade_ArmedGameObjectDefinitionClass", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) ArmedEntityDefInstance, `false` otherwise
-    function STATIC.IsArmedEntityDefClass( arg )
+    --- @return boolean `true` if the passed argument is a(n) ArmedGameObjectDefinitionInstance, `false` otherwise
+    function STATIC.IsArmedGameObjectDefinitionClass( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsArmedEntityDefClass and true or false
+        return arg.IsArmedGameObjectDefinitionClass and true or false
     end
 
-    typecheck.RegisterType( "ArmedEntityDefInstance", STATIC.IsArmedEntityDefClass )
+    typecheck.RegisterType( "ArmedGameObjectDefinitionInstance", STATIC.IsArmedGameObjectDefinitionClass )
 end
 
 
---- @class ArmedEntityDefInstance
+--- @class ArmedGameObjectDefinitionInstance
 --- @field WeaponTiltRate number
 --- @field WeaponTiltMin number
 --- @field WeaponTiltMax number
@@ -89,8 +89,8 @@ end
 --- @field SecondaryWeaponDefId integer
 --- @field WeaponRounds integer
 
---- Constructs a new ArmedEntityDefInstance
-function INSTANCE:Renegade_ArmedEntityDefClass()
+--- Constructs a new ArmedGameObjectDefinitionInstance
+function INSTANCE:Renegade_ArmedGameObjectDefinitionClass()
     self.WeaponTiltRate = 1
     self.WeaponTiltMin = -10000.0
     self.WeaponTiltMax =  10000.0

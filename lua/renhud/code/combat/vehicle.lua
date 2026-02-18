@@ -3,21 +3,21 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @type SmartEntityClass
-local PARENT = CNC.Import( "code/combat/smart-entity.lua" )
+--- @type SmartGameObjectClass
+local PARENT = CNC.Import( "code/combat/smart-game-object.lua" )
 
---- @class VehicleEntityClass : SmartEntityClass
---- @field Instance VehicleEntityInstance The metatable used by VehicleEntityInstance
+--- @class VehicleGameObjectClass : SmartGameObjectClass
+--- @field Instance VehicleGameObjectInstance The metatable used by VehicleGameObjectInstance
 local STATIC = CNC.CreateExport( PARENT )
 local isHotload = not table.IsEmpty( STATIC )
-STATIC.Class = "VehicleEntityClass"
---- @class VehicleEntityInstance : SmartEntityInstance
---- @field Static VehicleEntityClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_VehicleEntity : Renegade_SmartEntity" )
-INSTANCE.Class = "VehicleEntityInstance"
+STATIC.Class = "VehicleGameObjectClass"
+--- @class VehicleGameObjectInstance : SmartGameObjectInstance
+--- @field Static VehicleGameObjectClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_VehicleGameObject : Renegade_SmartGameObject" )
+INSTANCE.Class = "VehicleGameObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsVehicleEntity = true
+INSTANCE.IsVehicleGameObject = true
 
 
 --#region Exported Enums
@@ -43,7 +43,6 @@ INSTANCE.IsVehicleEntity = true
 --#region Imported Enums
 --#endregion
 
-
 --[[ Chunk IDs ]] do
 
     local enumBuilder = enumBuilderClass.New()
@@ -55,35 +54,36 @@ INSTANCE.IsVehicleEntity = true
 end
 
 
+
 --[[ Static Functions and Variables ]] do
 
-    --- @class VehicleEntityClass
+    --- @class VehicleGameObjectClass
 
-    --- Creates a new VehicleEntityInstance
+    --- Creates a new VehicleGameObjectInstance
     --- @vararg any
-    --- @return VehicleEntityInstance
+    --- @return VehicleGameObjectInstance
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_VehicleEntity", ... )
+        return robustclass.New( "Renegade_VehicleGameObject", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) VehicleEntityInstance, `false` otherwise
-    function STATIC.IsVehicleEntity( arg )
+    --- @return boolean `true` if the passed argument is a(n) VehicleGameObjectInstance, `false` otherwise
+    function STATIC.IsVehicleGameObject( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsVehicleEntity and true or false
+        return arg.IsVehicleGameObject and true or false
     end
 
-    typecheck.RegisterType( "VehicleEntityInstance", STATIC.IsVehicleEntity )
+    typecheck.RegisterType( "VehicleGameObjectInstance", STATIC.IsVehicleGameObject )
 end
 
 
---- @class VehicleEntityInstance
+--- @class VehicleGameObjectInstance
 
---- Constructs a new VehicleEntityInstance
+--- Constructs a new VehicleGameObjectInstance
 --- @vararg any
-function INSTANCE:Renegade_VehicleEntity( ... )
+function INSTANCE:Renegade_VehicleGameObject( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 

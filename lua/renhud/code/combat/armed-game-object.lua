@@ -3,21 +3,22 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @type PhysicalEntityClass
-local PARENT = CNC.Import( "code/combat/physical-entity.lua" )
+--- @type PhysicalGameObjectClass
+local PARENT = CNC.Import( "code/combat/physical-game-object.lua" )
 
---- @class ArmedEntityClass : PhysicalEntityClass
---- @field Instance ArmedEntityInstance The metatable used by ArmedEntityInstance
+--- @class ArmedGameObjectClass : PhysicalGameObjectClass
+--- @field Instance ArmedGameObjectInstance The metatable used by ArmedGameObjectInstance
 local STATIC = CNC.CreateExport( PARENT )
 local isHotload = not table.IsEmpty( STATIC )
-STATIC.Class = "ArmedEntityClass"
---- @class ArmedEntityInstance : PhysicalEntityInstance
---- @field Static ArmedEntityClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_ArmedEntity : Renegade_PhysicalEntity" )
-INSTANCE.Class = "ArmedEntityInstance"
+STATIC.Class = "ArmedGameObjectClass"
+--- @class ArmedGameObjectInstance : PhysicalGameObjectInstance
+--- @field Static ArmedGameObjectClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_ArmedGameObject : Renegade_PhysicalGameObject" )
+INSTANCE.Class = "ArmedGameObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsArmedEntity = true
+INSTANCE.IsArmedGameObject = true
+
 
 
 --#region Imports
@@ -28,7 +29,6 @@ INSTANCE.IsArmedEntity = true
 
 --#region Imported Enums
 --#endregion
-
 
 --[[ Chunk IDs ]] do
 
@@ -41,35 +41,36 @@ INSTANCE.IsArmedEntity = true
 end
 
 
+
 --[[ Static Functions and Variables ]] do
 
-    --- @class ArmedEntityClass
+    --- @class ArmedGameObjectClass
 
-    --- Creates a new ArmedEntityInstance
+    --- Creates a new ArmedGameObjectInstance
     --- @vararg any
-    --- @return ArmedEntityInstance
+    --- @return ArmedGameObjectInstance
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_ArmedEntity", ... )
+        return robustclass.New( "Renegade_ArmedGameObject", ... )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) ArmedEntityInstance, `false` otherwise
-    function STATIC.IsArmedEntity( arg )
+    --- @return boolean `true` if the passed argument is a(n) ArmedGameObjectInstance, `false` otherwise
+    function STATIC.IsArmedGameObject( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.IsArmedEntity and true or false
+        return arg.IsArmedGameObject and true or false
     end
 
-    typecheck.RegisterType( "ArmedEntityInstance", STATIC.IsArmedEntity )
+    typecheck.RegisterType( "ArmedGameObjectInstance", STATIC.IsArmedGameObject )
 end
 
 
---- @class ArmedEntityInstance
+--- @class ArmedGameObjectInstance
 
---- Constructs a new ArmedEntityInstance
+--- Constructs a new ArmedGameObjectInstance
 --- @vararg any
-function INSTANCE:Renegade_ArmedEntity( ... )
+function INSTANCE:Renegade_ArmedGameObject( ... )
     local args = { ... }
     local argCount = select( "#", ... )
 
