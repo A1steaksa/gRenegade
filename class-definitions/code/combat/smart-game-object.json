@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "SmartGameObject",
+    "LuaSavePath" : "lua/renhud/code/combat/smart-game-object.lua",
+
+    "CppClassName": "SmartGameObj",
+    "CppFilePath":  "Code/Combat/smartgameobj.cpp",
+
+    "HasParent":             true,
+    "ParentLuaClassName":    "ArmedGameObject",
+    "RawParentLuaClassPath": "code/combat/armed-game-object.lua",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

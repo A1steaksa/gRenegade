@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "PhysicalGameObject",
+    "LuaSavePath" : "lua/renhud/code/combat/physical-game-object.lua",
+
+    "CppClassName": "PhysicalGameObj",
+    "CppFilePath":  "Code/Combat/physicalgameobj.cpp",
+
+    "HasParent":             true,
+    "ParentLuaClassName":    "DamageableGameObject",
+    "RawParentLuaClassPath": "code/combat/damageable-game-object.lua",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

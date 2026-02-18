@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "BaseGameObject",
+    "LuaSavePath" : "lua/renhud/code/combat/base-game-object.lua",
+
+    "CppClassName": "BaseGameObj",
+    "CppFilePath":  "Code/Combat/basegameobj.cpp",
+
+    "HasParent":             true,
+    "ParentLuaClassName":    "PersistClass",
+    "RawParentLuaClassPath": "code/wwsaveload/persist.lua",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

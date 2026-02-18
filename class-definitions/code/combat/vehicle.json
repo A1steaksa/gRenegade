@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "VehicleGameObject",
+    "LuaSavePath" : "lua/renhud/code/combat/vehicle.lua",
+
+    "CppClassName": "VehicleGameObj",
+    "CppFilePath":  "Code/Combat/vehicle.cpp",
+
+    "HasParent":             true,
+    "ParentLuaClassName":    "SmartGameObject",
+    "RawParentLuaClassPath": "code/combat/smart-game-object.lua",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": true,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

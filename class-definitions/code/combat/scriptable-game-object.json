@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "ScriptableGameObject",
+    "LuaSavePath" : "lua/renhud/code/combat/scriptable-game-object.lua",
+
+    "CppClassName": "ScriptableGameObj",
+    "CppFilePath":  "Code/Combat/scriptablegameobj.cpp",
+
+    "HasParent":             true,
+    "ParentLuaClassName":    "BaseGameObject",
+    "RawParentLuaClassPath": "code/combat/base-game-object.lua",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}
