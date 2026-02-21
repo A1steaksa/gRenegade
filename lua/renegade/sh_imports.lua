@@ -13,7 +13,7 @@ LIB.ExportedTables = {}
 
 --- A prefix that will be added to the front of all paths passed to the Import function  
 --- For example: Setting this to `"my-addon"` would turn an Import path from `"some-dir/cool-script.lua"` to `"my-addon/some-dir/cool-script.lua"`
-LIB.ImportPathPrefix = "renhud"
+LIB.ImportPathPrefix = "renegade"
 
 --- Applies the ImportPathPrefix to a given path
 --- @param path string

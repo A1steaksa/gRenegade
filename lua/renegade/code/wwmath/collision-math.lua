@@ -67,8 +67,8 @@ local isHotload = not table.IsEmpty( STATIC )
     end
 
     --[[ Populate Overlap Test Functions ]] do
-        include( "renhud/code/wwmath/collision-math-frustum.lua" )
-        include( "renhud/code/wwmath/collision-math-plane.lua" )
+        include( "renegade/code/wwmath/collision-math-frustum.lua" )
+        include( "renegade/code/wwmath/collision-math-plane.lua" )
     end
 
     --- Converts an integer mask value into its corresponding OverlapType

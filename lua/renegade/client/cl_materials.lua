@@ -12,8 +12,8 @@ local isHotload = not table.IsEmpty( LIB )
 --- @type table<string, IMaterial>
 LIB.LoadedMaterials = {}
 
---- Loads and caches a given png material within `materials/renhud/`
---- @param shortPath string The path to the material, excluding the renhud folder and the .png extension.
+--- Loads and caches a given png material within `materials/renegade/`
+--- @param shortPath string The path to the material, excluding the renegade folder and the .png extension.
 function LIB.LoadMaterial( shortPath )
     -- Handle paths starting with a slash
     local startsWithSlash = string.StartsWith( shortPath, "/" ) or string.StartsWith( shortPath, "\\" )

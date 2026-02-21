@@ -50,18 +50,18 @@ local CNC = CNC_RENEGADE
     -- (Class, file loading, debugging, etc.)
 
     -- Logging is first so we can report failures
-    include( "renhud/sh_print.lua" )
+    include( "renegade/sh_print.lua" )
 
     -- Type checking so we can detect failures
-    include( "renhud/sh_typecheck.lua" )
+    include( "renegade/sh_typecheck.lua" )
 
     -- Imports to allow non-global libraries to load
-    include( "renhud/sh_imports.lua" )
+    include( "renegade/sh_imports.lua" )
 
-    include( "renhud/sh_robustclass.lua" )
-    include( "renhud/sh_debugdraw.lua" )
-    include( "renhud/sh_binary-conversion.lua" )
-    include( "renhud/sh_convars.lua" )
+    include( "renegade/sh_robustclass.lua" )
+    include( "renegade/sh_debugdraw.lua" )
+    include( "renegade/sh_binary-conversion.lua" )
+    include( "renegade/sh_convars.lua" )
 end
 
 -- Server-Side Garry's Mod Init
@@ -72,19 +72,19 @@ if SERVER then
     --[[ Send Files to Clients ]] do
 
         -- Shared scripts
-        CNC.IterateFiles( "renhud/", "LUA", AddCSLuaFile )
-        CNC.IterateFiles( "renhud/bridges", "LUA", AddCSLuaFile )
-        CNC.IterateFilesRecursively( "renhud/code", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renegade/", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renegade/bridges", "LUA", AddCSLuaFile )
+        CNC.IterateFilesRecursively( "renegade/code", "LUA", AddCSLuaFile )
 
         -- Client-only scripts
-        CNC.IterateFiles( "renhud/client/", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renegade/client/", "LUA", AddCSLuaFile )
 
         -- Fonts
         resource.AddFile( "resource/fonts/54251___.ttf" )
         resource.AddFile( "resource/fonts/ARI_____.ttf" )
 
         -- Materials
-        CNC.IterateFilesRecursively( "materials/renhud/", "THIRDPARTY", resource.AddFile )
+        CNC.IterateFilesRecursively( "materials/renegade/", "THIRDPARTY", resource.AddFile )
         CNC.IterateFilesRecursively( "materials/models/cnc_renegade/", "THIRDPARTY", resource.AddFile )
 
         -- Models
@@ -92,14 +92,14 @@ if SERVER then
     end
 
     -- Run non-Renegade Server scripts
-    CNC.IterateFilesRecursively( "renhud/server/", "LUA", include )
+    CNC.IterateFilesRecursively( "renegade/server/", "LUA", include )
 end
 
 -- Client-Side Garry's Mod Init
 if CLIENT then
     -- Hide the default HUD
     -- TODO: Replace this with a per-element system in a menu somewhere that ties in with ConVars for enabling/disabling individual HUD elements
-    include( "renhud/client/cl_hide-hud.lua" )
+    include( "renegade/client/cl_hide-hud.lua" )
 end
 
 -- Execute Renegade's entrypoint script 

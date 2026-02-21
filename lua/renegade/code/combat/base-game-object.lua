@@ -1,4 +1,4 @@
--- Based on BaseGameObj within Code/Combat/basegameobj.cpp
+-- Based on BaseGameObj within Code/Combat/basegameobj.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -35,8 +35,13 @@ INSTANCE.IsBaseGameObject = true
     local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
-        CHUNKID_PLACEHOLDER = enumBuilder:Set( 0 ),
-        CHUNKID_PLACEHOLDER = enumBuilder:Next(),
+        CHUNKID_VARIABLES = enumBuilder:Set( 910991407 ),
+
+        XXX_MICROCHUNKID_DESTROY_TYPE        = enumBuilder:Set( 1 ),
+        MICROCHUNKID_DEFINITION_ID           = enumBuilder:Next(),
+        MICROCHUNKID_INSTANCE_ID             = enumBuilder:Next(),
+        MICROCHUNKID_IS_PENDING_DELETE       = enumBuilder:Next(),
+        MICROCHUNKID_ENABLE_CINEMATIC_FREEZE = enumBuilder:Next(),
     }
 end
 
@@ -67,6 +72,9 @@ end
 
 --- @class BaseGameObjectInstance
 --- @field ConnectedEntity Entity The Garry's Mod Entity that this Renegade Game Object represents
+--- @field Definition BaseGameObjectDefinitionInstance "Member data"
+--- @field IsPostThinkAllowed boolean "This is used to prevent postthinking before a think call"
+--- @field EnableCinematicFreeze boolean "This keeps certain object alive during cinematic freeze"
 
 --- Constructs a new BaseGameObjectInstance
 --- @vararg any
