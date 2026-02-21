@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "PhysicalGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/physical-game-object.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/physical-game-object.lua",
 
     "CppClassName": "PhysicalGameObj",
     "CppFilePath":  "Code/Combat/physicalgameobj.cpp",

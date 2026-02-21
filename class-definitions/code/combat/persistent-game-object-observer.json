@@ -1,0 +1,17 @@
+{
+    "LuaBaseClassName": "PersistentGameObjectObserver",
+    "LuaSavePath" : "lua/renegade/code/combat/persistent-game-object-manager.lua",
+
+    "CppClassName": "PersistentGameObjectObserver",
+    "CppFilePath":  "Code/Combat/gameobjmanager.cpp/h",
+
+    "HasParent":             false,
+    "ParentLuaClassName":    "",
+    "RawParentLuaClassPath": "",
+
+    "IsStaticOnly":  true,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+
+}

@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "VehicleGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/vehicle.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/vehicle.lua",
 
     "CppClassName": "VehicleGameObj",
     "CppFilePath":  "Code/Combat/vehicle.cpp",

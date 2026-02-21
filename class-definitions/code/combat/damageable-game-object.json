@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "DamageableGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/damageable-game-object.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/damageable-game-object.lua",
 
     "CppClassName": "DamageableGameObj",
     "CppFilePath":  "Code/Combat/damageablegameobj.cpp",

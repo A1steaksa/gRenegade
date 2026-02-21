@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "SmartGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/smart-game-object.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/smart-game-object.lua",
 
     "CppClassName": "SmartGameObj",
     "CppFilePath":  "Code/Combat/smartgameobj.cpp",

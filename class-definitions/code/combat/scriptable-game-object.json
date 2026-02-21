@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "ScriptableGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/scriptable-game-object.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/scriptable-game-object.lua",
 
     "CppClassName": "ScriptableGameObj",
     "CppFilePath":  "Code/Combat/scriptablegameobj.cpp",

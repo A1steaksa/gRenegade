@@ -1,6 +1,6 @@
 {
     "LuaBaseClassName": "ArmedGameObject",
-    "LuaSavePath" : "lua/renhud/code/combat/armed-game-object.lua",
+    "LuaSavePath" : "lua/renegade/code/combat/armed-game-object.lua",
 
     "CppClassName": "ArmedGameObj",
     "CppFilePath":  "Code/Combat/armedgameobj.cpp",
