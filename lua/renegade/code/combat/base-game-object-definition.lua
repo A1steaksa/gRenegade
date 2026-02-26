@@ -59,7 +59,7 @@ end
     typecheck.RegisterType( "BaseGameObjectDefinitionInstance", STATIC.IsBaseGameObjectDefinitionClass )
 end
 
---- @class PersistInstance
+--- @class BaseGameObjectDefinitionInstance
 
 --[[ Save / Load ]] do
 
