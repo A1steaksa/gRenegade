@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "NetworkObjectManager",
+    "LuaSavePath" : "lua/renegade/code/wwnet/network-object-manager.lua",
+
+    "CppClassName": "NetworkObjectMgrClass",
+    "CppFilePath":  "Code/wwnet/networkobjectmgr.cpp/h",
+
+    "HasParent":             false,
+    "ParentLuaClassName":    "",
+    "RawParentLuaClassPath": "",
+
+    "IsStaticOnly":  true,
+    "ContainsEnums": true,
+    "NeedsSaveLoad": false,
+    "NeedsChunkIds": false
+}

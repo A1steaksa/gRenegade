@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "ScriptLoader",
+    "LuaSavePath" : "lua/renegade/code/combat/script-loader.lua",
+
+    "CppClassName": "ScriptLoader",
+    "CppFilePath":  "Code/Combat/scripts.cpp/h",
+
+    "HasParent":             false,
+    "ParentLuaClassName":    "",
+    "RawParentLuaClassPath": "",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

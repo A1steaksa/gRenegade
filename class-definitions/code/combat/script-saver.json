@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "ScriptSaver",
+    "LuaSavePath" : "lua/renegade/code/combat/script-saver.lua",
+
+    "CppClassName": "ScriptSaver",
+    "CppFilePath":  "Code/Combat/scripts.cpp/h",
+
+    "HasParent":             false,
+    "ParentLuaClassName":    "",
+    "RawParentLuaClassPath": "",
+
+    "IsStaticOnly":  false,
+    "ContainsEnums": false,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}

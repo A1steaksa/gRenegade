@@ -1,0 +1,16 @@
+{
+    "LuaBaseClassName": "GameObjectObserverManager",
+    "LuaSavePath" : "lua/renegade/code/combat/game-object-observer-manager.lua",
+
+    "CppClassName": "GameObjObserverManager",
+    "CppFilePath":  "Code/Combat/gameobjobserver.cpp/h",
+
+    "HasParent":             false,
+    "ParentLuaClassName":    "",
+    "RawParentLuaClassPath": "",
+
+    "IsStaticOnly":  true,
+    "ContainsEnums": true,
+    "NeedsSaveLoad": true,
+    "NeedsChunkIds": true
+}
