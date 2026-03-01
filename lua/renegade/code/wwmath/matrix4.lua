@@ -1,4 +1,4 @@
--- Based on Matrix4 within Code/WWMath/matrix.cpp/h
+-- Based on Matrix4 within Code/WWMath/matrix4.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

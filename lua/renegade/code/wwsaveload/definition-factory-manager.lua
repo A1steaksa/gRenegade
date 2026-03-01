@@ -1,4 +1,4 @@
--- Based on DefinitionFactoryMgrClass within Code/wwsafeload/definitionfactorymgr.cpp/h
+-- Based on DefinitionFactoryMgrClass within Code/wwsaveload/definitionfactorymgr.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

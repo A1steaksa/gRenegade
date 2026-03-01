@@ -1,4 +1,4 @@
--- Based on PersistClass within Code/wwsaveload/persistfactory.cpp/h
+-- Based on PersistFactoryClass within Code/wwsaveload/persistfactory.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

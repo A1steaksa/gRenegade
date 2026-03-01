@@ -1,4 +1,4 @@
--- Based on cGameData within Code/Combat/gamedata.cpp/h
+-- Based on cGameData within Code/Commando/gamedata.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
