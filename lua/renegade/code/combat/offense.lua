@@ -57,7 +57,7 @@ end
 --- @class OffenseObjectInstance
 --- @field private Damage number
 --- @field private Warhead WarheadType
---- @field private Owner Entity
+--- @field private Owner ScriptableGameObjectInstance
 
 local DEFAULT_DAMAGE = 1.0
 
