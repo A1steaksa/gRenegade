@@ -19,19 +19,25 @@ INSTANCE.IsDefenseDefinition = true
 
 
 --#region Exported Enums
+
 --#endregion
 
 
 --#region Imports
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type ArmorWarheadManagerClass
     local armorWarheadManagerClass = CNC.Import( "code/combat/armor-warhead-manager.lua" )
 
     --- @type PersistClass
     local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
+--#endregion
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+--#region Imported Enums
+
 --#endregion
 
 
@@ -40,16 +46,16 @@ INSTANCE.IsDefenseDefinition = true
     local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
-        DEFENSEOBJECTDEF_CHUNK_VARIABLES                    = enumBuilder:Set( 7311607 ),
+        DEFENSEOBJECTDEF_CHUNK_VARIABLES            = enumBuilder:Set( 7311607 ),
 
-        DEFENSEOBJECTDEF_VARIABLE_HEALTH                    = enumBuilder:Set( 0x00 ),
-        DEFENSEOBJECTDEF_VARIABLE_HEALTHMAX                 = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SKIN                      = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTH            = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTHMAX         = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDTYPE                = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_DAMAGE_POINTS             = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_DEATH_POINTS              = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_HEALTH            = enumBuilder:Set( 0x00 ),
+        DEFENSEOBJECTDEF_VARIABLE_HEALTHMAX         = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_SKIN              = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTH    = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTHMAX = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_SHIELDTYPE        = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_DAMAGE_POINTS     = enumBuilder:Next(),
+        DEFENSEOBJECTDEF_VARIABLE_DEATH_POINTS      = enumBuilder:Next(),
     }
 end
 
@@ -153,8 +159,8 @@ function INSTANCE:Load( cload )
     end
 
     -- Omitted ArmorWarheadManagerClass armor
-    -- self.Skin = armorWarheadManagerClass.FindArmorSaveId( readIds.SkinSaveId )
-    -- self.ShieldType = armorWarheadManagerClass.FindArmorSaveId( readIds.ShieldSaveId )
+    self.Skin       = armorWarheadManagerClass.FindArmorSaveId( readIds.SkinSaveId )
+    self.ShieldType = armorWarheadManagerClass.FindArmorSaveId( readIds.ShieldSaveId )
 
     return true
 end
