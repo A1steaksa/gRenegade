@@ -1,4 +1,4 @@
--- Based on PhysicalGameObjDef within Code/Combat/Physicalgameobj.cpp/h
+-- Based on PhysicalGameObjDef within Code/Combat/physicalgameobj.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

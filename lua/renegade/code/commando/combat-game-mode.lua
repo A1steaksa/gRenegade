@@ -1,4 +1,4 @@
--- Based on CombatGameModeClass within Code/Combat/combatgmode.cpp/h
+-- Based on CombatGameModeClass within Code/Commando/combatgmode.cpp/h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
