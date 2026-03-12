@@ -460,25 +460,25 @@ local isHotload = not table.IsEmpty( STATIC )
             typecheck.NotImplementedError( "SetCombatNetworkHandler" )
         end
 
-        ---@param damager Entity
-        ---@param victim Entity
+        ---@param damager ArmedGameObjectInstance
+        ---@param victim PhysicalGameObjectInstance
         function STATIC.CanDamage( damager, victim )
             typecheck.NotImplementedError( "CanDamage" )
         end
 
-        ---@param damager Entity
-        ---@param victim Entity
+        ---@param damager ArmedGameObjectInstance
+        ---@param victim PhysicalGameObjectInstance
         function STATIC.GetDamageFactor( damager, victim)
             typecheck.NotImplementedError( "GetDamageFactor" )
         end
 
-        ---@param soldier Entity
-        ---@param victim Entity
+        ---@param soldier SoldierGameObjectInstance
+        ---@param victim SoldierGameObjectInstance
         function STATIC.OnSoldierKill( soldier, victim )
             typecheck.NotImplementedError( "OnSoldierKill" )
         end
 
-        ---@param soldier Entity
+        ---@param soldier SoldierGameObjectInstance
         function STATIC.OnSoldierDeath( soldier )
             typecheck.NotImplementedError( "OnSoldierDeath" )
         end
