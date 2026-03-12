@@ -10,8 +10,18 @@ STATIC.Class = "GameObjectManagerClass"
 
 
 --#region Imports
+
+    --- @type PersistentGameObjectObserverManagerClass
+    local persistentGameObjectObserverManagerClass = CNC.Import( "code/combat/persistent-game-object-observer-manager.lua" )
+
+    --- @type NetworkObjectManagerClass
+    local networkObjectManagerClass = CNC.Import( "code/wwnet/network-object-manager.lua" )
+
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    --- @type ScriptManagerClass
+    local scriptManagerClass = CNC.Import( "code/combat/script-manager-class.lua" )
 --#endregion
 
 
@@ -46,11 +56,24 @@ end
 --]]
 
 --- @class GameObjectManagerClass
---- @field GameObjectList table<integer, BaseGameObjectInstance[] "List of all game objs"
+--- @field GameObjectList BaseGameObjectInstance[] "List of all game objs"
 --- @field SmartGameObjectList SmartGameObjectInstance[] "List of all smart game objs"
 --- @field StarGameObjectList SoldierGameObjectInstance[] "List of all star game objs"
 --- @field BuildingGameObjectList BuildingGameObjectInstance[] "List of all building game obs"
 --- @field CinematicFreezeActive boolean
+
+STATIC.GameObjectList = {}
+
+
+local enumBuilder = enumBuilderClass.New()
+
+STATIC.NETID_GDI_BASE_CONTROLLER = enumBuilder:Set( networkObjectManagerClass.NETID_STATIC_OBJECT_MIN + 1 )
+STATIC.NETID_NOD_BASE_CONTROLLER = enumBuilder:Next()
+STATIC.NETID_NOD_TEAM            = enumBuilder:Next()
+STATIC.NETID_GDI_TEAM            = enumBuilder:Next()
+STATIC.NETID_SERVER_FPS          = enumBuilder:Next()
+STATIC.NETID_SERVER_WEATHER      = enumBuilder:Next()
+STATIC.NETID_SERVER_BACKGROUND   = enumBuilder:Next()
 
 
 function STATIC.Init()
@@ -62,7 +85,7 @@ end
 function STATIC.Shutdown()
     STATIC.DestroyAll()
 
-    persistentGameObjectObserverManager:Reset()
+    persistentGameObjectObserverManagerClass.Reset()
 end
 
 
@@ -97,12 +120,26 @@ function STATIC.PostThink()
     typecheck.NotImplementedError()
 end
 
-function STATIC.InitAll()
-    typecheck.NotImplementedError()
-end
-
+--- "This static routine destroys all objects"
 function STATIC.DestroyAll()
-    typecheck.NotImplementedError()
+    -- "Disable new scripts"
+    scriptManagerClass.EnableScriptCreation( false )
+
+    for _, object in ipairs( STATIC.GameObjectList ) do
+        object:SetDeletePending()
+    end
+
+    networkObjectManagerClass.DeletePending()
+
+    -- "We do it twice in case any new objects got created"
+    for _, object in ipairs( STATIC.GameObjectList ) do
+        object:SetDeletePending()
+    end
+
+    networkObjectManagerClass.DeletePending()
+
+    -- "Turn it back on"
+    scriptManagerClass.EnableScriptCreation( true )
 end
 
 
@@ -110,7 +147,16 @@ end
 
     --- @param obj BaseGameObjectInstance
     function STATIC.Add( obj )
-        typecheck.NotImplementedError()
+        -- Omitted checking for duplicate network IDs
+
+        --[[
+            "
+            Cinematic scripts wanted objects not to progress on the frame they were created,
+            and wanted the ability to set a frame number without [having] it bumped.
+            So, make new things at the head of the list, so the oldest thinks last.
+            "
+        --]]
+        table.insert( STATIC.GameObjectList, 0, obj )
     end
 
     --- @param obj BaseGameObjectInstance
