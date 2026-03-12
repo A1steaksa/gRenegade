@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type ScriptableGameObjectClass
-local PARENT = CNC.Import( "code/combat/scriptable-game-object.lua" )
+local scriptableGameObjectClass = CNC.Import( "code/combat/scriptable-game-object.lua" )
 
 --- @class DamageableGameObjectClass : ScriptableGameObjectClass
 --- @field Instance DamageableGameObjectInstance The metatable used by DamageableGameObjectInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( scriptableGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "DamageableGameObjectClass"
 --- @class DamageableGameObjectInstance : ScriptableGameObjectInstance
@@ -22,15 +22,31 @@ INSTANCE.IsDamageableGameObject = true
 
 --#region Imports
 
+
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type PlayerTypeClass
     local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
+
+    --- @type BaseGameObjectClass
+    local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
+
+    --- @type NetworkObjectClass
+    local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
+
+    --- @type ColorClass
+    local colorClass = CNC.Import( "code/combat/colors.lua" )
+
 --#endregion
 
 
 --#region Imported Enums
+
+
+    local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
+    local dirtyBitEnum = networkObjectClass.DIRTY_BIT
+
 --#endregion
 
 
@@ -82,9 +98,12 @@ end
 
     --- Constructs a new DamageableGameObjectInstance
     function INSTANCE:Renegade_DamageableGameObject()
+        self._IsHealthBarDisplayed = true
+        self:SetPlayerType( playerTypeEnum.Neutral )
     end
 
     function INSTANCE:_delete()
+        self:RemoveAllObservers()
     end
 end
 
@@ -93,22 +112,32 @@ end
 
     --- @param definition DamageableGameObjectDefinitionInstance
     function INSTANCE:Init( definition )
-        typecheck.NotImplementedError()
+        scriptableGameObjectClass.Instance.Init( self, definition )
+        self:CopySettings( definition )
     end
 
     --- @param definition DamageableGameObjectDefinitionInstance    
     function INSTANCE:CopySettings( definition )
-        typecheck.NotImplementedError()
+        self:SetPlayerType( definition.DefaultPlayerType )
+        self.DefenseObject:Init( definition.DefenseObjectDefinition, self )
     end
 
     --- @param definition DamageableGameObjectDefinitionInstance    
     function INSTANCE:ReInit( definition )
-    typecheck.NotImplementedError()
+        local oldPlayerType = self.PlayerType
+
+        -- "Re-initialize the base class"
+        scriptableGameObjectClass.Instance.ReInit( self, definition )
+
+        -- "Copy any internal settings from the definition"
+        self:CopySettings( definition )
+
+        self:SetPlayerType( oldPlayerType )
     end
 
     --- @return DamageableGameObjectDefinitionInstance    
     function INSTANCE:GetDefinition()
-        typecheck.NotImplementedError()
+        return baseGameObjectClass.Instance.GetDefinition( self ) --[[@as DamageableGameObjectDefinitionInstance]]
     end
 end
 
@@ -141,13 +170,44 @@ function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
     scale = scale or 1.0
     alternateSkin = alternateSkin or -1
 
-    typecheck.NotImplementedError()
+    local defenseObject = self.DefenseObject
+
+    if defenseObject:GetHealth() <= 0 then
+        return
+    end
+
+    if self:IsDeletePending() then
+        return
+    end
+
+    local oldHealth = defenseObject:GetHealth()
+    local oldShield = defenseObject:GetShieldStrength()
+    defenseObject:ApplyDamage( damager, scale, alternateSkin )
+    local newHealth = defenseObject:GetHealth()
+    local newShield = defenseObject:GetShieldStrength()
+
+    local diff = oldHealth + oldShield - newHealth - newShield
+
+    -- "Notify the observers"
+    local observerList = self:GetObservers()
+
+    for index = 1, #observerList do
+        observerList[index]:Damaged( self, damager:GetOwner() --[[@as ArmedGameObjectInstance]], diff )
+    end
+
+    if defenseObject:GetHealth() <= 0 then
+        -- "Notify the observers"
+        for index = 1, #observerList do
+            observerList[index]:Killed( self, damager:GetOwner() --[[@as ArmedGameObjectInstance]] )
+        end
+
+        self:CompletelyDamaged( damager )
+    end
 end
 
 --- @param damager OffenseObjectInstance
---- @return boolean
 function INSTANCE:CompletelyDamaged( damager )
-    typecheck.NotImplementedError()
+    -- Empty in the original code
 end
 
 
@@ -198,17 +258,18 @@ end
     function INSTANCE:SetPlayerType( playerType )
         self.PlayerType = playerType
 
-        self:SetObjectDirtyBit( dirtyBitEnum )
+        self:SetObjectDirtyBit( dirtyBitEnum.BIT_RARE, true )
     end
 
     --- @return boolean
     function INSTANCE:IsTeamPlayer()
-        typecheck.NotImplementedError()
+        local playerType = self.PlayerType
+        return playerType == playerTypeEnum.Nod or playerType == playerTypeEnum.GDI
     end
 
     --- @return Color
     function INSTANCE:GetTeamColor()
-        typecheck.NotImplementedError()
+        return colorClass.GetColorForTeam( self.PlayerType )
     end
 
     --- @param damageableGameObject DamageableGameObjectInstance
