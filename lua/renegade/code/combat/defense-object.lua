@@ -19,7 +19,9 @@ INSTANCE.IsDefenseObject = true
 
 
 --#region Exported Enums
+
 --#endregion
+
 
 --#region Imports
 
@@ -38,11 +40,14 @@ INSTANCE.IsDefenseObject = true
 
 
 --#region Imported Enums
-    local dirtyBitEnum = networkObjectClass.DIRTY_BIT--#endregion
+
+    local dirtyBitEnum = networkObjectClass.DIRTY_BIT
+--#endregion
 
 
 --- @alias ArmorType integer
 --- @alias WarheadType integer
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -87,6 +92,7 @@ local MAX_MAX_HEALTH          = 2000
 local MAX_MAX_SHIELD_STRENGTH = 2000
 local PUNISH_DELAY            = 60
 
+
 --[[ Constructors & Destructor ]] do
 
     --- Constructs a new DefenseObjectInstance
@@ -96,6 +102,9 @@ local PUNISH_DELAY            = 60
         health = health or DEFAULT_HEALTH
         skin = skin or 0
 
+        self:SetHealthMax( health )
+        self:SetHealth( health )
+
         self.Skin = skin
 
         self.ShieldStrength    = 0
@@ -104,11 +113,8 @@ local PUNISH_DELAY            = 60
 
         self.CanObjectDie = true
     end
-
-    function INSTANCE:_delete()
-        typecheck.NotImplementedError()
-    end
 end
+
 
 --- "DefenseObjects now have a pointer to their corresponding Object
 --- to report damage and scoring to the PlayerData"
@@ -390,15 +396,117 @@ end
 
         -- "Check for punish = no more damage"
         if smart ~= nil then
-            local playerData = smart:GetPlayerData()
-            if playerData ~= nil then
+            typecheck.NotImplementedError()
+        end
 
-                
+        local isRepair = false
 
+        -- "Check for repair on either health [or] shield"
+        -- "Note: humans don't repair health, but vehicles do."
+        if ( damage * damageScale < 0 ) or ( damage * shieldDamageScale < 0 ) then
+            -- "We are repairing"
+            isRepair = true
+
+            self:MarkOwnerDirty()
+
+            -- "Apply first to health, then to shield"
+            if self:GetHealth() < self:GetHealthMax() and damageScale ~= 0 then
+                damage = damage * damageScale
+                local minDamage = self:GetHealth() - self:GetHealthMax()
+                damage = math.Clamp( damage, minDamage, 0 )
+                self:SetHealth( self:GetHealth() - damage )
+            else
+                damage = damage * shieldDamageScale
+                shieldDamage = damage
+                damage = 0
+                local minShieldDamage = self:GetShieldStrength() - self:GetShieldStrengthMax()
+                shieldDamage = math.Clamp( shieldDamage, minShieldDamage, 0 )
+                self:SetShieldStrength( self:GetShieldStrength() - shieldDamage )
+            end
+        else
+
+            if (
+                smart ~= nil
+                and self:GetOwner() ~= nil
+                and smart ~= self:GetOwner()
+                and smart:IsTeammate( self:GetOwner() )
+            ) then
+                -- "This is friendly fire!!"
+                if not combatManagerClass.IsFriendlyFirePermitted() then
+                    return self:GetHealth()
+                end
+            end
+
+            if damage ~= 0 then
+                self:MarkOwnerDirty()
+            end
+
+            -- "If we have a shield, redirect a fraction of our damage;"
+            -- "If alternate skin (MCT) ignore [shield] damage;"
+            if self:GetShieldStrength() > 0 and alternateSkin == -1 then
+                shieldDamage = damage * armorWarheadManagerClass.GetShieldAbsorbsion( self.ShieldType, offense:GetWarhead() )
+                damage = damage - shieldDamage
+
+                shieldDamage = shieldDamage * shieldDamageScale
+                -- "How much scaled damage to apply"
+                local shieldDamageToApply = shieldDamage
+
+                if shieldDamage > self:GetShieldStrength() then
+                    shieldDamage = self:GetShieldStrength()
+                end
+                self:SetShieldStrength( self:GetShieldStrength() - shieldDamage )
+                if shieldDamageScale ~= 0 then
+                    -- "How much un scaled damage did we apply"
+                    shieldDamage = shieldDamage / shieldDamageScale
+                    -- "How much scaled damage did we try to apply"
+                    shieldDamageToApply = shieldDamageToApply / shieldDamageScale
+                end
+
+                damage = damage + shieldDamageToApply - shieldDamage
+
+                -- "Clamp shield strength"
+                self:SetShieldStrength( math.Clamp( self:GetShieldStrength(), 0, self:GetShieldStrengthMax() ) )
+            end
+
+            -- "Scale the (remaining) damage"
+            -- "(gth) added [alternateSkin] feature which is used by buildings when their MCT is being damaged."
+            damage = damage * damageScale
+
+            if self:GetHealth() < damage then
+                damage = self:GetHealth()
+            end
+
+            self:SetHealth( self:GetHealth() - damage )
+
+            -- "Don't allow this object to die (if necessary)"
+            if self.CanObjectDie == false then
+                self:SetHealth( math.max( self:GetHealth(), 1 ) )
             end
         end
-        
-        typecheck.NotImplementedError()
+
+        -- "Clamp health to max"
+        self:SetHealth( math.Clamp( self:GetHealth(), 0, self:GetHealthMax() ) )
+
+        if (
+            damage > 0
+            and self:GetHealth() <= 0
+            and smart ~= nil
+            and smart:AsSoldierGameObject() ~= nil
+            and self:GetOwner() ~= nil
+            and self:GetOwner():AsSoldierGameObject() ~= nil
+        ) then
+            combatManagerClass.OnSoldierKill(
+                smart:AsSoldierGameObject() --[[@as SoldierGameObjectInstance]],
+                self:GetOwner():AsSoldierGameObject() --[[@as SoldierGameObjectInstance]]
+            )
+        end
+
+        -- "Apply points for damage/death"
+        if smart ~= nil and smart:GetPlayerData() then
+            typecheck.NotImplementedError()
+        end
+
+        return self:GetHealth()
     end
 end
 
