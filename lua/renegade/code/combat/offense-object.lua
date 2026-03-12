@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @class OffenseObjectClass
---- @field instance OffenseObjectInstance The metatable used by OffenseObjectInstance
+--- @field Instance OffenseObjectInstance The metatable used by OffenseObjectInstance
 local STATIC = CNC.CreateExport()
 STATIC.Class = "OffenseObjectClass"
 local isHotload = not table.IsEmpty( STATIC )
@@ -23,6 +23,9 @@ INSTANCE.IsOffense = true
 
 
 --#region Imports
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 
@@ -30,12 +33,38 @@ INSTANCE.IsOffense = true
 --#endregion
 
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES = enumBuilder:Set( 914991020 ),
+        CHUNKID_OWNER     = enumBuilder:Next(),
+
+        MICROCHUNKID_WARHEAD                 = enumBuilder:Set( 1 ),
+        MICROCHUNKID_DAMAGE                  = enumBuilder:Next(),
+        MICROCHUNKID_HEALTH                  = enumBuilder:Next(),
+        MICROCHUNKID_HEALTH_MAX              = enumBuilder:Next(),
+        MICROCHUNKID_SKIN                    = enumBuilder:Next(),
+        MICROCHUNKID_SHIELD_STRENGTH         = enumBuilder:Next(),
+        MICROCHUNKID_SHIELD_STRENGTH_MAX     = enumBuilder:Next(),
+        MICROCHUNKID_SHIELD_TYPE             = enumBuilder:Next(),
+        XXXMICROCHUNKID_LAST_HEALTH          = enumBuilder:Next(),
+        XXXMICROCHUNKID_LAST_SKIN            = enumBuilder:Next(),
+        XXXMICROCHUNKID_LAST_SHIELD_STRENGTH = enumBuilder:Next(),
+        XXXMICROCHUNKID_LAST_SHIELD_TYPE     = enumBuilder:Next(),
+        MICROCHUNKID_DAMAGE_POINTS           = enumBuilder:Next(),
+        MICROCHUNKID_DEATH_POINTS            = enumBuilder:Next(),
+    }
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     --- @class OffenseObjectClass
 
     --- Creates a new OffenseObjectInstance
-    --- @overload fun( damage: number, warhead: WarheadType?, owner: ArmedGameObjectInstance? ):OffenseObjectInstance 
+    --- @overload fun( damage: number?, warhead: WarheadType?, owner: ArmedGameObjectInstance? ):OffenseObjectInstance 
     --- @overload fun( base: OffenseObjectInstance ):OffenseObjectInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_OffenseObject", ... )
@@ -57,7 +86,7 @@ end
 --- @class OffenseObjectInstance
 --- @field private Damage number
 --- @field private Warhead WarheadType
---- @field private Owner ScriptableGameObjectInstance
+--- @field private Owner ScriptableGameObjectInstance?
 
 local DEFAULT_DAMAGE = 1.0
 
@@ -87,7 +116,28 @@ local DEFAULT_DAMAGE = 1.0
         self.Warhead = args[2] --[[@as integer]] or 0
         self:SetOwner( args[3] --[[@as ArmedGameObjectInstance]] or NULL )
     end
+
+    function INSTANCE:_delete()
+        self:SetOwner( nil )
+    end
 end
+
+
+--[[ Save / Load ]] do
+
+    --- @param csave ChunkSaveInstance
+    --- @return boolean
+    function INSTANCE:Save( csave )
+        typecheck.NotImplementedError()
+    end
+
+    --- @param cload ChunkLoadInstance
+    --- @return boolean
+    function INSTANCE:Load( cload )
+        typecheck.NotImplementedError()
+    end
+end
+
 
 --[[ Offensive Damage Rating (ODR) ]] do
 
@@ -117,12 +167,12 @@ end
 
 --[[ Owner ]] do
 
-    --- @param newOwner ArmedGameObjectInstance
+    --- @param newOwner ArmedGameObjectInstance?
     function INSTANCE:SetOwner( newOwner )
         self.Owner = newOwner --[[@as ScriptableGameObjectInstance]]
     end
 
-    --- @return ArmedGameObjectInstance
+    --- @return ArmedGameObjectInstance?
     function INSTANCE:GetOwner()
         return self.Owner --[[@as ArmedGameObjectInstance]]
     end
