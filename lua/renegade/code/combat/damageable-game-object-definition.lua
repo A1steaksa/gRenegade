@@ -86,7 +86,7 @@ end
 
 
 --- @class DamageableGameObjectDefinitionInstance
---- @field DefenseObjectDefinition DefenseObjectDefinitionClass
+--- @field DefenseObjectDefinition DefenseObjectDefinitionInstance
 --- @field InfoIconMaterial IMaterial
 --- @field TranslatedNameId integer
 --- @field EncyclopediaType EncyclopediaTypeEnum
