@@ -141,6 +141,11 @@ function INSTANCE:Render()
         return
     end
 
+    -- Don't bother if we don't have anything to draw
+    if #self.Vertices == 0 then
+        return
+    end
+
     -- Build the mesh if it's out of date
     if self.ShouldRebuildMesh then
 
