@@ -5,10 +5,10 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type ArmedGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/armed-game-object-definition.lua" )
+local armedGameObjectDefinitionClass = CNC.Import( "code/combat/armed-game-object-definition.lua" )
 
 --- @class SmartGameObjectDefinitionClass : ArmedGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( armedGameObjectDefinitionClass )
 STATIC.Class = "SmartGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
