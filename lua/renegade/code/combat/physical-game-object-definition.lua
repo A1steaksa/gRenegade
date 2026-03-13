@@ -9,8 +9,8 @@ local damageableGameObjectDefinitionClass = CNC.Import( "code/combat/damageable-
 
 --- @class PhysicalGameObjectDefinitionClass : DamageableGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( damageableGameObjectDefinitionClass )
-STATIC.Class = "PhysicalGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "PhysicalGameObjectDefinitionClass"
 
 --- @class PhysicalGameObjectDefinitionInstance : DamageableGameObjectDefinitionInstance
 local INSTANCE = robustclass.Register( "Renegade_PhysicalGameObjectDefinitionClass : Renegade_DamageableGameObjectDefinitionClass" )
