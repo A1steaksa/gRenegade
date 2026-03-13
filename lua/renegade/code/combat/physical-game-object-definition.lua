@@ -5,10 +5,10 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type DamageableGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/damageable-game-object-definition.lua" )
+local damageableGameObjectDefinitionClass = CNC.Import( "code/combat/damageable-game-object-definition.lua" )
 
 --- @class PhysicalGameObjectDefinitionClass : DamageableGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( damageableGameObjectDefinitionClass )
 STATIC.Class = "PhysicalGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
