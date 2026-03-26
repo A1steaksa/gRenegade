@@ -2,156 +2,61 @@
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
-{{#if HasParent}}
+{{#if ParentImports}}
 
---- @type {{ParentLuaStaticClassName}}
-local PARENT = CNC.Import( "{{ParentLuaClassPath}}" )
+{{{ParentImports}}}
 {{/if}}
 
---- @class {{LuaStaticClassName}}{{#if HasParent}} : {{ParentLuaStaticClassName}}{{/if }}
-{{#unless IsStaticOnly}}
---- @field Instance {{LuaInstanceClassName}} The metatable used by {{LuaInstanceClassName}}
-{{/unless}}
-local STATIC = CNC.CreateExport({{#if HasParent}} PARENT {{/if}})
+--- @class {{StaticClassName}}{{{LuaLanguageServerStaticParents}}}
+--- @field Instance {{InstanceClassName}} The metatable used by {{InstanceClassName}}
+local STATIC = CNC.CreateExport({{{CreateExportParents}}})
 local isHotload = not table.IsEmpty( STATIC )
-STATIC.Class = "{{LuaStaticClassName}}"
+STATIC.Class = "{{StaticClassName}}"
 
-{{~#unless IsStaticOnly}}
-
---- @class {{LuaInstanceClassName}}{{#if HasParent}} : {{ParentLuaInstanceClassName}}{{/if}}
---- @field Static {{LuaStaticClassName}} The static table for this instance's class
-local INSTANCE = robustclass.Register( "{{LuaRobustClassName}}{{#if HasParent}} : {{ParentLuaRobustClassName}}{{/if}}" )
-INSTANCE.Class = "{{LuaInstanceClassName}}"
+--- @class {{InstanceClassName}}{{{LuaLanguageServerInstanceParents}}}
+--- @field Static {{StaticClassName}} The static table for this instance's class
+local INSTANCE = robustclass.Register( "{{RobustClassName}}{{#if HasParent}} : {{ParentRobustClassName}}{{/if}}" )
+INSTANCE.Class = "{{InstanceClassName}}"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.Is{{LuaBaseClassName}} = true
-{{/unless}}
-
-{{#if ContainsEnums}}
-
---#region Exported Enums
-
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
-
-    local enumBuilder = enumBuilderClass.New()
-
-    --- @enum PlaceholderName
-    STATIC.PLACEHOLDER_NAME = {
-        PLACEHOLDER = enumBuilder:Set( 0 ),
-        PLACEHOLDER = enumBuilder:Next(),
-    }
-    local placeholderEnum = STATIC.PLACEHOLDER_NAME
---#endregion
-{{/if}}
+INSTANCE.Is{{BaseClassName}} = true
 
 
 --#region Imports
-{{#unless ContainsEnums}}
-{{#if NeedsChunkIds}}
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
-{{/if}}
-{{/unless}}
+{{ClassImports~}}
 --#endregion
 
 
 --#region Imported Enums
+{{EnumImports~}}
 --#endregion
-
-
-{{~#if NeedsChunkIds}}
-
-
---[[ Chunk IDs ]] do
-
-    local enumBuilder = enumBuilderClass.New()
-
-    STATIC.ChunkIds = {
-        CHUNKID_PLACEHOLDER = enumBuilder:Set( 0 ),
-        CHUNKID_PLACEHOLDER = enumBuilder:Next(),
-    }
-end
-{{/if}}
-
-
-{{~#if IsStaticOnly}}
-
-
---- @class {{LuaStaticClassName}}
-
-{{#if NeedsSaveLoad}}
-
-
---[[ Save / Load ]] do
-
-    --- @param csave ChunkSaveInstance
-    --- @return boolean
-    function STATIC.Save( csave )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param cload ChunkLoadInstance
-    --- @return boolean
-    function STATIC.Load( cload )
-        typecheck.NotImplementedError()
-    end
-end
-{{/if}}
-
-{{else}}
-
 
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class {{LuaStaticClassName}}
-
-    --- Creates a new {{LuaInstanceClassName}}
-    --- @vararg any
-    --- @return {{LuaInstanceClassName}}
-    function STATIC.New( ... )
-        return robustclass.New( "{{LuaRobustClassName}}", ... )
+    --- @class {{StaticClassName}}
+{{StaticFields}}
+    --- Creates a new {{InstanceClassName}}
+    --- @return {{InstanceClassName}}
+    function STATIC.New()
+        return robustclass.New( "{{RobustClassName}}" )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) {{LuaInstanceClassName}}, `false` otherwise
-    function STATIC.Is{{LuaBaseClassName}}( arg )
+    --- @return boolean `true` if the passed argument is a(n) {{InstanceClassName}}, `false` otherwise
+    function STATIC.Is{{BaseClassName}}( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
 
-        return arg.Is{{LuaBaseClassName}} and true or false
+        return arg.Is{{BaseClassName}} and true or false
     end
 
-    typecheck.RegisterType( "{{LuaInstanceClassName}}", STATIC.Is{{LuaBaseClassName}} )
+    typecheck.RegisterType( "{{InstanceClassName}}", STATIC.Is{{BaseClassName}} )
+{{StaticFunctions~}}
 end
 
 
---- @class {{LuaInstanceClassName}}
+--- @class {{InstanceClassName}}
+{{{InstanceFields}}}
 
---- Constructs a new {{LuaInstanceClassName}}
---- @vararg any
-function INSTANCE:{{LuaRobustClassName}}( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
-
-end
-{{#if NeedsSaveLoad}}
-
-
---[[ Save / Load ]] do
-
-    --- @param csave ChunkSaveInstance
-    --- @return boolean
-    function INSTANCE:Save( csave )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param cload ChunkLoadInstance
-    --- @return boolean
-    function INSTANCE:Load( cload )
-        typecheck.NotImplementedError()
-    end
-end
-{{/if}}
-{{/if}}
+{{InstanceFunctions}}
