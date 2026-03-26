@@ -1,0 +1,48 @@
+{
+    "Name": "PhysicsDefinition",
+    "ParentNames": [ "Definition" ],
+    "FileName": "physics-definition",
+    "CppName": "PhysDefClass",
+
+    "Static": {
+        "Fields": [],
+        "Functions": []
+    },
+
+    "Instance": {
+        "Fields": [
+            "ModelName",
+            "IsPreLit"
+        ],
+        "Functions": [
+            "Constructor",
+            {
+                "Title": "From PersistClass",
+                "Functions": [
+                    "Save",
+                    "Load"
+                ]
+            },
+            {
+                "Title": "PhysDef Type Filtering Mechanism",
+                "Functions": [
+                    "GetTypeName",
+                    "IsType"
+                ]
+            },
+            {
+                "Title": "Validation Methods",
+                "Functions": [
+                    "IsValidConfig"
+                ]
+            },
+            {
+                "Title": "Accessors",
+                "Functions": [
+                    "GetModelName",
+                    "GetIsPreLit"
+                ]
+            }
+        ]
+    }
+}
