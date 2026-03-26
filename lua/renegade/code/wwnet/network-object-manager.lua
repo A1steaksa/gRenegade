@@ -73,10 +73,49 @@ STATIC.IsLevelLoading    = false
     end
 end
 
---- @param objectId integer
-function STATIC.FindObject( objectId )
-    return STATIC.NewDynamicId[objectId]
+
+--[[ Delete Registration Support ]] do
 end
+
+
+--[[ Timestep ]] do
+end
+
+
+--[[ Deletion Support ]] do
+
+    function STATIC.SetAllDeletePending()
+        typecheck.NotImplementedError()
+    end
+
+    function STATIC.DeletePending()
+        typecheck.NotImplementedError()
+    end
+
+    --- @param clientId integer
+    function STATIC.DeleteClientObjects( clientId )
+        typecheck.NotImplementedError()
+    end
+
+    --- @param clientId integer
+    function STATIC.RestoreDirtyBits( clientId )
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Object Enumeration ]] do
+end
+
+
+--[[ Object Lookup ]] do
+
+    --- @param objectId integer
+    function STATIC.FindObject( objectId )
+        return STATIC.NewDynamicId[objectId]
+    end
+end
+
 
 --[[ ID Access ]] do
 
