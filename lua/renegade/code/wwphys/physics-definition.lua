@@ -21,12 +21,33 @@ INSTANCE.Static = STATIC
 INSTANCE.IsPhysicsDefinition = true
 
 
+--#region Exported Enums
+--#endregion
+
 --#region Imports
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
 
 
 --#region Imported Enums
 --#endregion
+
+
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        PHYSDEF_CHUNK_DEFINITION = enumBuilder:Set( 0x055ffe07 ), -- "Parent class data."
+        PHYSDEF_CHUNK_VARIABLES  = enumBuilder:Next(),            -- "Simple variables"
+
+        PHYSDEF_VARIABLE_FLAGS     = enumBuilder:Set( 0 ),
+        PHYSDEF_VARIABLE_MODELNAME = enumBuilder:Next(),
+        PHYSDEF_VARIABLE_ISPRELIT  = enumBuilder:Next()
+    }
+end
 
 
 --[[ Static Functions and Variables ]] do
@@ -51,14 +72,20 @@ INSTANCE.IsPhysicsDefinition = true
     typecheck.RegisterType( "PhysicsDefinitionInstance", STATIC.IsPhysicsDefinition )
 end
 
-
+-- "  
+-- This holds the description for a [PhysicsClass].  
+-- Since [PhysicsClass]'s aren't concrete, this definition class isn't either  
+-- and thus has no persist factory (required by PersistClass)  
+-- or create method (required by DefinitionClass)  
+-- "  
 --- @class PhysicsDefinitionInstance
---- @field ModelName any
---- @field IsPreLit any
+--- @field ModelName string
+--- @field IsPreLit boolean
 
 
 function INSTANCE:Renegade_PhysicsDefinition()
-    typecheck.NotImplementedError()
+    self.ModelName = nil
+    self.IsPreLit = false
 end
 
 
@@ -76,20 +103,33 @@ end
 
 --[[ PhysDef Type Filtering Mechanism ]] do
 
+    --- "PhysDef type filtering mechanism"
+    --- @return string
     function INSTANCE:GetTypeName()
-        typecheck.NotImplementedError()
+        return "PhysDef"
     end
 
-    function INSTANCE:IsType()
-        typecheck.NotImplementedError()
+    --- @param typeName string
+    --- @return boolean
+    function INSTANCE:IsType( typeName )
+        if typeName == self:GetTypeName() then
+            return true
+        else
+            return false
+        end
     end
 end
 
 
 --[[ Validation Methods ]] do
 
+    --- @return boolean, string?
     function INSTANCE:IsValidConfig()
-        typecheck.NotImplementedError()
+        if self.ModelName:len() == 0 then
+            return false, "ModelName is invalid!"
+        end
+
+        return true
     end
 end
 
@@ -97,10 +137,10 @@ end
 --[[ Accessors ]] do
 
     function INSTANCE:GetModelName()
-        typecheck.NotImplementedError()
+        return self.ModelName
     end
 
     function INSTANCE:GetIsPreLit()
-        typecheck.NotImplementedError()
+        return self.IsPreLit
     end
 end
