@@ -183,7 +183,7 @@ end
         end
     end
 
-    --- @return DefinitionInstance?
+    --- @return PersistInstance?
     function INSTANCE:Create()
         return nil
     end
@@ -204,8 +204,8 @@ end
 
 --[[ Validation Methods ]] do
 
-    --- @param message string
-    function INSTANCE:IsValidConfig( message )
+    --- @return boolean, string?
+    function INSTANCE:IsValidConfig()
         return true
     end
 end

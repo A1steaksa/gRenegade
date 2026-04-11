@@ -102,7 +102,7 @@ end
         self:SetPlayerType( playerTypeEnum.Neutral )
     end
 
-    function INSTANCE:_delete()
+    function INSTANCE:__delete()
         self:RemoveAllObservers()
     end
 end
@@ -165,7 +165,7 @@ end
 
 --- @param damager OffenseObjectInstance
 --- @param scale number? [Default: 1.0]
---- @param alternateSkin integer [Default: -1]
+--- @param alternateSkin integer? [Default: -1]
 function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
     scale = scale or 1.0
     alternateSkin = alternateSkin or -1

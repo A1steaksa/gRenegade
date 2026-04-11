@@ -251,16 +251,16 @@ function STATIC.Init()
         STATIC.BlipColors[i] = Color( 255, 255, 255, 255 )
     end
     -- Teams
-    STATIC.BlipColors[blipColorTypeEnum.Nod               ] = globalSettingsClass.Colors.Nod
-    STATIC.BlipColors[blipColorTypeEnum.GDI               ] = globalSettingsClass.Colors.GDI
-    STATIC.BlipColors[blipColorTypeEnum.Neutral           ] = globalSettingsClass.Colors.Neutral
-    STATIC.BlipColors[blipColorTypeEnum.Mutant            ] = globalSettingsClass.Colors.Mutant
-    STATIC.BlipColors[blipColorTypeEnum.Renegade          ] = globalSettingsClass.Colors.Renegade
-    STATIC.BlipColors[blipColorTypeEnum.Combine           ] = globalSettingsClass.Colors.Combine
-    STATIC.BlipColors[blipColorTypeEnum.Rebels            ] = globalSettingsClass.Colors.Rebels
-    STATIC.BlipColors[blipColorTypeEnum.BlackMesa         ] = globalSettingsClass.Colors.BlackMesa
-    STATIC.BlipColors[blipColorTypeEnum.HECU              ] = globalSettingsClass.Colors.HECU
-    STATIC.BlipColors[blipColorTypeEnum.Aperture          ] = globalSettingsClass.Colors.Aperture
+    STATIC.BlipColors[blipColorTypeEnum.Nod      ] = globalSettingsClass.Colors.Nod
+    STATIC.BlipColors[blipColorTypeEnum.GDI      ] = globalSettingsClass.Colors.GDI
+    STATIC.BlipColors[blipColorTypeEnum.Neutral  ] = globalSettingsClass.Colors.Neutral
+    STATIC.BlipColors[blipColorTypeEnum.Mutant   ] = globalSettingsClass.Colors.Mutant
+    STATIC.BlipColors[blipColorTypeEnum.Renegade ] = globalSettingsClass.Colors.Renegade
+    STATIC.BlipColors[blipColorTypeEnum.Combine  ] = globalSettingsClass.Colors.Combine
+    STATIC.BlipColors[blipColorTypeEnum.Rebels   ] = globalSettingsClass.Colors.Rebels
+    STATIC.BlipColors[blipColorTypeEnum.BlackMesa] = globalSettingsClass.Colors.BlackMesa
+    STATIC.BlipColors[blipColorTypeEnum.HECU     ] = globalSettingsClass.Colors.HECU
+    STATIC.BlipColors[blipColorTypeEnum.Aperture ] = globalSettingsClass.Colors.Aperture
 
     -- Objectives
     STATIC.BlipColors[blipColorTypeEnum.PrimaryObjective  ] = globalSettingsClass.Colors.PrimaryObjective

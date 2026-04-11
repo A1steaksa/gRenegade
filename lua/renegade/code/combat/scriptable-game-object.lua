@@ -104,7 +104,7 @@ end
         self.ObserverCreatedPending = false
     end
 
-    function INSTANCE:_delete()
+    function INSTANCE:__delete()
         self:RemoveAllObservers()
 
         -- "Delete the ObservertimerLIst"

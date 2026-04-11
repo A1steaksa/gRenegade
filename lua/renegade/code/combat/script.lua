@@ -45,7 +45,7 @@ end
 
 --- @class ScriptInstance
 
-function INSTANCE:_delete()
+function INSTANCE:__delete()
     typecheck.NotImplementedError()
 end
 

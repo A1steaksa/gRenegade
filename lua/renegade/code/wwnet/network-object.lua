@@ -149,7 +149,7 @@ end
         self:ClearObjectDirtyBits()
     end
 
-    function INSTANCE:_delete()
+    function INSTANCE:__delete()
         typecheck.NotImplementedError()
     end
 end
