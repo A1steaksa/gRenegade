@@ -11,7 +11,7 @@ local gameObjectObserverclass = CNC.Import( "code/combat/game-object-observer.lu
 
 --- @class PersistentGameObjectObserverClass : PersistClass, GameObjectObserverClass
 --- @field Instance PersistentGameObjectObserverInstance The metatable used by PersistentGameObjectObserverInstance
-local STATIC = CNC.CreateExport( persistClass )
+local STATIC = CNC.CreateExport( persistClass, gameObjectObserverclass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "PersistentGameObjectObserverClass"
 --- @class PersistentGameObjectObserverInstance : PersistInstance, GameObjectObserverInstance
@@ -24,6 +24,12 @@ INSTANCE.IsPersistentGameObjectObserver = true
 
 
 --#region Imports
+
+    --- @type PersistentGameObjectObserverManagerClass
+    local persistentGameObjectObserverManagerClass = CNC.Import( "code/combat/persistent-game-object-observer-manager.lua" )
+
+    --- @type GameObjectObserverManagerClass
+    local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 --#endregion
@@ -38,8 +44,11 @@ INSTANCE.IsPersistentGameObjectObserver = true
     local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
-        CHUNKID_PLACEHOLDER = enumBuilder:Set( 0 ),
-        CHUNKID_PLACEHOLDER = enumBuilder:Next(),
+        CHUNKID_PARENT = enumBuilder:Set( 411001149 ),
+        CHUNKID_VARIABLES = enumBuilder:Next(),
+
+        MICROCHUNKID_OBSERVER_PTR = enumBuilder:Set( 1 ),
+        MICROCHUNKID_OBSERVER_ID = enumBuilder:Next(),
     }
 end
 
@@ -49,10 +58,9 @@ end
     --- @class PersistentGameObjectObserverClass
 
     --- Creates a new PersistentGameObjectObserverInstance
-    --- @vararg any
     --- @return PersistentGameObjectObserverInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_PersistentGameObjectObserver", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_PersistentGameObjectObserver" )
     end
 
     --- @param arg any
@@ -71,11 +79,13 @@ end
 --- @class PersistentGameObjectObserverInstance
 
 --- Constructs a new PersistentGameObjectObserverInstance
---- @vararg any
-function INSTANCE:Renegade_PersistentGameObjectObserver( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
+function INSTANCE:Renegade_PersistentGameObjectObserver()
+    self:SetId( gameObjectObserverManagerClass.GetNextObserverId() )
+    persistentGameObjectObserverManagerClass.Add( self )
+end
 
+function INSTANCE:__delete()
+    persistentGameObjectObserverManagerClass.Remove( self )
 end
 
 
