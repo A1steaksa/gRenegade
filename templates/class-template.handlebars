@@ -2,11 +2,14 @@
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
-{{#if ParentImports}}
-
 {{{ParentImports}}}
-{{/if}}
 
+{{#if IsStaticOnly~}}
+--- @class {{StaticClassName}}{{{LuaLanguageServerStaticParents}}}
+local STATIC = CNC.CreateExport({{{CreateExportParents}}})
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "{{StaticClassName}}"
+{{else}}
 --- @class {{StaticClassName}}{{{LuaLanguageServerStaticParents}}}
 --- @field Instance {{InstanceClassName}} The metatable used by {{InstanceClassName}}
 local STATIC = CNC.CreateExport({{{CreateExportParents}}})
@@ -20,7 +23,12 @@ INSTANCE.Class = "{{InstanceClassName}}"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.Is{{BaseClassName}} = true
+{{/if}}
 
+--#region Exported Enums
+{{EnumBuilderImport~}}
+{{EnumExports~}}
+--#endregion
 
 --#region Imports
 {{ClassImports~}}
@@ -31,7 +39,11 @@ INSTANCE.Is{{BaseClassName}} = true
 {{EnumImports~}}
 --#endregion
 
-
+{{#if IsStaticOnly~}}
+--- @class {{StaticClassName}}
+{{StaticFields~}}
+{{StaticFunctions~}}
+{{else~}}
 --[[ Static Functions and Variables ]] do
 
     --- @class {{StaticClassName}}
@@ -57,6 +69,6 @@ end
 
 
 --- @class {{InstanceClassName}}
-{{{InstanceFields}}}
-
-{{InstanceFunctions}}
+{{InstanceFields~}}
+{{InstanceFunctions~}}
+{{~/if}}
