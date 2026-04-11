@@ -117,7 +117,7 @@ local DEFAULT_DAMAGE = 1.0
         self:SetOwner( args[3] --[[@as ArmedGameObjectInstance]] or NULL )
     end
 
-    function INSTANCE:_delete()
+    function INSTANCE:__delete()
         self:SetOwner( nil )
     end
 end
@@ -172,7 +172,7 @@ end
         self.Owner = newOwner --[[@as ScriptableGameObjectInstance]]
     end
 
-    --- @return ArmedGameObjectInstance?
+    --- @return ArmedGameObjectInstance
     function INSTANCE:GetOwner()
         return self.Owner --[[@as ArmedGameObjectInstance]]
     end

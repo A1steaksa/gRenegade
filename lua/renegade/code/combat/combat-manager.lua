@@ -575,8 +575,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --[[ The Scene ]] do
 
+        --- @return PhysicsSceneInstance
         function STATIC.GetScene()
-            typecheck.NotImplementedError( "GetScene" )
+            return physicsSceneClass:GetInstance()
         end
 
         --- @return unknown

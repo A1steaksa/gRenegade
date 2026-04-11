@@ -94,7 +94,7 @@ end
         -- Omitted setting network creation bit as dirty
     end
 
-    function INSTANCE:_delete()
+    function INSTANCE:__delete()
         gameObjectManagerClass.Remove( self )
     end
 end
@@ -108,7 +108,7 @@ end
     end
 
     --- @returns Entity
-    function INSTANCE:GetConnectedEntity( entity )
+    function INSTANCE:GetConnectedEntity()
         return self.ConnectedEntity
     end
 end
