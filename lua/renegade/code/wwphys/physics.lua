@@ -1,4 +1,4 @@
--- Based on PhysClass within Code/wwphys/phys.cpp/h
+-- Based on PhysClass within Code/wwphys/phys.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -6,60 +6,31 @@ local CNC = CNC_RENEGADE
 --- @type PersistClass
 local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
--- Omitted CullableClass and MultiListObjectClass parents
-
 --- @class PhysicsClass : PersistClass
 --- @field Instance PhysicsInstance The metatable used by PhysicsInstance
 local STATIC = CNC.CreateExport( persistClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "PhysicsClass"
+
 --- @class PhysicsInstance : PersistInstance
 --- @field Static PhysicsClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_Physics : Renegade_Persist" )
+local INSTANCE = robustclass.Register( "Renegade_Physics" )
 INSTANCE.Class = "PhysicsInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsPhysics = true
 
-
 --#region Exported Enums
-
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
-
-    local enumBuilder = enumBuilderClass.New()
-
-    --- @enum PlaceholderName
-    STATIC.PLACEHOLDER_NAME = {
-        PLACEHOLDER = enumBuilder:Set( 0 ),
-        PLACEHOLDER = enumBuilder:Next(),
-    }
-    local placeholderEnum = STATIC.PLACEHOLDER_NAME
 --#endregion
-
 
 --#region Imports
 --#endregion
 
-
 --#region Imported Enums
 --#endregion
 
---[[ Chunk IDs ]] do
-
-    local enumBuilder = enumBuilderClass.New()
-
-    STATIC.ChunkIds = {
-        CHUNKID_PLACEHOLDER = enumBuilder:Set( 0 ),
-        CHUNKID_PLACEHOLDER = enumBuilder:Next(),
-    }
-end
-
-
-
 --[[ Static Functions and Variables ]] do
 
-    --- "This is the base class for all objects in the physics system."
     --- @class PhysicsClass
 
     --- Creates a new PhysicsInstance
@@ -82,33 +53,726 @@ end
 
 
 --- @class PhysicsInstance
+--- @field private ConnectedEntity Entity The Garry's Mod Entity that this object represents
+--- @field Flags integer "Flags for things like whether this object is currently being considered immovable"
+--- @field Model string "Render model"
+--- @field Name string? "Optional instance name"
+--- @field InstanceId integer "Optional instance identifier (unique if non-zero)"
+--- "  
+--- Every phys object can store a vis object id.
+--- Static objects will have constant ID's assigned by the vis generation process, dynamic objects
+--- will update their id based on their current location.  
+--- "
+--- @field VisObjectId integer
+--- @field Observer PhysicsObserverInstance
+--- @field Definition PhysicsDefinitionInstance "Definition object, contains constants which are shared between instances"
+--- @field MaterialEffectsOnMe MaterialEffectInstance[] "List of projected textures that are being applied to this object"
+--- @field StaticLightingCache LightEnvironmentInstance
+--- @field SunStatusLastUpdated integer "Frame time at which the sun status was last updated. The sun status is cached and only updated few times per second."
+--- @field LastVisibleFrame integer "The pscene uses this to figure out if the mesh is visible, to do some physics optimizations."
 
---- Constructs a new PhysicsInstance
+local COLLISION_MASK          = 0x0000000F -- "Bits for the collision group"
+local IMMOVABLE               = 0x00000100 -- "This object is immovable."
+local DISABLED                = 0x00000200 -- "Some objects can be disabled (e.g. lights)"
+local DEBUGDISPLAY            = 0x00000400 -- "Render debugging aids (forces, impacts, etc)"
+local USERCONTROL             = 0x00000800 -- "Ignore physics, move according to controller directly"
+local CASTSHADOW              = 0x00001000 -- "Does this object cast a shadow?"
+local FORCE_PROJECTION_SHADOW = 0x00002000 -- "When the shadow mode is BLOBS_PLUS, this object still uses a "proper" shadow"
+local DONT_SAVE               = 0x00004000 -- "Scene should never save this object (used for transient things like glass fragments)"
+local ASLEEP                  = 0x00008000 -- "This object is not moving so its simulation was skipped"
+local IS_WS_MESH              = 0x00010000 -- "Enable the static-world-space-mesh rendering optimizations."
+local IS_PRE_LIT              = 0x00020000 -- "Is this a light-mapped object that doesn't need static lights applied."
+local IS_IN_THE_SUN           = 0x00040000 -- "Is this object illuminated by the sun?"
+local IS_STATE_DIRTY          = 0x00080000 -- "This object's state has changed. "
+local STATIC_LIGHTING_DIRTY   = 0x00100000 -- "This object's static lighting cache is dirty"
+local FRICTION_DISABLED       = 0x00200000 -- "Friction is disabled for this object (vehicles disable body-friction when their wheels are in contact)"
+local SIMULATION_DISABLED     = 0x00400000 -- "Turn on/off simulation for this object"
+local IGNORE_MASK             = 0xF0000000 -- "Mask for the 'ignore-me' counter"
+local DEFAULT_FLAGS           = 0
+
 function INSTANCE:Renegade_Physics()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:_delete()
-    typecheck.NotImplementedError()
+    self.Flags = DEFAULT_FLAGS
+    self.Model = nil
+    self.Observer = nil
+    self.Definition = nil
+    self.InstanceId = 0
+    self.VisObjectId = 0
+    self.LastVisibleFrame = 0
+    self.SunStatusLastUpdated = 0
+    self.StaticLightingCache = nil
 end
 
 --- @param definition PhysicsDefinitionInstance
 function INSTANCE:Init( definition )
+    self.Definition = definition
+    self.Flags = DEFAULT_FLAGS
+    if definition.ModelName.len ~= 0 then
+        -- Omitted original model loading logic
+
+        self:SetModel( definition.ModelName )
+    end
+end
+
+function INSTANCE:DefinitionChanged()
+    -- Empty in the original code
+end
+
+function INSTANCE:Expire()
     typecheck.NotImplementedError()
 end
 
 
---[[ Save / Load ]] do
+--[[ Entity Connection ]] do
 
-    --- @param csave ChunkSaveInstance
-    --- @return boolean
-    function INSTANCE:Save( csave )
+    --- @param entity Entity
+    function INSTANCE:SetConnectedEntity( entity )
+        self.ConnectedEntity = entity
+    end
+
+    --- @returns Entity
+    function INSTANCE:GetConnectedEntity()
+        return self.ConnectedEntity
+    end
+end
+
+
+--[[ Timestep ]] do
+
+    --- "System informs the object to update itself for the specified amount of time"
+    function INSTANCE:NeedsTimestep()
+        return false
+    end
+
+    function INSTANCE:Timestep()
         typecheck.NotImplementedError()
     end
 
-    --- @param cload ChunkLoadInstance
-    --- @return boolean
-    function INSTANCE:Load( cload )
+    function INSTANCE:PostTimestepProcess()
+        -- Empty in the original code
+    end
+end
+
+
+--[[ Position & Orientation ]] do
+
+    --- @return Matrix3dInstance
+    function INSTANCE:GetTransform()
         typecheck.NotImplementedError()
     end
+
+    --- @param transformationMatrix Matrix3dInstance
+    function INSTANCE:SetTransform( transformationMatrix )
+        typecheck.NotImplementedError()
+    end
+
+    --- @return Vector
+    function INSTANCE:GetPosition()
+        return self:GetTransform():GetTranslation()
+    end
+
+    --- @param pos Vector
+    function INSTANCE:SetPosition( pos )
+        local transformationMatrix = self:GetTransform()
+        transformationMatrix:SetTranslation( pos )
+        self:SetTransform( transformationMatrix )
+    end
+
+    --- @return number
+    function INSTANCE:GetFacing()
+        return self:GetTransform():GetZRotation()
+    end
+
+    function INSTANCE:SetFacing()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Collision Detection ]] do
+
+    -- "  
+    -- all collideable objects provide the following collision detection
+    -- functions so that other objects do not pass through them.
+    -- These functions should test the given primitive against this object's
+    -- geometric representation.  
+    -- "  
+
+    --- @param test PhysicsRayCollisionTestInstance
+    --- @return boolean
+    function INSTANCE:CastRay( test )
+        return false
+    end
+
+    --- @param test PhysicsAABoxCollisionTestInstance
+    --- @return boolean
+    function INSTANCE:CastAaBox( test )
+        return false
+    end
+
+    --- @param test PhysicsObBoxCollisionTestInstance
+    --- @return boolean
+    function INSTANCE:CastObBox( test )
+        return false
+    end
+
+    --- @param test PhysicAaBoxIntersectionTestInstance|PhysicObBoxIntersectionTestInstance|PhysicMeshIntersectionTestInstance
+    --- @return boolean
+    function INSTANCE:IntersectionTest( test )
+        return false
+    end
+end
+
+
+--[[ Inter-Object Geometric Dependency ]] do
+
+    -- "
+    -- These functions don't really perform any physics-based motion, only purely kinematic.  
+    -- You can link a moveable physics object (the rider) to another object that it is
+    -- standing on (the carrier).  This will cause the carrier to move the rider whenever
+    -- it moves (by calling Push).
+    -- "
+
+    --- @param carrier PhysicsInstance
+    --- @param carrierSubObject RenderObjectInstance? (Optional)
+    function INSTANCE:LinkToCarrier( carrier, carrierSubObject )
+        -- Empty in the original code
+    end
+
+    --- @return RenderObjectInstance?
+    function INSTANCE:PeekCarrierSubObject()
+        return nil
+    end
+
+    --- "Carriers push their riders around, also objects not being carried can be pushed"
+    --- @param move Vector
+    function INSTANCE:Push( move )
+        return false
+    end
+
+    --- "An object is being attached to you, move him when you move"
+    --- @param rider PhysicsInstance
+    function INSTANCE:InternalLinkRider( rider )
+        return false
+    end
+
+    --- "Stop moving this object when you move."
+    --- @param rider PhysicsInstance
+    function INSTANCE:InternalUnlinkRider( rider )
+        return false
+    end
+end
+
+
+--[[ Culling ]] do
+
+    --- "  
+    --- This function updates the culling box used by the object.
+    --- The default implementation is to copy the bounding box of
+    --- the current Model.
+    --- "  
+    function INSTANCE:UpdateCullBox()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Model ]] do
+
+    --- @param model string
+    function INSTANCE:SetModel( model )
+        -- Omitted original logic
+        self:GetConnectedEntity():SetModel( model )
+    end
+
+    --- @param modelTypeName string
+    function INSTANCE:SetModelByName( modelTypeName )
+        typecheck.NotImplementedError()
+    end
+
+    --- @return string?
+    function INSTANCE:GetModel()
+        local connectedEntity = self:GetConnectedEntity()
+        if not IsValid( connectedEntity ) then
+            return nil
+        end
+
+        return connectedEntity:GetModel()
+    end
+
+    --- @return string?
+    function INSTANCE:PeekModel()
+        return self:GetModel()
+    end
+end
+
+
+--[[ Name ]] do
+
+    function INSTANCE:SetName()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetName()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Instance Id ]] do
+
+    function INSTANCE:GetId()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:SetId()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Vis Object Id ]] do
+
+    function INSTANCE:SetVisObjectId()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return integer
+    function INSTANCE:GetVisObjectId()
+        return self.VisObjectId
+    end
+end
+
+
+--[[ Lighting ]] do
+
+    function INSTANCE:InvalidateStaticLightingCache()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetStaticLightingEnvironment()
+        typecheck.NotImplementedError()
+    end
+end
+
+function INSTANCE:RenderVisMeshes()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetShadowBlobBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsCastingShadow()
+    typecheck.NotImplementedError()
+end
+
+
+--[[ Material Effects ]] do
+
+    function INSTANCE:AddEffectToMe()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:RemoveEffectFromMe()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:DoAnyEffectsSuppressShadows()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Collision Groups ]] do
+
+    --- "  
+    --- Set the Collision Group for this physics object.  
+    --- The collision group is an integer between 0 and 15.  
+    --- Collisions between any two groups can be enabled/disabled through
+    --- the physics system.  
+    --- "
+    --- @param group CollisionGroupType
+    function INSTANCE:SetCollisionGroup( group )
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetCollisionGroup()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Ignore Me ]] do
+
+    function INSTANCE:IncrementIgnoreCounter()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:DecrementIgnoreCounter()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsIgnoreMe()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Immovable ]] do
+
+    function INSTANCE:SetImmovable()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsImmovable()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Disabled ]] do
+
+    function INSTANCE:SetDisabled()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsDisabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Debug Display ]] do
+
+    function INSTANCE:EnableDebugDisplay()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsDebugDisplayEnabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ User Control ]] do
+
+    function INSTANCE:EnableUserControl()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsUserControlEnabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Shadow Casting ]] do
+
+    function INSTANCE:EnableShadowGeneration()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsShadowGenerationEnabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Blob Shadow Override ]] do
+
+    function INSTANCE:EnableForceProjectionShadow()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsForceProjectionShadowEnabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Don&#x27;t Save ]] do
+
+    function INSTANCE:EnableDontSave()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsDontSaveEnabled()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Asleep ]] do
+
+    function INSTANCE:IsAsleep()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ForceAwake()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Static World-Space Mesh ]] do
+
+    function INSTANCE:EnableIsWorldSpaceMesh()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsWorldSpaceMesh()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Pre-Lit ]] do
+
+    function INSTANCE:EnableIsPreLit()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsPreLit()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Is In The Sun ]] do
+
+    function INSTANCE:EnableIsInTheSun()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsInTheSun()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Is State Dirty ]] do
+
+    function INSTANCE:EnableIsStateDirty()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsStateDirty()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Object&#x27;s Simulation ]] do
+
+    function INSTANCE:EnableObjectsSimulation()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsObjectsSimulationEnabled()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsObjectSimulating()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Collision Observer ]] do
+
+    --- "
+    --- If you install a collision observer, it will be notified of any collisions which occur 
+    --- involving this object.  One way to do this is to derive your game objects from 
+    --- CollisionObserverClass so that they can be directly installed here.  Currently, there
+    --- can only be one observer for any physics object.  You are responsible for removing
+    --- the observer before this phys object is destroyed: Set_Observer(NULL)
+    --- "
+    --- @param observer PhysicsObserverInstance
+    function INSTANCE:SetObserver( observer )
+        self.Observer = observer
+    end
+
+    --- @return PhysicsObserverInstance
+    function INSTANCE:GetObserver()
+        return self.Observer
+    end
+
+    function INSTANCE:CollisionOccurred()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Definition ]] do
+
+    --- "
+    --- Many physics objects are created from a "definition".
+    --- The definition object contains constants. 
+    --- If this object has a definition, you can access it here.
+    --- "
+    --- @return PhysicsDefinitionInstance
+    function INSTANCE:GetDefinition()
+        return self.Definition
+    end
+end
+
+
+--[[ Physics RTTI ]] do
+
+    --- @return DynamicPhysicsInstance?
+    function INSTANCE:AsDynamicPhysics()
+        return nil
+    end
+
+    --- @return MoveablePhysicsInstance?
+    function INSTANCE:AsMoveablePhysics()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return Physics3Instance?
+    function INSTANCE:AsPhysics3()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return HumanPhysicsInstance?
+    function INSTANCE:AsHumanPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return RigidBodyInstance?
+    function INSTANCE:AsRigidBody()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsVehiclePhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsMotorVehicle()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsWheeledVehicle()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsMotorcycle()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsTrackedVehicle()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsVtolVehicle()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsStaticPhyicss()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsStaticAnimationPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsElevatorPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsDamageableStaticPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsDoorPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsDecorationPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsTimedDecorationPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsDynamicAnimationPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsLightPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsRenderObjectPhysics()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsProjectile()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:AsAccessiblePhysics()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Persistance ]] do
+
+    function INSTANCE:Save()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:Load()
+        typecheck.NotImplementedError()
+    end
+end
+
+
+--[[ Simulation and Rendering ]] do
+
+    function INSTANCE:Render()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:VisRender()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsSimulationDisabled()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsRenderingDisabled()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetLastVisibleFrame()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:SetLastVisibleFrame()
+        typecheck.NotImplementedError()
+    end
+end
+
+function INSTANCE:GetFlag()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetFlag()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:PushEffects()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:PopEffects()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateSunStatus()
+    typecheck.NotImplementedError()
 end
