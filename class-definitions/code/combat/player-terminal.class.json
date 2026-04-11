@@ -1,0 +1,22 @@
+{
+  "Name": "PlayerTerminal",
+  "ParentNames": [],
+  "FileName": "player-terminal",
+  "CppName": "PlayerTerminalClass",
+  "Static": {
+    "Fields": [
+      "TheInstance"
+    ],
+    "Functions": [
+      "GetInstance"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Destructor",
+      "DisplayTerminal",
+      "DisplayDefaultTerminalForPlayer"
+    ]
+  }
+}
