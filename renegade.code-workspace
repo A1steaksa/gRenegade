@@ -104,6 +104,9 @@
                     }
                 }
             }
-        ]
+        ],
+        "files.associations": {
+            "cstring": "cpp"
+        }
     }
 }
