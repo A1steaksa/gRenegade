@@ -100,11 +100,11 @@ end
 	(MetaName and MetaID). __tostring is also cleared so the parent's
 	__tostring does not shadow the child's.
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
--- Recursively deep-copies a class node and its entire BaseClass chain,
--- giving each node its own isolated table and metatable so that nothing
--- in the copy shares identity with the original registered classes.
--- This means mutations made while chaining (e.g. setting BaseClass or
--- metatable.__index to the next node) can never corrupt the originals.
+-- Recursively deep-copies a class node and its entire ancestry, preserving
+-- the distinction between true ancestors (single BaseClass chain) and
+-- multiple direct parents (__parents list), so construct/destruct can walk
+-- each branch independently without sharing any table identity with the
+-- originals.
 local function deepCopyClassNode( src )
 
 	local copy    = TableCopy( src )
@@ -112,15 +112,35 @@ local function deepCopyClassNode( src )
 
 	setmetatable( copy, copy_mt )
 
-	-- Self-referential __index: point to the copy, not the original.
 	copy.__index = copy
 
-	-- Recursively deep-copy the BaseClass chain so no node is shared.
-	if ( copy.BaseClass ) then
+	local src_parents = src.__parents
 
-		local baseCopy    = deepCopyClassNode( copy.BaseClass )
-		copy.BaseClass    = baseCopy
-		copy_mt.__index   = baseCopy
+	if ( src_parents and #src_parents > 0 ) then
+
+		local newParents = {}
+
+		for i = 1, #src_parents do
+			newParents[ i ] = deepCopyClassNode( src_parents[ i ] )
+		end
+
+		copy.__parents = newParents
+
+		-- BaseClass is only used for construct/destruct traversal on copied
+		-- nodes; point it at the first parent copy to stay consistent.
+		copy.BaseClass  = newParents[ 1 ]
+		copy_mt.__index = newParents[ 1 ]
+
+	elseif ( copy.BaseClass ) then
+
+		local baseCopy  = deepCopyClassNode( copy.BaseClass )
+		copy.BaseClass  = baseCopy
+		copy_mt.__index = baseCopy
+		copy.__parents  = nil
+
+	else
+
+		copy.__parents = nil
 
 	end
 
@@ -128,10 +148,53 @@ local function deepCopyClassNode( src )
 
 end
 
+local SKIP_FIELDS = {
+	__index    = true;
+	__tostring = true;
+	__parents  = true;
+	BaseClass  = true;
+	ClassName  = true;
+	MetaName   = true;
+	MetaID     = true;
+}
+
+-- Recursively collects all methods from a class node and its entire ancestry
+-- into `dest`, visiting deepest ancestors first so that shallower (closer)
+-- ancestors and the class itself take priority over deeper ones.
+-- Does not overwrite keys already present in `dest` (first-writer wins,
+-- which means declaration order in __parents is respected for siblings).
+-- Internal metadata fields are never copied.
+local function collectMethods( dest, node )
+
+	if ( not node ) then return end
+
+	local node_parents = node.__parents
+
+	if ( node_parents ) then
+
+		for i = 1, #node_parents do
+			collectMethods( dest, node_parents[ i ] )
+		end
+
+	else
+
+		collectMethods( dest, node.BaseClass )
+
+	end
+
+	for k, v in next, node do
+
+		if ( not SKIP_FIELDS[ k ] and dest[ k ] == nil ) then
+			dest[ k ] = v
+		end
+
+	end
+
+end
+
 local function inherit( class_t, inheritances )
 
-	local BaseClassFormer
-	local BaseClassFormer_mt
+	class_t.__parents = {}
 
 	for baseclassname in strgmatch( inheritances, '([%w_]+),? ?' ) do
 
@@ -139,40 +202,43 @@ local function inherit( class_t, inheritances )
 
 		if ( baseclass_t ) then
 
-			-- Deep-copy the entire BaseClass chain of this ancestor so that
-			-- no part of the copy is shared with the original registered class
-			-- or with any previously built chain. A shallow TableCopy is not
-			-- sufficient: it leaves BaseClass and metatable.__index pointing at
-			-- the same tables as the original, so chaining mutations (setting
-			-- BaseClassFormer.BaseClass = nextCopy) would corrupt the originals
-			-- and break inheritance for every other class that extends them.
-			local BaseClassLatter, BaseClassLatter_mt = deepCopyClassNode( baseclass_t )
+			local parentCopy = deepCopyClassNode( baseclass_t )
 
-			-- Strip registry-identity fields that must not bleed into the child.
-			BaseClassLatter.__tostring = nil
-			BaseClassLatter.MetaName   = nil
-			BaseClassLatter.MetaID     = nil
+			parentCopy.__tostring = nil
+			parentCopy.MetaName   = nil
+			parentCopy.MetaID     = nil
 
-			if ( BaseClassFormer ) then
-
-				BaseClassFormer.BaseClass  = BaseClassLatter
-				BaseClassFormer_mt.__index = BaseClassLatter
-
-				BaseClassFormer    = BaseClassLatter
-				BaseClassFormer_mt = BaseClassLatter_mt
-
-			else
-
-				class_t.BaseClass  = BaseClassLatter
-				BaseClassFormer    = BaseClassLatter
-				BaseClassFormer_mt = BaseClassLatter_mt
-
-			end
+			class_t.__parents[ #class_t.__parents + 1 ] = parentCopy
 
 		else
 			ErrorNoHalt( 'unknown inheritance \'', baseclassname, '\' for the \'', class_t.ClassName, '\' class\n' )
 		end
 
+	end
+
+	-- Flatten all inherited methods from the entire ancestry of all parents
+	-- directly into class_t. This is necessary because a single __index chain
+	-- cannot express a DAG — with multiple parents, chaining their metatables
+	-- as siblings severs each parent's own ancestry from pObj's lookup path.
+	-- By collecting depth-first with no-overwrite, priority is:
+	-- derived class > first parent > second parent > ... > deepest ancestor.
+	local inherited = {}
+
+	for i = 1, #class_t.__parents do
+		collectMethods( inherited, class_t.__parents[ i ] )
+	end
+
+	for k, v in next, inherited do
+
+		if ( class_t[ k ] == nil ) then
+			class_t[ k ] = v
+		end
+
+	end
+
+	-- Set BaseClass to the first parent for backwards-compatibility.
+	if ( class_t.__parents[ 1 ] ) then
+		class_t.BaseClass = class_t.__parents[ 1 ]
 	end
 
 end
@@ -337,43 +403,61 @@ _ALIAS.Class = robustclass.Register
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: (Internal) Constructs the given object
 
-	FIX (Bug 1 — primary): The original code used a local `ignite` variable
-	assignment (`ignite = true`) at the end of the function to signal that
-	subsequent recursive calls should fire base-class constructors. Because Lua
-	passes primitives by value, this assignment only mutated the local copy and
-	never propagated back to the caller, so `ignite` was always nil/falsy on
-	every call. As a result, ConstructorLatter (the base-class constructor) was
-	*never* called, silently swallowing all base-class constructors.
+	construct() fires all ancestor constructors for class_t in base-first,
+	declaration order, but never fires class_t's own constructor — that is
+	always the caller's responsibility (either the frame above or Create()).
 
-	The fix uses a strict caller-fires design: `construct` is responsible only
-	for firing the constructors of ancestors of `class_t`, never `class_t`'s
-	own constructor. That responsibility belongs exclusively to the caller one
-	level up — either the next `construct` frame or `robustclass.Create` for
-	the derived class itself. This guarantees each constructor fires exactly
-	once in base-first, derived-last order with no duplication.
+	For classes with multiple direct parents (__parents list), each parent
+	branch is walked fully and independently before moving to the next, so
+	that all of parent[1]'s ancestors are constructed before parent[2]'s
+	ancestors — matching declaration order throughout the hierarchy.
 
-	Execution trace for C : B : A, called as construct(pObj, C, "C"):
-	  construct(pObj, C,  "C")   — recurses into B
-	    construct(pObj, B,  "B") — recurses into A
-	      construct(pObj, A,  "A") — no BaseClass, returns immediately
-	    fires A["A"](pObj)         — A's constructor (called by B's frame)
-	    fires B["B"](pObj)         — B's constructor (called by B's frame)
-	  fires C["C"](pObj)           — C's constructor (called by Create)
+	For classes with a single parent (only BaseClass, no __parents), the
+	original linear BaseClass chain walk is used unchanged.
+
+	Execution trace for D : B, C where B : A:
+	  Create calls construct(pObj, D, "D")
+	    D has __parents = {copyB, copyC}
+	    process copyB:
+	      construct(pObj, copyB, "B")     — copyB has BaseClass = copyA, no __parents
+	        construct(pObj, copyA, "A")   — no BaseClass, returns
+	        fires copyA["A"](pObj)        — A's constructor
+	      fires copyB["B"](pObj)          — B's constructor
+	    process copyC:
+	      construct(pObj, copyC, "C")     — copyC has no BaseClass, returns
+	      fires copyC["C"](pObj)          — C's constructor
+	  Create fires D["D"](pObj)           — D's constructor
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
 local function construct( pObj, class_t, classname, ... )
 
-	-- Walk down to the deepest ancestor first.
-	local baseclass_t = class_t.BaseClass
+	local parents = class_t.__parents
 
-	if ( baseclass_t ) then
+	if ( parents ) then
 
-		local baseclassname = baseclass_t.ClassName
+		-- Multiple direct parents: walk each branch fully in declaration order.
+		for i = 1, #parents do
+
+			local parent    = parents[ i ]
+			local parentname = parent.ClassName
+
+			construct( pObj, parent, parentname, ... )
+
+			local Constructor = parent[ parentname ]
+
+			if ( Constructor ) then
+				Constructor( pObj, ... )
+			end
+
+		end
+
+	elseif ( class_t.BaseClass ) then
+
+		-- Single ancestor chain: walk linearly as before.
+		local baseclass_t    = class_t.BaseClass
+		local baseclassname  = baseclass_t.ClassName
 
 		construct( pObj, baseclass_t, baseclassname, ... )
 
-		-- Fire every ancestor's constructor on the way back up. This frame is
-		-- responsible for calling baseclass_t's constructor; the frame above us
-		-- will call class_t's constructor, and so on up to Create().
 		local Constructor = baseclass_t[ baseclassname ]
 
 		if ( Constructor ) then
@@ -381,11 +465,6 @@ local function construct( pObj, class_t, classname, ... )
 		end
 
 	end
-
-	-- Deliberately no call to class_t[classname] here. The caller is always
-	-- responsible for firing the constructor of the class it just recursed into.
-	-- For the outermost call that caller is robustclass.Create, which fires the
-	-- derived class's constructor explicitly after construct() returns.
 
 end
 
@@ -497,23 +576,38 @@ _ALIAS.NewObject = robustclass.Create
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: (Internal) Destructs the given object
 
-	FIX (Bug 1 — same pattern): Identical ignite-flag bug as in construct().
-	Applies the same caller-fires design: destruct() fires all ancestor
-	destructors in base-first order; robustclass.Delete fires the derived
-	class's own destructor last, mirroring construction order in reverse is
-	conventional but here we preserve the original base-first intent.
+	Mirrors construct(): walks each parent branch fully in declaration order,
+	firing ancestor destructors before the parent's own. Delete() fires the
+	derived class's own destructor after destruct() returns.
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
 local function destruct( pObj, class_t, classname )
 
-	local baseclass_t = class_t.BaseClass
+	local parents = class_t.__parents
 
-	if ( baseclass_t ) then
+	if ( parents ) then
 
+		for i = 1, #parents do
+
+			local parent     = parents[ i ]
+			local parentname = parent.ClassName
+
+			destruct( pObj, parent, parentname )
+
+			local Destructor = parent[ '_' .. parentname ]
+
+			if ( Destructor ) then
+				Destructor( pObj )
+			end
+
+		end
+
+	elseif ( class_t.BaseClass ) then
+
+		local baseclass_t   = class_t.BaseClass
 		local baseclassname = baseclass_t.ClassName
 
 		destruct( pObj, baseclass_t, baseclassname )
 
-		-- Fire the base-class destructor on the way back up.
 		local Destructor = baseclass_t[ '_' .. baseclassname ]
 
 		if ( Destructor ) then
@@ -521,8 +615,6 @@ local function destruct( pObj, class_t, classname )
 		end
 
 	end
-
-	-- No call to class_t['_'..classname] here; Delete() handles that.
 
 end
 
