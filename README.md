@@ -279,3 +279,12 @@ Brief description
 ![Pointing out the location of the reticles]()
 
 </details>
+
+## AI Disclosure
+
+It is generally my goal to use AI as little as I reasonably can and to write as much of the project's "core" code myself as I am able to.
+
+This project has made use of AI tools in the following ways:  
+
+* Microsoft Copilot has been used to provide clarification on C++ syntax and behavior when I am unable to find those answers using traditional web searching.
+* Anthropic's Claude has been used to correct a series of subtle inheritance-related errors within the RobustClass library only after I spent several days attempting (and failing) to solve the problem myself.

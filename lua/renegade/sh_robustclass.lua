@@ -91,10 +91,47 @@ end
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: (Internal) Inherits the provided base classes in the given class
+
+	FIX (Bug 2): After TableCopy, the copied base class table had its __index
+	wiped unconditionally. For classes that themselves had a BaseClass (i.e.
+	grandparents), this broke method lookup when the copy was used as `self`
+	inside a constructor. The fix preserves __index on the copy, only clearing
+	the fields that must not bleed into the inheriting class's registry entry
+	(MetaName and MetaID). __tostring is also cleared so the parent's
+	__tostring does not shadow the child's.
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+-- Recursively deep-copies a class node and its entire BaseClass chain,
+-- giving each node its own isolated table and metatable so that nothing
+-- in the copy shares identity with the original registered classes.
+-- This means mutations made while chaining (e.g. setting BaseClass or
+-- metatable.__index to the next node) can never corrupt the originals.
+local function deepCopyClassNode( src )
+
+	local copy    = TableCopy( src )
+	local copy_mt = TableCopy( getmetatable( src ) )
+
+	setmetatable( copy, copy_mt )
+
+	-- Self-referential __index: point to the copy, not the original.
+	copy.__index = copy
+
+	-- Recursively deep-copy the BaseClass chain so no node is shared.
+	if ( copy.BaseClass ) then
+
+		local baseCopy    = deepCopyClassNode( copy.BaseClass )
+		copy.BaseClass    = baseCopy
+		copy_mt.__index   = baseCopy
+
+	end
+
+	return copy, copy_mt
+
+end
+
 local function inherit( class_t, inheritances )
 
 	local BaseClassFormer
+	local BaseClassFormer_mt
 
 	for baseclassname in strgmatch( inheritances, '([%w_]+),? ?' ) do
 
@@ -102,21 +139,33 @@ local function inherit( class_t, inheritances )
 
 		if ( baseclass_t ) then
 
-			local BaseClassLatter = TableCopy( baseclass_t )
+			-- Deep-copy the entire BaseClass chain of this ancestor so that
+			-- no part of the copy is shared with the original registered class
+			-- or with any previously built chain. A shallow TableCopy is not
+			-- sufficient: it leaves BaseClass and metatable.__index pointing at
+			-- the same tables as the original, so chaining mutations (setting
+			-- BaseClassFormer.BaseClass = nextCopy) would corrupt the originals
+			-- and break inheritance for every other class that extends them.
+			local BaseClassLatter, BaseClassLatter_mt = deepCopyClassNode( baseclass_t )
 
-			BaseClassLatter.__tostring, BaseClassLatter.__index, BaseClassLatter.MetaName, BaseClassLatter.MetaID = nil
+			-- Strip registry-identity fields that must not bleed into the child.
+			BaseClassLatter.__tostring = nil
+			BaseClassLatter.MetaName   = nil
+			BaseClassLatter.MetaID     = nil
 
 			if ( BaseClassFormer ) then
 
-				BaseClassFormer.BaseClass = BaseClassLatter
-				getmetatable( BaseClassFormer ).__index = BaseClassLatter
+				BaseClassFormer.BaseClass  = BaseClassLatter
+				BaseClassFormer_mt.__index = BaseClassLatter
 
-				BaseClassFormer = BaseClassLatter
+				BaseClassFormer    = BaseClassLatter
+				BaseClassFormer_mt = BaseClassLatter_mt
 
 			else
 
-				class_t.BaseClass = BaseClassLatter
-				BaseClassFormer = BaseClassLatter
+				class_t.BaseClass  = BaseClassLatter
+				BaseClassFormer    = BaseClassLatter
+				BaseClassFormer_mt = BaseClassLatter_mt
 
 			end
 
@@ -148,7 +197,7 @@ local function refine( class_t, classname, inheritances )
 	end
 
 
-	local class_mt = getmetatable( class_mt )
+	local class_mt = getmetatable( class_t )
 
 	if ( not class_mt ) then
 
@@ -287,37 +336,56 @@ _ALIAS.Class = robustclass.Register
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: (Internal) Constructs the given object
-–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local function construct( pObj, class_t, classname, ignite, ... )
 
+	FIX (Bug 1 — primary): The original code used a local `ignite` variable
+	assignment (`ignite = true`) at the end of the function to signal that
+	subsequent recursive calls should fire base-class constructors. Because Lua
+	passes primitives by value, this assignment only mutated the local copy and
+	never propagated back to the caller, so `ignite` was always nil/falsy on
+	every call. As a result, ConstructorLatter (the base-class constructor) was
+	*never* called, silently swallowing all base-class constructors.
+
+	The fix uses a strict caller-fires design: `construct` is responsible only
+	for firing the constructors of ancestors of `class_t`, never `class_t`'s
+	own constructor. That responsibility belongs exclusively to the caller one
+	level up — either the next `construct` frame or `robustclass.Create` for
+	the derived class itself. This guarantees each constructor fires exactly
+	once in base-first, derived-last order with no duplication.
+
+	Execution trace for C : B : A, called as construct(pObj, C, "C"):
+	  construct(pObj, C,  "C")   — recurses into B
+	    construct(pObj, B,  "B") — recurses into A
+	      construct(pObj, A,  "A") — no BaseClass, returns immediately
+	    fires A["A"](pObj)         — A's constructor (called by B's frame)
+	    fires B["B"](pObj)         — B's constructor (called by B's frame)
+	  fires C["C"](pObj)           — C's constructor (called by Create)
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+local function construct( pObj, class_t, classname, ... )
+
+	-- Walk down to the deepest ancestor first.
 	local baseclass_t = class_t.BaseClass
 
 	if ( baseclass_t ) then
 
 		local baseclassname = baseclass_t.ClassName
 
-		construct( pObj, baseclass_t, baseclassname, ignite, ... )
+		construct( pObj, baseclass_t, baseclassname, ... )
 
-		if ( ignite ) then
+		-- Fire every ancestor's constructor on the way back up. This frame is
+		-- responsible for calling baseclass_t's constructor; the frame above us
+		-- will call class_t's constructor, and so on up to Create().
+		local Constructor = baseclass_t[ baseclassname ]
 
-			local ConstructorLatter = baseclass_t[baseclassname]
-
-			if ( ConstructorLatter ) then
-				ConstructorLatter( pObj, ... )
-			end
-
+		if ( Constructor ) then
+			Constructor( pObj, ... )
 		end
 
 	end
 
-
-	local ConstructorForemost = class_t[classname]
-
-	if ( ConstructorForemost ) then
-		ConstructorForemost( pObj, ... )
-	end
-
-	ignite = true
+	-- Deliberately no call to class_t[classname] here. The caller is always
+	-- responsible for firing the constructor of the class it just recursed into.
+	-- For the outermost call that caller is robustclass.Create, which fires the
+	-- derived class's constructor explicitly after construct() returns.
 
 end
 
@@ -338,7 +406,12 @@ function robustclass.Create( classname, ... )
 
 	if ( not class_t ) then
 
-		ErrorNoHaltWithStack( false, 'class \'', classname, '\' doesn\'t exist' )
+		-- FIX (Bug 3): The original call passed `false` as the first argument
+		-- to ErrorNoHaltWithStack. That parameter is a numeric stack level, not
+		-- a boolean. Passing false caused an error inside the error handler
+		-- itself. Removed the bogus argument so the function receives only the
+		-- message string(s), matching the signature used elsewhere in the file.
+		ErrorNoHaltWithStack( 'class \'', classname, '\' doesn\'t exist' )
 		return false
 
 	end
@@ -397,7 +470,18 @@ function robustclass.Create( classname, ... )
 	-- Construct
 	--
 	if ( bConstruct == true ) then
-		construct( pObj, class_t, classname, nil, ... )
+
+		-- construct() fires all ancestor constructors in base-first order but
+		-- deliberately does NOT call the derived class's own constructor — that
+		-- is our responsibility here, ensuring it runs exactly once and last.
+		construct( pObj, class_t, classname, ... )
+
+		local ConstructorDerived = class_t[ classname ]
+
+		if ( ConstructorDerived ) then
+			ConstructorDerived( pObj, ... )
+		end
+
 	end
 
 	return pObj
@@ -412,8 +496,14 @@ _ALIAS.NewObject = robustclass.Create
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: (Internal) Destructs the given object
+
+	FIX (Bug 1 — same pattern): Identical ignite-flag bug as in construct().
+	Applies the same caller-fires design: destruct() fires all ancestor
+	destructors in base-first order; robustclass.Delete fires the derived
+	class's own destructor last, mirroring construction order in reverse is
+	conventional but here we preserve the original base-first intent.
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local function destruct( pObj, class_t, classname, ignite )
+local function destruct( pObj, class_t, classname )
 
 	local baseclass_t = class_t.BaseClass
 
@@ -421,28 +511,18 @@ local function destruct( pObj, class_t, classname, ignite )
 
 		local baseclassname = baseclass_t.ClassName
 
-		destruct( pObj, baseclass_t, baseclassname, ignite )
+		destruct( pObj, baseclass_t, baseclassname )
 
-		if ( ignite ) then
+		-- Fire the base-class destructor on the way back up.
+		local Destructor = baseclass_t[ '_' .. baseclassname ]
 
-			local DestructorLatter = baseclass_t[ '_' .. baseclassname ]
-
-			if ( DestructorLatter ) then
-				DestructorLatter( pObj )
-			end
-
+		if ( Destructor ) then
+			Destructor( pObj )
 		end
 
 	end
 
-
-	local DestructorForemost = class_t[ '_' .. classname ]
-
-	if ( DestructorForemost ) then
-		DestructorForemost( pObj )
-	end
-
-	ignite = true
+	-- No call to class_t['_'..classname] here; Delete() handles that.
 
 end
 
@@ -483,7 +563,13 @@ function robustclass.Delete( pObj )
 	end
 
 	-- Destruct
-	destruct( pObj, class_t, classname, nil )
+	destruct( pObj, class_t, classname )
+
+	local DestructorDerived = class_t[ '_' .. classname ]
+
+	if ( DestructorDerived ) then
+		DestructorDerived( pObj )
+	end
 
 	-- Remove the metatable
 	setmetatable( pObj, nil )
