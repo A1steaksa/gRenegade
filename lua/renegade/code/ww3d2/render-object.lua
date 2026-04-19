@@ -1,26 +1,27 @@
--- Based on RenderObjClass within Code/ww3d2/rendobj.cpp/h
+-- Based on RenderObjClass within Code/ww3d2/rendobj.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class RenderObjectClass
---- @field instance RenderObjectInstance The metatable used by RenderObjectInstance
-local STATIC = CNC.CreateExport()
-STATIC.Class = "RenderObjectClass"
-local isHotload = not table.IsEmpty( STATIC )
+--- @type PersistClass
+local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
---- @class RenderObjectInstance
+--- @class RenderObjectClass : PersistClass
+--- @field Instance RenderObjectInstance The metatable used by RenderObjectInstance
+local STATIC = CNC.CreateExport( persistClass )
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "RenderObjectClass"
+
+--- @class RenderObjectInstance : PersistInstance
 --- @field Static RenderObjectClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_RenderObject" )
+local INSTANCE = robustclass.Register( "Renegade_RenderObject : Renegade_Persist" )
 INSTANCE.Class = "RenderObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsRenderObject = true
 
-
 --#region Exported Enums
 --#endregion
-
 
 --#region Imports
 
@@ -40,14 +41,14 @@ INSTANCE.IsRenderObject = true
     local collisionTypesClass = CNC.Import( "code/ww3d2/collision-types.lua" )
 --#endregion
 
-
 --#region Imported Enums
 --#endregion
-
 
 --[[ Static Functions and Variables ]] do
 
     --- @class RenderObjectClass
+    --- @field AtMinLod any
+    --- @field AtMaxLod any
 
     STATIC.COLLISION_TYPE_MASK 	    = 0x000000FF
     STATIC.IS_VISIBLE 				= 0x00000100
@@ -78,10 +79,10 @@ INSTANCE.IsRenderObject = true
     )
 
     --- Creates a new RenderObjectInstance
-    --- @vararg any
+    --- @param src RenderObjectInstance? Another RenderObjectInstance to copy
     --- @return RenderObjectInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_RenderObject", ... )
+    function STATIC.New( src )
+        return robustclass.New( "Renegade_RenderObject", src )
     end
 
     --- @param arg any
@@ -165,6 +166,75 @@ function INSTANCE:Renegade_RenderObject( src )
     end
 end
 
+function INSTANCE:_Renegade_RenderObject()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Clone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:ClassId()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBaseModelName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetBaseModelName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumPolys()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Render()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SpecialRender()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnFrameUpdate()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Restart()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Add()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Remove()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetScene()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:PeekScene()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetContainer()
+    typecheck.NotImplementedError()
+end
+
+
 --[[ Render Object Interface - "Scene Graph" ]] do
 
     --- @return RenderObjectInstance
@@ -196,17 +266,16 @@ end
         end
     end
 
-
-    --- @param m Matrix3dInstance
-    function INSTANCE:SetTransform( m )
-        self.Transform = m
-        self._IsTransformIdentity = STATIC.CheckIsTransformIdentity( m )
+    --- @param matrix Matrix3dInstance
+    function INSTANCE:SetTransform( matrix )
+        self.Transform = matrix
+        self._IsTransformIdentity = STATIC.CheckIsTransformIdentity( matrix )
         self:InvalidateCachedBoundingVolumes()
     end
 
-    --- @param v Vector
-    function INSTANCE:SetPosition( v )
-        self.Transform:SetTranslation( v )
+    --- @param newPos Vector
+    function INSTANCE:SetPosition( newPos )
+        self.Transform:SetTranslation( newPos )
         self._IsTransformIdentity = STATIC.CheckIsTransformIdentity( self.Transform )
         self:InvalidateCachedBoundingVolumes()
     end
@@ -239,7 +308,6 @@ end
         return self.Transform:GetTranslation()
     end
 
-
     -- "Re-evaluate the transforms [of] my sub-objects"  
     -- "  
     -- The default implementation is empty, derived classes which have sub-objects should
@@ -250,11 +318,385 @@ end
     end
 end
 
---[[ Render Object Interface - Attributes, Options, Properties, etc. ]] do
+function INSTANCE:NotifyAdded()
+    typecheck.NotImplementedError()
+end
 
-    function INSTANCE:AreSubObjectTransformsDirty()
-        return bit.band( self.Bits, STATIC.SUBOBJ_TRANSFORMS_DIRTY ) ~= 0
-    end
+function INSTANCE:NotifyRemoved()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumSubObjects()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSubObject()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:AddSubObject()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:RemoveSubObject()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSubObjectByName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumSubObjectsOnBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSubObjectOnBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSubObjectBoneIndex()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:AddSubObjectToBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:RemoveSubObjectsFromBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetAnimation()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetAnimation()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:PeekAnimation()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumBones()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneName()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneIndex()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneTransform()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CaptureBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:ReleaseBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsBoneCaptured()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:ControlBone()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetHTree()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CastRay()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CastAaBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CastObBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IntersectAaBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IntersectObBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Intersect()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IntersectSphere()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IntersectSphereQuick()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoundingSphere()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoundingBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetObjectSpaceBoundingSphere()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetObjectSpaceBoundingBox()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateObjectSpaceBoundingVolumes()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:PrepareLod()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:RecalculateStaticLodFactors()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IncrementLod()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:DecrementLod()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetCost()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetValue()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetPostIncrementValue()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetLodLevel()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetLodLevel()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetLodCount()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetLodBias()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CalculateCostValueArrays()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetCurrentLod()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:BuildDependencyList()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:BuildTextureList()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:CreateDecal()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:DeleteDecal()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetMaterialInfo()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetUserData()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetUserData()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumSnapPoints()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSnapPoint()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetScreenSize()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Scale()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetSortLevel()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetSortLevel()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsReallyVisible()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsNotHiddenAtAll()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsVisible()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetVisible()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsHidden()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetHidden()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsAnimationHidden()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetAnimationHidden()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsForceVisible()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetForceVisible()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:HasUserLighting()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetHasUserLighting()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsTranslucent()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetTranslucent()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetCollisionType()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetCollisionType()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsComplete()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsInScene()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNativeScreenSize()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetNativeScreenSize()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetSubObjectsMatchLod()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsSubObjectsMatchLodEnabled()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetSubObjectTransformsDirty()
+    typecheck.NotImplementedError()
+end
+
+--- @return boolean
+function INSTANCE:AreSubObjectTransformsDirty()
+    return bit.band( self.Bits, STATIC.SUBOBJ_TRANSFORMS_DIRTY ) ~= 0
+end
+
+function INSTANCE:GetFactory()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Save()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:Load()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:SaveUserLighting()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:LoadUserLighting()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:AddDependenciesToList()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateCachedBoundingVolumes()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateSubObjectBits()
+    typecheck.NotImplementedError()
 end
 
 function INSTANCE:BoundingVolumesValid()
@@ -270,3 +712,10 @@ function INSTANCE:ValidateCachedBoundingVolumes()
 end
 
 
+function INSTANCE:SaveSubObjectUserLighting()
+    typecheck.NotImplementedError()
+end
+
+function INSTANCE:LoadSubObjectUserLighting()
+    typecheck.NotImplementedError()
+end
