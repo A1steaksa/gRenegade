@@ -59,7 +59,7 @@ function INSTANCE:Renegade_PersistFactory()
     saveLoadSystemClass.RegisterPersistFactory( self )
 end
 
-function INSTANCE:__delete()
+function INSTANCE:_Renegade_PersistFactory()
     saveLoadSystemClass.UnregisterPersistFactory( self )
 end
 

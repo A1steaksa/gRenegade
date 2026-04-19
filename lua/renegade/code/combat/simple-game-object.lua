@@ -72,7 +72,7 @@ function INSTANCE:Renegade_SimpleGameObject()
     -- self:SetAppPacketType( appPacketTypeEnum.APPPACKETTYPE_SIMPLE )
 end
 
-function INSTANCE:__delete()
+function INSTANCE:_Renegade_SimpleGameObject()
     -- Empty in the original code
 end
 

@@ -75,7 +75,7 @@ end
 
 --- @class PlayerTerminalInstance
 
-function INSTANCE:__delete()
+function INSTANCE:_Renegade_PlayerTerminal()
     -- Empty in the original code
 end
 

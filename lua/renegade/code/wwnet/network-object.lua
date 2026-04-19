@@ -149,8 +149,8 @@ end
         self:ClearObjectDirtyBits()
     end
 
-    function INSTANCE:__delete()
-        typecheck.NotImplementedError()
+    function INSTANCE:_Renegade_NetworkObject()
+        networkObjectManagerClass.UnregisterObject( self )
     end
 end
 

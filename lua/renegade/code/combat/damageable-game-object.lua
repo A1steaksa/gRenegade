@@ -102,7 +102,7 @@ end
         self:SetPlayerType( playerTypeEnum.Neutral )
     end
 
-    function INSTANCE:__delete()
+    function INSTANCE:_Renegade_DamageableGameObject()
         self:RemoveAllObservers()
     end
 end

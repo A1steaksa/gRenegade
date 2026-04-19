@@ -117,7 +117,7 @@ local DEFAULT_DAMAGE = 1.0
         self:SetOwner( args[3] --[[@as ArmedGameObjectInstance]] or NULL )
     end
 
-    function INSTANCE:__delete()
+    function INSTANCE:_Renegade_OffenseObject()
         self:SetOwner( nil )
     end
 end

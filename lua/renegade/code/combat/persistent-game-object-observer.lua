@@ -84,7 +84,7 @@ function INSTANCE:Renegade_PersistentGameObjectObserver()
     persistentGameObjectObserverManagerClass.Add( self )
 end
 
-function INSTANCE:__delete()
+function INSTANCE:_Renegade_PersistentGameObjectObserver()
     persistentGameObjectObserverManagerClass.Remove( self )
 end
 

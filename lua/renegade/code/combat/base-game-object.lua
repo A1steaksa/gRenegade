@@ -94,7 +94,7 @@ end
         -- Omitted setting network creation bit as dirty
     end
 
-    function INSTANCE:__delete()
+    function INSTANCE:_Renegade_BaseGameObject()
         gameObjectManagerClass.Remove( self )
     end
 end

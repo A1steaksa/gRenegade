@@ -104,7 +104,7 @@ end
         self.ObserverCreatedPending = false
     end
 
-    function INSTANCE:__delete()
+    function INSTANCE:_Renegade_ScriptableGameObject()
         self:RemoveAllObservers()
 
         -- "Delete the ObservertimerLIst"
