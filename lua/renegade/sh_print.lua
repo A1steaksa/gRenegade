@@ -133,7 +133,7 @@ function LIB.Start( ... )
             LIB.Print()
         end
 
-        LIB.PrivatePrint( label )
+        LIB.PrivatePrint( ... )
     end
 
     LIB.SectionStack[#LIB.SectionStack + 1] = label
