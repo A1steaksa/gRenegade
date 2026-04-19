@@ -171,7 +171,6 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param factory PersistFactoryInstance
         function STATIC.RegisterPersistFactory( factory )
-            Section.Print( "Registering persist factory with Chunk ID: " .. factory:ChunkId() )
             STATIC.LinkFactory( factory )
         end
 

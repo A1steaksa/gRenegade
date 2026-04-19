@@ -150,6 +150,7 @@ local isHotload = not table.IsEmpty( STATIC )
         end
     end
 
+
     --- @param renderAvailable boolean
     function STATIC.Init( renderAvailable )
         STATIC._IsGameplayPermitted = false

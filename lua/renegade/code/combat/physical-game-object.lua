@@ -146,7 +146,7 @@ local HIBERNATION_DELAY = 30
         self:ResetServerSkips( 255 )
     end
 
-    function INSTANCE:__delete()
+    function INSTANCE:_Renegade_PhysicalGameObject()
         if self.PhysicsObject then
             combatManagerClass.GetScene():RemoveObject( self.PhysicsObject )
         end
@@ -306,6 +306,7 @@ end
 
 --[[ Display ]] do
 
+    --- @return RenderObjectInstance?
     function INSTANCE:PeekModel()
         return self:PeekPhysicalObject():PeekModel()
     end
@@ -322,7 +323,7 @@ end
     --- "Note: Set_Animation calls will force an AnimControl to be created, if needed"
     --- @param animationName string
     --- @param looping boolean? [Default: true]
-    --- @param frameOffset number [Default: 0.0]
+    --- @param frameOffset number? [Default: 0.0]
     function INSTANCE:SetAnimation( animationName, looping, frameOffset )
         looping = looping or true
         frameOffset = frameOffset or 0.0

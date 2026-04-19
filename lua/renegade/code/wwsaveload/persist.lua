@@ -98,10 +98,9 @@ INSTANCE.IsPersist = true
     end
 
     --- Creates a new PersistInstance
-    --- @vararg any
     --- @return PersistInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_Persist", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_Persist" )
     end
 
     --- @param arg any
