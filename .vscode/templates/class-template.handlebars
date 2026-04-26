@@ -18,7 +18,7 @@ STATIC.Class = "{{StaticClassName}}"
 
 --- @class {{InstanceClassName}}{{{LuaLanguageServerInstanceParents}}}
 --- @field Static {{StaticClassName}} The static table for this instance's class
-local INSTANCE = robustclass.Register( "{{RobustClassName}}{{#if HasParent}} : {{ParentRobustClassName}}{{/if}}" )
+local INSTANCE = robustclass.Register( "{{RobustClassName}}{{RobustClassParents}}" )
 INSTANCE.Class = "{{InstanceClassName}}"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -33,7 +33,6 @@ INSTANCE.Is{{BaseClassName}} = true
 --#region Imports
 {{ClassImports~}}
 --#endregion
-
 
 --#region Imported Enums
 {{EnumImports~}}

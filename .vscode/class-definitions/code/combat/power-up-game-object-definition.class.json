@@ -1,0 +1,42 @@
+{
+  "Name": "PowerUpGameObjectDefinition",
+  "ParentNames": [
+    "SimpleGameObjectDefinition"
+  ],
+  "FileName": "power-up-game-object-definition",
+  "CppName": "PowerUpGameObjDef",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "GrantShieldType",
+      "GrantShieldStrength",
+      "GrantShieldStrengthMax",
+      "GrantHealth",
+      "GrantHealthMax",
+      "GrantWeaponId",
+      "GrantWeapon",
+      "GrantWeaponRounds",
+      "GrantWeaponClips",
+      "Persistent",
+      "GrantKey",
+      "AlwaysAllowGrant",
+      "GrantSoundId",
+      "GrantAnimationName",
+      "IdleSoundId",
+      "IdleAnimationName"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "Save",
+      "Load",
+      "GetFactory",
+      "Grant",
+      "GetGrantWeaponId"
+    ]
+  }
+}

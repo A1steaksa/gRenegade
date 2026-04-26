@@ -1,0 +1,40 @@
+{
+  "Name": "MixFileFactory",
+  "ParentNames": [
+    "FileFactory"
+  ],
+  "FileName": "mix-file-factory",
+  "CppName": "MixFileFactoryClass",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Factory",
+      "FileInfo",
+      "MixFilename",
+      "BaseOffset",
+      "FileCount",
+      "NamesOffset",
+      "IsValid",
+      "FilenameList",
+      "PendingAddFileList",
+      "IsModified"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetFile",
+      "ReturnFile",
+      "BuildFilenameList",
+      "BuildInternalFilenameList",
+      "GetFilenameList",
+      "AddFile",
+      "DeleteFile",
+      "FlushChanges",
+      "IsValid",
+      "GetTempFilename"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "Name": "Straw",
+  "ParentNames": [],
+  "FileName": "straw",
+  "CppName": "Straw",
+  "CppPath": "Code/wwlib/straw.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "ChainTo",
+      "ChainFrom"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetFrom",
+      "Get"
+    ]
+  }
+}

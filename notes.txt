@@ -1,0 +1,41 @@
+Porting Notes
+
+Key:
+🔴 - Not Started
+🟠 - Started
+🟢 - Done
+🟠 PowerUpGameObject
+    🟠 PowerUpGameObjectDefinition
+        🔴 EncyclopediaManager
+        🟠 WeaponBag
+        🔴 WeaponDefinition
+        🔴 WeaponManager
+    🟠 SimpleGameObject
+        🟠 PhysicalGameObject
+            🟢 DamageableGameObject
+            🟢 PhysicalGameObjectDefinition
+                🟢 Definition
+                🟢 OratorTypes
+            🟢 CombatPhysicsObserver
+                🟢 PhysicsObserver
+            🔴 TransitionEffect
+            🟡 CombatManager
+                🔴 PhysicsScene - Not needed?
+            🟡 Physics
+                🟢 Persist
+                🟢 PhysicsDefinition
+                🔴 MaterialEffect
+                🔴 LightEnvironment
+                🔴 RenderInfo
+                🔴 SpecialRenderInfo
+            🔴 ExplosionManager
+            🔴 EncyclopediaManager
+            🔴 ActiveConversation
+            🔴 SurfaceEffectsManager
+        🟠 SimpleGameObjectDefinition
+            🟢 PlayerTerminal
+        🔴 AppPacketType
+    🔴 MoveablePhysics
+    🔴 WWAudio
+    🔴 HAnim
+    🔴 WW3DAssetManager

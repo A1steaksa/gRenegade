@@ -1,0 +1,39 @@
+{
+  "Name": "FileFactoryList",
+  "ParentNames": [
+    "FileFactory"
+  ],
+  "FileName": "file-factory-list",
+  "CppName": "FileFactoryListClass",
+  "Static": {
+    "Fields": [
+      "Instance"
+    ],
+    "Functions": [
+      "GetInstance"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "TempFactory",
+      "FactoryList",
+      "FactoryNameList",
+      "SearchStartIndex"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "AddFileFactory",
+      "RemoveFileFactory",
+      "SetSearchStart",
+      "ResetSearchStart",
+      "AddTempFileFactory",
+      "RemoveTempFileFactory",
+      "PeekTempFileFactory",
+      "GetFile",
+      "ReturnFile",
+      "GetFactoryCount",
+      "GetFactory"
+    ]
+  }
+}

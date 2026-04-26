@@ -166,9 +166,9 @@
 		]
 	},
 
-	"Section": {
-		"prefix": "section",
-		"description": "A section with a self-contained scope",
+	"Group": {
+		"prefix": "group",
+		"description": "A grouping of code with a label and self-contained scope",
 		"scope": "lua",
         "body": [
 			"--[[ $1 ]] do",

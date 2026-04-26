@@ -1,0 +1,46 @@
+{
+  "Name": "DamageableGameObject",
+  "ParentNames": [
+    "ScriptableGameObject"
+  ],
+  "FileName": "damageable-game-object",
+  "CppName": "DamageableGameObj",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "DefenseObject",
+      "PlayerType",
+      "IsHealthBarDisplayed"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "CopySettings",
+      "ReInit",
+      "GetDefinition",
+      "Save",
+      "Load",
+      "GetDefenseObject",
+      "ApplyDamage",
+      "CompletelyDamaged",
+      "GetInfoIconTextureFilename",
+      "GetTranslatedNameId",
+      "IsTargetable",
+      "IsHealthBarDisplayed",
+      "SetIsHealthBarDisplayed",
+      "AsDamageableGameObject",
+      "GetPlayerType",
+      "SetPlayerType",
+      "IsTeamPlayer",
+      "GetTeamColor",
+      "IsTeammate",
+      "IsEnemy",
+      "ImportOccasional",
+      "ExportOccasional"
+    ]
+  }
+}
