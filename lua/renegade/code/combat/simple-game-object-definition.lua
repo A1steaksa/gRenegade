@@ -14,7 +14,7 @@ STATIC.Class = "SimpleGameObjectDefinitionClass"
 
 --- @class SimpleGameObjectDefinitionInstance : PhysicalGameObjectDefinitionInstance
 --- @field Static SimpleGameObjectDefinitionClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_SimpleGameObjectDefinition" )
+local INSTANCE = robustclass.Register( "Renegade_SimpleGameObjectDefinition : Renegade_PhysicalGameObjectDefinition" )
 INSTANCE.Class = "SimpleGameObjectDefinitionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC

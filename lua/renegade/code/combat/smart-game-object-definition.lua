@@ -13,7 +13,7 @@ STATIC.Class = "SmartGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class SmartGameObjectDefinitionInstance : ArmedGameObjectDefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_SmartGameObjectDefinitionClass : Renegade_ArmedGameObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_SmartGameObjectDefinition : Renegade_ArmedGameObjectDefinition" )
 INSTANCE.Class = "SmartGameObjectDefinitionInstance"
 INSTANCE.IsSmartGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
@@ -50,7 +50,7 @@ end
     --- @vararg any
     --- @return SmartGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_SmartGameObjectDefinitionClass", ... )
+        return robustclass.New( "Renegade_SmartGameObjectDefinition", ... )
     end
 
     --- @param arg any
@@ -73,7 +73,7 @@ end
 --- @field IsStealthUnit boolean
 
 --- Constructs a new SmartGameObjectDefinitionInstance
-function INSTANCE:Renegade_SmartGameObjectDefinitionClass()
+function INSTANCE:Renegade_SmartGameObjectDefinition()
     self.SightRange = 0
     self.SightArc = math.rad( 0 )
     self.ListenerScale = 1
@@ -92,7 +92,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == STATIC.ChunkIds.CHUNKID_DEF_ARMEDGAMEOBJ_PARENT then
-            PARENT.Instance.Load( self, cload )
+            armedGameObjectDefinitionClass.Instance.Load( self, cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
             while cload:OpenMicroChunk() do
                 local didRead =

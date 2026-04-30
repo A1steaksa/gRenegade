@@ -12,7 +12,7 @@ STATIC.Class = "VehicleGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class VehicleGameObjectDefinitionInstance : SmartGameObjectDefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_VehicleGameObjectDefinitionClass : Renegade_SmartGameObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_VehicleGameObjectDefinition : Renegade_SmartGameObjectDefinition" )
 INSTANCE.Class = "VehicleGameObjectDefinitionInstance"
 INSTANCE.IsVehicleGameObjectDefinitionInstance = true
 STATIC.Instance = INSTANCE
@@ -105,7 +105,7 @@ end
     --- @vararg any
     --- @return VehicleGameObjectDefinitionInstance
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_VehicleGameObjectDefinitionClass", ... )
+        return robustclass.New( "Renegade_VehicleGameObjectDefinition", ... )
     end
 
     function STATIC.StaticConstructor()
@@ -147,7 +147,7 @@ end
 --- @field NodDestroyReportId integer
 
 --- Constructs a new VehicleGameObjectDefinitionInstance
-function INSTANCE:Renegade_VehicleGameObjectDefinitionClass()
+function INSTANCE:Renegade_VehicleGameObjectDefinition()
     self.Type = vehicleTypeEnum.Car
     self.TurnRadius = 10.0
     self.OccupantsVisible = true

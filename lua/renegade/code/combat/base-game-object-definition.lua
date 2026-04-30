@@ -3,17 +3,16 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
--- Parent Class
 --- @type DefinitionClass
-local PARENT = CNC.Import( "code/wwsaveload/definition.lua" )
+local definitionClass = CNC.Import( "code/wwsaveload/definition.lua" )
 
 --- @class BaseGameObjectDefinitionClass : DefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( definitionClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "BaseGameObjectDefinitionClass"
 
 --- @class BaseGameObjectDefinitionInstance : DefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_BaseGameObjectDefinitionClass : Renegade_Definition" )
+local INSTANCE = robustclass.Register( "Renegade_BaseGameObjectDefinition : Renegade_Definition" )
 INSTANCE.IsBaseGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -44,7 +43,7 @@ end
     --- @vararg any
     --- @return BaseGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_BaseGameObjectDefinitionClass", ... )
+        return robustclass.New( "Renegade_BaseGameObjectDefinition", ... )
     end
 
     --- @param arg any

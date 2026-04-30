@@ -11,7 +11,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DefenseObjectDefinitionInstance
 --- @field Static DefenseObjectDefinitionClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_DefenseObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_DefenseObjectDefinition" )
 INSTANCE.Class = "DefenseDefinitionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -99,7 +99,7 @@ end
 
 --- Constructs a new DefenseObjectDefinitionInstance
 --- @vararg any
-function INSTANCE:Renegade_DefenseObjectDefinitionClass()
+function INSTANCE:Renegade_DefenseObjectDefinition()
     self.Health = 100.0
     self.HealthMax = 100.0
     self.Skin = 0

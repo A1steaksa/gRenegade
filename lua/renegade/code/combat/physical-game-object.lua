@@ -17,7 +17,7 @@ STATIC.Class = "PhysicalGameObjectClass"
 
 --- @class PhysicalGameObjectInstance : DamageableGameObjectInstance, CombatPhysicsObserverInstance
 --- @field Static PhysicalGameObjectClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_PhysicalGameObject" )
+local INSTANCE = robustclass.Register( "Renegade_PhysicalGameObject : Renegade_DamageableGameObject, Renegade_CombatPhysicsObserver" )
 INSTANCE.Class = "PhysicalGameObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -177,6 +177,8 @@ end
     --- @param definition PhysicalGameObjectDefinitionInstance
     --- @param connectedEntity Entity
     function INSTANCE:CopySettings( definition, connectedEntity )
+        section.Start( "Copy Settings" )
+
         -- "Release our hold on the physics object"
         if self.PhysicsObject then
             -- Omitted original logic
@@ -186,7 +188,7 @@ end
         -- "Set the Physical Object"
         local physicsObjectDefinition = definitionManagerClass.FindDefinition( definition.PhysicsDefinitionId )
         if not physicsObjectDefinition then
-            Section.Error( "Could not find definition for " .. definition.PhysicsDefinitionId )
+            section.Error( "Could not find definition for " .. definition.PhysicsDefinitionId )
             return
         end
 
@@ -202,12 +204,16 @@ end
         self.PhysicsObject:SetObserver( self )
         -- Omitted adding the physics object to the physics scene
 
+        section.Print( "I'm pretty sure the physics object exists here ", self.PhysicsObject )
+
         --- "Do we still use this?????"
         -- Omitted setting animation from definition
 
         self:EnableHibernation( definition.DefaultHibernationEnable )
 
         self:ResetRadarBlipShapeType()
+
+        section.End()
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance

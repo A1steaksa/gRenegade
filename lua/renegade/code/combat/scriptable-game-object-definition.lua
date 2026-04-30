@@ -3,17 +3,16 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
--- Parent Class
 --- @type BaseGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/base-game-object-definition.lua" )
+local baseGameObjectDefinitionClass = CNC.Import( "code/combat/base-game-object-definition.lua" )
 
 --- @class ScriptableGameObjectDefinitionClass : BaseGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( baseGameObjectDefinitionClass )
 STATIC.Class = "ScriptableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ScriptableGameObjectDefinitionInstance : BaseGameObjectDefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_ScriptableGameObjectDefinitionClass : Renegade_BaseGameObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_ScriptableGameObjectDefinition : Renegade_BaseGameObjectDefinition" )
 INSTANCE.Class = "ScriptableGameObjectDefinitionInstance"
 INSTANCE.IsScriptableGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
@@ -42,11 +41,10 @@ end
 
     --- @class ScriptableGameObjectDefinitionClass
 
-    --- Creates a new ScriptableGameObjectDefinitionClass
-    --- @vararg any
-    --- @return ScriptableGameObjectDefinitionClass
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_ScriptableGameObjectDefinitionClass", ... )
+    --- Creates a new ScriptableGameObjectDefinitionInstance
+    --- @return ScriptableGameObjectDefinitionInstance
+    function STATIC.New()
+        return robustclass.New( "Renegade_ScriptableGameObjectDefinition" )
     end
 
     --- @param arg any
@@ -67,7 +65,7 @@ end
 --- @field ScriptParameterList string[]
 
 --- Constructs a new ScriptableGameObjectDefinitionInstance
-function INSTANCE:Renegade_ScriptableGameObjectDefinitionClass()
+function INSTANCE:Renegade_ScriptableGameObjectDefinition()
     self.ScriptNameList = {}
     self.ScriptParameterList = {}
 end
@@ -83,7 +81,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.CHUNKID_DEF_PARENT then
-            PARENT.Instance.Load( self, cload )
+            baseGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
             section.Start( INSTANCE.Class .. " Variables Start" )

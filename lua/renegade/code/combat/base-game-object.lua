@@ -14,6 +14,7 @@ local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
 local STATIC = CNC.CreateExport( persistClass, networkObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "BaseGameObjectClass"
+
 --- @class BaseGameObjectInstance : PersistInstance, NetworkObjectInstance
 --- @field Static BaseGameObjectClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_BaseGameObject : Renegade_Persist, Renegade_NetworkObject" )

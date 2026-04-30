@@ -3,17 +3,16 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
--- Parent Class
 --- @type ScriptableGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
+local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
 
 --- @class DamageableGameObjectDefinitionClass : ScriptableGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( scriptableGameObjectDefinitionClass )
 STATIC.Class = "DamageableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class DamageableGameObjectDefinitionInstance: ScriptableGameObjectDefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_DamageableGameObjectDefinitionClass : Renegade_ScriptableGameObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_DamageableGameObjectDefinition : Renegade_ScriptableGameObjectDefinition" )
 INSTANCE.Class = "DamageableGameObjectDefinitionInstance"
 INSTANCE.IsDamageableGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
@@ -22,11 +21,8 @@ INSTANCE.Static = STATIC
 
 --#region Imports
 
-    --- @type ScriptableGameObjectDefinitionClass
-    local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
-
     --- @type DefenseObjectDefinitionClass
-    local defenseGameObjectDefinitionClass = CNC.Import( "code/combat/defense-game-object-definition.lua" )
+    local defenseObjectDefinitionClass = CNC.Import( "code/combat/defense-object-definition.lua" )
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
@@ -65,11 +61,10 @@ end
 
     --- @class DamageableGameObjectDefinitionClass
 
-    --- Creates a new DamageableGameObjectDefinitionClass
-    --- @vararg any
-    --- @return DamageableGameObjectDefinitionClass
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_DamageableGameObjectDefinitionClass", ... )
+    --- Creates a new DamageableGameObjectDefinitionInstance
+    --- @return DamageableGameObjectDefinitionInstance
+    function STATIC.New()
+        return robustclass.New( "Renegade_DamageableGameObjectDefinition")
     end
 
     --- @param arg any
@@ -95,7 +90,7 @@ end
 --- @field DefaultPlayerType integer
 
 --- Constructs a new DamageableGameObjectDefinitionInstance
-function INSTANCE:Renegade_DamageableGameObjectDefinitionClass()
+function INSTANCE:Renegade_DamageableGameObjectDefinition()
     self.TranslatedNameId = 0
     -- self.EncyclopediaType = encyclopediaTypeEnum.Unknown
     self.EncyclopediaId = 0
@@ -138,7 +133,7 @@ function INSTANCE:Load( cload )
             section.End()
 
         elseif chunkId == ids.CHUNKID_DEF_DEFENSEOBJECTDEF then
-            defenseGameObjectDefinitionClass.Instance.Load( self, cload )
+            defenseObjectDefinitionClass.Instance.Load( self, cload )
 
         else
             section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
@@ -188,7 +183,7 @@ function INSTANCE:GetTranslatedNameId()
     return self.TranslatedNameId
 end
 
---- @return DefenseObjectDefinitionClass
+--- @return DefenseObjectDefinitionInstance
 function INSTANCE:GetDefenseObjectDefinition()
     return self.DefenseObjectDefinition
 end

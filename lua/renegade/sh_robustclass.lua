@@ -159,15 +159,24 @@ local SKIP_FIELDS = {
 }
 
 -- Recursively collects all methods from a class node and its entire ancestry
--- into `dest`, visiting deepest ancestors first so that shallower (closer)
--- ancestors and the class itself take priority over deeper ones.
--- Does not overwrite keys already present in `dest` (first-writer wins,
--- which means declaration order in __parents is respected for siblings).
+-- into `dest`. The current node's keys are written first, then ancestors
+-- fill in only keys not yet present — so closer classes always win over
+-- deeper ones (derived > first parent > second parent > deepest ancestor).
 -- Internal metadata fields are never copied.
 local function collectMethods( dest, node )
 
 	if ( not node ) then return end
 
+	-- Write this node's own keys first so they take priority over ancestors.
+	for k, v in next, node do
+
+		if ( not SKIP_FIELDS[ k ] and dest[ k ] == nil ) then
+			dest[ k ] = v
+		end
+
+	end
+
+	-- Then recurse into ancestors to fill any remaining gaps.
 	local node_parents = node.__parents
 
 	if ( node_parents ) then
@@ -179,14 +188,6 @@ local function collectMethods( dest, node )
 	else
 
 		collectMethods( dest, node.BaseClass )
-
-	end
-
-	for k, v in next, node do
-
-		if ( not SKIP_FIELDS[ k ] and dest[ k ] == nil ) then
-			dest[ k ] = v
-		end
 
 	end
 

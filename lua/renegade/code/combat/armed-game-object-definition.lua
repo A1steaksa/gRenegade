@@ -13,7 +13,7 @@ STATIC.Class = "ArmedGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
 --- @class ArmedGameObjectDefinitionInstance : PhysicalGameObjectDefinitionInstance
-local INSTANCE = robustclass.Register( "Renegade_ArmedGameObjectDefinitionClass : Renegade_PhysicalGameObjectDefinitionClass" )
+local INSTANCE = robustclass.Register( "Renegade_ArmedGameObjectDefinition : Renegade_PhysicalGameObjectDefinition" )
 INSTANCE.Class = "ArmedGameObjectDefinitionInstance"
 INSTANCE.IsArmedGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
@@ -61,7 +61,7 @@ end
     --- @vararg any
     --- @return ArmedGameObjectDefinitionClass
     function STATIC.New( ... )
-        return robustclass.New( "Renegade_ArmedGameObjectDefinitionClass", ... )
+        return robustclass.New( "Renegade_ArmedGameObjectDefinition", ... )
     end
 
     --- @param arg any
@@ -90,7 +90,7 @@ end
 --- @field WeaponRounds integer
 
 --- Constructs a new ArmedGameObjectDefinitionInstance
-function INSTANCE:Renegade_ArmedGameObjectDefinitionClass()
+function INSTANCE:Renegade_ArmedGameObjectDefinition()
     self.WeaponTiltRate = 1
     self.WeaponTiltMin = -10000.0
     self.WeaponTiltMax =  10000.0
