@@ -1,2 +1,4 @@
 .vscode/launch.json
 .vscode/cpp-class-cache.json
+.vscode/tasks.json
+data
