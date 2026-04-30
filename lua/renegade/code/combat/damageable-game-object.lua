@@ -11,17 +11,17 @@ local scriptableGameObjectClass = CNC.Import( "code/combat/scriptable-game-objec
 local STATIC = CNC.CreateExport( scriptableGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "DamageableGameObjectClass"
+
 --- @class DamageableGameObjectInstance : ScriptableGameObjectInstance
 --- @field Static DamageableGameObjectClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_DamageableGameObject : Renegade_ScriptableGameObject" )
 INSTANCE.Class = "DamageableGameObjectInstance"
+INSTANCE.IsDamageableGameObject = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsDamageableGameObject = true
 
 
 --#region Imports
-
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
@@ -37,16 +37,13 @@ INSTANCE.IsDamageableGameObject = true
 
     --- @type ColorClass
     local colorClass = CNC.Import( "code/combat/colors.lua" )
-
 --#endregion
 
 
 --#region Imported Enums
 
-
     local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
     local dirtyBitEnum = networkObjectClass.DIRTY_BIT
-
 --#endregion
 
 
