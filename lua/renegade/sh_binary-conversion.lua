@@ -148,24 +148,31 @@ function BinaryConverter:FromInt64( byteString )
 	return convertedNumber
 end
 
--- Converts from string of length 4 to 32bit signed integer
-function BinaryConverter:FromInt32(str)
-	if self.endianness == "bigendian" then
-		local b1,b2,b3,b4 = str:byte(1,4)
-		local convertedNumber = b1*0x1000000+b2*0x10000+b3*0x100+b4
-		if convertedNumber > 0x7FFFFFFF then
-			convertedNumber = convertedNumber-0x100000000
-		end
-		return convertedNumber
-	elseif self.endianness == "littleendian" then
-		local b1,b2,b3,b4 = str:byte(1,4)
-		local convertedNumber = b4*0x1000000+b3*0x10000+b2*0x100+b1
-		if convertedNumber > 0x7FFFFFFF then
-			convertedNumber = convertedNumber-0x100000000
-		end
-		return convertedNumber
+--- Converts from a byte string of length 4 to 32bit signed integer
+--- @param byteString string A string of length 4
+--- @return integer
+function BinaryConverter:FromInt32( byteString )
+
+    local b1, b2, b3, b4 = byteString:byte( 1, 4 )
+
+	local convertedNumber = (
+		self._isLittleEndian and
+			b4 * 0x1000000 +
+			b3 * 0x10000 +
+			b2 * 0x100 +
+			b1
+		or
+			b1 * 0x1000000 +
+			b2 * 0x10000 +
+			b3 * 0x100 +
+			b4
+		)
+
+	if convertedNumber > 0x7FFFFFFF then
+		convertedNumber = convertedNumber - 0x100000000
 	end
-	return false
+
+	return convertedNumber
 end
 
 -- Converts from string of length 2 to 16bit signed integer
