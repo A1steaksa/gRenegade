@@ -6,8 +6,8 @@ local CNC = CNC_RENEGADE
 --- The static components of CombatManager
 --- @class CombatManagerClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "CombatManagerClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "CombatManagerClass"
 
 --#region Exported Enums
 
@@ -31,9 +31,6 @@ local isHotload = not table.IsEmpty( STATIC )
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type MessageWindowClass
-    local messageWindowClass = CNC.Import( "code/combat/message-window.lua" )
-
     --- @type ObjectiveManagerClass
     local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
@@ -51,6 +48,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type DamageLib
     local damageLib = CNC.Import( "sh_damage.lua" )
+
+    --- @type GameObjectManagerClass
+    local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
 -- #endregion
 
 
@@ -111,8 +111,8 @@ local isHotload = not table.IsEmpty( STATIC )
             STATIC.DazzleLayer = nil
 
             STATIC._IsStarDeterminingTarget = true
-            STATIC._IAmServer = false
-            STATIC._IAmClient = false
+            STATIC._IAmServer = SERVER --false
+            STATIC._IAmClient = CLIENT --false
             STATIC.MyId = 0
             STATIC.SyncTime = 0
 
@@ -286,19 +286,59 @@ local isHotload = not table.IsEmpty( STATIC )
 
         function STATIC.Think()
             local frameTime = FrameTime()
-            local mainCamera = STATIC.MainCamera
+            STATIC.SyncTime = STATIC.SyncTime + math.floor( frameTime * 1000 + 0.5 )
 
-            -- Omitting over the vast majority of this function for now
+            -- This should be a call to the network handler, but I don't think there's ever
+            -- a time in the lifecycle for a Garry's Mod Addon where "gameplay" isn't permitted.
+            -- I may be wrong in that.
+            STATIC._IsGameplayPermitted = true
+
+            -- STATIC.HandleInput()
+
+            -- bulletManagerClass.Update()
 
             objectiveManagerClass.Update( frameTime )
 
-            -- This if statement is added because I don't yet know why the dedicated server DOESN'T render frames
-            if CLIENT then
-                STATIC.MainCamera:Update()
+            -- "Now, process all objects logically"
+            -- conversationManagerClass.Think()
 
-                -- STATIC.MessageWindow:OnFrameUpdate()
+            gameObjectManagerClass.Think()
+
+            -- "Now, process all objects physically"
+            -- combatManagerClass.GetScene():Update( frameTime, 0 )
+
+            -- STATIC.UpdateStar()
+
+            -- "  
+            -- In normal mode, the camera must think before [PostThink], sunce the camera update
+            -- calls [SetTarget] on the star, which must feed [UpdateAnimation]  
+            -- "
+            local mainCamera = STATIC.MainCamera
+            if not mainCamera:IsUsingHostModel() then
+                if CLIENT then
+                     -- This if statement added because I don't yet understand what keeps the dedicated server from rendering frames
+                    mainCamera:Update()
+                end
             end
 
+            -- "Now, Post Process all objects logically"
+            gameObjectManagerClass.PostThink()
+
+            -- "  
+            -- In [HostModel] mode, the camera must think after [PostThink],
+            -- so the host model has a chance to determine where the camera should be  
+            -- "
+            if mainCamera:IsUsingHostModel() then
+                if CLIENT then
+                     -- This if statement added because I don't yet understand what keeps the dedicated server from rendering frames
+                    mainCamera:Update()
+                end
+            end
+
+            -- "The targeting comes from the update weapons in the [PostThink]"
+            -- STATIC.UpdateStarTargeting()
+
+            -- STATIC.MessageWindow:OnFrameUpdate()
 
             -- spawnManagerClass.Update()
 

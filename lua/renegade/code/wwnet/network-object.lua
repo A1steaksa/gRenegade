@@ -71,6 +71,7 @@ INSTANCE.IsNetworkObject = true
     --- @field private IsServer boolean
 
     STATIC.IsServer = false
+    STATIC.MAX_CLIENT_COUNT = 128
 
     --- Creates a new NetworkObjectInstance
     --- @return NetworkObjectInstance
@@ -99,7 +100,7 @@ end
 --- @class NetworkObjectInstance
 --- @field private NetworkId integer
 --- @field private UpdateInfo PerClientUpdateInfoStruct[]
---- @field private ClientStatus string
+--- @field private ClientStatus integer[]
 --- @field private ImportStateCount integer
 --- @field private LastClientsideUpdateTime number
 --- @field private ClientsideUpdateFrequencySampleStartTime number
@@ -118,6 +119,9 @@ end
 
     --- Constructs a new NetworkObjectInstance
     function INSTANCE:Renegade_NetworkObject()
+        self.ClientStatus = {}
+        self.UpdateInfo = {}
+
         self.ImportStateCount         = 0
         self.LastClientsideUpdateTime = 0
         self.NetworkId                = 0
@@ -257,11 +261,49 @@ end
     --- @param dirtyBit DirtyBit
     --- @param bitState boolean
     function INSTANCE:SetObjectDirtyBit( clientId, dirtyBit, bitState )
-        typecheck.NotImplementedError()
+        --- ( clientId: integer, dirtyBit: DirtyBit, bitState: boolean )
+        if isbool( bitState ) then
+            if bitState then
+                self.ClientStatus[clientId] = bit.bor( self.ClientStatus[clientId], dirtyBit )
+            else
+                self.ClientStatus[clientId] = bit.band( self.ClientStatus[clientId], not dirtyBit )
+            end
+
+        --- ( dirtyBit: DirtyBit, bitState: boolean )
+        elseif bitState == nil then
+            -- We need to shift parameters into their proper variables
+            bitState = dirtyBit --[[@as boolean]]
+            dirtyBit = clientId
+
+            if not STATIC.IsServer then
+                return
+            end
+
+            -- "Change the status for each client"
+            -- "N.B. Client [1] is actually the server"
+            for index = 2, STATIC.MAX_CLIENT_COUNT do
+                if bitState then
+                    self.ClientStatus[index] = bit.bor( self.ClientStatus[index], dirtyBit )
+                else
+                    self.ClientStatus[index] = bit.band( self.ClientStatus[index], not dirtyBit )
+                end
+            end
+
+        else
+            typecheck.ArgumentTypeError( STATIC.Class, "SetObjectDityBit", 3, type(bitState), { "boolean", "nil" } )
+        end
     end
 
     function INSTANCE:ClearObjectDirtyBits()
-        typecheck.NotImplementedError()
+        -- "Reset the status for each client"
+        for index = 1, STATIC.MAX_CLIENT_COUNT do
+            self.ClientStatus[index] = 0
+            self.UpdateInfo[index] = {
+                LastUpdateTime = 0,
+                UpdateRate = 50,
+                ClientHintCount = 0
+            }
+        end
     end
 
     --- @param clientId integer

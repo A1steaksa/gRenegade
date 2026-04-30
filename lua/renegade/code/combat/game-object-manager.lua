@@ -21,7 +21,10 @@ STATIC.Class = "GameObjectManagerClass"
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
     --- @type ScriptManagerClass
-    local scriptManagerClass = CNC.Import( "code/combat/script-manager-class.lua" )
+    local scriptManagerClass = CNC.Import( "code/combat/script-manager.lua" )
+
+    --- @type GameObjectObserverManagerClass
+    local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
 --#endregion
 
 
@@ -110,14 +113,66 @@ function STATIC.GenerateControl()
     typecheck.NotImplementedError()
 end
 
+--- "This static routine allows each GameObject to think"
 --- @return integer
 function STATIC.Think()
-    typecheck.NotImplementedError()
+
+    -- "Allow each object in the master list to think"
+    for _, objectNode in ipairs( STATIC.GameObjectList ) do
+
+        -- "Don't think when cinematic frozen"
+        if STATIC.IsCinematicFreezeActive() and objectNode:IsCinematicFreezeEnabled() then
+            -- "Stop the physics motion"
+            if objectNode:AsSmartGameObject() ~= nil then
+                objectNode:AsSmartGameObject():ResetController()
+
+                -- "And the weapon (flames, etc)"
+                if objectNode:AsSmartGameObject():GetWeapon() ~= nil then
+                    objectNode:AsSmartGameObject():GetWeapon():Deselect()
+                end
+            end
+            continue
+        end
+
+        if not objectNode:IsHibernating() then
+            objectNode:Think()
+        end
+
+        -- Ommitted because it seems to just be used for debug logging
+        -- if objectNode:AsSmartGameObject() then
+        --     if objectNode:AsSmartGameObject():AsSoldierGameObject() then
+        --         if objectNode:IsHibernating() then
+        --             STATIC.HibernatingSoldiers = STATIC.HibernatingSoldiers + 1
+        --         else
+        --             STATIC.AwakeSoldiers = STATIC.AwakeSoldiers + 1
+        --         end
+        --     end
+        -- end
+    end
+
+    return 0
 end
 
+--- "This static routine allows each GameObject to think after the rest"
 --- @return integer
 function STATIC.PostThink()
-    typecheck.NotImplementedError()
+    -- "Allow each object in the master list to think"
+    for _, objectNode in ipairs( STATIC.GameObjectList ) do
+        -- "Don't think when cinematic frozen"
+        if STATIC.IsCinematicFreezeActive() and objectNode:IsCinematicFreezeEnabled() then
+            continue
+        end
+
+        if not objectNode:IsHibernating() and objectNode:IsPostThinkAllowed() then
+            objectNode:PostThink()
+        end
+    end
+
+    gameObjectObserverManagerClass.DeletePending()
+
+    -- scriptManagerClass.DestroyPending()
+
+    return 0
 end
 
 --- "This static routine destroys all objects"
@@ -156,12 +211,12 @@ end
             So, make new things at the head of the list, so the oldest thinks last.
             "
         --]]
-        table.insert( STATIC.GameObjectList, 0, obj )
+        table.insert( STATIC.GameObjectList, 1, obj )
     end
 
     --- @param obj BaseGameObjectInstance
     function STATIC.Remove( obj )
-        table.RemoveByValue( STATIC.GameObjectList, obj )
+        local key = table.RemoveByValue( STATIC.GameObjectList, obj )
     end
 
     --- @return BaseGameObjectInstance[]
@@ -207,7 +262,6 @@ end
         return STATIC.StarGameObjectList
     end
 end
-
 
 --[[ Building Game Objects ]] do
 

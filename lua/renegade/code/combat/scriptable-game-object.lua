@@ -13,13 +13,14 @@ local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
 local STATIC = CNC.CreateExport( baseGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "ScriptableGameObjectClass"
+
 --- @class ScriptableGameObjectInstance : BaseGameObjectInstance
 --- @field Static ScriptableGameObjectClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_ScriptableGameObject : Renegade_BaseGameObject" )
 INSTANCE.Class = "ScriptableGameObjectInstance"
+INSTANCE.IsScriptableGameObject = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsScriptableGameObject = true
 
 
 --#region Imports
@@ -100,6 +101,8 @@ end
 
     --- Constructs a new ScriptableGameObjectInstance
     function INSTANCE:Renegade_ScriptableGameObject()
+        self.Observers = {}
+
         -- Omitted ReferenceableGameObjectInstance constructor
         self.ObserverCreatedPending = false
     end
