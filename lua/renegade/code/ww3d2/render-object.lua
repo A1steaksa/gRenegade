@@ -132,8 +132,11 @@ end
 --- @field UserData any
 
 --- Constructs a new RenderObjectInstance
+--- @param connectedEntity Entity
 --- @param src RenderObjectInstance? Another RenderObjectInstance to copy
-function INSTANCE:Renegade_RenderObject( src )
+function INSTANCE:Renegade_RenderObject( connectedEntity, src )
+
+    self:SetConnectedEntity( connectedEntity )
 
     -- ( src: RenderObjectInstance )
     if src then
@@ -170,33 +173,51 @@ function INSTANCE:_Renegade_RenderObject()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:Clone()
-    typecheck.NotImplementedError()
+--[[ Connected Entity ]] do
+
+    --- @return Entity
+    function INSTANCE:GetConnectedEntity()
+        return self.ConnectedEntity
+    end
+
+    --- @param connectedEntity Entity
+    function INSTANCE:SetConnectedEntity( connectedEntity )
+        self.ConnectedEntity = connectedEntity
+    end
 end
 
-function INSTANCE:ClassId()
-    typecheck.NotImplementedError()
+--[[ Render Object Interface - Cloning and Identification ]] do
+
+    function INSTANCE:Clone()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ClassId()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetName()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:SetName()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetBaseModelName()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:SetBaseModelName()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return integer
+    function INSTANCE:GetNumPolys()
+        return 0
+    end
 end
 
-function INSTANCE:GetName()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetName()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetBaseModelName()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetBaseModelName()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetNumPolys()
-    typecheck.NotImplementedError()
-end
 
 function INSTANCE:Render()
     typecheck.NotImplementedError()

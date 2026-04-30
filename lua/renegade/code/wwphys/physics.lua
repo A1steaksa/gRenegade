@@ -55,7 +55,7 @@ end
 --- @class PhysicsInstance
 --- @field private ConnectedEntity Entity The Garry's Mod Entity that this object represents
 --- @field Flags integer "Flags for things like whether this object is currently being considered immovable"
---- @field Model string "Render model"
+--- @field Model RenderObjectInstance "Render model"
 --- @field Name string? "Optional instance name"
 --- @field InstanceId integer "Optional instance identifier (unique if non-zero)"
 --- "  
@@ -299,9 +299,9 @@ end
         return connectedEntity:GetModel()
     end
 
-    --- @return string?
+    --- @return RenderObjectInstance?
     function INSTANCE:PeekModel()
-        return self:GetModel()
+        return self.Model
     end
 end
 
@@ -732,8 +732,15 @@ end
 
 --[[ Simulation and Rendering ]] do
 
-    function INSTANCE:Render()
-        typecheck.NotImplementedError()
+    --- @param renderInfo RenderInfoInstance
+    function INSTANCE:Render( renderInfo )
+        self:PushEffects( renderInfo )
+
+        if self.Model ~= nil then
+            self.Model:Render( renderInfo )
+        end
+
+        self:PopEffects( renderInfo )
     end
 
     function INSTANCE:VisRender()
@@ -765,11 +772,13 @@ function INSTANCE:SetFlag()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:PushEffects()
+--- @param renderInfo RenderInfoInstance
+function INSTANCE:PushEffects( renderInfo )
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:PopEffects()
+--- @param renderInfo RenderInfoInstance
+function INSTANCE:PopEffects( renderInfo )
     typecheck.NotImplementedError()
 end
 
