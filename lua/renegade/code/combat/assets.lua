@@ -44,7 +44,7 @@ local isHotload = not table.IsEmpty( STATIC )
             ini = iniClass.New( iniFile )
             iniFile:Close()
         else
-            Section.Error( "INI file does not exist or cannot be read: '", fileName, "'" )
+            section.Error( "INI file does not exist or cannot be read: '", fileName, "'" )
         end
 
         return ini

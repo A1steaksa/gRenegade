@@ -2,7 +2,7 @@
 
 --- @class PrintLib
 local LIB = {}
-Section = LIB -- Global variable for easy access
+section = LIB -- Global variable for easy access
 LIB.Class = "SectionLib"
 
 --- @class PrintLib

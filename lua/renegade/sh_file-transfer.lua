@@ -67,7 +67,7 @@ if SERVER then
                 local openFile = file.Open( filePath, "rb", "THIRDPARTY" )
 
                 if not openFile then
-                    Section.Error( "Failed to open file to send: '", filePath, "'" )
+                    section.Error( "Failed to open file to send: '", filePath, "'" )
                 end
 
                 fileContent = openFile:Read()
@@ -94,7 +94,7 @@ if SERVER then
             local byteCount = fileContent:len()
             local filePartCount = math.ceil( byteCount / STATIC.MaxBytesPerSecond )
 
-            Section.Start( "Sending ", byteCount, " byte, ", filePartCount, " part file: '", filePath, "' to ", ply )
+            section.Start( "Sending ", byteCount, " byte, ", filePartCount, " part file: '", filePath, "' to ", ply )
 
             -- Remove the data folder from the file path because it's implicit when
             -- writing files and we don't want to network unnecessary data
@@ -117,14 +117,14 @@ if SERVER then
                 local partData = fileContent:sub( startPos, endPos )
                 startPos = endPos + 1
 
-                Section.Print( "Part ", filePart, ": ", #partData, " bytes, start: ", startPos, ", end: ", endPos )
+                section.Print( "Part ", filePart, ": ", #partData, " bytes, start: ", startPos, ", end: ", endPos )
 
                 net.Start( STATIC.NetMessageId, false )
                 net.WriteData( partData )
                 net.Send( ply )
             end
 
-            Section.End()
+            section.End()
         end
 
         concommand.Add( "ren_debug_sendfile", function()
@@ -199,7 +199,7 @@ if CLIENT then
             local incomingFileDir = string.GetPathFromFilename( STATIC.IncomingFilePath )
             file.CreateDir( incomingFileDir )
 
-            Section.Start( "Receiving ", STATIC.TotalFileParts, " part file: '", STATIC.IncomingFilePath, "'" )
+            section.Start( "Receiving ", STATIC.TotalFileParts, " part file: '", STATIC.IncomingFilePath, "'" )
 
             return
         end
@@ -214,14 +214,14 @@ if CLIENT then
             STATIC.IncomingFileContents = STATIC.IncomingFileContents .. newData
         end
 
-        Section.Print( "Part ", STATIC.ReceivedFilePartCount, ": ", partByteCount, " bytes" )
+        section.Print( "Part ", STATIC.ReceivedFilePartCount, ": ", partByteCount, " bytes" )
 
         STATIC.ReceivedFilePartCount = STATIC.ReceivedFilePartCount + 1
 
         -- Is this the end of the file?
         if STATIC.ReceivedFilePartCount == STATIC.TotalFileParts then
 
-            Section.Print( "Decompressing file from ", #STATIC.IncomingFileContents, " bytes" )
+            section.Print( "Decompressing file from ", #STATIC.IncomingFileContents, " bytes" )
 
             local uncompressedFileContent = util.Decompress( STATIC.IncomingFileContents )
 
@@ -229,22 +229,22 @@ if CLIENT then
                 STATIC.IsFileBeingReceived = false
                 STATIC.IncomingFileContents = ""
 
-                Section.Error( "Failed to decompress incoming file contents for '", STATIC.IncomingFilePath, "'" )
+                section.Error( "Failed to decompress incoming file contents for '", STATIC.IncomingFilePath, "'" )
             end
             --- @cast uncompressedFileContent string
 
-            Section.Print( "Writing file to disk" )
+            section.Print( "Writing file to disk" )
 
             local writeResult = file.Write( STATIC.IncomingFilePath, uncompressedFileContent )
 
             if not writeResult then
-                Section.Error( "Failed to write to disk: '", STATIC.IncomingFilePath, "'" )
+                section.Error( "Failed to write to disk: '", STATIC.IncomingFilePath, "'" )
             end
 
             STATIC.IsFileBeingReceived = false
             STATIC.IncomingFileContents = nil
 
-            Section.End()
+            section.End()
         end
     end
     net.Receive( STATIC.NetMessageId, STATIC.ReceiveFile )

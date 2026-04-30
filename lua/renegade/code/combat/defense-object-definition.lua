@@ -118,7 +118,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    Section.Start( "Loading " .. INSTANCE.Class )
+    section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = persistClass.DATA_TYPE
@@ -133,7 +133,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.DEFENSEOBJECTDEF_CHUNK_VARIABLES then
-            Section.Start( INSTANCE.Class .. " Variables Start" )
+            section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
                 persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTH, dataTypeEnum.Float, "Health" )
@@ -148,12 +148,12 @@ function INSTANCE:Load( cload )
                 cload:CloseMicroChunk()
             end
 
-            Section.End()
+            section.End()
         else
-            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
+            section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
-        Section.End()
+        section.End()
 
         cload:CloseChunk()
     end

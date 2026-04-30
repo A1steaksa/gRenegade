@@ -83,7 +83,7 @@ end
 --- @return boolean true
 function INSTANCE:Load( cload )
 
-    Section.Start( "Loading " .. INSTANCE.Class )
+    section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
@@ -103,19 +103,19 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_STEALTH_UNIT, dataTypeEnum.Boolean, "IsStealthUnit" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
             end
         else
-            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
+            section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()
     end
 
-    Section.End()
+    section.End()
 
     return true
 end

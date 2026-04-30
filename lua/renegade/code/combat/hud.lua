@@ -792,7 +792,7 @@ end
         --[[ Weapon Name ]] do
             local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
             if not font then
-                Section.Error( "Could not peek font for weapon name on HUD" )
+                section.Error( "Could not peek font for weapon name on HUD" )
             end
             --- @cast font Font3dInstance
 

@@ -3,7 +3,7 @@
 local realmColor = SERVER and Color( 0, 0, 255 ) or Color( 255, 255, 0 )
 local realmName = SERVER and "Server" or "Client"
 
-Section.Print( realmColor, "Loading ", realmName, " ConVars" )
+section.Print( realmColor, "Loading ", realmName, " ConVars" )
 
 local standardFlags     = { FCVAR_ARCHIVE }
 local replicatedFlags   = { FCVAR_ARCHIVE, FCVAR_REPLICATED }

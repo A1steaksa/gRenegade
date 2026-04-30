@@ -48,7 +48,7 @@ function STATIC.GameInit()
         hook.Remove( "HUDPaint", "A1_Renegade_GameInit_Client" )
     end
 
-    Section.Start( "Running Renegade GameInit" )
+    section.Start( "Running Renegade GameInit" )
 
     -- "Set registry key to 1 for the duration of the init.  This way we know if the program crashed while the init."
 
@@ -146,7 +146,7 @@ function STATIC.GameInit()
 
     -- "Send out Spy Usage Info off to Gamespy"
 
-    Section.End()
+    section.End()
 
 
 

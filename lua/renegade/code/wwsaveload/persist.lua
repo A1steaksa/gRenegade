@@ -174,7 +174,7 @@ end
                 tblNameString = "Table: \"" .. key .. "\", "
             end
 
-            Section.Print( "Reading " .. typeRegistry.Name .. " micro-chunk (" .. tblNameString .. "ID: " .. microChunkId .. ", " .. keyString .. ") of length " .. typeRegistry.Size )
+            section.Print( "Reading " .. typeRegistry.Name .. " micro-chunk (" .. tblNameString .. "ID: " .. microChunkId .. ", " .. keyString .. ") of length " .. typeRegistry.Size )
 
             return self:LoadMicroChunk( cload, dataType, key, subKey )
         end
@@ -198,12 +198,12 @@ end
 
             local microChunkLength = cload:CurMicroChunkLength()
 
-            Section.Print( "Reading String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength )
+            section.Print( "Reading String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength )
 
             local readByteCount, readByteString = cload:Read( microChunkLength )
             if readByteCount == 0 then
-                Section.Error( "Attempted to read String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength .. " but received " .. readByteCount .. " instead." )
-                Section.Error( "Position:" .. tostring( cload:Tell() ) )
+                section.Error( "Attempted to read String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength .. " but received " .. readByteCount .. " instead." )
+                section.Error( "Position:" .. tostring( cload:Tell() ) )
             end
             --- @cast readByteString string
 
@@ -211,7 +211,7 @@ end
             local cleanedByteString = readByteString:sub( 1, -2 )
 
             if self[key] ~= nil then
-                Section.Error( "Reading duplicate String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength )
+                section.Error( "Reading duplicate String micro-chunk (ID: " .. id .. ", Key: \"" .. key .. "\") of length " .. microChunkLength )
             end
             self[key] = cleanedByteString
 
@@ -246,12 +246,12 @@ end
         function INSTANCE:LoadMicroChunk( cload, dataType, key, subKey )
             local byteCount = STATIC.DataTypeRegistry[dataType].Size
             if not byteCount then
-                Section.Error( "nil ByteCount during micro-chunk read of key:" .. ( key and key or "nil" ) )
+                section.Error( "nil ByteCount during micro-chunk read of key:" .. ( key and key or "nil" ) )
             end
 
             local readByteCount, readByteString = cload:Read( byteCount )
             if readByteCount == 0 then
-                Section.Error( "Failed to read micro chunk" )
+                section.Error( "Failed to read micro chunk" )
             end
             --- @cast readByteString string
 
@@ -281,7 +281,7 @@ end
         function INSTANCE:LoadMicroChunkWWString( cload, key, subKey )
             local readByteCount, readByteString = cload:Read( cload:CurMicroChunkLength() )
             if readByteCount == 0 then
-                Section.Error( "Failed to read micro chunk string" )
+                section.Error( "Failed to read micro chunk string" )
             end
             --- @cast readByteString string
 
@@ -294,7 +294,7 @@ end
                         tblNameString = "Table: " .. key .. ", "
                     end
 
-                    Section.Error( "Reading duplicate string micro-chunk ID " .. cload:CurMicroChunkId() .. " (" .. tblNameString .. "Subkey: \"" .. subKey .. "\") of length " .. cload:CurMicroChunkLength() .. ", Existing value: " .. tostring( existingValue ) )
+                    section.Error( "Reading duplicate string micro-chunk ID " .. cload:CurMicroChunkId() .. " (" .. tblNameString .. "Subkey: \"" .. subKey .. "\") of length " .. cload:CurMicroChunkLength() .. ", Existing value: " .. tostring( existingValue ) )
                 end
 
                 local tbl
@@ -312,8 +312,8 @@ end
             else
                 local existingValue = self[key]
                 if existingValue ~= nil and existingValue ~= 0 then
-                    Section.Print( "Existing value:" .. tostring( existingValue ) )
-                    Section.Error( "Reading duplicate string micro-chunk ID " .. cload:CurMicroChunkId() .. " (Key: \"" .. key .. "\") of length " .. cload:CurMicroChunkLength() )
+                    section.Print( "Existing value:" .. tostring( existingValue ) )
+                    section.Error( "Reading duplicate string micro-chunk ID " .. cload:CurMicroChunkId() .. " (Key: \"" .. key .. "\") of length " .. cload:CurMicroChunkLength() )
                 end
 
                 self[key] = readByteString

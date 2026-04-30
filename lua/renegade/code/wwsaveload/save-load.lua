@@ -153,7 +153,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param subsys SaveLoadSubSystemInstance
         function STATIC.RegisterSubSystem( subsys )
-            Section.Print( "Registering sub-system: \"" .. subsys:Name() .. "\" with Chunk ID: " .. subsys:ChunkId() )
+            section.Print( "Registering sub-system: \"" .. subsys:Name() .. "\" with Chunk ID: " .. subsys:ChunkId() )
             STATIC.LinkSubSystem( subsys )
         end
 
@@ -183,12 +183,12 @@ local isHotload = not table.IsEmpty( STATIC )
         ---@param subsys SaveLoadSubSystemInstance
         function STATIC.LinkSubSystem( subsys )
             if STATIC.LoadedSubSystems[subsys] then
-                Section.Error( "Sub-systems should never register twice!" )
+                section.Error( "Sub-systems should never register twice!" )
                 return
             end
 
             if STATIC.IdToSubSystem[subsys:ChunkId()] then
-                Section.Error( "Sub-system chunk ID re-use detected!" )
+                section.Error( "Sub-system chunk ID re-use detected!" )
             end
 
             STATIC.LoadedSubSystems[subsys] = true
@@ -204,17 +204,17 @@ local isHotload = not table.IsEmpty( STATIC )
         function STATIC.LinkFactory( factory )
 
             if STATIC.LoadedFactories[factory] then
-                Section.Error( "Factories should never register twice!" )
+                section.Error( "Factories should never register twice!" )
             end
 
             local chunkId = factory:ChunkId()
 
             if not chunkId then
-                Section.Error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
+                section.Error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
             end
 
             if STATIC.IdToFactory[chunkId] then
-                Section.Error( "Persist Factory chunk ID re-use detected!" )
+                section.Error( "Persist Factory chunk ID re-use detected!" )
             end
 
             STATIC.LoadedFactories[factory] = true

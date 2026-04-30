@@ -109,7 +109,7 @@ function INSTANCE:Load( cload )
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
 
-    Section.Start( "Loading " .. INSTANCE.Class )
+    section.Start( "Loading " .. INSTANCE.Class )
 
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
@@ -117,7 +117,7 @@ function INSTANCE:Load( cload )
         if chunkId == STATIC.ChunkIds.CHUNKID_DEF_PARENT then
             PARENT.Instance.Load( self, cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
-            Section.Start( INSTANCE.Class .. " Variables Start" )
+            section.Start( INSTANCE.Class .. " Variables Start" )
 
             while cload:OpenMicroChunk() do
                 local didRead =
@@ -133,21 +133,21 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ERROR, dataTypeEnum.Float, "WeaponError" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID", cload:CurMicroChunkId() )
+                    section.Print( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
             end
 
-            Section.End()
+            section.End()
         else
-            Section.Print( "Unrecognized ", INSTANCE.Class, " Chunk ID", cload:CurChunkId() )
+            section.Print( "Unrecognized ", INSTANCE.Class, " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()
     end
 
-    Section.End()
+    section.End()
 
     return true
 end

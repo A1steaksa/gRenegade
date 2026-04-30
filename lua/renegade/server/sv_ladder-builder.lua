@@ -201,7 +201,7 @@ end
     function INSTANCE:RemoveLadder( ladderName )
         local ladder = self:GetLadder( ladderName )
         if not ladder then
-            Section.Error( "Could not find ladder to remove: ", ladderName )
+            section.Error( "Could not find ladder to remove: ", ladderName )
         end
         --- @cast ladder LadderBuilderLadder
 
@@ -224,7 +224,7 @@ end
     function INSTANCE:GetLadder( ladderName )
         local ladder = self.Ladders[ladderName]
         if not ladder then
-            Section.Error( "Could not find ladder on '", self.Parent, "' with ladder name '", ladderName, "'" )
+            section.Error( "Could not find ladder on '", self.Parent, "' with ladder name '", ladderName, "'" )
         end
         return ladder
     end
@@ -235,12 +235,12 @@ end
         local ladder = self:GetLadder( ladderName )
 
         if not ladder then
-            Section.Error( "Could not update invalid ladder. Ladder Name: '", ladderName, "'" )
+            section.Error( "Could not update invalid ladder. Ladder Name: '", ladderName, "'" )
         end
 
         local ladderEnt = ladder.Entity
         if not IsValid( ladderEnt ) then
-            Section.Error( "Could not update invalid ladder Entity. Ladder Name: '", ladderName, "'" )
+            section.Error( "Could not update invalid ladder Entity. Ladder Name: '", ladderName, "'" )
         end
         --- @cast ladderEnt Entity
 
@@ -286,7 +286,7 @@ end
 
         local dismount = ladder.DismountEntities[dismountName]
         if not IsValid( dismount ) then
-            Section.Error( "Could not find dismount to remove: ", dismountName )
+            section.Error( "Could not find dismount to remove: ", dismountName )
         end
 
         dismount:Remove()
@@ -299,7 +299,7 @@ end
     function INSTANCE:GetDismountEntity( ladderName, dismountName )
         local dismount = self:GetLadder( ladderName ).DismountEntities[dismountName]
         if not IsValid( dismount ) then
-            Section.Error( "Could not find dismount on '", self.Parent, "' with ladder name '", ladderName, "' and dismount name '", dismountName, "'" )
+            section.Error( "Could not find dismount on '", self.Parent, "' with ladder name '", ladderName, "' and dismount name '", dismountName, "'" )
         end
         return dismount
     end

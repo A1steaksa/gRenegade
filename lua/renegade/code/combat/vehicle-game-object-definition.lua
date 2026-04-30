@@ -175,8 +175,8 @@ end
 function INSTANCE:Load( cload )
     -- Omitted freeing transition list
 
-    Section.Disable()
-    Section.Start( "Loading " .. INSTANCE.Class )
+    section.Disable()
+    section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
     local dataTypeEnum = STATIC.DATA_TYPE
@@ -188,7 +188,7 @@ function INSTANCE:Load( cload )
             PARENT.Instance.Load( self, cload )
 
         elseif id == ids.CHUNKID_DEF_TRANSITION then
-            Section.Print( INSTANCE.Class .. " Transition Loading is not yet implemented" )
+            section.Print( INSTANCE.Class .. " Transition Loading is not yet implemented" )
 
         elseif id == ids.CHUNKID_DEF_VARIABLES then
 
@@ -226,15 +226,15 @@ function INSTANCE:Load( cload )
                 cload:CloseMicroChunk()
             end
         else
-            Section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
+            section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID " .. tostring( cload:CurChunkId() ) )
         end
 
         cload:CloseChunk()
     end
 
-    Section.End()
-    Section.Enable()
-    Section.Print( "Loaded ", self.Name )
+    section.End()
+    section.Enable()
+    section.Print( "Loaded ", self.Name )
 
     return true
 end

@@ -109,24 +109,24 @@ function INSTANCE:Renegade_LoadingScreen()
     self.Backdrop = menuBackdropClass.New()
 
     local font = styleManagerClass.PeekFont( fontStyleEnum.IngameTxt )
-    if not font then Section.Error( "Unable to retrieve loading screen font" ) end
+    if not font then section.Error( "Unable to retrieve loading screen font" ) end
     --- @cast font Font3dInstance
     self.BackdropText  = render2dTextClass.New( font )
 
     font = styleManagerClass.PeekFont( fontStyleEnum.IngameBigTxt )
-    if not font then Section.Error( "Unable to retrieve loading screen font" ) end
+    if not font then section.Error( "Unable to retrieve loading screen font" ) end
     --- @cast font Font3dInstance
     self.BackdropText2 = render2dTextClass.New( font )
 
-    Section.Start( "Parsing loading screen description" )
+    section.Start( "Parsing loading screen description" )
 
     -- "Parse Descriptions"
     local count = campaignManagerClass.GetBackdropDescriptionCount()
 
-    Section.Print( "Backdrop Description Count: ", count )
+    section.Print( "Backdrop Description Count: ", count )
 
     -- Omitted most of the code
-    Section.Print( "Loading screen unfinished" )
+    section.Print( "Loading screen unfinished" )
 
     for i = 0, count do
         local read = campaignManagerClass.GetBackdropDescription( i ) or ""
@@ -134,12 +134,12 @@ function INSTANCE:Renegade_LoadingScreen()
         local description = read:Trim()
         local lowerDescription = description:lower()
 
-        Section.Print( "'", description, "'" )
+        section.Print( "'", description, "'" )
 
         -- "Parse Big Translated Text"
         if lowerDescription == "text2" then
             description = description:Right( string.len( description ) - 5 )
-            Section.Print( "Was text2: '", description, "'" )
+            section.Print( "Was text2: '", description, "'" )
         end
 
 
@@ -163,7 +163,7 @@ function INSTANCE:Renegade_LoadingScreen()
 
     end
 
-    Section.End()
+    section.End()
 
     -- Omitted resetting saveloadstatus status count
 end
@@ -209,7 +209,7 @@ function INSTANCE:Render( updateNetwork )
     self.Backdrop:SetAnimationPercentage( self.LoadPercentageDrawn )
     if SERVER and STATIC.LastPercentDrawn ~= self.LoadPercentageDrawn then
         STATIC.LastPercentDrawn = self.LoadPercentageDrawn
-        Section.Print( string.format( "Load %d%% complete", self.LoadPercentageDrawn * 100 ) )
+        section.Print( string.format( "Load %d%% complete", self.LoadPercentageDrawn * 100 ) )
     end
 
     -- Omitting end render

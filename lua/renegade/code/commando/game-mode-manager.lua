@@ -76,17 +76,17 @@ end
 
 -- "Diagnostic"
 function STATIC.ListActiveGameModes()
-    Section.Start( "Active game modes:" )
+    section.Start( "Active game modes:" )
 
     for _, gameMode in ipairs( STATIC.GameModeList ) do
         assert( gameMode ~= nil )
 
         if gameMode:IsActive() then
-            Section.Print( gameMode:Name() )
+            section.Print( gameMode:Name() )
         end
     end
 
-    Section.End()
+    section.End()
 end
 
 --- @param color Color

@@ -68,10 +68,10 @@ function STATIC.Init()
     -- "Load CAMPAIGN.INI to get campain flow"
     local campaignIni = assetsClass.GetIni( STATIC.CAMPAIGN_INI_FILENAME )
     if not campaignIni then
-        Section.Error( "CampaignManagerClass.Init - Unable to load '", STATIC.CAMPAIGN_INI_FILENAME, "'" )
+        section.Error( "CampaignManagerClass.Init - Unable to load '", STATIC.CAMPAIGN_INI_FILENAME, "'" )
     end
 
-    Section.Start( "Loading Campaign Flow" )
+
     local count = campaignIni:EntryCount( STATIC.SECTION_CAMPAIGN )
     for entry = 0, count do
         local entryName = campaignIni:GetEntry( STATIC.SECTION_CAMPAIGN, entry )
@@ -79,20 +79,14 @@ function STATIC.Init()
 
         local description = campaignIni:GetString( STATIC.SECTION_CAMPAIGN, entryName )
         STATIC.CampaignFlowDescriptions[#STATIC.CampaignFlowDescriptions + 1] = description
-
-        Section.Print( entry, ": ", description )
     end
-    Section.End()
 
     -- "Load Backdrop Descriptions"
     -- "Load the first 100, because 90-95 are multiplay.. :)"
-    Section.Start( "Loading Backdrop Descriptions" )
     for state = 0, 100 do
         local sectionName = string.format( "Backdrop%d", state )
         local count = campaignIni:EntryCount( sectionName )
         if count == 0 then continue end
-
-        Section.Start( "Section: ", sectionName )
 
         local index = #STATIC.BackdropDescriptions
         local backdropDescription = backdropDescriptionClass.New()
@@ -105,13 +99,8 @@ function STATIC.Init()
 
             local description = campaignIni:GetString( sectionName, entryName )
             backdropDescription.Lines[#backdropDescription.Lines + 1] = description
-
-            Section.Print( description )
         end
-
-        Section.End( "Loaded ", #backdropDescription.Lines, " lines" )
     end
-    Section.End()
 end
 
 function STATIC.Shutdown()
@@ -177,7 +166,7 @@ function STATIC.Continue( success )
     elseif stateDescription:StartsWith( "Movie " ) then
         typecheck.NotImplementedError()
     else
-        Section.Error( "Failed to parse campaign description: ", stateDescription )
+        section.Error( "Failed to parse campaign description: ", stateDescription )
         STATIC.State = STATIC.NOT_IN_CAMPAIGN_STATE
         renegadeDialogManagerClass.GotoLocation( locationEnum.LOC_MAIN_MENU )
     end

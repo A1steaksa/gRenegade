@@ -67,7 +67,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
         local combat = gameModeManagerClass.Find( "Combat" )
         if not combat then
-            Section.Error( "Failed to find Combat gamemode" )
+            section.Error( "Failed to find Combat gamemode" )
         end
         --- @cast combat CombatGameModeInstance
 

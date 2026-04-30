@@ -138,13 +138,13 @@ end
 function LIB.SaveFontAtlas( fontName, pointSize, isBold )
     local fontAtlasData = LIB.GetFontAtlasData( fontName, pointSize, isBold )
     if not fontAtlasData then
-        Section.Error( "Can't find font data to save for: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
+        section.Error( "Can't find font data to save for: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
     end
     --- @cast fontAtlasData FontAtlasData
 
     local renderTarget = fontAtlasData.RenderTarget
     if not renderTarget then
-        Section.Error( "Can't save Render Target for font that was loaded from a file: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
+        section.Error( "Can't save Render Target for font that was loaded from a file: ", fontName, " ", pointSize, " pt ", isBold and "bold" or "regular" )
     end
     --- @cast renderTarget ITexture
 
@@ -164,7 +164,7 @@ function LIB.SaveFontAtlas( fontName, pointSize, isBold )
     file.CreateDir( LIB.FontAtlasSaveLocation )
 
     if not imageData then
-        Section.Print( "Skipping saving empty atlas: ", fontName, " ", pointSize, " pt, ", ( isBold and "bold" or "regular" ) )
+        section.Print( "Skipping saving empty atlas: ", fontName, " ", pointSize, " pt, ", ( isBold and "bold" or "regular" ) )
         return
     end
 
@@ -210,7 +210,7 @@ function LIB.GetOrCreateFontAtlas( fontName, pointSize, isBold, interCharSpacing
         if fontAtlasData.Font3dInstance then
             return fontAtlasData.Font3dInstance
         else
-            Section.Error( "Font data exists but isn't populated" )
+            section.Error( "Font data exists but isn't populated" )
         end
     end
 
@@ -218,7 +218,7 @@ function LIB.GetOrCreateFontAtlas( fontName, pointSize, isBold, interCharSpacing
     local atlasPath = LIB.FormatAtlasFilePath( fontName, pointSize, isBold )
     if file.Exists( atlasPath, "DATA" ) then
         fontAtlasData = LIB.LoadFontAtlas( fontName, pointSize, isBold, interCharSpacing )
-        Section.Print( "Loaded atlas from '", atlasPath, "' - ", fontAtlasData.Material:GetName() )
+        section.Print( "Loaded atlas from '", atlasPath, "' - ", fontAtlasData.Material:GetName() )
         return fontAtlasData.Font3dInstance
     end
 
@@ -276,7 +276,7 @@ function LIB.CreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )
 
     if createdFontName:StartsWith( "renegade_Regatta-Condensed-LET" ) then
 
-        Section.Print(
+        section.Print(
             pointSize, " pt | ",
             "char: ",  maxCharWidth, " x ", maxCharHeight, " | ",
             "attempt: ", atlasWidth, " x ", atlasHeight, " | ",

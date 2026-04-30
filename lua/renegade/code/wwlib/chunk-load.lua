@@ -244,7 +244,7 @@ end
         -- "Calling the ChunkLoadClass:Read fn so that if we exhaust the chunk, the read will fail"
         local readByteCount, byteString = self:Read( microChunkHeaderClass.ByteSize )
         if readByteCount ~= microChunkHeaderClass.ByteSize then
-            Section.Warn( "Open Micro-Chunk failed because file read returned the wrong number of bytes. Expected ", microChunkHeaderClass.ByteSize, " but got ", readByteCount )
+            section.Warn( "Open Micro-Chunk failed because file read returned the wrong number of bytes. Expected ", microChunkHeaderClass.ByteSize, " but got ", readByteCount )
             return false
         end
         --- @cast byteString string
@@ -300,24 +300,24 @@ end
 
         -- "Don't read if we would go past the end of the current chunk"
         if positionStack[index] + byteCount > self.HeaderStack[index]:GetSize() then
-            Section.Warn( "Don't read if we would go past the end of the current chunk" )
+            section.Warn( "Don't read if we would go past the end of the current chunk" )
             return 0
         end
 
         -- "Don't read if we are in a micro chunk and would go past the end of it"
         if self.InMicroChunk and self.MicroChunkPosition + byteCount > self.MicroChunkHeader:GetSize() then
-            Section.Warn( "Don't read if we are in a micro chunk and would go past the end of it" )
+            section.Warn( "Don't read if we are in a micro chunk and would go past the end of it" )
             return 0
         end
 
         if byteCount <= 0 then
-            Section.Warn( "Read byte count is lower than expected: " .. tostring( byteCount ) )
+            section.Warn( "Read byte count is lower than expected: " .. tostring( byteCount ) )
             return 0
         end
 
         local byteString = self.File:Read( byteCount )
         if string.len( byteString ) ~= byteCount then
-            Section.Error( "Read byte count does not match expected byte count" )
+            section.Error( "Read byte count does not match expected byte count" )
             return 0
         end
 
@@ -375,10 +375,7 @@ function INSTANCE:Seek( byteCount )
     end
 
     local curPos = self.File:Tell()
-    self.File:Seek( self.File:Tell() + byteCount )
-    local newPos = self.File:Tell()
-    if newPos - curPos ~= byteCount then 
-        Section.Warn( "Chunk Load Seek has incorrect end position" )
+        section.Warn( "Chunk Load Seek has incorrect end position" )
         return 0
     end
 

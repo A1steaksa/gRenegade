@@ -213,7 +213,7 @@ end
         if not cachedFont then
             local font = STATIC.Fonts[ style ]
             if not font then
-                Section.Error( "Could not peek font that does not exist: ", style )
+                section.Error( "Could not peek font that does not exist: ", style )
             end
             STATIC.Fonts[ style ] = font
             cachedFont = STATIC.Fonts[ style ]

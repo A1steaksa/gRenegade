@@ -74,22 +74,18 @@ INSTANCE.IsCommandoCameraProfile = true
 
         local camerasIni = assetsClass.GetIni( STATIC.CAMERAS_INI_FILENAME )
 
-        Section.Start( "Loading camera proflies" )
-
-        if camerasIni then
+        if camerasIni ~= nil then
             local count = camerasIni:EntryCount( STATIC.SECTION_PROFILE_LIST )
             for entry = 1, count do
                 local entryName = camerasIni:GetEntry( STATIC.SECTION_PROFILE_LIST, entry )
                 if not entryName then
-                    Section.Error( "Failed to get entry name for entry ", entry )
+                    section.Error( "Failed to get entry name for entry ", entry )
                 end
                 --- @cast entryName string
                 local sectionName = camerasIni:GetString( STATIC.SECTION_PROFILE_LIST, entryName )
 
                 local profile = STATIC.New()
                 local name = camerasIni:GetString( sectionName, STATIC.ENTRY_NAME )
-
-                Section.Print( "Loading profile: '", sectionName, "'" )
 
                 profile.Fov = math.rad( camerasIni:GetFloat( sectionName, STATIC.ENTRY_FOV, math.deg( profile.Fov ) ) )
                 profile.Height = camerasIni:GetFloat( sectionName, STATIC.ENTRY_HEIGHT, profile.Height )
@@ -106,10 +102,8 @@ INSTANCE.IsCommandoCameraProfile = true
                 STATIC.ProfileHash[name:lower()] = profile
             end
         else
-            Section.Error( "Unablke to load ", STATIC.CAMERAS_INI_FILENAME )
+            section.Error( "Unablke to load ", STATIC.CAMERAS_INI_FILENAME )
         end
-
-        Section.End()
 
         STATIC._ProfilesInitted = true
     end

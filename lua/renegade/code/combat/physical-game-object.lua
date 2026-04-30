@@ -192,7 +192,7 @@ end
 
         self.PhysicsObject = physicsObjectDefinition:Create() --[[@as PhysicsInstance]]
         if not self.PhysicsObject then
-            Section.Error( "Could not create definition instance for " .. definition.PhysicsDefinitionId )
+            section.Error( "Could not create definition instance for " .. definition.PhysicsDefinitionId )
             return
         end
 

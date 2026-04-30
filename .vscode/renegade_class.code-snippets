@@ -39,10 +39,10 @@
 
 	"Print": {
 		"prefix": "pr",
-		"description": "Shortcut for `Section.Print()`",
+		"description": "Shortcut for `section.Print()`",
 		"scope": "lua",
 		"body": [
-			"Section.Print( $0 )"
+			"section.Print( $0 )"
 		]
 	},
 

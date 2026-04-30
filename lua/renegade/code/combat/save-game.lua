@@ -142,43 +142,43 @@ end
 
         local retVal = false
 
-        Section.Start( "Map Peek" )
+        section.Start( "Map Peek" )
 
         -- "Loop until we've found the header chunk"
         while retVal == false and cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
 
-            Section.Start( "Chunk " .. chunkId )
+            section.Start( "Chunk " .. chunkId )
 
             if chunkId == ids.CHUNKID_LEVEL_INFO then
 
-                Section.Start( "Level Info" )
+                section.Start( "Level Info" )
 
                 while retVal == false and cload:OpenMicroChunk() do
                     local microChunkId = cload:CurMicroChunkId()
 
-                    Section.Start( "Micro-chunk " .. microChunkId )
+                    section.Start( "Micro-chunk " .. microChunkId )
 
                     if microChunkId == ids.MICROCHUNKID_MAP_FILENAME then
-                        Section.Print( "MIGHT BE THE MAP NAME BAYBEEEE" )
+                        section.Print( "MIGHT BE THE MAP NAME BAYBEEEE" )
                         persistClass.Instance.LoadMicroChunkWWString( STATIC, cload, readValues, "MapName" )
                         retVal = true
                     end
 
-                    Section.End()
+                    section.End()
 
                     cload:CloseMicroChunk()
                 end
 
-                Section.End()
+                section.End()
             end
 
-            Section.End()
+            section.End()
 
             cload:CloseChunk()
         end
 
-        Section.End()
+        section.End()
 
         -- "Close the file"
         loadedFile:Close()
@@ -217,7 +217,7 @@ end
                         or persist.ReadMicroChunkWideString( STATIC, cload, ids.MICROCHUNKID_DESCRIPTION, "Description" )
 
                     if not didRead then
-                        Section.Warn( "Unrecognized Level Info Chunk ID: ", cload:CurMicroChunkId() )
+                        section.Warn( "Unrecognized Level Info Chunk ID: ", cload:CurMicroChunkId() )
                     end
 
                     cload:CloseMicroChunk()
@@ -236,7 +236,7 @@ end
                     saveLoadSystemClass.Load( cload, false )
                 end
             else
-                Section.Warn( "Unrecognized level chunk ID ", chunkId )
+                section.Warn( "Unrecognized level chunk ID ", chunkId )
             end
             cload:CloseChunk()
         end
@@ -276,7 +276,7 @@ end
             -- "Dig out the name of the map we'll use with this file"
             local success, mapName = STATIC.PeekMapName( fileName )
             if success then
-                Section.Print( "Peeked map name: ", mapName )
+                section.Print( "Peeked map name: ", mapName )
                 --- @cast mapName string
 
                 local mixRootName = string.StripExtension( mapName )
@@ -290,7 +290,7 @@ end
                 -- local thumbFileName = mixRootName .. ".thu"
                 -- thumbnailManagerClass.AddThumbnailManager( thumbFileName, mixFileName )
             else
-                Section.Warn( "Failed to peek map name from: \"", fileName, "\"" )
+                section.Warn( "Failed to peek map name from: \"", fileName, "\"" )
             end
         end
 
@@ -343,7 +343,7 @@ end
             saveLoadSystemClass.Load( cload, autoPostLoad )
             openedFile:Close()
         else
-            Section.Error( "Failed to load file: ", fileName )
+            section.Error( "Failed to load file: ", fileName )
         end
     end
 

@@ -172,7 +172,7 @@ LIB.EntityTypes = {
 
             local errorMessage = tostring( message )
 
-            Section.Error( errorMessage )
+            section.Error( errorMessage )
         end
 
         --- Throws an error about a specific argument number

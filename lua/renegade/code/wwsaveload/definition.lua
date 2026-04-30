@@ -105,7 +105,7 @@ end
     --- @param cload ChunkLoadInstance
     --- @return boolean `true`
     function INSTANCE:Load( cload )
-        Section.Start( STATIC.Class .. " Load Start" )
+        section.Start( STATIC.Class .. " Load Start" )
 
         local retVal = true
 
@@ -119,7 +119,7 @@ end
             cload:CloseChunk()
         end
 
-        Section.End()
+        section.End()
 
         return retVal
     end
@@ -134,7 +134,7 @@ end
     --- @return boolean
     function INSTANCE:LoadVariables( cload )
 
-        Section.Start( "Loading Variables..." )
+        section.Start( "Loading Variables..." )
 
         local microIds = STATIC.MicroChunkIds
 
@@ -148,7 +148,7 @@ end
             cload:CloseMicroChunk()
         end
 
-        Section.End()
+        section.End()
 
         return retVal
     end
@@ -175,11 +175,11 @@ end
         -- then we need to re-link ourselves back into the list
         -- "
         if self.DefinitionManagerLink ~= -1 then
-            Section.Print( "Register definition!" )
+            section.Print( "Register definition!" )
             definitionManagerClass.UnregisterDefinition( self )
             definitionManagerClass.RegisterDefinition( self )
         else
-            Section.Print( "I'll never register a definition, dad!" )
+            section.Print( "I'll never register a definition, dad!" )
         end
     end
 

@@ -72,14 +72,14 @@ end
     --- @param cload ChunkLoadInstance
     --- @return boolean
     function INSTANCE:Load( cload )
-        Section.Start( "Loading " .. INSTANCE.Class )
+        section.Start( "Loading " .. INSTANCE.Class )
 
         cload:OpenChunk()
         assert( cload:CurChunkId() == STATIC.ChunkIds.CHUNKID_DEF_PARENT )
         PARENT.Instance.Load( self, cload )
         cload:CloseChunk()
 
-        Section.End()
+        section.End()
 
         return true
     end

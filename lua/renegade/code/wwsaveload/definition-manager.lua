@@ -258,7 +258,7 @@ end
     --- @return boolean
     function INSTANCE:LoadObjects( cload )
         local retVal = true
-        Section.Start( "Loading Definition Manager Objects" )
+        section.Start( "Loading Definition Manager Objects" )
         while cload:OpenChunk() do
             -- "Load this definition from the chunk (if possible)"
             local factory = saveLoadSystemClass.FindPersistFactory( cload:CurChunkId() )
@@ -280,7 +280,7 @@ end
         -- "Assign a mgr link to each definition"
         -- Omitted manager link for now
 
-        Section.End()
+        section.End()
 
         return retVal
     end
@@ -296,14 +296,14 @@ end
     function INSTANCE:LoadVariables( cload )
         local retVal = true
 
-        Section.Start( "Loading Definition Manager Variables" )
+        section.Start( "Loading Definition Manager Variables" )
 
         -- "Loop through all the microchunks that define the variables"
         while cload:OpenMicroChunk() do
             cload:CloseMicroChunk()
         end
 
-        Section.End()
+        section.End()
 
         return retVal
     end
