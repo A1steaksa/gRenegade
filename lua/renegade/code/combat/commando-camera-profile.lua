@@ -35,7 +35,7 @@ INSTANCE.IsCommandoCameraProfile = true
     STATIC._ProfilesInitted = false
     STATIC.ProfileHash = {}
 
-    STATIC.CAMERAS_INI_FILENAME  = "renegade/always_dat/cameras.ini.txt"
+    STATIC.CAMERAS_INI_FILENAME  = "cameras.ini"
     STATIC.SECTION_PROFILE_LIST  = "Profile_List"
     STATIC.ENTRY_NAME            = "Name"
     STATIC.ENTRY_FOV             = "FOV"
@@ -76,6 +76,7 @@ INSTANCE.IsCommandoCameraProfile = true
 
         if camerasIni ~= nil then
             local count = camerasIni:EntryCount( STATIC.SECTION_PROFILE_LIST )
+
             for entry = 1, count do
                 local entryName = camerasIni:GetEntry( STATIC.SECTION_PROFILE_LIST, entry )
                 if not entryName then
