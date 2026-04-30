@@ -52,7 +52,7 @@ STATIC.BackdropDescriptions = {}
 STATIC.State = 0
 STATIC.BackdropIndex = 0
 
-STATIC.CAMPAIGN_INI_FILENAME = "renegade/always_dat/campaign.ini.txt"
+STATIC.CAMPAIGN_INI_FILENAME = "campaign.ini"
 STATIC.SECTION_CAMPAIGN      = "Campaign"
 STATIC.NOT_IN_CAMPAIGN_STATE = -10
 STATIC.REPLAY_LEVEL          = -11

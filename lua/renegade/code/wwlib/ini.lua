@@ -38,8 +38,22 @@ INSTANCE.IsIni = true
 
     --- @type IniSectionClass
     local iniSectionClass = CNC.Import( "code/wwlib/ini-section.lua" )
+
+    --- @type CacheStrawClass
+    local cacheStrawClass = CNC.Import( "code/wwlib/cache-straw.lua" )
+
+    --- @type FileFactoryClass
+    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+
+    --- @type FileStrawClass
+    local fileStrawClass = CNC.Import( "code/wwlib/file-straw.lua" )
+
+    --- @type ReadLineClass
+    local readLineClass = CNC.Import( "code/wwlib/read-line.lua" )
 --#endregion
 
+--#region Imported Enums
+--#endregion
 
 --[[
 Porting Notes:
@@ -55,7 +69,7 @@ Porting Notes:
 
     --- Creates a new IniInstance
     --- @overload fun(): IniInstance
-    --- @overload fun( file: File ): IniInstance
+    --- @overload fun( file: FileInstance ): IniInstance
     --- @overload fun( filePath: string ): IniInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_Ini", ... )
@@ -78,7 +92,7 @@ Porting Notes:
     --- > a value of " ". If set to false, blank entries will be ignored.
     --- > The default behavior is to ignore blank entries.
     --- > This is a static method, because in general this is an application-level
-    --- > decision as opposed to a per-ini file decision.
+    --- > decision as opposed to a per-ini file decision.  
     --- > "  
     --- @param shouldKeepBlanks boolean
     function STATIC.KeepBlankEntries( shouldKeepBlanks )
@@ -113,7 +127,7 @@ local MAX_LINE_LENGTH = 512
 
 --- Constructs a new IniInstance
 --- @overload fun()
---- @overload fun( file: File )
+--- @overload fun( file: FileInstance )
 --- @overload fun( filePath: string )
 function INSTANCE:Renegade_Ini( ... )
     local args = { ... }
@@ -125,13 +139,14 @@ function INSTANCE:Renegade_Ini( ... )
     if argCount == 0 then
         self.Filename = ""
         self:Initialize()
+
         return
     end
 
     if argCount == 1 then
         local arg1 = args[1]
 
-        typecheck.AssertArgType( INSTANCE.Class, 1, arg1, { "string", "file" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, arg1, { "string", "BufferedFileInstance" } )
 
         -- ( filePath: string )
         if typecheck.IsOfType( arg1, "string" ) then
@@ -140,23 +155,22 @@ function INSTANCE:Renegade_Ini( ... )
             self.Filename = ""
             self:Initialize()
 
-            local openFile = file.Open( arg1, "r", "THIRDPARTY" )
-            if openFile then
+            local file = fileFactoryClass.TheFileFactory:GetFile( arg1 )
+            if file ~= nil then
                 self:Load( arg1 )
+                fileFactoryClass.TheFileFactory:ReturnFile( file )
             end
-
             return
         end
 
         -- ( openFile: File )
-        if typecheck.IsOfType( arg1, "file" ) then
-            --- @cast arg1 File
+        if typecheck.IsOfType( arg1, "BufferedFileInstance" ) then
+            --- @cast arg1 BufferedFileInstance
 
             self.Filename = ""
+
             self:Initialize()
-
             self:Load( arg1 )
-
             return
         end
     end
@@ -169,106 +183,145 @@ end
 
 --[[ Fetch and Store INI Data ]] do
 
-    --- Loosely determines if a given string is in the format: [section_title]
-    --- @param line string The line to check
-    --- @return boolean
-    local function IsSectionHeader( line )
-        local closingBracketIndex = ( line:find( "]" ) )
-        return line:StartsWith( "[" ) and closingBracketIndex ~= nil
-    end
-
     --- "Load INI data from the file specified."
-    --- @overload fun( self: IniInstance, fileToLoad: File ): boolean
+    --- @overload fun( self: IniInstance, fileToLoad: FileInstance ): boolean
     --- @overload fun( self: IniInstance, filePath: string ): boolean
+    --- @overload fun( self: IniInstance, ffile: FileStrawInstance ): boolean
     function INSTANCE:Load( arg )
-        typecheck.AssertArgType( INSTANCE.Class, 1, arg, { "file", "string" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, arg, { "BufferedFileInstance", "FileStrawInstance", "string" } )
 
-        -- I'm combining the File and Straw implementations a bit as Garry's Mod has some overlap between them
+        --- ( filename: strings ): boolean
+        if typecheck.IsOfType( arg, "string" ) then
+            local fileName = arg --[[@as string]]
+            local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+            if file == nil then
+                section.Error( "INI.Load failed to get file '", fileName, "'" )
+                return
+            end
+            local returnValue = self:Load( file )
+            self.Filename = fileName
+            return returnValue
 
-        --- @type File
-        local openFile
+        --- ( file: FileInstance ): boolean
+        elseif typecheck.IsOfType( arg, "BufferedFileInstance" ) then
+            local file = arg --[[@as FileInstance]]
+            local fileStraw = fileStrawClass.New( file )
+            self.Filename = file:FileName()
 
-        -- ( file: File ): boolean
-        if typecheck.IsOfType( arg, "file" ) then
-            --- @cast arg File
-            openFile = arg
-
-        -- ( file: string ): boolean
-        else
-            --- @cast arg string
-            self.Filename = arg
-            openFile = file.Open( arg, "r", "THIRDPARTY" ) --[[@as File]]
+            local returnValue = self:Load( fileStraw )
+            return returnValue
         end
 
-        --- @type string
-        local buffer
+        --- ( ffile: FileStrawInstance ): boolean
+        local ffile = arg --[[@as FileStrawInstance]]
+        local endOfFile = false
+        local buffer = ""
+
+        --- "
+        --- Determine if the INI database has preexisting entries.  If it does,
+        --- then the slower merging method of loading is required.
+        --- "
+        local merge = false
+        if self:SectionCount() > 0 then
+            merge = true
+        end
+
+        local file = cacheStrawClass.New()
+        file:GetFrom( ffile )
 
         -- "Prescan until the first section is found."
-        while not openFile:EndOfFile() do
-            buffer = openFile:ReadLine()
-            if openFile:EndOfFile() then return false end
+        while not endOfFile do
+            buffer, endOfFile = readLineClass.ReadLine( file )
 
-            if IsSectionHeader( buffer ) then
+            if endOfFile then
+                return false
+            end
+
+            if buffer:StartsWith( "[" ) and ( buffer:find( "]", nil, true ) ) ~= nil then
                 break
             end
         end
 
-        while not openFile:EndOfFile() do
-            -- "Fetch the section name."
-            -- "Preserve it while the section's entries and being parsed."
-            -- Omitted original logic
-            local closingBracketIndex = ( buffer:find( "]" ) ) - 1
-            local section = buffer:sub( 2, closingBracketIndex ):Trim()
+        if merge then
+            typecheck.NotImplementedError()
+        else
 
-            -- "Read in the entries of this section"
-            while not openFile:EndOfFile() do
-                -- "
-                -- If this line is the start of another section, then bail out of the
-                -- entry loop and let the outer section loop take care of it
-                -- "
-                buffer = openFile:ReadLine()
-                if IsSectionHeader( buffer ) then
-                    break
-                end
+            -- "Process a section. The buffer is prefilled with the section name line."
+            while not endOfFile do
 
-                -- "Determine if this line is a comment or blank line.  Throw it out if it is."
-                buffer = STATIC.StripComments( buffer )
-                if buffer:len() == 0 or buffer:StartsWith( ";" ) or buffer:StartsWith( "=" ) then
-                    continue
-                end
+                -- "Fetch the section name.  Preserve it while the section's entries are being parsed."
+                local openBracketIndex = buffer:find( "[", nil, true )
+                local closeBracketIndex = buffer:find( "]", nil, true )
+                local sectionName = buffer:sub( openBracketIndex + 1, closeBracketIndex - 1 )
 
-                -- "The line isn't an obvious comment."
-                -- "Make sure that there is the "=" character at an appropriate spot"
-                local dividerIndex = ( buffer:find( "=" ) )
-                if not dividerIndex then
-                    continue
-                end
+                local sectionObject = iniSectionClass.New( sectionName )
 
-                -- "
-                -- Split the line into entry and value sections. Be sure to catch the
-                -- "=foobar" and "foobar=" cases. "=foobar" lines are ignored, while 
-                -- "foobar=" lines are might be stored as having " " as their value,
-                -- depending on the value of [_KeepBlankEntries]
-                -- "
-                buffer = buffer:Trim()
-                local splitBuffer = buffer:Split( "=" ) --[[ @as string[] ]]
-                local entry = splitBuffer[1]
-                local value = splitBuffer[2]
 
-                if not value or value:len() == 0 then
-                    if STATIC._KeepBlankEntries then
-                        value = " "
-                    else
+                -- "Read in the entries of this section"
+                while not endOfFile do
+
+                    --- "
+                    --- If this line is the start of another section, then bail out
+                    --- of the entry loop and let the outer section loop take
+                    --- care of it
+                    --- "
+                    buffer, endOfFile = readLineClass.ReadLine( file )
+
+                    if buffer:StartsWith( "[" ) and ( buffer:find( "]", nil, true ) ) ~= nil then
+                        break
+                    end
+
+                    -- "Determine if this line is a comment or blank line.  Throw it out if it is."
+                    buffer = STATIC.StripComments( buffer )
+                    if buffer:len() == 0 or buffer:StartsWith( ";" ) or buffer:StartsWith( "=" ) then
                         continue
                     end
+
+                    --- "
+                    --- The line isn't an obvious comment.  Make sure that there is the "=" character
+                    --- at an appropriate spot.
+                    --- "
+                    local dividerIndex = buffer:find( "=", nil, true )
+                    if dividerIndex == nil then
+                        continue
+                    end
+
+                    --- "
+                    --- Split the line into entry and value sections.  Be sure to catch the
+                    --- "=foobar" and "foobar=" cases.  "=foobar" lines are ignored, while
+                    --- "foobar=" lines are might be stored as has having " " as their value,
+                    --- depending on the value of KeepBlankEntries
+                    --- "
+                    local valueStartIndex = dividerIndex + 1
+                    local entry = buffer:sub( 0, dividerIndex - 1 ):Trim()
+                    local value = buffer:sub( valueStartIndex ):Trim()
+
+                    -- Skip this entry if it's empty and if we're not keeping blank ones
+                    if value:len() == 0 and not STATIC._KeepBlankEntries then
+                        continue
+                    end
+
+                    local entryObject = iniEntryClass.New( entry, value )
+
+                    -- "12/09/97 EHC - check to see if an entry with this ID already exists"
+                    if sectionObject.EntryList[entry] ~= nil then
+                        section.Error( "INIClass:Load encountered duplicate INI section entry: '", sectionName, "'" )
+                    end
+
+                    sectionObject.EntryList[entry] = entryObject
                 end
 
-                local storedSuccessfully = self:PutString( section, entry, value )
-                if not storedSuccessfully then
-                    return false
+                --- "
+                --- All the entries for this section have been parsed.  If this section is blank, then
+                --- don't bother storing it.
+                --- "
+                if table.Count( sectionObject.EntryList ) ~= 0 then
+                    self.SectionList[sectionName] = sectionObject
                 end
             end
         end
+
+        return true
     end
 
     --- @param file File | string
@@ -604,8 +657,8 @@ end
     --- > "  
     --- > This routine will store a flaoting point number to the section and entry of the database.  
     --- > "  
-    --- @param section string The section to store the entry under.
-    --- @param entry string The entry to store the floating point number to.
+    --- @param sectionName string The section to store the entry under.
+    --- @param entryName string The entry to store the floating point number to.
     --- @param number number The floating point number to store.
     --- @return boolean # Was the floating point number stored without error?
     function INSTANCE:PutFloat( sectionName, entryName, number )

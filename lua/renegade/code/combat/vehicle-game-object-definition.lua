@@ -220,7 +220,7 @@ function INSTANCE:Load( cload )
                     or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID, dataTypeEnum.Int, "NodDestroyReportId" )
 
                 if not didRead then
-                    Section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )
+                    section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )
                 end
 
                 cload:CloseMicroChunk()

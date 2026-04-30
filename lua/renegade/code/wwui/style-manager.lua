@@ -65,6 +65,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type FontsLib
     local fontsLib = CNC.Import( "client/cl_fonts.lua" )
+
+    --- @type FileFactoryClass
+    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 --#endregion
 
 
@@ -148,14 +151,17 @@ STATIC.FONT_INI_ENTRIES = {
         STATIC.ScaleY = screenResolution:Height() / 600
 
         -- "Get the INI file"
-        local openFile = file.Open( fileName, "rb", "DATA" )
-        if not openFile then
-            Section.Error( "Unable to load ini file: '", fileName, "'" )
+        --- @type IniInstance
+        local iniFile
+        local fileObject = fileFactoryClass.TheFileFactory:GetFile( fileName )
+        if fileObject ~= nil and fileObject:IsAvailable() then
+            iniFile = iniClass.New( fileObject )
+            fileFactoryClass.TheFileFactory:ReturnFile( fileObject )
         end
 
-        local ini = iniClass.New( openFile )
-        if not ini then
-            Section.Error( "Unable to create ini loader for file: '", fileName, "'" )
+        if iniFile == nil then
+            section.Error( "Unable to create ini loader for file: '", fileName, "'" )
+            return
         end
 
         -- Omitted loading fonts into Windows
@@ -164,7 +170,7 @@ STATIC.FONT_INI_ENTRIES = {
         local count = table.Count( STATIC.FONT_STYLE )
         for index = 1, count do
             -- "Read information about this font"
-            local fontEntry = ini:GetString( STATIC.FONT_NAME_SECTION, STATIC.FONT_INI_ENTRIES[index] )
+            local fontEntry = iniFile:GetString( STATIC.FONT_NAME_SECTION, STATIC.FONT_INI_ENTRIES[index] )
 
             -- "Parse the information"
             local splitEntry = fontEntry:Split( "," ) --[[@as string[] ]]

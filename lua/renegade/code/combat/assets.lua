@@ -17,6 +17,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type IniClass
     local iniClass = CNC.Import( "code/wwlib/ini.lua" )
+
+    --- @type FileFactoryClass
+    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 --#endregion
 
 
@@ -33,16 +36,12 @@ local isHotload = not table.IsEmpty( STATIC )
     function STATIC.GetIni( fileName )
         local ini
 
-        local iniFile
-        if SERVER then
-            iniFile = file.Open( "data/" .. fileName, "rb", "THIRDPARTY" )
-        else
-            iniFile = file.Open( fileName, "rb", "DATA" )
-        end
-
-        if iniFile then
-            ini = iniClass.New( iniFile )
-            iniFile:Close()
+        local iniFile = fileFactoryClass.TheFileFactory:GetFile( fileName )
+        if iniFile ~= nil then
+            if iniFile:IsAvailable() then
+                ini = iniClass.New( iniFile )
+            end
+            fileFactoryClass.TheFileFactory:ReturnFile( iniFile )
         else
             section.Error( "INI file does not exist or cannot be read: '", fileName, "'" )
         end

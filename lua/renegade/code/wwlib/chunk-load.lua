@@ -24,18 +24,23 @@ INSTANCE.IsChunkLoad = true
 
 --#region Imports
 
---- @type SaveLoadSystemClass
-local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+    --- @type SaveLoadSystemClass
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
---- @type ChunkHeaderClass
-local chunkHeaderClass = CNC.Import( "code/wwlib/chunk-header.lua" )
+    --- @type ChunkHeaderClass
+    local chunkHeaderClass = CNC.Import( "code/wwlib/chunk-header.lua" )
 
---- @type MicroChunkHeaderClass
-local microChunkHeaderClass = CNC.Import( "code/wwlib/micro-chunk-header.lua" )
+    --- @type MicroChunkHeaderClass
+    local microChunkHeaderClass = CNC.Import( "code/wwlib/micro-chunk-header.lua" )
+
+    --- @type FileClass
+    local fileClass = CNC.Import( "code/wwlib/file.lua" )
 --#endregion
 
 
 --#region Imported Enums
+
+    local seekDirectionEnum = fileClass.SEEK_DIRECTION
 --#endregion
 
 --[[
@@ -51,7 +56,7 @@ local MAX_STACK_DEPTH = 256
     --- @field Converter BinaryConverter
 
     --- Creates a new ChunkLoadInstance
-    --- @param file File
+    --- @param file FileInstance
     --- @return ChunkLoadInstance
     function STATIC.New( file )
 
@@ -137,7 +142,7 @@ end
 
 --- "Wrap an instance of one of these objects around an opened file to easily parse the chunks in the file"
 --- @class ChunkLoadInstance
---- @field private File File
+--- @field private File FileInstance
 --- "Chunk reading support"
 --- @field private StackIndex integer
 --- @field private PositionStack integer[]
@@ -148,7 +153,7 @@ end
 --- @field private MicroChunkHeader MicroChunkHeaderInstance
 
 --- Constructs a new ChunkLoadInstance
---- @param file File
+--- @param file FileInstance
 function INSTANCE:Renegade_ChunkLoad( file )
     self.File = file
     self.StackIndex = 0
@@ -200,7 +205,7 @@ end
         local pos = self.PositionStack[self.StackIndex - 1]
 
         if pos < cSize then
-            self.File:Seek( self.File:Tell() + cSize - pos )
+            self.File:Seek( cSize - pos, seekDirectionEnum.SEEK_CUR )
         end
 
         self.StackIndex = self.StackIndex - 1
@@ -267,7 +272,7 @@ end
 
         -- "Seek the file past this micro chunk"
         if pos < cSize then
-            self.File:Seek( self.File:Tell() + cSize - pos )
+            self.File:Seek( cSize - pos, seekDirectionEnum.SEEK_CUR )
 
             -- "Update the tracking variables for where we are in the normal chunk"
             if self.StackIndex > 0 then
@@ -375,6 +380,7 @@ function INSTANCE:Seek( byteCount )
     end
 
     local curPos = self.File:Tell()
+    if self.File:Seek( byteCount, seekDirectionEnum.SEEK_CUR ) - curPos ~= byteCount then
         section.Warn( "Chunk Load Seek has incorrect end position" )
         return 0
     end

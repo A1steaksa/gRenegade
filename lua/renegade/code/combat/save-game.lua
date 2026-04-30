@@ -28,7 +28,10 @@ local isHotload = not table.IsEmpty( STATIC )
     local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
 
     --- @type EnumBuilderClass
-    local enumBaseClass = CNC.Import( "sh_enum-builder.lua" )
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    --- @type FileFactoryClass
+    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 --#endregion
 
 
@@ -39,7 +42,7 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --[[ Chunk IDs ]] do
 
-    local enumBuilder = enumBaseClass.New()
+    local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
         CHUNKID_LEVEL_INFO  = enumBuilder:Set( 1011991648 ),
@@ -132,7 +135,7 @@ end
         -- "Open the file as a chunk"
         local loadedFile = file.Open( fileName, "rb", "THIRDPARTY" )
         if not loadedFile then
-            Section.Error( "Failed to load file while peeking map name: \"", fileName, "\"" )
+            section.Error( "Failed to load file while peeking map name: \"", fileName, "\"" )
         end
 
         local cload = chunkLoadClass.New( loadedFile )
@@ -337,8 +340,9 @@ end
     --- @param fileName string
     --- @param autoPostLoad boolean
     function STATIC.LoadSaveLoadSystem( fileName, autoPostLoad )
-        local openedFile = file.Open( fileName, "rb", "THIRDPARTY" )
-        if openedFile then
+        local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+
+        if file ~= nil then
             local cload = chunkLoadClass.New( openedFile )
             saveLoadSystemClass.Load( cload, autoPostLoad )
             openedFile:Close()

@@ -5,8 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class InitClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "InitClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "InitClass"
 
 --#region Imports
 
@@ -33,11 +33,47 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type MainLoopClass
     local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
+
+    --- @type FileFactoryClass
+    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+
+    --- @type MixFileFactoryClass
+    local mixFileFactoryClass = CNC.Import( "code/wwlib/mix-file-factory.lua" )
+
+    --- @type SimpleFileFactoryClass
+    local simpleFileFactoryClass = CNC.Import( "code/wwlib/simple-file-factory.lua" )
+
+    --- @type FileFactoryListClass
+    local fileFactoryListClass = CNC.Import( "code/combat/file-factory-list.lua" )
+--#endregion
+
+--#region Imported Enums
 --#endregion
 
 
 --- @class InitClass
+--- @field RenegadeWritingFileFactory SimpleFileFactoryInstance
+--- @field RenegadeBaseFileFactory SimpleFileFactoryInstance
+--- @field AlwaysMixFileFactory MixFileFactoryInstance
+--- @field RenegadeFileFactory FileFactoryListInstance
+--- @field AudioFileFactory StrippingFileFactoryInstance
+--- @field LoggingFileFactory LoggingFileFactoryInstance
 
+
+-- "This defines the subdirectory where the game will load all data from"
+local DATA_SUBDIRECTORY   = "data/";
+local SAVE_SUBDIRECTORY   = "data/save/";
+local CONFIG_SUBDIRECTORY = "data/config/";
+local MOVIES_SUBDIRECTORY = "data/movies/";
+
+local STRINGS_FILENAME = "strings.tdb"
+local CONV_DB_FILENAME = "conv10.cdb"
+
+function STATIC.StaticConstructor()
+    STATIC.RenegadeWritingFileFactory = simpleFileFactoryClass.New()
+    STATIC.RenegadeBaseFileFactory = simpleFileFactoryClass.New()
+    STATIC.RenegadeFileFactory = fileFactoryListClass.New()
+end
 
 --- @return boolean
 function STATIC.GameInit()
@@ -57,10 +93,58 @@ function STATIC.GameInit()
     -- "Initialize our debugging framework"
 
     -- "Setup Writing Factory"
+    STATIC.RenegadeWritingFileFactory:SetSubDirectory( DATA_SUBDIRECTORY )
+    STATIC.TheWritingFileFactory = STATIC.RenegadeWritingFileFactory
+
+    STATIC.RenegadeBaseFileFactory:SetSubDirectory( DATA_SUBDIRECTORY )
+    STATIC.RenegadeBaseFileFactory:AppendSubDirectory( SAVE_SUBDIRECTORY )
+    STATIC.RenegadeBaseFileFactory:AppendSubDirectory( CONFIG_SUBDIRECTORY )
+
+    fileFactoryClass.TheSimpleFileFactory:SetSubDirectory( DATA_SUBDIRECTORY )
+    fileFactoryClass.TheSimpleFileFactory:AppendSubDirectory( SAVE_SUBDIRECTORY )
+    fileFactoryClass.TheSimpleFileFactory:AppendSubDirectory( CONFIG_SUBDIRECTORY )
+
+    fileFactoryClass.TheSimpleFileFactory:SetStripPath( true )
+
+    STATIC.RenegadeFileFactory:AddFileFactory( STATIC.RenegadeBaseFileFactory, "" )
+    STATIC.RenegadeFileFactory:AddFileFactory(
+        mixFileFactoryClass.New(
+            "always2.dat.txt",
+            STATIC.RenegadeBaseFileFactory
+        ),
+        "always2.dat.txt"
+    )
+
+    STATIC.RenegadeFileFactory:AddFileFactory(
+        mixFileFactoryClass.New(
+            "always.dbs.txt",
+            STATIC.RenegadeBaseFileFactory
+        ),
+        "always.dbs.txt"
+    )
+
+    STATIC.RenegadeFileFactory:AddFileFactory(
+        mixFileFactoryClass.New(
+            "always.dat.txt",
+            STATIC.RenegadeBaseFileFactory
+        ),
+        "always.dat.txt"
+    )
 
     -- "Search for all mix files in the data directory"
+    local mixFiles = file.Find( "data/renegade/data/*.mix.txt", "THIRDPARTY" )
+    for _, fileName in ipairs( mixFiles) do
+        -- "Add this mix file to our mix file factory list"
+        STATIC.RenegadeFileFactory:AddFileFactory(
+            mixFileFactoryClass.New(
+                fileName,
+                STATIC.RenegadeBaseFileFactory
+            ),
+            fileName
+        )
+    end
 
-    -- "Close the search handle"
+    fileFactoryClass.TheFileFactory = STATIC.RenegadeFileFactory
 
     -- "Logging File Factory"
 
