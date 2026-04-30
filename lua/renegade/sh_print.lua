@@ -270,3 +270,40 @@ function LIB.Print( ... )
     LIB.PrivatePrint( ... )
 end
 
+--- Prints the hexedecimal value of a given string of bytes
+--- @param byteString string
+function LIB.PrintHex( byteString )
+
+    local byteStrings = {}
+    for byteIndex = 1, string.len( byteString ) do
+        local extractedByteString = string.byte( byteString, byteIndex, byteIndex )
+        local byteNumber = tonumber( extractedByteString )
+
+        local hexByteString = string.format( "%02X", byteNumber )
+
+        byteStrings[#byteStrings + 1] = hexByteString
+    end
+
+    LIB.Print( table.concat( byteStrings, " " ) )
+end
+
+--- Prints the binary value of a given string of bytes
+--- @param byteString string
+function LIB.PrintBinary( byteString )
+    local outputBinaryString = ""
+    for i = 1, #byteString do
+        local char = string.byte( byteString, i, i )
+
+        local byteBinaryString = ""
+        for j = 0, 7 do
+            byteBinaryString = ( char % 2 ) .. byteBinaryString
+
+            char = math.floor( char / 2 )
+        end
+
+        outputBinaryString = string.Trim( outputBinaryString .. " " .. byteBinaryString )
+    end
+
+    LIB.Print( outputBinaryString )
+end
+
