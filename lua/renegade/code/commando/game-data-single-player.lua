@@ -44,7 +44,7 @@ INSTANCE.IsGameDataSinglePlayer = true
     local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
     --- @type TranslateDbClass
-    local translationDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translationDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 --#endregion
 
 

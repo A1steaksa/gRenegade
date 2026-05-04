@@ -44,7 +44,7 @@ INSTANCE.IsPowerUpGameObjectDefinition = true
     local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 
     --- @type HudClass
     local hudClass = CNC.Import( "code/combat/hud.lua" )

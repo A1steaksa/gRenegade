@@ -29,7 +29,7 @@ INSTANCE.Static = STATIC
     local globalSettingsClass = CNC.Import( "code/combat/global-settings.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 
     --- @type RadarManagerClass
     local radarManagerClass = CNC.Import( "code/combat/radar.lua" )

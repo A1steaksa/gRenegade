@@ -49,7 +49,7 @@ STATIC.Class = "HudClass"
     local font3dClass = CNC.Import( "code/ww3d2/font-3d.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 
     --- @type ObjectiveManagerClass
     local objManagerClass = CNC.Import( "code/combat/objective-manager.lua" )

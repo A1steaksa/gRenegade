@@ -39,7 +39,7 @@ local isHotload = not table.IsEmpty( STATIC )
     local objectiveClass = CNC.Import( "code/combat/objective.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 
     --- @type CombatManagerClass
     local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )

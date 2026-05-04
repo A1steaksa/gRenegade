@@ -117,7 +117,7 @@ if not CLIENT then return end
     local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
     --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translatedb.lua" )
+    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 --#endregion
 
 
