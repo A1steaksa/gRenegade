@@ -32,12 +32,19 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type FileFactoryClass
     local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+
+    --- @type FileClass
+    local fileClass = CNC.Import( "code/wwlib/file.lua" )
+
+    --- @type ChunkIOClass
+    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local dataTypeEnum = persistClass.DATA_TYPE
+    local dataTypeEnum = chunkIOClass.DATA_TYPE
+    local fileRightsEnum = fileClass.FILE_RIGHTS
 --#endregion
 
 --[[ Chunk IDs ]] do
@@ -129,64 +136,48 @@ end
     end
 
     --- @param fileName string
-    --- @return boolean success, string? mapName
+    --- @return boolean success
+    --- @return string? mapName
     function STATIC.PeekMapName( fileName )
-
         -- "Open the file as a chunk"
-        local loadedFile = file.Open( fileName, "rb", "THIRDPARTY" )
-        if not loadedFile then
-            section.Error( "Failed to load file while peeking map name: \"", fileName, "\"" )
-        end
+        local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+        assert( file ~= nil )
+        file:Open( fileRightsEnum.READ )
+        local cload = chunkLoadClass.New( file )
 
-        local cload = chunkLoadClass.New( loadedFile )
+        local returnValue = false
 
-        local ids = STATIC.ChunkIds
-        local readValues = {}
+        --- @type string
+        local mapName
 
-        local retVal = false
-
-        section.Start( "Map Peek" )
+        local readTable = {}
 
         -- "Loop until we've found the header chunk"
-        while retVal == false and cload:OpenChunk() do
+        while returnValue == false and cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
 
-            section.Start( "Chunk " .. chunkId )
+            section.Print( "Opening chunk ", chunkId )
 
-            if chunkId == ids.CHUNKID_LEVEL_INFO then
-
-                section.Start( "Level Info" )
-
-                while retVal == false and cload:OpenMicroChunk() do
+            if chunkId == STATIC.ChunkIds.CHUNKID_LEVEL_INFO then
+                while returnValue == false and cload:OpenMicroChunk() do
                     local microChunkId = cload:CurMicroChunkId()
+                    if microChunkId == STATIC.ChunkIds.MICROCHUNKID_MAP_FILENAME then
+                        chunkIOClass.LoadMicroChunkWWString( cload, readTable, "MapName" )
+                        mapName = readTable.MapName --[[@as string]]
 
-                    section.Start( "Micro-chunk " .. microChunkId )
-
-                    if microChunkId == ids.MICROCHUNKID_MAP_FILENAME then
-                        section.Print( "MIGHT BE THE MAP NAME BAYBEEEE" )
-                        persistClass.Instance.LoadMicroChunkWWString( STATIC, cload, readValues, "MapName" )
-                        retVal = true
+                        returnValue = true
                     end
-
-                    section.End()
-
                     cload:CloseMicroChunk()
                 end
-
-                section.End()
             end
-
-            section.End()
-
             cload:CloseChunk()
         end
 
-        section.End()
-
         -- "Close the file"
-        loadedFile:Close()
+        file:Close()
+        fileFactoryClass.TheFileFactory:ReturnFile( file )
 
-        return retVal, readValues.MapName
+        return returnValue, mapName
     end
 end
 
@@ -203,24 +194,26 @@ end
     function STATIC.LoadGame( fileName )
         STATIC.CurrentGameFileName = fileName
 
-        local loadedFile = file.Open( fileName, "rb", "THIRDPARTY" )
-        assert( loadedFile ~= nil )
-        local cload = chunkLoadClass.New( loadedFile )
+        local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+        assert( file ~= nil )
+        file:Open( fileRightsEnum.READ )
+        local cload = chunkLoadClass.New( file )
 
         local ids = STATIC.ChunkIds
-        local persist = persistClass.Instance
 
         while cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
             if chunkId == ids.CHUNKID_LEVEL_INFO then
                 while cload:OpenMicroChunk() do
+                    local microChunkId = cload:CurMicroChunkId()
+
                     local didRead =
-                        persist.ReadMicroChunkWWString( STATIC, cload, ids.MICROCHUNKID_MAP_FILENAME, "MapFileName" )
-                        or persist.ReadMicroChunk( STATIC, cload, ids.MICROCHUNKID_MISSION_DESCRIPTION, dataTypeEnum.Int "MissionDescriptionId" )
-                        or persist.ReadMicroChunkWideString( STATIC, cload, ids.MICROCHUNKID_DESCRIPTION, "Description" )
+                        chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_MAP_FILENAME, STATIC, "MapFileName" )
+                        or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_MISSION_DESCRIPTION, dataTypeEnum.Int, STATIC, "MissionDescriptionId" )
+                        or chunkIOClass.ReadMicroChunkWideString( cload, ids.MICROCHUNKID_DESCRIPTION, STATIC, "Description" )
 
                     if not didRead then
-                        section.Warn( "Unrecognized Level Info Chunk ID: ", cload:CurMicroChunkId() )
+                        section.Warn( "Unrecognized level info chunkID ", microChunkId )
                     end
 
                     cload:CloseMicroChunk()
@@ -244,15 +237,16 @@ end
             cload:CloseChunk()
         end
 
-        loadedFile:Close()
+        file:Close()
     end
 
     --- @param fileName string
-    --- @return string fileNameToLoad, string lsdFileName
+    --- @return string fileNameToLoad
+    --- @return string lsdFileName
     function STATIC.PreLoadGame( fileName )
         -- "Get the root name and extension from the filename"
         local rootName = string.StripExtension( fileName )
-        local extension = string.GetExtensionFromFilename( fileName )
+        local extension = "." .. string.GetExtensionFromFilename( fileName )
 
         -- Omitting setting info log level
 
@@ -341,11 +335,12 @@ end
     --- @param autoPostLoad boolean
     function STATIC.LoadSaveLoadSystem( fileName, autoPostLoad )
         local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
-
         if file ~= nil then
-            local cload = chunkLoadClass.New( openedFile )
+            file:Open( fileRightsEnum.READ )
+            local cload = chunkLoadClass.New( file )
             saveLoadSystemClass.Load( cload, autoPostLoad )
-            openedFile:Close()
+            file:Close()
+            fileFactoryClass.TheFileFactory:ReturnFile( file )
         else
             section.Error( "Failed to load file: ", fileName )
         end
