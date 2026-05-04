@@ -106,8 +106,8 @@ function INSTANCE:IsOpen()
     typecheck.NotImplementedError()
 end
 
---- @overload fun( self: RawFileInstance, fileName: string, rights: FileRights? ): boolean
---- @overload fun( self: RawFileInstance, rights: FileRights? ): boolean
+--- @overload fun( self: FileInstance, fileName: string, rights: FileRights? ): boolean
+--- @overload fun( self: FileInstance, rights: FileRights? ): boolean
 function INSTANCE:Open( fileName, rights )
     typecheck.NotImplementedError()
 end

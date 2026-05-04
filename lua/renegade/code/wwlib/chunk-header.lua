@@ -53,7 +53,7 @@ end
 
 --- Constructs a new ChunkHeaderInstance
 --- @overload fun()
---- @overload fun( chunkType: integer, chunkSize: integer, hasSubChunks: boolean )
+--- @overload fun( self: ChunkHeaderInstance, chunkType: integer, chunkSize: integer, hasSubChunks: boolean )
 function INSTANCE:Renegade_ChunkHeader( chunkType, chunkSize, hasSubChunks )
     self.ChunkType = chunkType or 0
     self.ChunkSize = chunkSize or 0
