@@ -2,3 +2,5 @@
 .vscode/cpp-class-cache.json
 .vscode/tasks.json
 data
+models
+materials
