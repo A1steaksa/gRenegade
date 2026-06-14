@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type RenderObjectClass
-local PARENT = CNC.Import( "code/ww3d2/render-object.lua" )
+local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
 
 --- @class CameraClass : RenderObjectClass
 --- @field instance CameraInstance The metatable used by CameraInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( renderObjectClass )
 STATIC.Class = "CameraClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -115,7 +115,7 @@ function INSTANCE:Renegade_Camera( src )
 
     -- ( src: CameraInstance )
     if src then
-        PARENT.instance.Renegade_RenderObject( self, src )
+        renderObjectClass.Instance.Renegade_RenderObject( self, nil, src )
         self.Projection             = src.Projection
         self.Viewport               = src.Viewport
         self.ViewPlane              = src.ViewPlane
@@ -176,13 +176,13 @@ end
 
     --- @param m Matrix3dInstance
     function INSTANCE:SetTransform( m )
-        PARENT.Instance.SetTransform( self, m )
+        renderObjectClass.Instance.SetTransform( self, m )
         self.FrustumValid = false
     end
 
     --- @param v Vector
     function INSTANCE:SetPosition( v )
-        PARENT.Instance.SetPosition( self, v )
+        renderObjectClass.Instance.SetPosition( self, v )
         self.FrustumValid = false
     end
 end

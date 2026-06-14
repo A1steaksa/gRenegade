@@ -4,12 +4,12 @@
 local CNC = CNC_RENEGADE
 
 --- @type PersistClass
-local PARENT = CNC.Import( "code/wwsaveload/persist.lua" )
+local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
 --- @class DefinitionClass : PersistClass
-local STATIC = CNC.CreateExport( PARENT )
-STATIC.Class = "DefinitionClass"
+local STATIC = CNC.CreateExport( persistClass )
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "DefinitionClass"
 
 --- @class DefinitionInstance : PersistInstance
 local INSTANCE = robustclass.Register( "Renegade_Definition : Renegade_Persist" )
