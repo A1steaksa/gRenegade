@@ -31,7 +31,7 @@ INSTANCE.IsSimpleGameObject = true
     --- @type SimplePersistFactoryClass
     local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
 
-    --- @type CombatChunkId
+    --- @type CombatChunkIdClass
     local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 --#endregion
 

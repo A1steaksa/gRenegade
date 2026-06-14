@@ -21,13 +21,43 @@ INSTANCE.Static = STATIC
 INSTANCE.IsTranslateDB = true
 
 --#region Exported Enums
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	local enumBuilder = enumBuilderClass.New()
+
+	
+
 --#endregion
 
 --#region Imports
+
+
 --#endregion
 
 --#region Imported Enums
 --#endregion
+
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES	= enumBuilder:Set( 0x07141200 ),
+        CHUNKID_OBJECTS		= enumBuilder:Next(),
+		CHUNKID_CATEGORIES	= enumBuilder:Next()
+    }
+end
+
+--[[ Var IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.VarIds = {
+        VARID_VERSION_NUMBER	= enumBuilder:Set( 0x01 ),
+        VARID_LANGUAGE_ID		= enumBuilder:Next()
+    }
+end
 
 --[[ Static Functions and Variables ]] do
 
@@ -59,41 +89,44 @@ INSTANCE.IsTranslateDB = true
 
     typecheck.RegisterType( "TranslateDBInstance", STATIC.IsTranslateDB )
 
-  function STATIC.Initialize()
-    typecheck.NotImplementedError()
-  end
+	local STRING_NOT_FOUND = "TDBERR"
+	local ENGLISH_STRING_NOT_FOUND = "TDBERR"
 
-  function STATIC.Shutdown()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.Initialize()
+    	typecheck.NotImplementedError()
+  	end
 
-  function STATIC.GetVersionNumber()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.Shutdown()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.UpdateVersion()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetVersionNumber()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.IsLoaded()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.UpdateVersion()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.ImportStrings()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.IsLoaded()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.ImportCHeader()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.ImportStrings()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.ExportCHeader()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.ImportCHeader()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.ExportTable()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.ExportCHeader()
+		typecheck.NotImplementedError()
+	end
+
+	function STATIC.ExportTable()
+		typecheck.NotImplementedError()
+	end
 
 	--- @param id integer
 	--- @return string?
@@ -106,138 +139,138 @@ INSTANCE.IsTranslateDB = true
 		local string = STRING_NOT_FOUND
 	end
 
-  function STATIC.GetEnglishString()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetEnglishString()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.AddObject()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.AddObject()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.RemoveObject()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.RemoveObject()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.RemoveAll()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.RemoveAll()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetObjectCount()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetObjectCount()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetObject()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetObject()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetFirstObject()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetFirstObject()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetNextObject()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetNextObject()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetCategoryCount()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetCategoryCount()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetCategory()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetCategory()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.FindCategory()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.FindCategory()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.AddCategory()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.AddCategory()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.RemoveCategory()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.RemoveCategory()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.SetCurrentLanguage()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.SetCurrentLanguage()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.GetCurrentLanguage()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.GetCurrentLanguage()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.IsSingleLanguageExportEnabled()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.IsSingleLanguageExportEnabled()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.EnableSingleLanguageExport()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.EnableSingleLanguageExport()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.SetExportFilter()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.SetExportFilter()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.ValidateData()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.ValidateData()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.FreeObjects()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.FreeObjects()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.FreeCategories()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.FreeCategories()
+		typecheck.NotImplementedError()
+	end
 
-  function STATIC.FindUniqueId()
-    typecheck.NotImplementedError()
-  end
+	function STATIC.FindUniqueId()
+		typecheck.NotImplementedError()
+	end
 end
 
 
 --- @class TranslateDBInstance
 
 function INSTANCE:Renegade_TranslateDB()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:_Renegade_TranslateDB()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:ChunkId()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:Name()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:FindObject()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:ContainsData()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:Save()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:Load()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:LoadVariables()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:LoadObjects()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end
 
 function INSTANCE:LoadCategories()
-  typecheck.NotImplementedError()
+	typecheck.NotImplementedError()
 end

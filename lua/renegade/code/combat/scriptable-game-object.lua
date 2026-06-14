@@ -102,6 +102,8 @@ end
     --- Constructs a new ScriptableGameObjectInstance
     function INSTANCE:Renegade_ScriptableGameObject()
         self.Observers = {}
+        self.ObserverTimerList = {}
+        self.CustomTimerList = {}
 
         -- Omitted ReferenceableGameObjectInstance constructor
         self.ObserverCreatedPending = false

@@ -59,8 +59,24 @@ end
 --- @class ArmorWarheadManagerClass
 --- @field private Multipliers number
 --- @field private Absorbsion number
+--- @field ArmorNames string[]
+--- @field WarheadNames string[]
+--- @field SoftArmorTable boolean[]
+--- @field SpecialDamageTypes integer[]
+--- @field SpecialDamageProbability number[]
+--- @field VisceroidProbability number[]
 
-STATIC.ARMOR_INI_FILENAME = "armor_ini.txt"
+STATIC.ArmorNames               = {}
+STATIC.WarheadNames             = {}
+STATIC.ArmorSaveIds             = {}
+STATIC.WarheadSaveIds           = {}
+STATIC.SoftArmorTable           = {}
+
+-- "For each warhead"
+STATIC.SpecialDamageTypes       = {}
+STATIC.SpecialDamageProbability = {}
+STATIC.VisceroidProbability     = {}
+
 
 --[[ Build ]] do
 

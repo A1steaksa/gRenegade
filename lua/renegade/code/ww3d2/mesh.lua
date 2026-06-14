@@ -24,9 +24,24 @@ INSTANCE.IsMesh = true
 --#endregion
 
 --#region Imports
+
+	--- @type MeshGeometryClass
+	local meshGeometryClass = CNC.Import( "code/ww3d2/mesh-geometry.lua" )
+
+	--- @type SphereClass
+	local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
+
+	--- @type MeshModelClass
+	local meshModelClass = CNC.Import( "code/ww3d2/mesh-model.lua" )
+
+    --- @type WW3dErrorTypes
+    local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local flagsTypeEnum = meshGeometryClass.FLAGS_TYPE
+    local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -35,9 +50,10 @@ INSTANCE.IsMesh = true
     --- @field LegacyMeshesFogged any
 
     --- Creates a new MeshInstance
+    --- @param src MeshInstance?
     --- @return MeshInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_Mesh" )
+    function STATIC.New( src )
+        return robustclass.New( "Renegade_Mesh", src )
     end
 
     --- @param arg any
@@ -52,16 +68,15 @@ INSTANCE.IsMesh = true
     typecheck.RegisterType( "MeshInstance", STATIC.IsMesh )
 end
 
-
+--- "Render3DObject for rendering meshes"
 --- @class MeshInstance
---- @field Model any
---- @field DecalMesh any
---- @field LightEnvironment any
---- @field BaseVertexOffset any
---- @field NextVisibleSkin any
---- @field MeshDebugId any
---- @field IsDisabledByDebugger any
---- @field UserLighting any
+--- @field Model MeshModelInstance
+--- @field DecalMesh DecalMeshInstance
+--- @field LightEnvironment LightEnvironmentInstance
+--- @field BaseVertexOffset integer
+--- @field NextVisibleSkin MeshInstance
+--- @field IsDisabledByDebugger boolean
+--- @field UserLighting table
 --- @field PolygonRendererList any
 
 --- @param src MeshInstance?

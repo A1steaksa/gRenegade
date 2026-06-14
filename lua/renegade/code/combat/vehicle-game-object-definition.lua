@@ -23,7 +23,7 @@ INSTANCE.Static = STATIC
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type CombatChunkId
+    --- @type CombatChunkIdClass
     local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type SimpleDefinitionFactoryClass

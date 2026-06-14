@@ -25,7 +25,7 @@ INSTANCE.IsPlayerTerminal = true
 
     local builder = enumBuilderClass.New()
 
-    --- @enum Type
+    --- @enum PlayerTerminalType
     STATIC.TYPE = {
         TYPE_NONE   = builder:Set( -1 ),
         TYPE_GDI    = builder:Set( 0 ),
@@ -82,7 +82,7 @@ end
 --[[ Display Methods ]] do
 
     --- @param player SoldierGameObjectInstance
-    --- @param type Type
+    --- @param type PlayerTerminalType
     function INSTANCE:DisplayTerminal( player, type )
         -- Empty in the original code
     end

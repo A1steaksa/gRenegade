@@ -31,8 +31,8 @@ INSTANCE.IsPowerUpGameObjectDefinition = true
     --- @type SimpleDefinitionFactoryClass
     local simpleDefinitionFactoryClass = CNC.Import( "code/wwsaveload/simple-definition-factory.lua" )
 
-    --- @type CombatChunkId
-    local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
+    --- @type CombatChunkIdClass
+    local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type PowerUpGameObjectClass
     local powerUpGameObjectClass = CNC.Import( "code/combat/power-up-game-object.lua" )
@@ -51,11 +51,18 @@ INSTANCE.IsPowerUpGameObjectDefinition = true
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    --- @type ChunkIOClass
+    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+    --- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 --#region Imported Enums
 
     local powerUpStateEnum = powerUpGameObjectClass.STATE
+    local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -64,16 +71,30 @@ INSTANCE.IsPowerUpGameObjectDefinition = true
     local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
-        DEFENSEOBJECTDEF_CHUNK_VARIABLES            = enumBuilder:Set( 7311607 ),
+        CHUNKID_DEF_PARENT    = enumBuilder:Set( 909991656 ),
+        CHUNKID_DEF_VARIABLES = enumBuilder:Next(),
 
-        DEFENSEOBJECTDEF_VARIABLE_HEALTH            = enumBuilder:Set( 0x00 ),
-        DEFENSEOBJECTDEF_VARIABLE_HEALTHMAX         = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SKIN              = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTH    = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTHMAX = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_SHIELDTYPE        = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_DAMAGE_POINTS     = enumBuilder:Next(),
-        DEFENSEOBJECTDEF_VARIABLE_DEATH_POINTS      = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_PARAMETERS                = enumBuilder:Set( 1 ),
+        MICROCHUNKID_DEF_PERSISTENT                   = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_SHIELD_TYPE            = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_SHIELD_STRENGTH        = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_GRANT_SHIELD_STRENGTH_MAX = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_HEALTH                 = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_GRANT_HEALTH_MAX          = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_WEAPON_ID              = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_WEAPON                 = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_WEAPON_ROUNDS          = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_IS_CAPTURE_THE_FLAG       = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_GRANT_KEY_MASK            = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_ANIMATION_NAME         = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_SOUNDID                = enumBuilder:Next(),
+        MICROCHUNKID_DEF_IDLE_ANIMATION_NAME          = enumBuilder:Next(),
+        MICROCHUNKID_DEF_IDLE_SOUNDID                 = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_KEY                    = enumBuilder:Next(),
+        MICROCHUNKID_DEF_ALWAYS_ALLOW_GRANT           = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_WEAPON_CLIPS           = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_SHIELD_STRENGTH_MAX    = enumBuilder:Next(),
+        MICROCHUNKID_DEF_GRANT_HEALTH_MAX             = enumBuilder:Next(),
     }
 end
 
@@ -89,8 +110,8 @@ end
     end
 
     function STATIC.StaticConstructor()
-        STATIC.PowerUpGameObjectDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_DEF_POWERUP )
-        STATIC.PowerUpGameObjectDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_DEF_POWERUP, "PowerUp" )
+        STATIC.PowerUpGameObjectDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkIdClass.CHUNKID_GAME_OBJECT_DEF_POWERUP )
+        STATIC.PowerUpGameObjectDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkIdClass.CHUNKID_GAME_OBJECT_DEF_POWERUP, "PowerUp" )
     end
 
     --- @param arg any
@@ -144,7 +165,7 @@ end
 
 --- @return integer
 function INSTANCE:GetClassId()
-    return combatChunkId.CHUNKID_GAME_OBJECT_DEF_POWERUP
+    return combatChunkIdClass.CHUNKID_GAME_OBJECT_DEF_POWERUP
 end
 
 --- @param connectedEntity Entity

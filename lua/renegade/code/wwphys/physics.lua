@@ -24,6 +24,12 @@ INSTANCE.IsPhysics = true
 --#endregion
 
 --#region Imports
+
+	--- @type TextUtils
+	local textUtils = CNC.Import( "sh_text-utils.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local wW3DAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -49,6 +55,29 @@ INSTANCE.IsPhysics = true
     end
 
     typecheck.RegisterType( "PhysicsInstance", STATIC.IsPhysics )
+
+    --- @param connectedEntity Entity
+    --- @param filePath string
+    --- @return RenderObjectInstance
+    function STATIC.CreateRenderObjectFromFileName( connectedEntity, filePath )
+        -- Extract the file name without extension from the path
+        local lastSlashIndex = textUtils.LastIndexOf( filePath, "\\" )
+        local lastDotIndex = textUtils.LastIndexOf( filePath, "." )
+        local renderObjectName = filePath:sub( lastSlashIndex + 1, lastDotIndex - 1 ):lower():TrimRight( "\0" )
+
+        local sourceModelPath = "models/cnc_renegade/" .. filePath
+        sourceModelPath = sourceModelPath:Replace( "\\", "/" )
+        sourceModelPath = sourceModelPath:Replace( ".w3d", ".mdl" )
+
+        local model = wW3DAssetManagerClass.GetInstance():CreateRenderObject( connectedEntity, renderObjectName, sourceModelPath )
+        if model == nil then
+            section.Error( "Failed to create ", renderObjectName, " from ", filePath )
+            error() -- To make LuaLS happy
+        end
+
+        return model
+    end
+
 end
 
 
@@ -71,45 +100,95 @@ end
 --- @field SunStatusLastUpdated integer "Frame time at which the sun status was last updated. The sun status is cached and only updated few times per second."
 --- @field LastVisibleFrame integer "The pscene uses this to figure out if the mesh is visible, to do some physics optimizations."
 
-local COLLISION_MASK          = 0x0000000F -- "Bits for the collision group"
-local IMMOVABLE               = 0x00000100 -- "This object is immovable."
-local DISABLED                = 0x00000200 -- "Some objects can be disabled (e.g. lights)"
-local DEBUGDISPLAY            = 0x00000400 -- "Render debugging aids (forces, impacts, etc)"
-local USERCONTROL             = 0x00000800 -- "Ignore physics, move according to controller directly"
-local CASTSHADOW              = 0x00001000 -- "Does this object cast a shadow?"
-local FORCE_PROJECTION_SHADOW = 0x00002000 -- "When the shadow mode is BLOBS_PLUS, this object still uses a "proper" shadow"
-local DONT_SAVE               = 0x00004000 -- "Scene should never save this object (used for transient things like glass fragments)"
-local ASLEEP                  = 0x00008000 -- "This object is not moving so its simulation was skipped"
-local IS_WS_MESH              = 0x00010000 -- "Enable the static-world-space-mesh rendering optimizations."
-local IS_PRE_LIT              = 0x00020000 -- "Is this a light-mapped object that doesn't need static lights applied."
-local IS_IN_THE_SUN           = 0x00040000 -- "Is this object illuminated by the sun?"
-local IS_STATE_DIRTY          = 0x00080000 -- "This object's state has changed. "
-local STATIC_LIGHTING_DIRTY   = 0x00100000 -- "This object's static lighting cache is dirty"
-local FRICTION_DISABLED       = 0x00200000 -- "Friction is disabled for this object (vehicles disable body-friction when their wheels are in contact)"
-local SIMULATION_DISABLED     = 0x00400000 -- "Turn on/off simulation for this object"
-local IGNORE_MASK             = 0xF0000000 -- "Mask for the 'ignore-me' counter"
-local DEFAULT_FLAGS           = 0
+-- "Bits for the collision group"
+STATIC.COLLISION_MASK = 0x0000000F
+
+-- "This object is immovable."
+STATIC.IMMOVABLE = 0x00000100
+
+-- "Some objects can be disabled (e.g. lights)"
+STATIC.DISABLED = 0x00000200
+
+-- "Render debugging aids (forces, impacts, etc)"
+STATIC.DEBUGDISPLAY = 0x00000400
+
+-- "Ignore physics, move according to controller directly"
+STATIC.USERCONTROL = 0x00000800
+
+-- "Does this object cast a shadow?"
+STATIC.CASTSHADOW = 0x00001000
+
+-- "When the shadow mode is BLOBS_PLUS, this object still uses a "proper" shadow"
+STATIC.FORCE_PROJECTION_SHADOW = 0x00002000
+
+-- "Scene should never save this object (used for transient things like glass fragments)"
+STATIC.DONT_SAVE = 0x00004000
+
+-- "This object is not moving so its simulation was skipped"
+STATIC.ASLEEP = 0x00008000
+
+-- "Enable the static-world-space-mesh rendering optimizations."
+STATIC.IS_WS_MESH = 0x00010000
+
+-- "Is this a light-mapped object that doesn't need static lights applied."
+STATIC.IS_PRE_LIT = 0x00020000
+
+-- "Is this object illuminated by the sun?"
+STATIC.IS_IN_THE_SUN = 0x00040000
+
+-- "This object's state has changed. "
+STATIC.IS_STATE_DIRTY = 0x00080000
+
+-- "This object's static lighting cache is dirty"
+STATIC.STATIC_LIGHTING_DIRTY = 0x00100000
+
+-- "Friction is disabled for this object (vehicles disable body-friction when their wheels are in contact)"
+STATIC.FRICTION_DISABLED = 0x00200000
+
+-- "Turn on/off simulation for this object"
+STATIC.SIMULATION_DISABLED = 0x00400000
+
+-- "Mask for the 'ignore-me' counter"
+STATIC.IGNORE_MASK = 0xF0000000
+
+STATIC.DEFAULT_FLAGS = 0
 
 function INSTANCE:Renegade_Physics()
-    self.Flags = DEFAULT_FLAGS
+    self.Flags = STATIC.DEFAULT_FLAGS
     self.Model = nil
     self.Observer = nil
     self.Definition = nil
     self.InstanceId = 0
     self.VisObjectId = 0
-    self.LastVisibleFrame = 0
+    self.LastVisibleFrame = 0 -- "JANI TEMP TEST"
     self.SunStatusLastUpdated = 0
     self.StaticLightingCache = nil
 end
 
 --- @param definition PhysicsDefinitionInstance
-function INSTANCE:Init( definition )
-    self.Definition = definition
-    self.Flags = DEFAULT_FLAGS
-    if definition.ModelName.len ~= 0 then
-        -- Omitted original model loading logic
+--- @param connectedEntity Entity
+function INSTANCE:Init( definition, connectedEntity )
+    self:SetConnectedEntity( connectedEntity )
 
-        self:SetModel( definition.ModelName )
+    self.Definition = definition
+    self.Flags = STATIC.DEFAULT_FLAGS
+    if definition.ModelName:len() ~= 0 then
+        --- @type RenderObjectInstance
+        local model
+
+        if definition.ModelName:find( ".", nil, true ) then
+            model = STATIC.CreateRenderObjectFromFileName( connectedEntity, definition.ModelName )
+        else
+            typecheck.NotImplementedError()
+            -- model = wW3DAssetManagerClass.GetInstance():CreateRenderObject( connectedEntity, definition.ModelName )
+        end
+
+        if model == nil then
+            section.Error( "Unable to create render object model for ", definition.Class, " ", connectedEntity )
+            return
+        end
+
+        self:SetModel( model )
     end
 end
 

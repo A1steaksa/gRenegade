@@ -21,24 +21,78 @@ INSTANCE.Static = STATIC
 INSTANCE.IsRenderObject = true
 
 --#region Exported Enums
+
+    --- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+    --- "  
+    --- Note:  It is very important that these values NEVER CHANGE.  
+    --- That means when adding a new class id, it should be added to the end of the enum.  
+    --- "  
+    --- @enum RenderObjectClassId
+    STATIC.RENDER_OBJECT_CLASS_ID = {
+        CLASSID_UNKNOWN	         = enumBuilder:Set( 0xFFFFFFFF ),
+        CLASSID_MESH		     = enumBuilder:Set( 0 ),
+        CLASSID_HMODEL           = enumBuilder:Next(),
+        CLASSID_DISTLOD          = enumBuilder:Next(),
+        CLASSID_PREDLODGROUP     = enumBuilder:Next(),
+        CLASSID_TILEMAP          = enumBuilder:Next(),
+        CLASSID_IMAGE3D          = enumBuilder:Next(), -- "Obsolete"
+        CLASSID_LINE3D           = enumBuilder:Next(),
+        CLASSID_BITMAP2D         = enumBuilder:Next(), -- "Obsolete"
+        CLASSID_CAMERA           = enumBuilder:Next(),
+        CLASSID_DYNAMESH         = enumBuilder:Next(),
+        CLASSID_DYNASCREENMESH   = enumBuilder:Next(),
+        CLASSID_TEXTDRAW         = enumBuilder:Next(),
+        CLASSID_FOG              = enumBuilder:Next(),
+        CLASSID_LAYERFOG	     = enumBuilder:Next(),
+        CLASSID_LIGHT            = enumBuilder:Next(),
+        CLASSID_PARTICLEEMITTER  = enumBuilder:Next(),
+        CLASSID_PARTICLEBUFFER   = enumBuilder:Next(),
+        CLASSID_SCREENPOINTGROUP = enumBuilder:Next(),
+        CLASSID_VIEWPOINTGROUP   = enumBuilder:Next(),
+        CLASSID_WORLDPOINTGROUP  = enumBuilder:Next(),
+        CLASSID_TEXT2D           = enumBuilder:Next(),
+        CLASSID_TEXT3D           = enumBuilder:Next(),
+        CLASSID_NULL             = enumBuilder:Next(),
+        CLASSID_COLLECTION       = enumBuilder:Next(),
+        CLASSID_FLARE            = enumBuilder:Next(),
+        CLASSID_HLOD             = enumBuilder:Next(),
+        CLASSID_AABOX            = enumBuilder:Next(),
+        CLASSID_OBBOX            = enumBuilder:Next(),
+        CLASSID_SEGLINE          = enumBuilder:Next(),
+        CLASSID_SPHERE           = enumBuilder:Next(),
+        CLASSID_RING             = enumBuilder:Next(),
+        CLASSID_BOUNDFOG         = enumBuilder:Next(),
+        CLASSID_DAZZLE           = enumBuilder:Next(),
+        CLASSID_SOUND            = enumBuilder:Next(),
+        CLASSID_SEGLINETRAIL     = enumBuilder:Next(),
+        CLASSID_LAND             = enumBuilder:Next(),
+        CLASSID_RENEGADE_TERRAIN = enumBuilder:Next(),
+        CLASSID_LAST	         = enumBuilder:Set( 0x0000FFFF )
+    }
+    local renderObjectClassIdEnum = STATIC.RENDER_OBJECT_CLASS_ID
+
 --#endregion
 
 --#region Imports
 
-    --- @type SphereClass
-    local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
+	--- @type SphereClass
+	local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
 
-    --- @type WW3dClass
-    local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
 
-    --- @type AABoxClass
-    local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
-    --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
-    --- @type CollisionTypeClass
-    local collisionTypesClass = CNC.Import( "code/ww3d2/collision-types.lua" )
+	--- @type CollisionTypeClass
+	local collisionTypeClass = CNC.Import( "code/ww3d2/collision-types.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -73,7 +127,7 @@ INSTANCE.IsRenderObject = true
     )
 
     STATIC.DEFAULT_BITS = bit.bor(
-        collisionTypesClass.COLLISION_TYPE_ALL,
+        collisionTypeClass.COLLISION_TYPE_ALL,
         STATIC.IS_NOT_HIDDEN,
         STATIC.IS_NOT_ANIMATION_HIDDEN
     )

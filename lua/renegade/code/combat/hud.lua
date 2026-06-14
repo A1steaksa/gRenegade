@@ -1849,6 +1849,7 @@ end
     local NUM_DAMAGE_INDICATORS = 8
 
     function STATIC.DamageReset()
+        STATIC.DamageIndicatorIntensity = {}
         for i = 0, NUM_DAMAGE_INDICATORS do
             STATIC.DamageIndicatorIntensity[i] = 0
         end

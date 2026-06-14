@@ -25,17 +25,33 @@ INSTANCE.IsPhysicalGameObjectDefinition = true
 
 --#region Imports
 
-    --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 
-    --- @type OratorTypeClass
-    local oratorTypeClass = CNC.Import( "code/combat/orator-types.lua" )
+	--- @type OratorTypeClass
+	local oratorTypeClass = CNC.Import( "code/combat/orator-types.lua" )
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type DefenseObjectDefinitionClass
+	local defenseObjectDefinitionClass = CNC.Import( "code/combat/defense-object-definition.lua" )
+
+	--- @type ScriptableGameObjectDefinitionClass
+	local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-game-object-definition.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local oratorTypeEnum = oratorTypeClass.ORATOR_TYPE
+	local oratorTypeEnum = oratorTypeClass.ORATOR_TYPE
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -59,6 +75,46 @@ INSTANCE.IsPhysicalGameObjectDefinition = true
     end
 
     typecheck.RegisterType( "PhysicalGameObjectDefinitionInstance", STATIC.IsPhysicalGameObjectDefinition )
+end
+
+
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_DEF_VARIABLES               = enumBuilder:Set( 909991657 ),
+        LEGACY_CHUNKID_DEF_PARENT_OLD       = enumBuilder:Next(),
+        XXXCHUNKID_DEF_PARENT_OLD_OLD       = enumBuilder:Next(),
+        LEGACY_CHUNKID_DEF_DEFENSEOBJECTDEF = enumBuilder:Next(),
+        CHUNKID_DEF_PARENT                  = enumBuilder:Next(),
+
+        MICROCHUNKID_DEF_TYPE					    = enumBuilder:Set( 1 ),
+        MICROCHUNKID_DEF_BULLSEYE_OFFSET_Z          = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_DEFAULT_GANG            = enumBuilder:Next(),
+        MICROCHUNKID_DEF_BLIP_TYPE                  = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_MODEL_NAME              = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_HEALTH                  = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_HEALTH_MAX              = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_SKIN                    = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_SHIELD_STRENGTH         = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_SHIELD_STRENGTH_MAX     = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_SHIELD_TYPE             = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_LISTEN_RANGE            = enumBuilder:Next(),
+        XXX_MICROCHUNKID_DEF_SCRIPT_NAME            = enumBuilder:Next(),
+        XXX_MICROCHUNKID_DEF_SCRIPT_PARAMETERS      = enumBuilder:Next(),
+        XXXMICROCHUNKID_DEF_POSITION                = enumBuilder:Next(), -- "???"
+        MICROCHUNKID_DEF_FACING                     = enumBuilder:Next(),
+        MICROCHUNKID_DEF_ANIMATION                  = enumBuilder:Next(),
+        MICROCHUNKID_DEF_PHYS_ID                    = enumBuilder:Next(),
+        LEGACY_MICROCHUNKID_DEF_DEFAULT_PLAYER_TYPE = enumBuilder:Next(),
+        MICROCHUNKID_DEF_KILLED_EXPLOSION           = enumBuilder:Next(),
+        LEGACY_MICROCHUNKID_DEF_TRANSLATED_NAME_ID  = enumBuilder:Next(),
+        MICROCHUNKID_DEF_DEFAULT_HIBERNATION_ENABLE = enumBuilder:Next(),
+        MICROCHUNKID_DEF_ALLOW_INNATE_CONVERSATIONS = enumBuilder:Next(),
+        MICROCHUNKID_DEF_ORATOR_TYPE                = enumBuilder:Next(),
+        MICROCHUNKID_DEF_USE_CREATION_EFFECT        = enumBuilder:Next(),
+    }
 end
 
 

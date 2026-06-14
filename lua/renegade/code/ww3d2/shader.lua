@@ -200,7 +200,9 @@ INSTANCE.IsShader = true
     --- @field PolygonCullMode MATERIAL_CULLMODE
 
     --- Creates a new ShaderInstance
-    --- @vararg any
+    --- @overload fun()
+    --- @overload fun( shader: ShaderInstance )
+    --- @overload fun( shaderBits: integer )
     --- @return ShaderInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_Shader", ... )
@@ -230,6 +232,39 @@ INSTANCE.IsShader = true
     --- @return boolean `true` when using **C**ounter-**C**lock**W**ise (CCW) culling, `false` otherwise
     function STATIC.IsBackfaceCullingInverted()
         return STATIC.PolygonCullMode == MATERIAL_CULLMODE_CCW
+    end
+
+    --- @param depthCompare DepthCompare
+    --- @param depthMask DepthMask
+    --- @param colorMask ColorMask
+    --- @param sourceBlend SrcBlendFunc
+    --- @param destinationBlend DstBlendFunc
+    --- @param fog FogFunc
+    --- @param primaryGradient PrimaryGradient
+    --- @param secondaryGradient SecondaryGradient
+    --- @param material Materialing
+    --- @param alphaTest AlphaTest
+    --- @param cullMode CullMode
+    --- @param postDetailColor integer
+    --- @param postDetailAlpha integer
+    --- @return integer
+    function STATIC.SHADE_CNST( depthCompare, depthMask, colorMask, sourceBlend, destinationBlend, fog, primaryGradient, secondaryGradient, material, alphaTest, cullMode, postDetailColor, postDetailAlpha )
+        local shifts = shaderShiftConstantsEnum
+        return bit.bor(
+            bit.lshift( depthCompare,      shifts.DepthCompare        ),
+            bit.lshift( depthMask,         shifts.DepthMask           ),
+            bit.lshift( colorMask,         shifts.ColorMask           ),
+            bit.lshift( destinationBlend,  shifts.DstBlend            ),
+            bit.lshift( fog,               shifts.Fog                 ),
+            bit.lshift( primaryGradient,   shifts.PrimaryGradient     ),
+            bit.lshift( secondaryGradient, shifts.SecondaryGradient   ),
+            bit.lshift( sourceBlend,       shifts.SrcBlend            ),
+            bit.lshift( material,          shifts.Materialing         ),
+            bit.lshift( alphaTest,         shifts.AlphaTest           ),
+            bit.lshift( cullMode,          shifts.CullMode            ),
+            bit.lshift( postDetailColor,   shifts.PostDetailColorFunc ),
+            bit.lshift( postDetailAlpha,   shifts.PostDetailAlphaFunc )
+        )
     end
 end
 
@@ -270,7 +305,9 @@ local srcBlendFuncConverter = {
 }
 
 --- Constructs a new ShaderInstance
---- @vararg any
+--- @overload fun()
+--- @overload fun( shader: ShaderInstance )
+--- @overload fun( shaderBits: integer )
 function INSTANCE:Renegade_Shader( ... )
     local args = { ... }
     local argCount = select( "#", ... )
@@ -284,7 +321,7 @@ function INSTANCE:Renegade_Shader( ... )
 
     if argCount == 1 then
         local firstArg = args[1]
-        typecheck.AssertArgType( INSTANCE.Class, 1, arg, { "ShaderInstance", "number" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, { "ShaderInstance", "number" } )
 
         --- ( shader: ShaderInstance )
         if typecheck.IsOfType( firstArg, "ShaderInstance" ) then

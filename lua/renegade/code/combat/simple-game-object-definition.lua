@@ -34,16 +34,26 @@ INSTANCE.IsSimpleGameObjectDefinition = true
     --- @type SimpleDefinitionFactoryClass
     local simpleDefinitionFactoryClass = CNC.Import( "code/wwsaveload/simple-definition-factory.lua" )
 
-    --- @type CombatChunkId
+    --- @type CombatChunkIdClass
     local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type SimpleGameObjectClass
     local simpleGameObjectClass = CNC.Import( "code/combat/simple-game-object.lua" )
+
+    --- @type EnumBuilderClass
+    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    --- @type ChunkIOClass
+    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+    --- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 --#region Imported Enums
 
     local typeEnum = playerTerminalClass.TYPE
+    local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -74,10 +84,25 @@ INSTANCE.IsSimpleGameObjectDefinition = true
 end
 
 
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_DEF_PARENT    = enumBuilder:Set( 930991656 ),
+        CHUNKID_DEF_VARIABLES = enumBuilder:Next(),
+
+        MICROCHUNKID_DEF_IS_EDITOR_OBJECT = enumBuilder:Set( 1 ),
+        MICROCHUNKID_DEF_IS_HIDDEN_OBJECT = enumBuilder:Next(),
+        MICROCHUNKID_DEF_PLAYER_TERM_TYPE = enumBuilder:Next(),
+    }
+end
+
+
 --- @class SimpleGameObjectDefinitionInstance
 --- @field IsEditorObject boolean
 --- @field IsHiddenObject boolean
---- @field PlayerTerminalType Type
+--- @field PlayerTerminalType PlayerTerminalType
 
 function INSTANCE:Renegade_SimpleGameObjectDefinition()
     self.IsEditorObject = false
@@ -146,7 +171,7 @@ end
 
 --[[ Accessors ]] do
 
-    --- @return Type
+    --- @return PlayerTerminalType
     function INSTANCE:GetPlayerTerminalType()
         return self.PlayerTerminalType
     end
