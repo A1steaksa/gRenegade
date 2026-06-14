@@ -229,7 +229,14 @@ end
 
 --- @private
 function STATIC.StartClientServer()
-    typecheck.NotImplementedError()
+    -- Omitted setting ports
+
+    -- "Start the server (if necessary)"
+    if STATIC.IsServerRequired and not networkClass.IAmServer() then
+        networkClass.InitServer()
+        -- packetManagerClass.SetIsServer( true )
+    end
+
 end
 
 --- @param teamChoice integer

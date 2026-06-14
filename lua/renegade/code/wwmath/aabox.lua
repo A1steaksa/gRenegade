@@ -219,11 +219,16 @@ function INSTANCE:ProjectToAxis( axis )
     typecheck.NotImplementedError( "ProjectToAxis" )
 end
 
----@param transformMatrix Matrix3dInstance
----@param input AABoxInstance
----@return AABoxInstance
-function INSTANCE:Transform( transformMatrix, input )
-    typecheck.NotImplementedError( "Transform" )
+--- "  
+--- Transform an aabox  
+--- 
+--- Note that this function extends the box to enclose its transformed form.  
+--- "  
+--- @param transformationMatrix Matrix3dInstance
+function INSTANCE:Transform( transformationMatrix)
+    local oldCenter = self.Center
+    local oldExtent = self.Extent
+    self.Center, self.Extent = transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent )
 end
 
 --- @param pos Vector

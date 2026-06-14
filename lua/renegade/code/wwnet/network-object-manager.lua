@@ -89,7 +89,18 @@ end
     end
 
     function STATIC.DeletePending()
-        typecheck.NotImplementedError()
+        if STATIC.IsLevelLoading then
+            return
+        end
+
+        -- "Delete each object that is pending..."
+        for index = 1, #STATIC.DeletePendingList do
+            if STATIC.DeletePendingList[index]:IsDeletePending() then
+                STATIC.DeletePendingList[index]:Delete()
+            end
+        end
+
+        STATIC.DeletePendingList = {}
     end
 
     --- @param clientId integer

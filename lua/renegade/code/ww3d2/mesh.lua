@@ -64,8 +64,31 @@ end
 --- @field UserLighting any
 --- @field PolygonRendererList any
 
-function INSTANCE:Renegade_Mesh()
-    typecheck.NotImplementedError()
+--- @param src MeshInstance?
+function INSTANCE:Renegade_Mesh( src )
+    --- ()
+    if src == nil then
+        self.Model = nil
+        self.DecalMesh = nil
+        self.LightEnvironment = nil
+        self.BaseVertexOffset = 0
+        self.NextVisibleSkin = nil
+        self.IsDisabledByDebugger = false
+        self.UserLighting = nil
+
+    --- ( src: MeshInstance )
+    else
+        typecheck.AssertArgType( self.Class, 2, src, "MeshInstance" )
+
+        renderObjectClass.Instance.Renegade_RenderObject( self, src )
+        self.Model = nil
+        self.DecalMesh = nil
+        self.LightEnvironment = nil
+        self.BaseVertexOffset = src.BaseVertexOffset
+        self.NextVisibleSkin = nil
+        self.IsDisabledByDebugger = false
+        self.UserLighting = nil
+    end
 end
 
 function INSTANCE:_Renegade_Mesh()
@@ -80,12 +103,14 @@ function INSTANCE:ClassId()
     typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetName()
-    typecheck.NotImplementedError()
+    return self.Model:GetName()
 end
 
-function INSTANCE:SetName()
-    typecheck.NotImplementedError()
+--- @param name string
+function INSTANCE:SetName( name )
+    self.Model:SetName( name )
 end
 
 function INSTANCE:GetNumPolys()
@@ -124,10 +149,16 @@ function INSTANCE:IntersectObBox()
     typecheck.NotImplementedError()
 end
 
+--- @return SphereInstance
 function INSTANCE:GetObjectSpaceBoundingSphere()
-    typecheck.NotImplementedError()
+    if self.Model ~= nil then
+        return self.Model:GetBoundingSphere()
+    else
+        return sphereClass.New( Vector( 0, 0, 0 ), 1.0 )
+    end
 end
 
+--- @return AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox()
     typecheck.NotImplementedError()
 end
@@ -160,8 +191,32 @@ function INSTANCE:Init()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:LoadW3d()
-    typecheck.NotImplementedError()
+--- "Creates a mesh out of a mesh chunk in a .w3d file"
+--- @param cload ChunkLoadInstance
+--- @return integer
+function INSTANCE:LoadW3d( cload )
+    --- @type Vector, Vector
+    local boxMin, boxMax
+
+    --- "Make sure this mesh is 'empty'"
+    self:Free()
+
+    -- "Create empty MaterialInfo and Model"
+    self.Model = meshModelClass.New()
+    if self.Model == nil then
+        section.Error( "MeshClass::Load - Failed to allocate model" )
+        return wW3dErrorTypeEnum.WW3D_ERROR_LOAD_FAILED
+    end
+
+    -- "Create and read in the model..."
+    if self.Model:LoadW3d( cload ) ~= wW3dErrorTypeEnum.WW3D_ERROR_OK then
+        self:Free()
+        return wW3dErrorTypeEnum.WW3D_ERROR_LOAD_FAILED
+    end
+
+    -- Omitted remainder of function
+
+    return wW3dErrorTypeEnum.WW3D_ERROR_OK
 end
 
 function INSTANCE:GenerateCullingTree()
@@ -261,7 +316,9 @@ function INSTANCE:LoadUserLighting()
 end
 
 function INSTANCE:Free()
-    typecheck.NotImplementedError()
+    self.Model = nil
+    self.DecalMesh = nil
+    self.UserLighting = nil
 end
 
 function INSTANCE:AddDependenciesToList()
@@ -269,25 +326,26 @@ function INSTANCE:AddDependenciesToList()
 end
 
 function INSTANCE:UpdateCachedBoundingVolumes()
-    typecheck.NotImplementedError()
+    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+
+    self.CachedBoundingSphere.Center = self:GetTransform() * self.CachedBoundingSphere.Center
+
+    -- "
+    -- If we are camera-aligned or -oriented, we don't know which way we are facing at this point,
+    -- so the box we return needs to contain the sphere.  Otherwise do the normal computation.
+    -- "
+    if self.Model:GetFlag( flagsTypeEnum.ALIGNED ) or self.Model:GetFlag( flagsTypeEnum.ORIENTED ) then
+        self.CachedBoundingBox.Center = self.CachedBoundingSphere.Center
+        self.CachedBoundingBox.Extent:SetUnpacked( self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius )
+    else
+        self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
+        self.CachedBoundingBox:Transform( self:GetTransform() )
+    end
+
+    self:ValidateCachedBoundingVolumes()
 end
 
 function INSTANCE:PeekFvfCategoryContainer()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:()
-    typecheck.NotImplementedError()
-end

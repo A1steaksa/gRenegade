@@ -95,8 +95,38 @@ end
         typecheck.NotImplementedError()
     end
 
-    function INSTANCE:Load()
-        typecheck.NotImplementedError()
+    --- @param cload ChunkLoadInstance
+    --- @return boolean
+    function INSTANCE:Load( cload )
+        local ids = STATIC.ChunkIds
+
+        while cload:OpenChunk() do
+            local chunkId = cload:CurChunkId()
+            if chunkId == ids.PHYSDEF_CHUNK_DEFINITION then
+                definitionClass.Instance.Load( self, cload )
+
+            elseif chunkId == ids.PHYSDEF_CHUNK_VARIABLES then
+                while cload:OpenMicroChunk() do
+                    local didRead = (
+                           chunkIOClass.ObseleteMicroChunk( ids.PHYSDEF_VARIABLE_FLAGS )
+                        or chunkIOClass.ReadMicroChunkWWString( cload, ids.PHYSDEF_VARIABLE_MODELNAME, self, "ModelName" )
+                        or chunkIOClass.ReadMicroChunk( cload, ids.PHYSDEF_VARIABLE_ISPRELIT, fundamentalDataTypeEnum.Boolean, self, "IsPreLit" )
+                    )
+
+                    if not didRead then
+                        section.Warn( "Unhandled ", INSTANCE.Class, " Micro Chunk ID: ", cload:CurMicroChunkId() )
+                    end
+
+                    cload:CloseMicroChunk()
+                end
+            else
+                section.Warn( "Unhandled ", INSTANCE.Class, " Chunk ID: ", chunkId )
+            end
+
+            cload:CloseChunk()
+        end
+
+        return true
     end
 end
 

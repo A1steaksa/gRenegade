@@ -79,6 +79,18 @@ function STATIC.IsArmorSoft( armor )
     typecheck.NotImplementedError()
 end
 
+--- @param id integer
+--- @return ArmorType
+function STATIC.FindArmorSaveId( id )
+    for index = 1, #STATIC.ArmorSaveIds do
+        if STATIC.ArmorSaveIds[index] == id then
+            return index
+        end
+    end
+
+    return 0
+end
+
 --[[ Type Additions/Access ]] do
 
     --- @return integer

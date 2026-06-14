@@ -164,7 +164,50 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:Load( cload )
-    typecheck.NotImplementedError()
+    local ids = STATIC.ChunkIds
+    while cload:OpenChunk() do
+        local chunkId = cload:CurChunkId()
+        if chunkId == ids.CHUNKID_DEF_PARENT then
+            simpleGameObjectDefinitionClass.Instance.Load( self, cload )
+
+        elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
+            while cload:OpenMicroChunk() do
+                local microChunkId = cload:CurMicroChunkId()
+
+                local didRead = (
+                       chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_SHIELD_TYPE,          fundamentalDataTypeEnum.Int,       self, "GrantShieldType" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_SHIELD_STRENGTH,      fundamentalDataTypeEnum.Float,     self, "GrantShieldStrength" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_SHIELD_STRENGTH_MAX,	fundamentalDataTypeEnum.Float,     self, "GrantShieldStrengthMax" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_HEALTH,				fundamentalDataTypeEnum.Float,	    self, "GrantHealth" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_HEALTH_MAX,			fundamentalDataTypeEnum.Float,	    self, "GrantHealthMax" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_WEAPON_ID,			fundamentalDataTypeEnum.Int,	    self, "GrantWeaponId" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_WEAPON,				fundamentalDataTypeEnum.Boolean,   self, "GrantWeapon" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_WEAPON_CLIPS,		    fundamentalDataTypeEnum.Boolean,   self, "GrantWeaponClips" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_WEAPON_ROUNDS,		fundamentalDataTypeEnum.Int,	    self, "GrantWeaponRounds" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_PERSISTENT,				    fundamentalDataTypeEnum.Boolean,   self, "Persistent" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_KEY,					fundamentalDataTypeEnum.Int,       self, "GrantKey" )
+
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GRANT_SOUNDID,				fundamentalDataTypeEnum.Int,       self, "GrantSoundId" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IDLE_SOUNDID,				fundamentalDataTypeEnum.Int,       self, "IdleSoundId" )
+                    or chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_DEF_GRANT_ANIMATION_NAME,   self, "GrantAnimationName" )
+                    or chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_DEF_IDLE_ANIMATION_NAME,    self, "IdleAnimationName" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ALWAYS_ALLOW_GRANT,         fundamentalDataTypeEnum.Boolean,   self, "AlwaysAllowGrant" )
+                )
+
+                if not didRead then
+                    section.Warn( "Unhandled ", INSTANCE.Class, " Micro Chunk ID: ", microChunkId )
+                end
+
+                cload:CloseMicroChunk()
+            end
+        else
+            section.Warn( "Unhandled ", INSTANCE.Class, " Chunk ID: ", chunkId )
+        end
+
+        cload:CloseChunk()
+    end
+
+    return true
 end
 
 --- @return PersistFactoryInstance

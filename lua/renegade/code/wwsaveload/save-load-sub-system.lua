@@ -23,13 +23,13 @@ INSTANCE.IsSaveLoadSubSystem = true
 
 
 --#region Imports
+
+    --- @type SaveLoadSystemClass
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 --#endregion
 
 
 --#region Imported Enums
-
-    --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 --#endregion
 
 
@@ -76,6 +76,10 @@ function INSTANCE:Renegade_SaveLoadSubSystem()
 
     -- "All Sub-Systems are automatically registered with the SaveLoadSystem"
     saveLoadSystemClass.RegisterSubSystem( self )
+end
+
+function INSTANCE:_Renegade_SaveLoadSubSystem()
+    saveLoadSystemClass.UnregisterSubSystem( self )
 end
 
 --- @return integer

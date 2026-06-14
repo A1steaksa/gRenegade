@@ -192,12 +192,14 @@ end
         typecheck.NotImplementedError()
     end
 
+    --- @return integer
     function INSTANCE:ClassId()
-        typecheck.NotImplementedError()
+        return STATIC.RENDER_OBJECT_CLASS_ID.CLASSID_UNKNOWN
     end
 
+    --- @return string
     function INSTANCE:GetName()
-        typecheck.NotImplementedError()
+        return "UNNAMED"
     end
 
     function INSTANCE:SetName()
@@ -351,8 +353,10 @@ function INSTANCE:GetNumSubObjects()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetSubObject()
-    typecheck.NotImplementedError()
+--- @param index integer
+--- @return RenderObjectInstance?
+function INSTANCE:GetSubObject( index )
+    return nil
 end
 
 function INSTANCE:AddSubObject()
@@ -363,7 +367,9 @@ function INSTANCE:RemoveSubObject()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetSubObjectByName()
+--- @param name string
+--- @return RenderObjectInstance
+function INSTANCE:GetSubObjectByName( name )
     typecheck.NotImplementedError()
 end
 
@@ -468,19 +474,36 @@ function INSTANCE:IntersectSphereQuick()
 end
 
 function INSTANCE:GetBoundingSphere()
-    typecheck.NotImplementedError()
+    if bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ~= 1 then
+        self:UpdateCachedBoundingVolumes()
+    end
+    return self.CachedBoundingSphere
 end
 
+--- @return AABoxInstance
 function INSTANCE:GetBoundingBox()
-    typecheck.NotImplementedError()
+    if bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ~= 1 then
+        self:UpdateCachedBoundingVolumes()
+    end
+    return self.CachedBoundingBox
 end
 
+--- "Default collision sphere"
+--- @return SphereInstance
 function INSTANCE:GetObjectSpaceBoundingSphere()
-    typecheck.NotImplementedError()
+    return sphereClass.New(
+        Vector( 0, 0, 0 ),
+        1.0
+    )
 end
 
+--- "Default collision box."
+--- @return AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox()
-    typecheck.NotImplementedError()
+    return aABoxClass.New(
+        Vector( 0, 0, 0 ),
+        Vector( 0, 0, 0 )
+    )
 end
 
 function INSTANCE:UpdateObjectSpaceBoundingVolumes()
@@ -712,8 +735,16 @@ function INSTANCE:AddDependenciesToList()
     typecheck.NotImplementedError()
 end
 
+--- "default collision sphere."
 function INSTANCE:UpdateCachedBoundingVolumes()
-    typecheck.NotImplementedError()
+    self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
+    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+
+    local transform = self:GetTransform()
+    self.CachedBoundingSphere.Center = transform * self.CachedBoundingSphere.Center
+    self.CachedBoundingBox:Transform( transform )
+
+    self:ValidateCachedBoundingVolumes()
 end
 
 function INSTANCE:UpdateSubObjectBits()

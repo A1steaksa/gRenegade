@@ -95,9 +95,16 @@ INSTANCE.IsTranslateDB = true
     typecheck.NotImplementedError()
   end
 
-  function STATIC.GetString()
-    typecheck.NotImplementedError()
-  end
+	--- @param id integer
+	--- @return string?
+	function STATIC.GetString( id )
+		-- "ID of 0 (zero) is a special case NULL string."
+		if id == 0 then
+			return nil
+		end
+
+		local string = STRING_NOT_FOUND
+	end
 
   function STATIC.GetEnglishString()
     typecheck.NotImplementedError()

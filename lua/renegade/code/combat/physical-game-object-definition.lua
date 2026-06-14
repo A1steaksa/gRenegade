@@ -95,7 +95,51 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:Load( cload )
-    typecheck.NotImplementedError()
+    local ids = STATIC.ChunkIds
+    while cload:OpenChunk() do
+        local chunkId = cload:CurChunkId()
+        if chunkId == ids.LEGACY_CHUNKID_DEF_PARENT_OLD then
+            scriptableGameObjectDefinitionClass.Instance.Load( self, cload )
+
+        elseif chunkId == ids.CHUNKID_DEF_PARENT then
+            damageableGameObjectDefinitionClass.Instance.Load( self, cload )
+
+        elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
+            while cload:OpenMicroChunk() do
+
+                local didRead = (
+                       chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_TYPE,                       fundamentalDataTypeEnum.Int,       self, "Type" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_BULLSEYE_OFFSET_Z,          fundamentalDataTypeEnum.Float,     self, "BullseyeOffsetZ" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_BLIP_TYPE,                  fundamentalDataTypeEnum.Int,       self, "RadarBlipType" )
+                    or chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_DEF_ANIMATION, self, "Animation" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_PHYS_ID,                    fundamentalDataTypeEnum.Int,       self, "PhysicsDefinitionId" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.LEGACY_MICROCHUNKID_DEF_DEFAULT_PLAYER_TYPE, fundamentalDataTypeEnum.Int,       self, "DefaultPlayerType" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_KILLED_EXPLOSION,           fundamentalDataTypeEnum.Int,       self, "KilledExplosion" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.LEGACY_MICROCHUNKID_DEF_TRANSLATED_NAME_ID,  fundamentalDataTypeEnum.Int,       self, "TranslatedNameId" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_DEFAULT_HIBERNATION_ENABLE, fundamentalDataTypeEnum.Boolean,   self, "DefaultHibernationEnable" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ALLOW_INNATE_CONVERSATIONS, fundamentalDataTypeEnum.Boolean,   self, "AllowInnateConversations" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ORATOR_TYPE,                fundamentalDataTypeEnum.Int,       self, "OratorType" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_USE_CREATION_EFFECT,        fundamentalDataTypeEnum.Boolean,   self, "UseCreationEffect" )
+                )
+
+                if not didRead then
+                    section.Warn( "Unrecognized PhysicalDef Variable Chunk ID: ", cload:CurMicroChunkId() )
+                end
+
+                cload:CloseMicroChunk()
+            end
+
+        elseif chunkId == ids.LEGACY_CHUNKID_DEF_DEFENSEOBJECTDEF then
+            defenseObjectDefinitionClass.instance.Load( self --[[@as DefenseObjectDefinitionInstance]], cload )
+
+        else
+            section.Warn( "Unrecognized PhysicalGameObjDef Chunk ID: ", chunkId )
+        end
+
+        cload:CloseChunk()
+    end
+
+    return true
 end
 
 --- @return boolean, string?

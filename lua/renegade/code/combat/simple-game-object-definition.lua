@@ -104,8 +104,38 @@ function INSTANCE:Save( csave )
 end
 
 --- @param cload ChunkLoadInstance
+--- @return boolean
 function INSTANCE:Load( cload )
-    typecheck.NotImplementedError()
+    local ids = STATIC.ChunkIds
+    while cload:OpenChunk() do
+        local chunkId = cload:CurChunkId()
+
+        if chunkId == ids.CHUNKID_DEF_PARENT then
+            physicalGameObjectDefinitionClass.Instance.Load( self, cload )
+
+        elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
+            while cload:OpenMicroChunk() do
+                local didRead = (
+                       chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_EDITOR_OBJECT, fundamentalDataTypeEnum.Boolean, self, "IsEditorObject" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_HIDDEN_OBJECT, fundamentalDataTypeEnum.Boolean, self, "IsHiddenObject" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_PLAYER_TERM_TYPE, fundamentalDataTypeEnum.Int,     self, "PlayerTerminalType" )
+                )
+
+                if not didRead then
+                    section.Warn( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID: ", cload:CurMicroChunkId() )
+                end
+
+                cload:CloseMicroChunk()
+            end
+
+        else
+            section.Warn( "Unrecognized SimpleDef Chunk ID: ", chunkId )
+        end
+
+        cload:CloseChunk()
+    end
+
+    return true
 end
 
 --- @return PersistFactoryInstance

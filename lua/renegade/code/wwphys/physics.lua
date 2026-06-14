@@ -271,17 +271,50 @@ end
     --- the current Model.
     --- "  
     function INSTANCE:UpdateCullBox()
-        typecheck.NotImplementedError()
+        if self.Model then
+            self:SetCullBox( self.Model:GetBoundingBox() )
+        end
     end
 end
 
 
 --[[ Model ]] do
 
-    --- @param model string
+    --- @param model RenderObjectInstance
     function INSTANCE:SetModel( model )
-        -- Omitted original logic
-        self:GetConnectedEntity():SetModel( model )
+        local connectedEntity = self:GetConnectedEntity()
+        local sourceModel = model:GetSourceModelPath()
+        section.Warn( self.Class, ": '", connectedEntity, "': Setting model '", model, "' using debug code" )
+        connectedEntity:SetModel( sourceModel )
+
+        -- Omitted the majority of the function
+
+        -- local theScene = physicsSceneClass.GetInstance()
+        -- local inScene = theScene:Contains( self )
+
+        if self.Model then
+            -- "If we had an old model, copy the transform"
+            if model then
+                model:SetTransform( self.Model:GetTransform() )
+            end
+            -- if inScene then
+            --     self.Model:NotifyRemoved( theScene )
+            -- end
+        end
+
+        self.Model = model
+
+        -- if self.Model then
+        --     if inScene then
+        --         self.Model:NotifyAdded( theScene )
+        --     end
+        -- end
+
+        if self.Definition ~= nil and self.Definition.IsPreLit then
+            self:EnableIsPreLit( true )
+        end
+
+        self:InvalidateStaticLightingCache()
     end
 
     --- @param modelTypeName string
@@ -346,7 +379,7 @@ end
 --[[ Lighting ]] do
 
     function INSTANCE:InvalidateStaticLightingCache()
-        typecheck.NotImplementedError()
+        self:SetFlag( STATIC.STATIC_LIGHTING_DIRTY, true )
     end
 
     function INSTANCE:GetStaticLightingEnvironment()
@@ -393,7 +426,9 @@ end
     --- "
     --- @param group CollisionGroupType
     function INSTANCE:SetCollisionGroup( group )
-        typecheck.NotImplementedError()
+        group = bit.band( group, STATIC.COLLISION_MASK )
+        self.Flags = bit.band( self.Flags, bit.bnot( STATIC.COLLISION_MASK ) )
+        self.Flags = bit.bor( self.Flags, group )
     end
 
     function INSTANCE:GetCollisionGroup()
@@ -768,8 +803,14 @@ function INSTANCE:GetFlag()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetFlag()
-    typecheck.NotImplementedError()
+--- @param flag integer
+--- @param isOn boolean
+function INSTANCE:SetFlag( flag, isOn )
+    if isOn then
+        self.Flags = bit.bor( self.Flags, flag )
+    else
+        self.Flags = bit.band( self.Flags, bit.bor( flag ) )
+    end
 end
 
 --- @param renderInfo RenderInfoInstance
