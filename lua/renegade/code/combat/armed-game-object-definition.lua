@@ -19,11 +19,24 @@ INSTANCE.IsArmedGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
+--#region Exported Enums
+--#endregion
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -107,7 +120,6 @@ end
 --- @return boolean true
 function INSTANCE:Load( cload )
     local ids = STATIC.ChunkIds
-    local dataTypeEnum = STATIC.DATA_TYPE
 
     section.Start( "Loading " .. INSTANCE.Class )
 
@@ -121,16 +133,16 @@ function INSTANCE:Load( cload )
 
             while cload:OpenMicroChunk() do
                 local didRead =
-                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_RATE, dataTypeEnum.Float, "WeaponTiltRate" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_MIN, dataTypeEnum.Float, "WeaponTiltMin" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_MAX, dataTypeEnum.Float, "WeaponTiltMax" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_RATE, dataTypeEnum.Float, "WeaponTurnRate" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_MIN, dataTypeEnum.Float, "WeaponTurnMin" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_MAX, dataTypeEnum.Float, "WeaponTurnMax" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_DEF_ID, dataTypeEnum.Int, "WeaponDefID" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SECONDARY_WEAPON_DEF_ID, dataTypeEnum.Int, "SecondaryWeaponDefID" )
-                    or self:ReadSafeMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ROUNDS, dataTypeEnum.Int, "WeaponRounds" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ERROR, dataTypeEnum.Float, "WeaponError" )
+                    chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_RATE, fundamentalDataTypeEnum.Float, self, "WeaponTiltRate" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_MIN, fundamentalDataTypeEnum.Float, self, "WeaponTiltMin" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_MAX, fundamentalDataTypeEnum.Float, self, "WeaponTiltMax" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_RATE, fundamentalDataTypeEnum.Float, self, "WeaponTurnRate" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_MIN, fundamentalDataTypeEnum.Float, self, "WeaponTurnMin" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TURN_MAX, fundamentalDataTypeEnum.Float, self, "WeaponTurnMax" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_DEF_ID, fundamentalDataTypeEnum.Int, self, "WeaponDefID" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SECONDARY_WEAPON_DEF_ID, fundamentalDataTypeEnum.Int, self, "SecondaryWeaponDefID" )
+                    or chunkIOClass.ReadSafeMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ROUNDS, fundamentalDataTypeEnum.Int, self, "WeaponRounds" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_ERROR, fundamentalDataTypeEnum.Float, self, "WeaponError" )
 
                 if not didRead then
                     section.Print( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID", cload:CurMicroChunkId() )

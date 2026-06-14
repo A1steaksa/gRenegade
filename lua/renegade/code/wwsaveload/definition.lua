@@ -21,11 +21,22 @@ INSTANCE.IsDefinition = true
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -105,21 +116,16 @@ end
     --- @param cload ChunkLoadInstance
     --- @return boolean `true`
     function INSTANCE:Load( cload )
-        section.Start( STATIC.Class .. " Load Start" )
-
         local retVal = true
 
         while cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
-
             if chunkId == STATIC.ChunkIds.CHUNKID_VARIABLES then
                 self:LoadVariables( cload )
             end
 
             cload:CloseChunk()
         end
-
-        section.End()
 
         return retVal
     end
@@ -134,21 +140,17 @@ end
     --- @return boolean
     function INSTANCE:LoadVariables( cload )
 
-        section.Start( "Loading Variables..." )
-
         local microIds = STATIC.MicroChunkIds
 
         local retVal = true
 
         -- "Loop through all the microchunks that define the variables"
         while cload:OpenMicroChunk() do
-            self:ReadMicroChunk( cload, microIds.VARID_INSTANCEID, STATIC.DATA_TYPE.UInt32, "Id" )
-            self:ReadMicroChunkWWString( cload, microIds.VARID_NAME, "Name" )
+            chunkIOClass.ReadMicroChunk( cload, microIds.VARID_INSTANCEID, fundamentalDataTypeEnum.UInt32, self, "Id" )
+            chunkIOClass.ReadMicroChunkWWString( cload, microIds.VARID_NAME, self, "Name" )
 
             cload:CloseMicroChunk()
         end
-
-        section.End()
 
         return retVal
     end
@@ -183,8 +185,10 @@ end
         end
     end
 
+
+    --- @param connectedEntity Entity
     --- @return PersistInstance?
-    function INSTANCE:Create()
+    function INSTANCE:Create( connectedEntity )
         return nil
     end
 end

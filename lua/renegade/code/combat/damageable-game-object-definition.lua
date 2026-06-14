@@ -8,8 +8,8 @@ local scriptableGameObjectDefinitionClass = CNC.Import( "code/combat/scriptable-
 
 --- @class DamageableGameObjectDefinitionClass : ScriptableGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( scriptableGameObjectDefinitionClass )
-STATIC.Class = "DamageableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "DamageableGameObjectDefinitionClass"
 
 --- @class DamageableGameObjectDefinitionInstance: ScriptableGameObjectDefinitionInstance
 local INSTANCE = robustclass.Register( "Renegade_DamageableGameObjectDefinition : Renegade_ScriptableGameObjectDefinition" )
@@ -21,20 +21,27 @@ INSTANCE.Static = STATIC
 
 --#region Imports
 
-    --- @type DefenseObjectDefinitionClass
-    local defenseObjectDefinitionClass = CNC.Import( "code/combat/defense-object-definition.lua" )
+	--- @type DefenseObjectDefinitionClass
+	local defenseObjectDefinitionClass = CNC.Import( "code/combat/defense-object-definition.lua" )
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type PlayerTypeClass
-    local playerType = CNC.Import( "code/combat/player-type.lua" )
+	--- @type PlayerTypeClass
+	local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local playerTypeEnum = playerType.PLAYER_TYPE_ENUM
+	local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -100,11 +107,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    section.Start( "Loading " .. INSTANCE.Class )
-
     local ids = STATIC.ChunkIds
-    local dataTypeEnum = STATIC.DATA_TYPE
-
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
 
@@ -112,37 +115,32 @@ function INSTANCE:Load( cload )
             scriptableGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
-            section.Start( INSTANCE.Class .. " Variables Start" )
-
             while cload:OpenMicroChunk() do
-                local didRead =
-                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_TRANSLATED_NAME_ID, dataTypeEnum.Int, "TranslatedNameId" )
-                    or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_DEF_INFO_ICON_TEXTURE_FILENAME, "InfoIconTextureFilename" )
-				    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ENCY_TYPE, dataTypeEnum.Int, "EncyclopediaType" )
-				    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ENCY_ID, dataTypeEnum.Int, "EncyclopediaId" )
-				    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOT_TARGETABLE, dataTypeEnum.Boolean, "NotTargetable" )
-				    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_DEFAULT_PLAYER_TYPE, dataTypeEnum.Int, "DefaultPlayerType" )
+                local didRead = (
+                       chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_TRANSLATED_NAME_ID,     fundamentalDataTypeEnum.Int,       self, "TranslatedNameId" )
+                    or chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_DEF_INFO_ICON_TEXTURE_FILENAME, self, "InfoIconTextureFilename" )
+				    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ENCY_TYPE,              fundamentalDataTypeEnum.Int,       self, "EncyclopediaType" )
+				    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_ENCY_ID,                fundamentalDataTypeEnum.Int,       self, "EncyclopediaId" )
+				    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOT_TARGETABLE,         fundamentalDataTypeEnum.Boolean,   self, "NotTargetable" )
+				    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_DEFAULT_PLAYER_TYPE,    fundamentalDataTypeEnum.Int,       self, "DefaultPlayerType" )
+                )
 
                 if not didRead then
-                    section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    section.Warn( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID: ", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
             end
 
-            section.End()
-
         elseif chunkId == ids.CHUNKID_DEF_DEFENSEOBJECTDEF then
-            defenseObjectDefinitionClass.Instance.Load( self, cload )
+            defenseObjectDefinitionClass.Instance.Load( self --[[@as DefenseObjectDefinitionInstance]], cload )
 
         else
-            section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
+            section.Warn( "Unrecognized ", INSTANCE.Class, " Chunk ID: ", chunkId )
         end
 
         cload:CloseChunk()
     end
-
-    section.End()
 
     return true
 end

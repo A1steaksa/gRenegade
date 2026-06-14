@@ -22,6 +22,9 @@ INSTANCE.Static = STATIC
 
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    --- @type ChunkIOClass
+    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 
@@ -71,15 +74,10 @@ end
     --- @param cload ChunkLoadInstance
     --- @return boolean
     function INSTANCE:Load( cload )
-        section.Start( "Loading " .. INSTANCE.Class )
-
         cload:OpenChunk()
         assert( cload:CurChunkId() == STATIC.ChunkIds.CHUNKID_DEF_PARENT )
-        PARENT.Instance.Load( self, cload )
+        definitionClass.Instance.Load( self, cload )
         cload:CloseChunk()
-
-        section.End()
-
         return true
     end
 end

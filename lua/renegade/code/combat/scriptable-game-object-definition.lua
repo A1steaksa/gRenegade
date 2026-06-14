@@ -18,6 +18,18 @@ INSTANCE.IsScriptableGameObjectDefinitionClass = true
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
+--#region Exported Enums
+--#endregion
+
+--#region Imports
+
+    --- @type ChunkIOClass
+    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+--#endregion
+
+--#region Imported Enums
+--#endregion
+
 
 --[[ Chunk IDs ]] do
 
@@ -73,8 +85,6 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    section.Start( "Loading " .. INSTANCE.Class )
-
     local ids = STATIC.ChunkIds
 
     while cload:OpenChunk() do
@@ -84,8 +94,6 @@ function INSTANCE:Load( cload )
             baseGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif chunkId == ids.CHUNKID_DEF_VARIABLES then
-            section.Start( INSTANCE.Class .. " Variables Start" )
-
             while cload:OpenMicroChunk() do
 
                 --- @class ScriptableGameObjectDefinitionLoadVals
@@ -96,29 +104,25 @@ function INSTANCE:Load( cload )
                 local microChunkId = cload:CurMicroChunkId()
 
                 if microChunkId == ids.MICROCHUNKID_DEF_SCRIPT_NAME then
-                    self:LoadMicroChunkWWString( cload, readVals, "ScriptName" )
+                    chunkIOClass.LoadMicroChunkWWString( cload, readVals, "ScriptName" )
                     self.ScriptNameList[#self.ScriptNameList + 1] = readVals.ScriptName
 
                 elseif microChunkId == ids.MICROCHUNKID_DEF_SCRIPT_PARAMETERS then
-                    self:LoadMicroChunkWWString( cload, readVals, "ScriptParameters" )
+                    chunkIOClass.LoadMicroChunkWWString( cload, readVals, "ScriptParameters" )
                     self.ScriptParameterList[#self.ScriptParameterList + 1] = readVals.ScriptParameters
 
                 else
-                    section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
+                    section.Warn( "Unrecognized ", INSTANCE.Class, " Variable Chunk ID", cload:CurMicroChunkId() )
                 end
 
                 cload:CloseMicroChunk()
             end
-
-            section.End()
         else
-            section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
+            section.Warn( "Unrecognized ", INSTANCE.Class, " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()
     end
-
-    section.End()
 
     return true
 end

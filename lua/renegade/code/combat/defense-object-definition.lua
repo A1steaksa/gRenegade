@@ -25,19 +25,23 @@ INSTANCE.IsDefenseDefinition = true
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type ArmorWarheadManagerClass
-    local armorWarheadManagerClass = CNC.Import( "code/combat/armor-warhead-manager.lua" )
+	--- @type ArmorWarheadManagerClass
+	local armorWarheadManagerClass = CNC.Import( "code/combat/armor-warhead-manager.lua" )
 
-    --- @type PersistClass
-    local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
@@ -118,11 +122,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-    section.Start( "Loading " .. INSTANCE.Class )
-
     local ids = STATIC.ChunkIds
-    local dataTypeEnum = persistClass.DATA_TYPE
-    local persist = persistClass.Instance
 
     --- @class DefenseObjectDefinitionLoadReadIds
     --- @field SkinSaveId integer
@@ -133,27 +133,21 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.DEFENSEOBJECTDEF_CHUNK_VARIABLES then
-            section.Start( INSTANCE.Class .. " Variables Start" )
-
             while cload:OpenMicroChunk() do
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTH, dataTypeEnum.Float, "Health" )
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTHMAX, dataTypeEnum.Float, "HealthMax" )
-                persist.ReadMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_SKIN, dataTypeEnum.Int, readIds, "SkinSaveId" )
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTH, dataTypeEnum.Float, "ShieldStrength" )
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTHMAX, dataTypeEnum.Float, "ShieldStrengthMax" )
-                persist.ReadMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDTYPE, dataTypeEnum.Int, readIds, "ShieldSaveId" )
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_DAMAGE_POINTS, dataTypeEnum.Float, "DamagePoints" )
-                persist.ReadSafeMicroChunk( self, cload, ids.DEFENSEOBJECTDEF_VARIABLE_DEATH_POINTS, dataTypeEnum.Float, "DeathPoints" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTH,            fundamentalDataTypeEnum.Float,    self,       "Health" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_HEALTHMAX,         fundamentalDataTypeEnum.Float,    self,       "HealthMax" )
+                chunkIOClass.ReadMicroChunk(     cload, ids.DEFENSEOBJECTDEF_VARIABLE_SKIN,              fundamentalDataTypeEnum.Int,      readIds,    "SkinSaveId" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTH,    fundamentalDataTypeEnum.Float,    self,       "ShieldStrength" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDSTRENGTHMAX, fundamentalDataTypeEnum.Float,    self,       "ShieldStrengthMax" )
+                chunkIOClass.ReadMicroChunk(     cload, ids.DEFENSEOBJECTDEF_VARIABLE_SHIELDTYPE,        fundamentalDataTypeEnum.Int,      readIds,    "ShieldSaveId" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_DAMAGE_POINTS,     fundamentalDataTypeEnum.Float,    self,       "DamagePoints" )
+                chunkIOClass.ReadSafeMicroChunk( cload, ids.DEFENSEOBJECTDEF_VARIABLE_DEATH_POINTS,      fundamentalDataTypeEnum.Float,    self,       "DeathPoints" )
 
                 cload:CloseMicroChunk()
             end
-
-            section.End()
         else
             section.Print( "Unrecognized " .. INSTANCE.Class .. " Chunk ID", cload:CurChunkId() )
         end
-
-        section.End()
 
         cload:CloseChunk()
     end
