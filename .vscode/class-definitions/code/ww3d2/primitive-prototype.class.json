@@ -1,0 +1,25 @@
+{
+  "Name": "PrimitivePrototype",
+  "ParentNames": [
+    "Prototype"
+  ],
+  "FileName": "primitive-prototype",
+  "CppName": "PrimitivePrototypeClass",
+  "CppPath": "Code/ww3d2/proto.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Proto"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetName",
+      "GetClassId",
+      "Create"
+    ]
+  }
+}

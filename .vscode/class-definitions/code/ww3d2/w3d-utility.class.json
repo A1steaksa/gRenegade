@@ -1,0 +1,21 @@
+{
+  "Name": "W3dUtility",
+  "ParentNames": [],
+  "FileName": "w3d-utility",
+  "CppName": "W3dUtilityClass",
+  "CppPath": "Code/ww3d2/w3d_util.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "ConvertVector",
+      "ConvertQuaternion",
+      "ConvertColor",
+      "ConvertColor",
+      "ConvertShader"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": []
+  }
+}

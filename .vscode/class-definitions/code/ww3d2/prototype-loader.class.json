@@ -1,0 +1,20 @@
+{
+  "Name": "PrototypeLoader",
+  "ParentNames": [],
+  "FileName": "prototype-loader",
+  "CppName": "PrototypeLoaderClass",
+  "CppPath": "Code/ww3d2/proto.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

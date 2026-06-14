@@ -1,0 +1,50 @@
+{
+  "Name": "MeshLoadContext",
+  "ParentNames": [],
+  "FileName": "mesh-load-context",
+  "CppName": "MeshLoadContextClass",
+  "CppPath": "Code/ww3d2/meshmdlio.cpp",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Header",
+      "TexCoords",
+      "MatInfo",
+      "PrelitChunkID",
+      "CurPass",
+      "CurTexStage",
+      "LegacyMaterials",
+      "Shaders",
+      "VertexMaterials",
+      "VertexMaterialCrcs",
+      "Textures",
+      "AlternateMatDesc",
+      "TempUvArray",
+      "LoadedDIG"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetTexcoordArray",
+      "AddShader",
+      "AddVertexMaterial",
+      "AddTexture",
+      "PeekShader",
+      "PeekVertexMaterial",
+      "PeekTexture",
+      "ShaderCount",
+      "VertexMaterialCount",
+      "TextureCount",
+      "AddLegacyMaterial",
+      "PeekLegacyShader",
+      "PeekLegacyVertexMaterial",
+      "PeekLegacyTexture",
+      "GetTemporaryUvArray",
+      "NotifyLoadedDigChunk",
+      "AlreadyLoadedDig"
+    ]
+  }
+}

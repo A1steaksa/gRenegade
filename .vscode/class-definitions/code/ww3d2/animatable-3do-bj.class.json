@@ -1,0 +1,53 @@
+{
+  "Name": "Animatable3DObj",
+  "ParentNames": [
+    "CompositeRenderObject"
+  ],
+  "FileName": "animatable-3do-bj",
+  "CppName": "Animatable3DObjClass",
+  "CppPath": "Code/ww3d2/animobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "IsTreeValid",
+      "HTree",
+      "CurMotionMode"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Render",
+      "SpecialRender",
+      "SetTransform",
+      "SetPosition",
+      "SetAnimation",
+      "SetAnimation",
+      "PeekAnimation",
+      "IsAnimationComplete",
+      "GetNumBones",
+      "GetBoneName",
+      "GetBoneIndex",
+      "GetBoneTransform",
+      "CaptureBone",
+      "ReleaseBone",
+      "IsBoneCaptured",
+      "ControlBone",
+      "GetHTree",
+      "SimpleEvaluateBone",
+      "SetHTree",
+      "ComputeCurrentFrame",
+      "UpdateSubObjectTransforms",
+      "BaseUpdate",
+      "AnimationUpdate",
+      "BlendUpdate",
+      "ComboUpdate",
+      "IsHierarchyValid",
+      "SetHierarchyValid",
+      "SingleAnimationProgress",
+      "Release"
+    ]
+  }
+}

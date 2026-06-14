@@ -1,0 +1,78 @@
+{
+  "Name": "VertexMaterial",
+  "ParentNames": [],
+  "FileName": "vertex-material",
+  "CppName": "VertexMaterialClass",
+  "CppPath": "Code/ww3d2/vertmaterial.h",
+  "Static": {
+    "Fields": [
+      "Presets"
+    ],
+    "Functions": [
+      "Init",
+      "Shutdown",
+      "GetPreset",
+      "ApplyNull"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "Material",
+      "Flags",
+      "AmbientColorSource",
+      "EmissiveColorSource",
+      "DiffuseColorSource",
+      "Name",
+      "Mapper",
+      "UvSource",
+      "UseLighting",
+      "UniqueID",
+      "Crc",
+      "CrcDirty"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Clone",
+      "SetName",
+      "GetName",
+      "SetFlag",
+      "GetFlag",
+      "GetShininess",
+      "SetShininess",
+      "GetOpacity",
+      "SetOpacity",
+      "GetAmbient",
+      "SetAmbient",
+      "GetDiffuse",
+      "SetDiffuse",
+      "GetSpecular",
+      "SetSpecular",
+      "GetEmissive",
+      "SetEmissive",
+      "SetLighting",
+      "GetLighting",
+      "SetAmbientColorSource",
+      "GetAmbientColorSource",
+      "SetEmissiveColorSource",
+      "GetEmissiveColorSource",
+      "SetDiffuseColorSource",
+      "GetDiffuseColorSource",
+      "SetUvSource",
+      "GetUvSource",
+      "SetMapper",
+      "GetMapper",
+      "PeekMapper",
+      "ResetMappers",
+      "LoadW3d",
+      "SaveW3d",
+      "InitFromMaterial3",
+      "GetCrc",
+      "DoMappersNeedNormals",
+      "AreMappersTimeVariant",
+      "MakeUnique",
+      "Apply",
+      "ComputeCrc"
+    ]
+  }
+}

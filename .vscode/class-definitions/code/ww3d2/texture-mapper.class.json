@@ -1,0 +1,27 @@
+{
+  "Name": "TextureMapper",
+  "ParentNames": [],
+  "FileName": "texture-mapper",
+  "CppName": "TextureMapperClass",
+  "CppPath": "Code/ww3d2/mapper.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Stage"
+    ],
+    "Functions": [
+      "Constructor",
+      "Reset",
+      "Clone",
+      "MapperId",
+      "IsTimeVariant",
+      "Apply",
+      "NeedsNormals",
+      "SetStage",
+      "GetStage"
+    ]
+  }
+}

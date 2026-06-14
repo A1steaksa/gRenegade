@@ -1,0 +1,24 @@
+{
+  "Name": "CommandoSaveLoad",
+  "ParentNames": [
+    "SaveLoadSubSystem"
+  ],
+  "FileName": "commando-save-load",
+  "CppName": "CommandoSaveLoadClass",
+  "CppPath": "Code/Commando/commandosaveload.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "ChunkId",
+      "Save",
+      "Load",
+      "Name"
+    ]
+  }
+}
