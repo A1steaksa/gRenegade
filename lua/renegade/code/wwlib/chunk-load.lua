@@ -290,6 +290,34 @@ end
 
 --[[ Reading ]] do
 
+    --- Reads in an entire struct
+    --- Structs must be registered with DeserializeLib
+	--- @generic T : string
+	--- @param dataType `T`
+	--- @return T?
+	function INSTANCE:ReadStruct( dataType )
+		local structByteCount = deserializeLib.GetComplexDataTypeSize( dataType )
+		local readByteCount, readBytes = self:Read( structByteCount )
+		if readByteCount ~= structByteCount then
+			return
+		end
+		--- @cast readBytes string
+		return deserializeLib.DeserializeComplexDataType( dataType, readBytes )
+	end
+
+    --- Reads in a fundamental data type
+	--- @param dataType FundamentalDataType
+	--- @return any
+	function INSTANCE:ReadFundamentalDataType( dataType )
+		local typeByteCount = deserializeLib.GetFundamentalDataTypeSize( dataType )
+		local readByteCount, readBytes = self:Read( typeByteCount )
+		if readByteCount ~= typeByteCount then
+			return
+		end
+		--- @cast readBytes string
+		return deserializeLib.DeserializeFundamentalDataType( dataType, readBytes )
+	end
+
     --- "Read data from the file"
     --- @param byteCount integer How many bytes to read
     --- @return integer readByteCount, string? readByteString
