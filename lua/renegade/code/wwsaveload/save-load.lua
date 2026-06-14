@@ -75,7 +75,10 @@ local isHotload = not table.IsEmpty( STATIC )
 
                 if sys then
                     ok = ok and sys:Load( cload )
+                else
+                    section.Warn( "Ignoring chunk ID ", cload:CurChunkId(), " due to no registered sub system handling it" )
                 end
+
                 cload:CloseChunk()
             end
 
@@ -171,6 +174,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
         ---@param factory PersistFactoryInstance
         function STATIC.RegisterPersistFactory( factory )
+
+            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", factory:ChunkId() )
+
             STATIC.LinkFactory( factory )
         end
 

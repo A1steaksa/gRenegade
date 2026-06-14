@@ -61,19 +61,19 @@ end
 --- @param resourceId integer
 --- @return integer dialogWidth, integer dialogHeight, string dialogTitle, ControlDefinitionInstance[] controlList
 function STATIC.ParseTemplate( resourceId )
-    -- "Load the resource file"
-    local resource = file.Open( STATIC.ResourceFilePath, "rb", "THIRDPARTY" )
-    if not resource then
-        Section.Error( "Unable to open resource file: ", STATIC.ResourceFilePath )
-    end
+    -- -- "Load the resource file"
+    -- local resource = file.Open( STATIC.ResourceFilePath, "rb", "THIRDPARTY" )
+    -- if not resource then
+    --     section.Error( "Unable to open resource file: ", STATIC.ResourceFilePath )
+    -- end
 
-    local resourceBuffer = resource:Read()
-    if not resourceBuffer or string.len( resourceBuffer ) == 0 then
-        Section.Error( "Resource file appears to be empty: ", STATIC.ResourceFilePath )
-    end
+    -- local resourceBuffer = resource:Read()
+    -- if not resourceBuffer or string.len( resourceBuffer ) == 0 then
+    --     section.Error( "Resource file appears to be empty: ", STATIC.ResourceFilePath )
+    -- end
 
-    -- "The first few bytes of the resource buffer are the DLGTEMPLATE structure"
-    local dialogTemplate = 
+    -- -- "The first few bytes of the resource buffer are the DLGTEMPLATE structure"
+    -- local dialogTemplate = 0
 
 
 end

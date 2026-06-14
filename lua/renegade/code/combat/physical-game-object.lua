@@ -749,8 +749,10 @@ end
     end
 end
 
---- @param hide boolean
+--- @param hide boolean? [Default: `true`]
 function INSTANCE:HideMuzzleFlashes( hide )
+    hide = ( ( hide == nil ) and true or hide )
+
     -- TODO: Implement muzzle flash hide/show
 end
 

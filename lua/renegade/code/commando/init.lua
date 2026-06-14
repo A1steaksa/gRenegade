@@ -166,7 +166,12 @@ function STATIC.GameInit()
 
     -- "Clear screen"
 
+
+    -- wWPhysClass.Init()
+    -- wWSaveLoadClass.Init()
+
     -- "Load the strings table"
+    -- translateDbClass.Initialize()
 
     -- "Initialize the input control system"
 
@@ -250,8 +255,7 @@ function STATIC.GameInit()
         local skirmishLoadMenuNumber = 96
         -- campaignManagerClass.SelectBackdropNumber( skirmishLoadMenuNumber )
         gameInitManagerClass.InitializeSP()
-
-        gameInitManagerClass.StartGame( "my_map_name", -1, 0 )
+        gameInitManagerClass.StartGame( "m01.mix.txt", -1, 0 )
     end
 
 

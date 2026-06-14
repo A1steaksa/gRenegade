@@ -142,7 +142,7 @@ end
     --- @param typeName string
     --- @return boolean
     function INSTANCE:IsType( typeName )
-        if typeName == self:GetTypeName() then
+        if self:GetTypeName():lower() == typeName:lower() then
             return true
         else
             return false
