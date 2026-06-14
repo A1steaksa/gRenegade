@@ -111,7 +111,7 @@ function INSTANCE:Read( size )
     --- "  
     --- We need to get a copy of the [DesiredBufferSize] into
     --- a local variable to protect us from modifications
-    --- from another thread.  O:therwise, we could pass the test
+    --- from another thread.  Otherwise, we could pass the test
     --- (size > amount) below, only to allocate a buffer that's
     --- too small in the next block. (DRM, 04/20/01)
     --- "  
@@ -146,7 +146,7 @@ function INSTANCE:Read( size )
     -- "If there is anything in the buffer, copy it in."
     if self.BufferAvailable > 0 then
         local amount = math.min( size, self.BufferAvailable )
-        buffer = self.Buffer:sub( self.BufferOffset, self.BufferOffset + amount - 1 )
+        buffer = buffer .. self.Buffer:sub( self.BufferOffset, self.BufferOffset + amount - 1 )
         self.BufferAvailable = self.BufferAvailable - amount
         self.BufferOffset = self.BufferOffset + amount
         read = read + amount
