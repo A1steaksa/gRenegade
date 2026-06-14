@@ -51,6 +51,21 @@ STATIC.Class = "CombatManagerClass"
 
     --- @type GameObjectManagerClass
     local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+
+    --- @type GameTypeClass
+    local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
+
+    --- @type GameObjectObserverManagerClass
+    local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
+
+    --- @type SmartGameObjectClass
+    local smartGameObjectClass = CNC.Import( "code/combat/smart-game-object.lua" )
+
+    --- @type HudInfoClass
+    local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
+
+    --- @type AssetDependencyManagerClass
+    local assetDependencyManagerClass = CNC.Import( "code/combat/asset-dependency-manager.lua" )
 -- #endregion
 
 
@@ -207,26 +222,71 @@ STATIC.Class = "CombatManagerClass"
 
         --- @param renderAvailable boolean? [Default: true]
         function STATIC.PreLoadLevel( renderAvailable )
-            if not renderAvailable then
-                renderAvailable = true
+            renderAvailable = ( ( renderAvailable ~= nil ) and renderAvailable or true )
+            STATIC.MultiplayRenderingAllowed = true
+            if not gameTypeClass.IsMission() and not STATIC.IAmServer() then
+                STATIC.MultiplayRenderingAllowed = false
             end
 
-            typecheck.NotImplementedError( "PreLoadLevel" )
+            hudClass.Enable( true )
+            hudClass.Reset()
+
+            STATIC.IsGamePaused = false
+
+            gameObjectObserverManagerClass.Reset()
+
+            -- coverManagerClass.Init()
+
+            gameObjectManagerClass.Init()
+
+            -- bulletManagerClass.Init()
+
+            -- encoderListClass.ClearEntries()
+
+            -- packetClass.InitEncoder()
+
+            -- STATIC.BackgroundScene = simpleSceneClass.New()
+
+            -- STATIC.SoundEnvironment = soundEnvironmentclass.New()
+
+            -- backgroundManagerClass.Init( STATIC.BackgroundScene, STATIC.SoundEnvironment, renderAvailable )
+
+            -- weatherManagerClass.Init( STATIC.SoundEnvironment )
+
+            -- weaponViewClass.Init()
+
+            -- smartGameObjectClass.SetGlobalSightRangeScale( 1.0 )
+
+            -- screenFadeManagerClass.EnableLetterbox( 0, 0)
+            -- screenFadeManagerclass.SetScreenOverlayOpacity( 0, 0 )
+
+            -- "Clear text"
+            hudInfoClass.SetHudHelpText( "" )
         end
 
+        --- AKA "ThreadFunction" or "Thread_Function" from Code/Combat/combat.cpp
         --- @param mapName string
-        ---@param preloadAssets boolean
+        --- @param preloadAssets boolean
         function STATIC.LoadLevelThreaded( mapName, preloadAssets )
             STATIC.IsLevelInitialized = false
+            -- wWAudioClass:GetInstance():EnableNewSounds( false )
 
             -- Because we don't have threads, I'm directly placing the contents of `LoadThreadClass:Thread_Function()` below
 
             STATIC.SetLoadProgress( 0 )
+
+            -- Omitted setting the Data Safe's thread preference
+
             STATIC.IncrementLoadProgress()
 
             -- "Reload the definition databases (to support level-specific temp ddb's)"
+            section.Start( "Free definition databases" )
             definitionManagerClass.FreeDefinitions()
+            section.End()
+
+            section.Start( "Load definition databases" )
             saveGameManagerClass.LoadDefinitions()
+            section.End()
 
             STATIC.IncrementLoadProgress()
             -- "
@@ -236,17 +296,27 @@ STATIC.Class = "CombatManagerClass"
             -- animatedSoundManagerClass.Initialize()
 
             -- "Prep the level loading"
+            section.Start( "Pre Load level" )
             -- playerInfoLogClass.SetCurrentMapName( mapName )
             local fileNameToLoad, lsdFileName = saveGameManagerClass.PreLoadGame( mapName )
-            STATIC.SetLastLsdName( mapName )
+            STATIC.SetLastLsdName( lsdFileName )
+            section.End()
 
             STATIC.IncrementLoadProgress()
 
             -- "Preload the assets"
             if preloadAssets then
-                -- assetDependencyManager.LoadAlwaysAssets()
+                section.Start( "Preload assets" )
+                section.Start( "Always assets" )
+                assetDependencyManagerClass.LoadAlwaysAssets()
+                section.End()
+
                 STATIC.IncrementLoadProgress()
-                -- assetDependencyManager.LoadLevelAssets( lsdFileName )
+
+                section.Start( "Level assets" )
+                assetDependencyManagerClass.LoadLevelAssets( lsdFileName )
+                section.End()
+                section.End()
             else
                 STATIC.IncrementLoadProgress()
             end
@@ -254,7 +324,7 @@ STATIC.Class = "CombatManagerClass"
             STATIC.IncrementLoadProgress()
 
             -- "Now load the level"
-            saveGameManagerClass.LoadGame( mapName )
+            saveGameManagerClass.LoadGame( fileNameToLoad )
 
             STATIC.IncrementLoadProgress()
         end
@@ -266,11 +336,28 @@ STATIC.Class = "CombatManagerClass"
 
         --- @return boolean
         function STATIC.IsLoadingLevel()
-            typecheck.NotImplementedError( "IsLoadingLevel" )
+            typecheck.NotImplementedError()
         end
 
         function STATIC.PostLoadLevel()
-            typecheck.NotImplementedError( "PostLoadLevel" )
+            STATIC.CombatMode = combatModeEnum.NONE
+            -- Omitted flushing input
+            STATIC._IsHitReticleEnabled = true -- "Default for on when you start each level"
+
+            STATIC.ClearStarDamageDirection()
+
+            -- "Build network wrappers for every static anim object in the level"
+            -- staticNetworkObjectClass.GenerateStaticNetworkObjects()
+
+            if STATIC.IsLevelInitialized == false and STATIC.TheStar ~= nil then
+                STATIC.IsLevelInitialized = true
+
+                -- "Turn music and sound effects back on"
+                -- wWAudioClass.GetInstance():EnableNewSounds( true )
+            end
+
+            -- "Generate the unit coordination zones"
+            -- unitCoordinationZoneManagerClass.BuildZones()
         end
 
         function STATIC.UnloadLevel()

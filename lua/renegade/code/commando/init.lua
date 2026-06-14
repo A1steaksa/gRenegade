@@ -8,46 +8,89 @@ local STATIC = CNC.CreateExport()
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "InitClass"
 
+--[[ Static Constructor Inits ]] do
+
+    -- These are classes that need to have a static constructor execute to register them with some
+    -- system or subsystem that they need to be registered with earlier in the game's init process
+    -- than they normally would be
+
+    --- @type PowerUpGameObjectDefinitionClass
+    CNC.Import( "code/combat/power-up-game-object-definition.lua" )
+
+    --- @type Physics3DefinitionClass
+	CNC.Import( "code/wwphys/physics-3-definition.lua" )
+
+    --- @type TranslateDbClass
+	CNC.Import( "code/wwtranslatedb/translate-db.lua" )
+
+	--- @type SaveGameManagerClass
+	CNC.Import( "code/combat/save-game.lua" )
+
+    --- @type CommandoSaveLoadClass
+    CNC.Import( "code/commando/commando-save-load.lua" )
+end
+
 --#region Imports
 
-    --- @type GameInitManagerClass
-    local gameInitManagerClass = CNC.Import( "code/commando/game-init-manager.lua" )
+	--- @type GameInitManagerClass
+	local gameInitManagerClass = CNC.Import( "code/commando/game-init-manager.lua" )
 
-    --- @type GameDataClass
-    local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
+	--- @type GameDataClass
+	local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
 
-    --- @type GameModeManagerClass
-    local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
+	--- @type GameModeManagerClass
+	local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
 
-    --- @type CombatGameModeClass
-    local combatGameModeClass = CNC.Import( "code/commando/combat-game-mode.lua" )
+	--- @type CombatGameModeClass
+	local combatGameModeClass = CNC.Import( "code/commando/combat-game-mode.lua" )
 
-    --- @type CampaignManagerClass
-    local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
+	--- @type CampaignManagerClass
+	local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
 
-    --- @type RenegadeDialogManagerClass
-    local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
+	--- @type RenegadeDialogManagerClass
+	local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type MainLoopClass
-    local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
+	--- @type MainLoopClass
+	local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
 
-    --- @type FileFactoryClass
-    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+	--- @type FileFactoryClass
+	local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 
-    --- @type MixFileFactoryClass
-    local mixFileFactoryClass = CNC.Import( "code/wwlib/mix-file-factory.lua" )
+	--- @type MixFileFactoryClass
+	local mixFileFactoryClass = CNC.Import( "code/wwlib/mix-file-factory.lua" )
 
-    --- @type SimpleFileFactoryClass
-    local simpleFileFactoryClass = CNC.Import( "code/wwlib/simple-file-factory.lua" )
+	--- @type SimpleFileFactoryClass
+	local simpleFileFactoryClass = CNC.Import( "code/wwlib/simple-file-factory.lua" )
 
-    --- @type FileFactoryListClass
-    local fileFactoryListClass = CNC.Import( "code/combat/file-factory-list.lua" )
+	--- @type FileFactoryListClass
+	local fileFactoryListClass = CNC.Import( "code/combat/file-factory-list.lua" )
+
+	--- @type ChunkLoadClass
+	local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
+
+	--- @type FileClass
+	local fileClass = CNC.Import( "code/wwlib/file.lua" )
+
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+	--- @type WW3dErrorTypes
+	local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local fileRightsEnum = fileClass.FILE_RIGHTS
+	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 --#endregion
 
 
@@ -158,11 +201,41 @@ function STATIC.GameInit()
 
     -- "Load the multiplayer settings"
 
+    local assetManager = ww3dAssetManagerClass.New()
+    assetManager:SetWw3dLoadOnDemand( true )
+
     -- "Initialize WWMath"
 
     -- "Initialize the pathfind system"
 
     -- "Initialize WW3D"
+    local wW3dInitResult = wW3dClass.Init( SERVER )
+    if wW3dInitResult == wW3dErrorTypeEnum.WW3D_ERROR_OK then
+        -- "Success!"
+    else
+        section.Warn( "WW3D::Init Failed!" )
+        if CLIENT then
+            Derma_Message(
+                "DirectX 8.0 or later is required to play C&C:Renegade.",
+                "Renegade Graphics Initialization Error.",
+                "OK"
+            )
+            return false
+        end
+    end
+
+    if SERVER then
+        wW3dClass.EnableDecals( false )
+        section.Warn( "Skipping disabling shadows" )
+        -- local scene = physicsSceneClass.GetInstance()
+        -- scene:SetMaxSimultaneousShadows( 0 )
+        section.Warn( "Skipping disabling dazzle rendering" )
+        -- dazzleRenderObjectClass.EnableDazzleRendering( false )
+    else
+        section.Warn( "Skipping loading render device from registry" )
+        section.Warn( "Skipping saving render device from registry" )
+        wW3dClass.EnableStaticSortLists( true )
+    end
 
     -- "Clear screen"
 
@@ -251,9 +324,15 @@ function STATIC.GameInit()
         -- Elements are not normally initialized here in the original code
         -- They are being initialized here temporarily while other parts of the codebase are worked on
 
-        -- Make an amalgum of single player and skirmish
-        local skirmishLoadMenuNumber = 96
-        -- campaignManagerClass.SelectBackdropNumber( skirmishLoadMenuNumber )
+        -- This game starting logic is pulled from LoadSPGameMenuClass::Load_Game within Code/Commando/dlgloadspgame.cpp
+
+        -- "End the current game before we load the new one"
+        if gameModeManagerClass.Find( "Combat" ):IsSuspended() then
+            gameInitManagerClass.EndGame()
+            gameModeManagerClass.SafelyDeactivate()
+        end
+
+        -- "Load the map"
         gameInitManagerClass.InitializeSP()
         gameInitManagerClass.StartGame( "m01.mix.txt", -1, 0 )
     end

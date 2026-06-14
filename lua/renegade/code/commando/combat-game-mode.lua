@@ -235,9 +235,91 @@ end
 function INSTANCE:LoadLevel()
     -- HACK HACK - Temporary fix while the combat gamemode is not initialized as it is in the original code
     combatManagerClass.SetLoadProgress( 0 )
-    local loadingScreen = loadingScreenClass.New()
+    local loadingScreen -- "Try moving this to very start of loading"
+    
+    
+    
+    
+    
+    -- if CLIENT then
+    --     loadingScreen = loadingScreenClass.New()
+    --     loadingScreen:Render( true )
+    -- end
 
-    --[[ Radar Init ]] do
+
+
+
+
+    -- "Hack load reg for default first person.  Is dont again later."
+    -- self:LoadRegistryKeys()
+
+    -- "Flush out current level
+    -- levelManagerClass.ReleaseLevel()
+
+    if not SERVER then
+        -- wW3dClass.InvalidateTextures()
+        -- assetStatusClass.PeekInstance():EnableLoadOnDemandReporting( false )
+    end
+
+    self.PendingCampaignContinue = false
+    STATIC.GIsLoading = true
+
+    --- "
+    --- Stop the network layer from processing packets.  This is needed in case a packet import or export accesses the datasafe
+    --- from the main thread while the loader thread is loading stuff into the datasafe.  This won't shut off packet acks so no-one
+    --- will be disconnected as a result of this.
+    --- "
+    -- if networkClass.PServerConnection ~= nil then
+    --     networkClass.PServerConnection:AllowPacketProcessing( false )
+    -- end
+
+    -- if not gameTypeClass.IsSoloplay() and networkClass.PClientConnection ~= nil then
+    --     networkClass.PClientConnection:AllowExtraTimeoutForLoading()
+    -- end
+
+    combatManagerClass.PreLoadLevel( SERVER and false or true )
+
+    -- systemSettingsClass.ApplyAll()
+
+    -- combatManagerClass.SetCombatMiscHandler( STATIC.GameMiscHandler )
+
+    local mapName = gameDataClass.TheGame():GetMapName()
+
+    local preloadAssets = true
+
+    -- networkObjectManagerClass.SetIsLevelLoading( true )
+
+    -- textureLoaderClass.SuspendTextureLoad()
+
+    combatManagerClass.LoadLevelThreaded( mapName, preloadAssets )
+
+    -- while not combatManagerClass.IsLoadLevelComplete() do
+    --     loadingScreen:Render( true )
+    -- end
+
+
+    --[[ Post Load Processing ]] do
+        -- loadingScreen:Render( true )
+        -- saveLoadSystemClass.PostLoadProcessing( gameTypeClass.IsSoloplay() and nil or networkClass.Update )
+        -- networkObjectManagerClass.SetIsLevelLoading( false )
+    end
+
+    --[[ Post Load Level ]] do
+        -- loadingScreen:Render( true )
+        combatManagerClass.PostLoadLevel()
+    end
+
+
+
+
+
+    -- Lots of this function is still missing
+
+
+
+
+
+    --[[ Radar Init ]] if CLIENT then
         -- "Init the radar after the game is loaded (so we have the global settings)"    
         -- loadingScreen:Render( true )
         radarManagerClass.Init()
