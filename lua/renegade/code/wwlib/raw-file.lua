@@ -73,7 +73,7 @@ function INSTANCE:Renegade_RawFile( fileName )
     -- ( fileName: string )
     if fileName ~= nil then
         self.Rights = 0
-        self.BiasStart = 1
+        self.BiasStart = 0
         self.BiasLength = -1
         self.Handle = nil
         self.Filename = fileName
@@ -83,7 +83,7 @@ function INSTANCE:Renegade_RawFile( fileName )
     -- (): string
     else
         self.Rights = fileRightsEnum.READ
-        self.BiasStart = 1
+        self.BiasStart = 0
         self.BiasLength = -1
         self.Handle = nil
         self.Filename = ""
@@ -207,8 +207,8 @@ function INSTANCE:Open( ... )
     self.Handle = file.Open( self.Filename, fileMode, "THIRDPARTY" )
 
     -- "Biased files must be positioned past the bias start position."
-    if self.BiasStart ~= 1 or self.BiasLength ~= -1 then
-        self:Seek( 1, seekDirectionEnum.SEEK_SET )
+    if self.BiasStart ~= 0 or self.BiasLength ~= -1 then
+        self:Seek( 0, seekDirectionEnum.SEEK_SET )
     end
 
     -- "
@@ -398,7 +398,7 @@ function INSTANCE:Bias( start, length )
     length = length or -1
 
     if start == 1 then
-        self.BiasStart = 1
+        self.BiasStart = 0
         self.BiasLength = -1
         return
     end
