@@ -1,7 +1,5 @@
+--- @meta
 -- Based on the structs within Code/wwlib/iostruct.h
-
---- @class Renegade
-local CNC = CNC_RENEGADE
 
 -- "Some useful structures for writing/writing (safe from changes)."
 -- "The chunk IO classes contain code for reading and writing these."
