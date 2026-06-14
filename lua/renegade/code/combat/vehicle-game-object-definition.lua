@@ -179,7 +179,7 @@ function INSTANCE:Load( cload )
     section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
-    local dataTypeEnum = STATIC.DATA_TYPE
+    local fundamentalDataTypeEnum = STATIC.DATA_TYPE
 
     while cload:OpenChunk() do
         local id = cload:CurChunkId()
@@ -194,30 +194,30 @@ function INSTANCE:Load( cload )
 
             while cload:OpenMicroChunk() do
                 local didRead =
-                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_TYPE, dataTypeEnum.Int, "Type" )
+                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_TYPE, fundamentalDataTypeEnum.Int, "Type" )
                     or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_TYPE_NAME, "TypeName" )
                     or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_FIRE0ANIM, "Fire0Anim" )
                     or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_FIRE1ANIM, "Fire1Anim" )
                     or self:ReadMicroChunkWWString( cload, ids.MICROCHUNKID_PROFILE, "Profile" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_PHYS_ID, dataTypeEnum.Int, "PhysDefId" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_TURN_RADIUS, dataTypeEnum.Float, "TurnRadius" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_OCCUPANTS_VISIBLE, dataTypeEnum.Boolean, "OccupantsVisible" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_SOUND_MAX_PITCH_FACTOR, dataTypeEnum.Float, "EngineSoundMaxPitchFactor")
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_PHYS_ID, fundamentalDataTypeEnum.Int, "PhysDefId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_TURN_RADIUS, fundamentalDataTypeEnum.Float, "TurnRadius" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_OCCUPANTS_VISIBLE, fundamentalDataTypeEnum.Boolean, "OccupantsVisible" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_SOUND_MAX_PITCH_FACTOR, fundamentalDataTypeEnum.Float, "EngineSoundMaxPitchFactor")
 
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_START_SOUND, dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Starting  )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_RUN_SOUND,   dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Running   )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_STOP_SOUND,  dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Stopping  )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_OFF_SOUND,   dataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Off       )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_START_SOUND, fundamentalDataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Starting  )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_RUN_SOUND,   fundamentalDataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Running   )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_STOP_SOUND,  fundamentalDataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Stopping  )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_ENGINE_OFF_SOUND,   fundamentalDataTypeEnum.Int, "EngineSound", engineSoundStateEnum.Off       )
 
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_DOWN_MUZZLE, dataTypeEnum.Boolean, "SightDownMuzzle" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_AIM_2D, dataTypeEnum.Boolean, "Aim2d" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SQUISH_VELOCITY, dataTypeEnum.Float, "SquishVelocity" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_VEHICLE_NAME_ID, dataTypeEnum.Int, "VehicleNameId" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NUM_SEATS, dataTypeEnum.Int, "NumSeats" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DAMAGE_REPORT_ID, dataTypeEnum.Int, "GdiDamageReportId" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DAMAGE_REPORT_ID, dataTypeEnum.Int, "NodDamageReportId" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DESTROY_REPORT_ID, dataTypeEnum.Int, "GdiDestroyReportId" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID, dataTypeEnum.Int, "NodDestroyReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_DOWN_MUZZLE, fundamentalDataTypeEnum.Boolean, "SightDownMuzzle" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_AIM_2D, fundamentalDataTypeEnum.Boolean, "Aim2d" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SQUISH_VELOCITY, fundamentalDataTypeEnum.Float, "SquishVelocity" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_VEHICLE_NAME_ID, fundamentalDataTypeEnum.Int, "VehicleNameId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NUM_SEATS, fundamentalDataTypeEnum.Int, "NumSeats" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DAMAGE_REPORT_ID, fundamentalDataTypeEnum.Int, "GdiDamageReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DAMAGE_REPORT_ID, fundamentalDataTypeEnum.Int, "NodDamageReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_GDI_DESTROY_REPORT_ID, fundamentalDataTypeEnum.Int, "GdiDestroyReportId" )
+                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_NOD_DESTROY_REPORT_ID, fundamentalDataTypeEnum.Int, "NodDestroyReportId" )
 
                 if not didRead then
                     section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID " .. tostring( cload:CurMicroChunkId() ) )

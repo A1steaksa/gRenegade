@@ -37,7 +37,7 @@ INSTANCE.IsDefinitionManager = true
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type CombatChunkId
+    --- @type CombatChunkIdClass
     local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type SaveLoadSystemClass
@@ -53,7 +53,7 @@ INSTANCE.IsDefinitionManager = true
 
 --#region Imported Enums
 
-    local chunkIdEnum = saveLoadIdsClass.CHUNK_ID
+    local chunkIdEnum = saveLoadIdsClass.ChunkIds
     local classIdEnum = definitionClassIds.CLASS_ID
 --#endregion
 
@@ -205,7 +205,7 @@ end
 
     --- @return integer
     function INSTANCE:ChunkId()
-        return chunkIdEnum.SAVELOAD_DEFMGR
+        return chunkIdEnum.CHUNKID_SAVELOAD_DEFMGR
     end
 
     --- @return boolean

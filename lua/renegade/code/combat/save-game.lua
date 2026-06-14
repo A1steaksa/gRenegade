@@ -15,36 +15,39 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type PersistClass
-    local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
+	--- @type PersistClass
+	local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
-    --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
-    --- @type ChunkLoadClass
-    local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
+	--- @type ChunkLoadClass
+	local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type FileFactoryClass
-    local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+	--- @type FileFactoryClass
+	local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 
-    --- @type FileClass
-    local fileClass = CNC.Import( "code/wwlib/file.lua" )
+	--- @type FileClass
+	local fileClass = CNC.Import( "code/wwlib/file.lua" )
 
-    --- @type ChunkIOClass
-    local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local dataTypeEnum = chunkIOClass.DATA_TYPE
-    local fileRightsEnum = fileClass.FILE_RIGHTS
+	local fileRightsEnum = fileClass.FILE_RIGHTS
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Chunk IDs ]] do
@@ -68,7 +71,7 @@ end
 --- @field Description string
 --- @field MissionDescriptionId integer
 
-STATIC.DefaultDefinitionFilename = "renegade/always_dat/objects.ddb.txt"
+STATIC.DefaultDefinitionFilename = "objects.ddb"
 STATIC.MissionDescriptionId = 0
 
 --[[ Map Filename (LSD) Access ]] do
@@ -156,8 +159,6 @@ end
         while returnValue == false and cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
 
-            section.Print( "Opening chunk ", chunkId )
-
             if chunkId == STATIC.ChunkIds.CHUNKID_LEVEL_INFO then
                 while returnValue == false and cload:OpenMicroChunk() do
                     local microChunkId = cload:CurMicroChunkId()
@@ -209,7 +210,7 @@ end
 
                     local didRead =
                         chunkIOClass.ReadMicroChunkWWString( cload, ids.MICROCHUNKID_MAP_FILENAME, STATIC, "MapFileName" )
-                        or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_MISSION_DESCRIPTION, dataTypeEnum.Int, STATIC, "MissionDescriptionId" )
+                        or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_MISSION_DESCRIPTION, fundamentalDataTypeEnum.Int, STATIC, "MissionDescriptionId" )
                         or chunkIOClass.ReadMicroChunkWideString( cload, ids.MICROCHUNKID_DESCRIPTION, STATIC, "Description" )
 
                     if not didRead then
@@ -244,6 +245,12 @@ end
     --- @return string fileNameToLoad
     --- @return string lsdFileName
     function STATIC.PreLoadGame( fileName )
+
+
+        if fileName:EndsWith( ".txt" ) then
+            fileName = fileName:sub( 1, -5 )
+        end
+
         -- "Get the root name and extension from the filename"
         local rootName = string.StripExtension( fileName )
         local extension = "." .. string.GetExtensionFromFilename( fileName )
@@ -323,7 +330,7 @@ end
 
     --- @param fileName string? [Default: objects.ddb]
     function STATIC.LoadDefinitions( fileName )
-        if not fileName then fileName = STATIC.DefaultDefinitionFilename end
+        if fileName == nil then fileName = STATIC.DefaultDefinitionFilename end
 
         STATIC.LoadSaveLoadSystem( fileName, true )
     end
@@ -334,6 +341,10 @@ end
     --- @param fileName string
     --- @param autoPostLoad boolean
     function STATIC.LoadSaveLoadSystem( fileName, autoPostLoad )
+
+
+        section.Print( Color( 20, 255, 0 ), fileName )
+
         local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
         if file ~= nil then
             file:Open( fileRightsEnum.READ )

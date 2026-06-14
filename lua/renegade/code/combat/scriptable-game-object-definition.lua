@@ -8,8 +8,8 @@ local baseGameObjectDefinitionClass = CNC.Import( "code/combat/base-game-object-
 
 --- @class ScriptableGameObjectDefinitionClass : BaseGameObjectDefinitionClass
 local STATIC = CNC.CreateExport( baseGameObjectDefinitionClass )
-STATIC.Class = "ScriptableGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "ScriptableGameObjectDefinitionClass"
 
 --- @class ScriptableGameObjectDefinitionInstance : BaseGameObjectDefinitionInstance
 local INSTANCE = robustclass.Register( "Renegade_ScriptableGameObjectDefinition : Renegade_BaseGameObjectDefinition" )

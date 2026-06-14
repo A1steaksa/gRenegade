@@ -39,6 +39,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type GameModeManagerClass
     local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
+
+    --- @type NetworkClass
+    local networkClass = CNC.Import( "code/commando/network.lua" )
 --#endregion
 
 
@@ -79,6 +82,20 @@ local isHotload = not table.IsEmpty( STATIC )
 
         -- "Set the map name"
         gameDataClass.TheGame():SetMapName( mapName )
+
+        -- modPackageManagerClass.LoadCurrentMod()
+
+        -- "Reload the subsystems that may be affected by a mod"
+        -- STATIC.ReloadGameConfigurationFiles()
+
+        -- "Reset Data Safe stafe"
+        -- genericDataSafeClass.Reset()
+
+        -- "Reset packet optimizer bandwidth stats"
+        -- packetManagerClass.ResetStats()
+
+        -- "Start either the client or server (or both) depending on which mode we are in."
+        STATIC.StartClientServer()
 
         -- Omitted code here
 

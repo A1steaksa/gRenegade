@@ -32,6 +32,7 @@ local isHotload = not table.IsEmpty( STATIC )
 --#region Imported Enums
 --#endregion
 
+
 --[[ Section Names ]] do
 
     STATIC.SECTION_SOFT_ARMOR_TYPES			    = "Soft_Armor_Types"
@@ -77,6 +78,7 @@ STATIC.SpecialDamageTypes       = {}
 STATIC.SpecialDamageProbability = {}
 STATIC.VisceroidProbability     = {}
 
+STATIC.ARMOR_INI_FILENAME = "armor.ini"
 
 --[[ Build ]] do
 

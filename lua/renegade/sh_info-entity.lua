@@ -1085,11 +1085,6 @@ end
     end
 end
 
-
--- Client-only from here down 
-if not CLIENT then return end
-
-
 --- Retrieves an AABox that contains a given Entity in Entity-local space
 --- @param ent Entity
 --- @return AABoxInstance

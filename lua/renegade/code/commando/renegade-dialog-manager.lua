@@ -103,7 +103,8 @@ STATIC.FactoryArray = {
 --[[ Initialization ]] do
 
     function STATIC.Initialize()
-        local styleManagerIni = "renegade/stylemgr.ini.txt"
+
+        local styleManagerIni = "stylemgr.ini"
         STATIC.TheWWUIInput = renegadeUIInputClass.New()
 
         -- "Simple-pass thru to the WWUI dialog [manager] system"

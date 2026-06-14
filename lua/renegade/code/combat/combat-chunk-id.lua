@@ -3,7 +3,7 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class CombatChunkId
+--- @class CombatChunkIdClass
 local STATIC = CNC.CreateExport()
 
 --#region Imports
@@ -22,13 +22,13 @@ local enumBuilder = enumBaseClass.New()
 
 --[[ Chunk IDs ]] do
 
-    STATIC.CHUNKID_COMBAT                                   = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN )
+    STATIC.CHUNKID_COMBAT                                   = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN )
 
     STATIC.CHUNKID_TIMER                                    = enumBuilder:Next()
     STATIC.CHUNKID_TIMER_GAME_OBJ                           = enumBuilder:Next()
     STATIC.CHUNKID_TIMER_GAME_OBJ_CUSTOM                    = enumBuilder:Next()
 
-    STATIC.CHUNKID_GAME_OBJECTS_BEGIN                       = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x100 )
+    STATIC.CHUNKID_GAME_OBJECTS_BEGIN                       = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x100 )
 
     STATIC.CHUNKID_GAME_OBJECT_BULLET                       = enumBuilder:Next()
 
@@ -145,17 +145,17 @@ local enumBuilder = enumBaseClass.New()
     STATIC.CHUNKID_GAME_OBJECT_RAVESHAW_BOSS		        = enumBuilder:Next()
     STATIC.CHUNKID_GAME_OBJECT_DEF_RAVESHAW_BOSS	        = enumBuilder:Next()
 
-    STATIC.CHUNKID_GAME_OBJECT_OBSERVERS_BEGIN		        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x200 )
+    STATIC.CHUNKID_GAME_OBJECT_OBSERVERS_BEGIN		        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x200 )
     STATIC.CHUNKID_SOLDIER_OBSERVER			                = enumBuilder:Next()
     STATIC.CHUNKID_BEACON_MONITOR			                = enumBuilder:Next()
 
-    STATIC.CHUNKID_BUILDINGS_BEGIN					        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x301 )
+    STATIC.CHUNKID_BUILDINGS_BEGIN					        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x301 )
     STATIC.CHUNKID_BUILDING			                        = enumBuilder:Next()
 
-    STATIC.CHUNKID_BUILDINGS_DEF_BEGIN				        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x401 )
+    STATIC.CHUNKID_BUILDINGS_DEF_BEGIN				        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x401 )
     STATIC.CHUNKID_BUILDING_DEF			                    = enumBuilder:Next()
 
-    STATIC.CHUNKID_ACTION_CODE_BEGIN				        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x500 )
+    STATIC.CHUNKID_ACTION_CODE_BEGIN				        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x500 )
     STATIC.CHUNKID_ACTION_CODE_FOLLOW_INPUT			        = enumBuilder:Next()
     STATIC.CHUNKID_ACTION_CODE_STAND			            = enumBuilder:Next()
     STATIC.CHUNKID_ACTION_CODE_GOTO			                = enumBuilder:Next()
@@ -167,7 +167,7 @@ local enumBuilder = enumBaseClass.New()
     STATIC.CHUNKID_ACTION_CODE_CONVERSATION			        = enumBuilder:Next()
     STATIC.CHUNKID_ACTION_CODE_DOCK			                = enumBuilder:Next()
 
-    STATIC.CHUNKID_GLOBAL_SETTINGS_DEF				        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x600 )
+    STATIC.CHUNKID_GLOBAL_SETTINGS_DEF				        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x600 )
     STATIC.CHUNKID_GLOBAL_SETTINGS_DEF_HUMAN_LOITER	        = enumBuilder:Next()
     STATIC.CHUNKID_GLOBAL_SETTINGS_DEF_GENERAL		        = enumBuilder:Next()
     STATIC.CHUNKID_GLOBAL_SETTINGS_DEF_HUD			        = enumBuilder:Next()
@@ -178,11 +178,11 @@ local enumBuilder = enumBaseClass.New()
     STATIC.CHUNKID_GLOBAL_SETTINGS_DEF_TEAM_PURCHASE        = enumBuilder:Next()
     STATIC.CHUNKID_GLOBAL_SETTINGS_DEF_CNCMODE			    = enumBuilder:Next()
 
-    STATIC.CHUNKID_CONVERSATION_MGR					        = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x700 )
+    STATIC.CHUNKID_CONVERSATION_MGR					        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x700 )
 
-    STATIC.CHUNKID_WEATHER_MGR							    = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x800 )
+    STATIC.CHUNKID_WEATHER_MGR							    = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x800 )
 
-    STATIC.CHUNKID_PLAYER_DATA							    = enumBuilder:Set( saveLoadIds.CHUNK_ID.COMBAT_BEGIN + 0x900 )
+    STATIC.CHUNKID_PLAYER_DATA							    = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_COMBAT_BEGIN + 0x900 )
     STATIC.CHUNKID_PLAYER_DATA_CPLAYER			            = enumBuilder:Next()
 end
 

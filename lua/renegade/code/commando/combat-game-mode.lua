@@ -50,11 +50,21 @@ INSTANCE.IsCombatGameMode = true
 
     --- @type RenegadeDialogManagerClass
     local renegadeDialogManagerClass = CNC.Import( "code/commando/renegade-dialog-manager.lua" )
+
+    --- @type WW3dClass
+    local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+    --- @type NetworkObjectManagerClass
+    local networkObjectManagerClass = CNC.Import( "code/wwnet/network-object-manager.lua" )
+
+    --- @type SaveLoadSystemClass
+    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 --#endregion
 
 
 --#region Imported Enums
-    local gameModeEnum = gameModeClass.GAME_MODE_STATE
+
+    local gameModeStateEnum = gameModeClass.GAME_MODE_STATE
     local locationEnum = renegadeDialogManagerClass.LOCATION
 --#endregion
 
@@ -72,6 +82,7 @@ INSTANCE.IsCombatGameMode = true
     STATIC.ForceGodPending = true
     STATIC.DefaultToFirstPerson = true
     STATIC.PendingCampaignContinue = false
+    STATIC.GIsLoading = false
 
     --- Creates a new CombatGameModeInstance
     --- @vararg any
@@ -222,10 +233,7 @@ function INSTANCE:Suspend()
 end
 
 function INSTANCE:LoadLevel()
-
     -- HACK HACK - Temporary fix while the combat gamemode is not initialized as it is in the original code
-    if not CLIENT then return end
-
     combatManagerClass.SetLoadProgress( 0 )
     local loadingScreen = loadingScreenClass.New()
 

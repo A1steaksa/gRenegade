@@ -98,11 +98,14 @@ end
     end
 
     --[[ Multiplayer ]] do
-        
+
         LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_SINGLE_PLAYER", "Single Player" )
         LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_CNC", "Command & Conquer" )
         LIB.RegisterString( languageEnum.English, "IDS_MP_GAME_TYPE_SINGLE_PLAYER", "Single Player" )
-
     end
 
+    --[[ Powerups ]] do
+        LIB.RegisterString( languageEnum.English, "IDS_M00DSGN_DSGN1015I1DSGN_TXT", "You are already at full shield." )
+        LIB.RegisterString( languageEnum.English, "IDS_M00DSGN_DSGN1014I1DSGN_TXT", "You are already at full health." )
+    end
 end

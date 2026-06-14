@@ -41,7 +41,7 @@ INSTANCE.IsPowerUpGameObject = true
     --- @type SimplePersistFactoryClass
     local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
 
-    --- @type CombatChunkId
+    --- @type CombatChunkIdClass
     local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
     --- @type PhysicalGameObjectClass
@@ -206,9 +206,16 @@ end
 
         if combatManagerClass.IAmServer() and self.State ~= powerUpStateEnum.STATE_GRANTING then
 
-            -- "Check my bounding box for collisions with Soldiers"
-            local box = self:PeekModel():GetBoundingBox()
+            local model = self:PeekModel()
+            if not model then
+                section.Error( self, ": ", self.Class, ": Think: No model was found" )
+                return
+            end
 
+            -- "Check my bounding box for collisions with Soldiers"
+            local box = model:GetBoundingBox()
+
+            section.Print( model, " | ", box.Center, " | ", box.Extent )
         end
     end
 

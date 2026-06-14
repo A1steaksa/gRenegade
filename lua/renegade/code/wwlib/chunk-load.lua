@@ -24,23 +24,26 @@ INSTANCE.IsChunkLoad = true
 
 --#region Imports
 
-    --- @type SaveLoadSystemClass
-    local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
-    --- @type ChunkHeaderClass
-    local chunkHeaderClass = CNC.Import( "code/wwlib/chunk-header.lua" )
+	--- @type ChunkHeaderClass
+	local chunkHeaderClass = CNC.Import( "code/wwlib/chunk-header.lua" )
 
-    --- @type MicroChunkHeaderClass
-    local microChunkHeaderClass = CNC.Import( "code/wwlib/micro-chunk-header.lua" )
+	--- @type MicroChunkHeaderClass
+	local microChunkHeaderClass = CNC.Import( "code/wwlib/micro-chunk-header.lua" )
 
-    --- @type FileClass
-    local fileClass = CNC.Import( "code/wwlib/file.lua" )
+	--- @type FileClass
+	local fileClass = CNC.Import( "code/wwlib/file.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local seekDirectionEnum = fileClass.SEEK_DIRECTION
+	local seekDirectionEnum = fileClass.SEEK_DIRECTION
 --#endregion
 
 --[[
@@ -143,11 +146,13 @@ end
 --- "Wrap an instance of one of these objects around an opened file to easily parse the chunks in the file"
 --- @class ChunkLoadInstance
 --- @field private File FileInstance
+---
 --- "Chunk reading support"
 --- @field private StackIndex integer
 --- @field private PositionStack integer[]
 --- @field private HeaderStack ChunkHeaderInstance[]
---- "[MicroChunkInstance] reading support"
+---
+--- "Micro-chunk reading support"
 --- @field private InMicroChunk boolean
 --- @field private MicroChunkPosition integer
 --- @field private MicroChunkHeader MicroChunkHeaderInstance
@@ -181,8 +186,9 @@ end
         end
 
         -- "Read the chunk header"
-        local chunkHeaderBytes = self.File:Read( chunkHeaderClass.ByteSize )
-        if not chunkHeaderBytes or #chunkHeaderBytes ~= chunkHeaderClass.ByteSize then
+        local chunkHeaderBytes, readChunkHeaderBytes = self.File:Read( chunkHeaderClass.ByteSize )
+
+        if not chunkHeaderBytes or readChunkHeaderBytes ~= chunkHeaderClass.ByteSize then
             return false
         end
         self.HeaderStack[self.StackIndex] = STATIC.ByteStringToChunkHeader( chunkHeaderBytes )
@@ -249,7 +255,6 @@ end
         -- "Calling the ChunkLoadClass:Read fn so that if we exhaust the chunk, the read will fail"
         local readByteCount, byteString = self:Read( microChunkHeaderClass.ByteSize )
         if readByteCount ~= microChunkHeaderClass.ByteSize then
-            section.Warn( "Open Micro-Chunk failed because file read returned the wrong number of bytes. Expected ", microChunkHeaderClass.ByteSize, " but got ", readByteCount )
             return false
         end
         --- @cast byteString string
@@ -305,7 +310,6 @@ end
 
         -- "Don't read if we would go past the end of the current chunk"
         if positionStack[index] + byteCount > self.HeaderStack[index]:GetSize() then
-            section.Warn( "Don't read if we would go past the end of the current chunk" )
             return 0
         end
 
@@ -322,7 +326,7 @@ end
 
         local byteString = self.File:Read( byteCount )
         if string.len( byteString ) ~= byteCount then
-            section.Error( "Read byte count does not match expected byte count" )
+            section.Warn( "Read byte count does not match expected byte count" )
             return 0
         end
 
@@ -337,21 +341,25 @@ end
         return byteCount, byteString
     end
 
+    --- @private
     --- @return integer readByteCount, IOVector2Instance readVector2
     function INSTANCE:ReadIOVector2()
         typecheck.NotImplementedError()
     end
 
+    --- @private
     --- @return integer readByteCount, IOVector3Instance readVector3
     function INSTANCE:ReadIOVector3()
         typecheck.NotImplementedError()
     end
 
+    --- @private
     --- @return integer readByteCount, IOVector4Instance readVector4
     function INSTANCE:ReadIOVector4()
         typecheck.NotImplementedError()
     end
 
+    --- @private
     --- @return integer readByteCount, IOQuaternionInstance readQuaternion
     function INSTANCE:ReadIOQuaternion()
         typecheck.NotImplementedError()

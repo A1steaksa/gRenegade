@@ -5,8 +5,8 @@ local CNC = CNC_RENEGADE
 
 --- @class CollisionTypeClass
 local STATIC = CNC.CreateExport()
-STATIC.Class = "CollisionTypeClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "CollisionTypeClass"
 
 --- @class CollisionTypeClass
 
