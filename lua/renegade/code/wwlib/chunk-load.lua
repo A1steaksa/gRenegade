@@ -56,18 +56,11 @@ local MAX_STACK_DEPTH = 256
 --[[ Static Functions and Variables ]] do
 
     --- @class ChunkLoadClass
-    --- @field Converter BinaryConverter
 
     --- Creates a new ChunkLoadInstance
     --- @param file FileInstance
     --- @return ChunkLoadInstance
     function STATIC.New( file )
-
-        -- Ensure we have a binary converter available
-        if not STATIC.Converter then
-            STATIC.Converter = BinaryConverter:New()
-        end
-
         return robustclass.New( "Renegade_ChunkLoad", file )
     end
 
@@ -90,10 +83,8 @@ local MAX_STACK_DEPTH = 256
         --- @param bytes string
         --- @return ChunkHeaderInstance
         function STATIC.ByteStringToChunkHeader( bytes )
-            local converter = STATIC.Converter
-
             local chunkTypeByteString = bytes:sub( 1, 4 )
-            local chunkType = converter:FromUInt32( chunkTypeByteString ) --[[@as number]]
+            local chunkType = deserializeLib.DeserializeUInt32( chunkTypeByteString )
 
             local chunkSizeByteString = bytes:sub( 5, 8 )
 
@@ -108,7 +99,7 @@ local MAX_STACK_DEPTH = 256
             local leftByteString = chunkSizeByteString:sub( 4, 4 )
 
             -- Convert it from a string into a number so we can do bitwise operations to it
-            local leftByteNumber = converter:FromUInt8( leftByteString )
+            local leftByteNumber = deserializeLib.DeserializeUInt8( leftByteString )
 
             -- Create a bit mask for the leftmost bit from the byte number
             local msbMask = bit.lshift( 1, 7 )
@@ -121,7 +112,7 @@ local MAX_STACK_DEPTH = 256
 
             chunkSizeByteString = chunkSizeByteString:SetChar( 4, string.char( leftByteNumberWithoutMSB ) )
 
-            local chunkSize = converter:FromUInt32( chunkSizeByteString )
+            local chunkSize = deserializeLib.DeserializeUInt32( chunkSizeByteString )
 
             return chunkHeaderClass.New( chunkType, chunkSize, hasSubChunks )
         end
@@ -129,13 +120,11 @@ local MAX_STACK_DEPTH = 256
         --- @param bytes string
         --- @return MicroChunkHeaderInstance
         function STATIC.ByteStringToMicroChunkHeader( bytes )
-            local converter = STATIC.Converter
-
             local chunkTypeByte = bytes:sub( 1, 1 )
-            local chunkType = converter:FromUInt8( chunkTypeByte )
+            local chunkType = deserializeLib.DeserializeUInt8( chunkTypeByte )
 
             local chunkSizeByte = bytes:sub( 2, 2 )
-            local chunkSize = converter:FromUInt8( chunkSizeByte )
+            local chunkSize = deserializeLib.DeserializeUInt8( chunkSizeByte )
 
             return microChunkHeaderClass.New( chunkType, chunkSize )
         end
