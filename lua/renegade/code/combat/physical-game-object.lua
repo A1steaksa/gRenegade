@@ -148,7 +148,8 @@ local HIBERNATION_DELAY = 30
 
     function INSTANCE:_Renegade_PhysicalGameObject()
         if self.PhysicsObject then
-            combatManagerClass.GetScene():RemoveObject( self.PhysicsObject )
+            -- Omitted removing physical game object from the physics scene
+            -- combatManagerClass.GetScene():RemoveObject( self.PhysicsObject )
         end
     end
 end
@@ -159,8 +160,8 @@ end
     --- @param definition PhysicalGameObjectDefinitionInstance
     --- @param connectedEntity Entity
     function INSTANCE:Init( definition, connectedEntity )
-        damageableGameObjectClass.Instance.Init( self, definition )
-        self:CopySettings( definition, connectedEntity )
+        damageableGameObjectClass.Instance.Init( self, definition, connectedEntity )
+        self:CopySettings( definition )
 
         self:HideMuzzleFlashes()
 
@@ -175,8 +176,7 @@ end
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
-    --- @param connectedEntity Entity
-    function INSTANCE:CopySettings( definition, connectedEntity )
+    function INSTANCE:CopySettings( definition )
         section.Start( "Copy Settings" )
 
         -- "Release our hold on the physics object"
@@ -192,13 +192,16 @@ end
             return
         end
 
-        self.PhysicsObject = physicsObjectDefinition:Create() --[[@as PhysicsInstance]]
+        section.Print( self.Class, " - CopySettings - ", self:GetConnectedEntity() )
+        if self:GetConnectedEntity() == nil then error() end
+
+        self.PhysicsObject = physicsObjectDefinition:Create( self:GetConnectedEntity() ) --[[@as PhysicsInstance]]
         if not self.PhysicsObject then
             section.Error( "Could not create definition instance for " .. definition.PhysicsDefinitionId )
             return
         end
 
-        self.PhysicsObject:SetConnectedEntity( connectedEntity )
+        self.PhysicsObject:SetConnectedEntity( self:GetConnectedEntity() )
 
         self.PhysicsObject:SetCollisionGroup( collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP )
         self.PhysicsObject:SetObserver( self )
@@ -224,7 +227,7 @@ end
         damageableGameObjectClass.Instance.ReInit( self, definition )
 
         -- "Copy any internal settings from the definition"
-        self:CopySettings( definition, self:GetConnectedEntity() )
+        self:CopySettings( definition )
 
         -- "Restore the necessary settings"
         self:SetTransform( transformationMatrix )

@@ -184,13 +184,11 @@ end
 --- @field Scene SceneInstance
 --- @field Container RenderObjectInstance
 --- @field UserData any
+--- @field SourceModelPath string The Source engine `.mdl` file 
 
 --- Constructs a new RenderObjectInstance
---- @param connectedEntity Entity
 --- @param src RenderObjectInstance? Another RenderObjectInstance to copy
-function INSTANCE:Renegade_RenderObject( connectedEntity, src )
-
-    self:SetConnectedEntity( connectedEntity )
+function INSTANCE:Renegade_RenderObject( src )
 
     -- ( src: RenderObjectInstance )
     if src then
@@ -227,18 +225,6 @@ function INSTANCE:_Renegade_RenderObject()
     typecheck.NotImplementedError()
 end
 
---[[ Connected Entity ]] do
-
-    --- @return Entity
-    function INSTANCE:GetConnectedEntity()
-        return self.ConnectedEntity
-    end
-
-    --- @param connectedEntity Entity
-    function INSTANCE:SetConnectedEntity( connectedEntity )
-        self.ConnectedEntity = connectedEntity
-    end
-end
 
 --[[ Render Object Interface - Cloning and Identification ]] do
 

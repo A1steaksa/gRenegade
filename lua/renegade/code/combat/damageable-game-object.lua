@@ -108,8 +108,9 @@ end
 --[[ Definitions ]] do
 
     --- @param definition DamageableGameObjectDefinitionInstance
-    function INSTANCE:Init( definition )
-        scriptableGameObjectClass.Instance.Init( self, definition )
+    --- @param connectedEntity Entity
+    function INSTANCE:Init( definition, connectedEntity )
+        scriptableGameObjectClass.Instance.Init( self, definition, connectedEntity )
         self:CopySettings( definition )
     end
 

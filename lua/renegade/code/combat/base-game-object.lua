@@ -118,7 +118,9 @@ end
 --[[ Definitions ]] do
 
     --- @param definition BaseGameObjectDefinitionInstance
-    function INSTANCE:Init( definition )
+    --- @param connectedEntity Entity
+    function INSTANCE:Init( definition, connectedEntity )
+        self:SetConnectedEntity( connectedEntity )
         self.Definition = definition
     end
 

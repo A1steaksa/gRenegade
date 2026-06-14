@@ -124,8 +124,12 @@ end
 --[[ Definitions ]] do
 
     --- @param definition ScriptableGameObjectDefinitionInstance
-    function INSTANCE:Init( definition )
-        baseGameObjectClass.Instance.Init( self, definition )
+    --- @param connectedEntity Entity
+    function INSTANCE:Init( definition, connectedEntity )
+
+        section.Print( Color( 0, 255, 255 ), "CONNECTED ENTITY: ", connectedEntity )
+
+        baseGameObjectClass.Instance.Init( self, definition, connectedEntity )
         self:CopySettings( definition )
     end
 
@@ -156,7 +160,7 @@ end
         self:CopySettings( definition )
 
         -- "Reset our definition pointer"
-        baseGameObjectClass.Instance.Init( self, definition )
+        baseGameObjectClass.Instance.Init( self, definition, self:GetConnectedEntity() )
     end
 
     function INSTANCE:PostReInit()
