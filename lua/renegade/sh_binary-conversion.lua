@@ -323,7 +323,8 @@ function BinaryConverter:FromFloat(str)
 	local mantissa = b2%0x80*0x10000+b3*0x100+b4
 	local exp = math_floor(((b1%128)*0x100+b2)/0x80)-127
 	local convertedNumber = 2^exp*(mantissa/0x800000+1)
-	return sign * convertedNumber
+	local result = sign * convertedNumber
+	return math.IsNearlyEqual( result, 0, 0.000001 ) and 0 or result
 end
 
 -- Converts from string of length 8 to 64 bit floating point number
