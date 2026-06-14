@@ -14,7 +14,7 @@ STATIC.Class = "PhysicsDefinitionClass"
 
 --- @class PhysicsDefinitionInstance : DefinitionInstance
 --- @field Static PhysicsDefinitionClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_PhysicsDefinition" )
+local INSTANCE = robustclass.Register( "Renegade_PhysicsDefinition : Renegade_Definition" )
 INSTANCE.Class = "PhysicsDefinitionInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -26,12 +26,20 @@ INSTANCE.IsPhysicsDefinition = true
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 
