@@ -62,6 +62,7 @@ local CNC = CNC_RENEGADE
     include( "renegade/sh_debugdraw.lua" )
     include( "renegade/sh_binary-conversion.lua" )
     include( "renegade/sh_convars.lua" )
+    include( "renegade/sh_class-utils.lua" )
 end
 
 -- Server-Side Garry's Mod Init
