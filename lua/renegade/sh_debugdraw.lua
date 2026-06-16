@@ -79,7 +79,7 @@ function debugdraw.Box( pos, ang, radius, color, duration, ignoreZ )
     end
 
     if CLIENT then
-        debugdraw.AddEntity( ent, color, duration, ignoreZ )
+        debugdraw.AddBox( pos, ang, radius, color, duration, ignoreZ )
     end
 end
 
