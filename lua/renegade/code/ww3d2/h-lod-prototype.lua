@@ -66,6 +66,8 @@ end
 
 --- @param definition HLodDefinitionInstance
 function INSTANCE:Renegade_HLodPrototype( definition )
+    prototypeClass.Instance.Renegade_Prototype( self )
+
     self.Definition = definition
 end
 

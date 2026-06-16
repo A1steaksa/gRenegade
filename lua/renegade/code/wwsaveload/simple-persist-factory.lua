@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type PersistFactoryClass
-local PARENT = CNC.Import( "code/wwsaveload/persist-factory.lua" )
+local persistFactoryClass = CNC.Import( "code/wwsaveload/persist-factory.lua" )
 
 --- @class SimplePersistFactoryClass : PersistFactoryClass
 --- @field instance SimplePersistFactoryInstance The metatable used by SimplePersistFactoryInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( persistFactoryClass )
 STATIC.Class = "SimplePersistFactoryClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -85,6 +85,8 @@ end
 
 --- Constructs a new SimplePersistFactoryInstance
 function INSTANCE:Renegade_SimplePersistFactory()
+    persistFactoryClass.Instance.Renegade_PersistFactory( self )
+
     self._ChunkId = self._ChunkId or STATIC.TemplateData.ChunkId
     self._Class = self._Class or STATIC.TemplateData.Class
 end

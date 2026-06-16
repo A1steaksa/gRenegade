@@ -5,10 +5,10 @@ local CNC = CNC_RENEGADE
 
 -- Parent Class
 --- @type PhysicalGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/physical-game-object-definition.lua" )
+local physicalGameObjectDefinitionClass = CNC.Import( "code/combat/physical-game-object-definition.lua" )
 
 --- @class ArmedGameObjectDefinitionClass : PhysicalGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( physicalGameObjectDefinitionClass )
 STATIC.Class = "ArmedGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -104,6 +104,8 @@ end
 
 --- Constructs a new ArmedGameObjectDefinitionInstance
 function INSTANCE:Renegade_ArmedGameObjectDefinition()
+    physicalGameObjectDefinitionClass.Instance.Renegade_PhysicalGameObjectDefinition( self )
+
     self.WeaponTiltRate = 1
     self.WeaponTiltMin = -10000.0
     self.WeaponTiltMax =  10000.0
@@ -127,7 +129,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == STATIC.ChunkIds.CHUNKID_DEF_PARENT then
-            PARENT.Instance.Load( self, cload )
+            physicalGameObjectDefinitionClass.Instance.Load( self, cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
             section.Start( INSTANCE.Class .. " Variables Start" )
 

@@ -86,6 +86,8 @@ end
 --- @class CommandoSaveLoadInstance
 
 function INSTANCE:Renegade_CommandoSaveLoad()
+	saveLoadSubSystemClass.Instance.Renegade_SaveLoadSubSystem( self )
+
 	-- This function is empty in the original code
 end
 

@@ -172,6 +172,8 @@ end
 --- @field LastKnownVelocity Vector "Last velocity received from server"
 
 function INSTANCE:Renegade_Physics3()
+	moveablePhysicsClass.Instance.Renegade_MoveablePhysics( self )
+
 	self.GroundState = groundStateClass.New()
 
 	self.CollisionBox = aABoxClass.New()

@@ -74,7 +74,12 @@ local DesiredBufferSize = 1024 * 16
 --- "Simple constructor for a file object."
 --- @param fileName string? (Optional) "The filename to assign to this file object."
 function INSTANCE:Renegade_BufferedFile( fileName )
-    rawFileClass.Instance.Renegade_RawFile( self, fileName )
+    if fileName == nil then
+        rawFileClass.Instance.Renegade_RawFile( self )
+    else
+        rawFileClass.Instance.Renegade_RawFile( self, fileName )
+    end
+
     self.Buffer = ""
     self.BufferSize = 0
     self.BufferAvailable = 0

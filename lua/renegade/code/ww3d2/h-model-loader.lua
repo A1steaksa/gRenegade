@@ -54,6 +54,10 @@ end
 
 --- @class HModelLoaderInstance
 
+function INSTANCE:Renegade_HModelLoader()
+    prototypeLoaderClass.Instance.Renegade_PrototypeLoader( self )
+end
+
 function INSTANCE:ChunkType()
 	typecheck.NotImplementedError()
 end

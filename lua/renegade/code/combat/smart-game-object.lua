@@ -100,9 +100,9 @@ end
 --- Constructs a new SmartGameObjectInstance
 --- @vararg any
 function INSTANCE:Renegade_SmartGameObject( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
+    armedGameObjectClass.Instance.Renegade_ArmedGameObject( self )
 
+    typecheck.NotImplementedError()
 end
 
 

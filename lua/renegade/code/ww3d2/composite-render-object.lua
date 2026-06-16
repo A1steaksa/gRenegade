@@ -63,11 +63,14 @@ end
 function INSTANCE:Renegade_CompositeRenderObject( other )
 	-- ()
 	if other == nil then
+		renderObjectClass.Instance.Renegade_RenderObject( self )
 		return
 	end
 
 	-- ( other: CompositeRenderObjectInstance )
 	typecheck.AssertArgType( self.Class, 1, other, "CompositeRenderObjectInstance" )
+
+	renderObjectClass.Instance.Renegade_RenderObject( self )
 
 	self:SetName( other:GetName() )
 	self:SetBaseModelName( other:GetBaseModelName() )

@@ -74,6 +74,8 @@ end
 --- @class DynamicPhysicsDefinitionInstance
 
 function INSTANCE:Renegade_DynamicPhysicsDefinition()
+    physicsDefinitionClass.Instance.Renegade_PhysicsDefinition( self )
+
     -- Empty in the original code
 end
 

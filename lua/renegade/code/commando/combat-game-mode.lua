@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameMajorModeClass
-local PARENT = CNC.Import( "code/commando/game-major-mode.lua" )
+local gameMajorModeClass = CNC.Import( "code/commando/game-major-mode.lua" )
 
 --- @class CombatGameModeClass : GameMajorModeClass
 --- @field instance CombatGameModeInstance The metatable used by CombatGameModeInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( gameMajorModeClass )
 STATIC.Class = "CombatGameModeClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -85,10 +85,9 @@ INSTANCE.IsCombatGameMode = true
     STATIC.GIsLoading = false
 
     --- Creates a new CombatGameModeInstance
-    --- @vararg any
     --- @return CombatGameModeInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_CombatGameMode", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_CombatGameMode" )
     end
 
     --- @param arg any
@@ -162,6 +161,10 @@ end
 
 
 --- @class CombatGameModeInstance
+
+function INSTANCE:Renegade_CombatGameMode()
+    gameMajorModeClass.Instance.Renegade_GameMajorMode( self )
+end
 
 --- "The name of this mode"
 --- @return string

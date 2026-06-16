@@ -4,7 +4,7 @@
 local CNC = CNC_RENEGADE
 
 --- @type DefinitionFactoryClass
-local PARENT = CNC.Import( "code/wwsaveload/definition-factory.lua" )
+local definitionFactoryClass = CNC.Import( "code/wwsaveload/definition-factory.lua" )
 
 --- @class SimpleDefinitionFactoryClass : DefinitionFactoryClass
 --- @field instance SimpleDefinitionFactoryInstance The metatable used by SimpleDefinitionFactoryInstance
@@ -85,6 +85,8 @@ end
 --- @param classId integer
 --- @param name string
 function INSTANCE:Renegade_SimpleDefinitionFactory( isDisplayed, class, classId, name )
+    definitionFactoryClass.Instance.Renegade_DefinitionFactory( self )
+
     self.IsDisplayed = isDisplayed or true
     self._Class = class
     self.ClassId = classId

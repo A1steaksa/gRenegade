@@ -53,12 +53,31 @@ end
 
 
 --- @class Animatable3dObjectInstance
---- @field IsTreeValid any
+--- @field IsTreeValid boolean
 --- @field HTree any
 --- @field CurMotionMode any
 
-function INSTANCE:Renegade_Animatable3dObject()
-	typecheck.NotImplementedError()
+--- @param src Animatable3dObjectInstance?
+--- @overload fun( self:Animatable3dObjectInstance, hTreeName: string )
+function INSTANCE:Renegade_Animatable3dObject( src )
+	typecheck.AssertArgType( self.Class, 1, src, { "string", "Animatable3dObjectInstance" } )
+
+	-- ( hTreeName: string )
+	if isstring( src ) then
+		compositeRenderObjectClass.Instance.Renegade_CompositeRenderObject( self )
+
+		typecheck.NotImplementedError()
+
+	-- ( src: Animatable3dObjectInstance )
+	else
+		compositeRenderObjectClass.Instance.Renegade_CompositeRenderObject( self, src )
+
+		self.IsTreeValid = false
+		self.CurMotionMode = motionModeEnum.BASE_POSE
+		self.HTree = nil
+
+		typecheck.NotImplementedError()
+	end
 end
 
 function INSTANCE:_Renegade_Animatable3dObject()

@@ -34,7 +34,10 @@ INSTANCE.IsHLod = true
     --- @class HLodClass
 
     --- Creates a new HLodInstance
-    --- @return HLodInstance
+	--- @overload fun( src: HLodInstance ): HLodInstance
+	--- @overload fun( name: string, lods: RenderObjectInstance, count: integer ): HLodInstance
+	--- @overload fun( definition: HLodDefinitionInstance ): HLodInstance
+	--- @overload fun( definition: HModelDefinitionInstance ): HLodInstance
     function STATIC.New( ... )
         return robustclass.New( "Renegade_HLod", ... )
     end
@@ -66,11 +69,54 @@ end
 
 
 function INSTANCE:Renegade_HLod( ... )
-	typecheck.NotImplementedError()
-end
+	local args = { ... }
+	local argCount = #args
 
-function INSTANCE:Renegade_HLod()
-	typecheck.NotImplementedError()
+	-- ()
+	if argCount == 0 then
+		animatable3dObjectClass.Instance.Renegade_Animatable3dObject( self, nil )
+
+		self.LodCount = 0
+		self.CurrentLod = 0
+		self.Lod = nil
+		self.BoundingBoxIndex = -1
+		self.Cost = nil
+		self.Value = nil
+		self.AdditionalModels = modelArrayClass.New()
+		self.SnapPoints = nil
+		self.ProxyArray = nil
+		self.LodBias = 1.0
+		return
+	end
+
+	if argCount == 1 then
+		local arg = args[1]
+
+		typecheck.AssertArgType( self.Class, 1, arg, { "HLodInstance", "HLodDefinitionInstance", "HModelDefinitionInstance" } )
+
+		-- ( src: HLodInstance )
+		if typecheck.IsOfType( arg, "HLodInstance" ) then
+			typecheck.NotImplementedError()
+		-- ( definition: HLodDefinitionInstance )
+		elseif typecheck.IsOfType( arg, "HLodDefinitionInstance" ) then
+			typecheck.NotImplementedError()
+
+		-- ( definition: HModelDefinitionInstance )
+		else
+			typecheck.NotImplementedError()
+		end
+	end
+
+	if argCount == 3 then
+		-- ( name: string, lods: RenderObjectInstance, count: integer )
+		local name = args[1] --[[@as string]]
+		local lods = args[2] --[[@as RenderObjectInstance]]
+		local count = args[3] --[[@as integer]]
+		typecheck.AssertArgType( self.Class, 1, name, "string" )
+
+		typecheck.NotImplementedError()
+		return
+	end
 end
 
 function INSTANCE:_Renegade_HLod()

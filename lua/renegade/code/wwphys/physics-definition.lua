@@ -92,6 +92,8 @@ end
 
 
 function INSTANCE:Renegade_PhysicsDefinition()
+    definitionClass.Instance.Renegade_Definition( self )
+
     self.ModelName = nil
     self.IsPreLit = false
 end

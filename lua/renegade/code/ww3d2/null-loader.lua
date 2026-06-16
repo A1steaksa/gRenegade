@@ -59,6 +59,10 @@ end
 
 --- @class NullLoaderInstance
 
+function INSTANCE:Renegade_NullLoader()
+    prototypeLoaderClass.Instance.Renegade_PrototypeLoader( self )
+end
+
 --- @return integer
 function INSTANCE:ChunkType()
    return w3dChunkTypesEnum.W3D_CHUNK_NULL_OBJECT

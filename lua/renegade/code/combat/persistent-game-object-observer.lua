@@ -7,11 +7,11 @@ local CNC = CNC_RENEGADE
 local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
 --- @type GameObjectObserverClass
-local gameObjectObserverclass = CNC.Import( "code/combat/game-object-observer.lua" )
+local gameObjectObserverClass = CNC.Import( "code/combat/game-object-observer.lua" )
 
 --- @class PersistentGameObjectObserverClass : PersistClass, GameObjectObserverClass
 --- @field Instance PersistentGameObjectObserverInstance The metatable used by PersistentGameObjectObserverInstance
-local STATIC = CNC.CreateExport( persistClass, gameObjectObserverclass )
+local STATIC = CNC.CreateExport( persistClass, gameObjectObserverClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "PersistentGameObjectObserverClass"
 --- @class PersistentGameObjectObserverInstance : PersistInstance, GameObjectObserverInstance
@@ -80,6 +80,9 @@ end
 
 --- Constructs a new PersistentGameObjectObserverInstance
 function INSTANCE:Renegade_PersistentGameObjectObserver()
+    persistClass.Instance.Renegade_Persist( self )
+    gameObjectObserverClass.Instance.Renegade_GameObjectObserver( self )
+
     self:SetId( gameObjectObserverManagerClass.GetNextObserverId() )
     persistentGameObjectObserverManagerClass.Add( self )
 end

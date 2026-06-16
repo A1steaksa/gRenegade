@@ -99,6 +99,8 @@ end
 --- @field CinematicCollisionMode CinematicCollisionMode
 
 function INSTANCE:Renegade_MoveablePhysicsDefinition()
+    dynamicPhysicsDefinitionClass.Instance.Renegade_DynamicPhysicsDefinition( self )
+
     self.Mass = 1.0
     self.GravityScale = 1.0
     self.Elasticity = 0.1

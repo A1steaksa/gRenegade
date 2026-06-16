@@ -68,6 +68,10 @@ end
 --- "Default Prototype Loaders for Meshes and HModels"
 --- @class MeshLoaderInstance
 
+function INSTANCE:Renegade_MeshLoader()
+    prototypeLoaderClass.Instance.Renegade_PrototypeLoader( self )
+end
+
 --- @return integer
 function INSTANCE:ChunkType()
 	return w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_MESH

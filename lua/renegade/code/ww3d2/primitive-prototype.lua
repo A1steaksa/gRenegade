@@ -58,6 +58,8 @@ end
 
 --- @param prototype RenderObjectInstance
 function INSTANCE:Renegade_PrimitivePrototype( prototype )
+    prototypeClass.Instance.Renegade_Prototype( self )
+
     self.Prototype = prototype
 end
 

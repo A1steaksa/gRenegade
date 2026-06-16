@@ -85,6 +85,8 @@ end
 --- @field Opacity any
 
 function INSTANCE:Renegade_BoxRenderObject()
+	renderObjectClass.Instance.Renegade_RenderObject( self )
+
 	typecheck.NotImplementedError()
 end
 

@@ -67,6 +67,8 @@ end
 
 --- @param file FileInstance
 function INSTANCE:Renegade_FileStraw( file )
+    strawClass.Instance.Renegade_Straw( self )
+
     self.File = file
     self.HasOpened = false
 end

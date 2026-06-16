@@ -64,6 +64,8 @@ end
 --- @field SearchStartIndex integer
 
 function INSTANCE:Renegade_FileFactoryList()
+    fileFactoryClass.Instance.Renegade_FileFactory( self )
+
     self.FactoryList = {}
     self.FactoryNameList = {}
 end

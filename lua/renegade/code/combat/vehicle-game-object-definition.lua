@@ -4,10 +4,10 @@
 local CNC = CNC_RENEGADE
 
 --- @type SmartGameObjectDefinitionClass
-local PARENT = CNC.Import( "code/combat/smart-game-object-definition.lua" )
+local smartGameObjectDefinitionClass = CNC.Import( "code/combat/smart-game-object-definition.lua" )
 
 --- @class VehicleGameObjectDefinitionClass : SmartGameObjectDefinitionClass
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( smartGameObjectDefinitionClass )
 STATIC.Class = "VehicleGameObjectDefinitionClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -148,6 +148,8 @@ end
 
 --- Constructs a new VehicleGameObjectDefinitionInstance
 function INSTANCE:Renegade_VehicleGameObjectDefinition()
+    smartGameObjectDefinitionClass.Instance.Renegade_SmartGameObjectDefinition( self )
+
     self.Type = vehicleTypeEnum.Car
     self.TurnRadius = 10.0
     self.OccupantsVisible = true
@@ -185,7 +187,7 @@ function INSTANCE:Load( cload )
         local id = cload:CurChunkId()
 
         if id == ids.CHUNKID_DEF_PARENT then
-            PARENT.Instance.Load( self, cload )
+            smartGameObjectDefinitionClass.Instance.Load( self, cload )
 
         elseif id == ids.CHUNKID_DEF_TRANSITION then
             section.Print( INSTANCE.Class .. " Transition Loading is not yet implemented" )

@@ -94,6 +94,8 @@ end
 
 --- Constructs a new DefinitionInstance
 function INSTANCE:Renegade_Definition()
+    persistClass.Instance.Renegade_Persist( self )
+
     self.Id = 0
     self.SaveEnabled = true
     self.DefinitionManagerLink = -1

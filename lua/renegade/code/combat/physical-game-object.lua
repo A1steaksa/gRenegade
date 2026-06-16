@@ -131,6 +131,9 @@ local HIBERNATION_DELAY = 30
 --[[ Constructor and Destructor ]] do
 
     function INSTANCE:Renegade_PhysicalGameObject()
+        damageableGameObjectClass.Instance.Renegade_DamageableGameObject( self )
+        combatPhysicsObserverClass.Instance.Renegade_CombatPhysicsObserver( self )
+
         self.PhysicsObject = nil
         self.AnimationControl = nil
         self.HibernationTimer = 0 -- "Start asleep"

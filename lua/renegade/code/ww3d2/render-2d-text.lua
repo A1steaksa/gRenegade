@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type Render2dClass
-local PARENT = CNC.Import( "code/ww3d2/render-2d.lua" )
+local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
 --- @class Render2dTextClass : Render2dClass
 --- @field Instance Render2dTextInstance The metatable used by Render2dTextInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( render2dClass )
 STATIC.Class = "Render2dTextClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -64,7 +64,7 @@ end
 --- Constructs a new Render2DTextInstance
 --- @param font Font3dInstance
 function INSTANCE:Renegade_Render2dText( font )
-    PARENT.Instance.Renegade_Render2d( self )
+    render2dClass.Instance.Renegade_Render2d( self )
 
     self.Location = Vector( 0, 0 )
     self.Cursor = Vector( 0, 0 )
@@ -82,7 +82,7 @@ function INSTANCE:Renegade_Render2dText( font )
 end
 
 function INSTANCE:Reset()
-    PARENT.Instance.Reset( self )
+    render2dClass.Instance.Reset( self )
 
     self.Cursor       = self.Location
     self.WrapWidth    = 0

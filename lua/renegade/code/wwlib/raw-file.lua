@@ -72,6 +72,8 @@ end
 function INSTANCE:Renegade_RawFile( fileName )
     -- ( fileName: string )
     if fileName ~= nil then
+        fileClass.Instance.Renegade_File( self )
+
         self.Rights = 0
         self.BiasStart = 0
         self.BiasLength = -1
@@ -82,6 +84,8 @@ function INSTANCE:Renegade_RawFile( fileName )
 
     -- (): string
     else
+        fileClass.Instance.Renegade_File( self )
+
         self.Rights = fileRightsEnum.READ
         self.BiasStart = 0
         self.BiasLength = -1

@@ -78,6 +78,7 @@ end
 
 --- Constructs a new ScriptableGameObjectDefinitionInstance
 function INSTANCE:Renegade_ScriptableGameObjectDefinition()
+    baseGameObjectDefinitionClass.Instance.Renegade_BaseGameObjectDefinition( self )
     self.ScriptNameList = {}
     self.ScriptParameterList = {}
 end

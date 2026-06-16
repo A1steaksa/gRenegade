@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameDataClass
-local PARENT = CNC.Import( "code/commando/game-data.lua" )
+local gameDataClass = CNC.Import( "code/commando/game-data.lua" )
 
 --- @class GameDataSinglePlayerClass : GameDataClass
 --- @field instance GameDataSinglePlayerInstance The metatable used by GameDataSinglePlayerInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( gameDataClass )
 STATIC.Class = "GameDataSinglePlayerClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -86,6 +86,8 @@ end
 
 --- Constructs a new GameDataSinglePlayerInstance
 function INSTANCE:Renegade_GameDataSinglePlayer()
+    gameDataClass.Instance.Renegade_GameData( self )
+
     self.IsFriendlyFirePermitted = true
     self.IsTeamChangingAllowed = false
     self.SpawnWeapons = true

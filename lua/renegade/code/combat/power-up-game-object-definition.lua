@@ -146,6 +146,8 @@ end
 --- @field IdleAnimationName string
 
 function INSTANCE:Renegade_PowerUpGameObjectDefinition()
+    simpleGameObjectDefinitionClass.Instance.Renegade_SimpleGameObjectDefinition( self )
+
     self.GrantShieldType        = 0
     self.GrantShieldStrength    = 0
     self.GrantShieldStrengthMax = 0

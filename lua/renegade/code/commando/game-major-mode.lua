@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameModeClass
-local PARENT = CNC.Import( "code/commando/game-mode.lua" )
+local gameModeClass = CNC.Import( "code/commando/game-mode.lua" )
 
 --- @class GameMajorModeClass : GameModeClass
 --- @field instance GameMajorModeInstance The metatable used by GameMajorModeInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( gameModeClass )
 STATIC.Class = "GameMajorModeClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -55,13 +55,17 @@ end
 
 --- @class GameMajorModeInstance
 
+function INSTANCE:Renegade_GameMajorMode()
+    gameModeClass.Instance.Renegade_GameMode( self )
+end
+
 -- "Make sure we only have 1 active majormode"
 function INSTANCE:Activate()
     if self.State == gameModeStateEnum.GAME_MODE_INACTIVE then
         STATIC.NumActiveMajorModes = STATIC.NumActiveMajorModes + 1
         assert( STATIC.NumActiveMajorModes == 1 )
     end
-    PARENT.Instance.Activate( self )
+    gameModeClass.Instance.Activate( self )
 end
 
 
@@ -70,5 +74,5 @@ function INSTANCE:Deactivate()
         STATIC.NumActiveMajorModes = STATIC.NumActiveMajorModes - 1
         assert( STATIC.NumActiveMajorModes == 0 )
     end
-    PARENT.Instance.Deactivate( self )
+    gameModeClass.Instance.Deactivate( self )
 end

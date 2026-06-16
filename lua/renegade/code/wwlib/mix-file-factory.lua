@@ -186,6 +186,8 @@ end
 --- @param mixFileName string
 --- @param factory FileFactoryInstance
 function INSTANCE:Renegade_MixFileFactory( mixFileName, factory )
+    fileFactoryClass.Instance.Renegade_FileFactory( self )
+
     self.FileCount = 0
     self.NamesOffset = 0
     self.IsValid = false

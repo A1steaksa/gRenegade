@@ -3,18 +3,15 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @type Render2dTextClass
-local PARENT = CNC.Import( "code/ww3d2/render-2d-text.lua" )
-
---- @class Render2dSentenceClass : Render2dTextClass
+--- @class Render2dSentenceClass
 --- @field Instance Render2dSentenceInstance The metatable used by Render2dSentenceInstance
 local STATIC = CNC.CreateExport()
-STATIC.Class = "Render2dSentenceClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "Render2dSentenceClass"
 
---- @class Render2dSentenceInstance : Render2dTextInstance
+--- @class Render2dSentenceInstance
 --- @field Static Render2dSentenceClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_Render2dSentence : Renegade_Render2dText" )
+local INSTANCE = robustclass.Register( "Renegade_Render2dSentence" )
 INSTANCE.Class = "Render2dSentenceInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -88,7 +85,7 @@ end
 --- Constructs a new Render2dSentenceInstance
 --- @vararg any
 function INSTANCE:Renegade_Render2dSentence()
-    
+
 end
 
 function INSTANCE:Render()

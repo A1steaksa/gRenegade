@@ -98,6 +98,7 @@ end
 
 --- Constructs a new DamageableGameObjectDefinitionInstance
 function INSTANCE:Renegade_DamageableGameObjectDefinition()
+    scriptableGameObjectDefinitionClass.Instance.Renegade_ScriptableGameObjectDefinition( self )
     self.TranslatedNameId = 0
     -- self.EncyclopediaType = encyclopediaTypeEnum.Unknown
     self.EncyclopediaId = 0

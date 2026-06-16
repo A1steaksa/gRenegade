@@ -70,7 +70,11 @@ end
 --- "a pure virtual class used to create FileClasses"
 --- @class FileFactoryInstance
 
-INSTANCE._Renegade_FileFactory = function()
+function INSTANCE:Renegade_FileFactory()
+    -- Intentionally empty. Exists so child classes have a parent constructor to call.
+end
+
+function INSTANCE:_Renegade_FileFactory()
     CNC.VirtualFunction()
 end
 

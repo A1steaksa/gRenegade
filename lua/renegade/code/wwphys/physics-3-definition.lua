@@ -99,6 +99,8 @@ end
 --- @field StepHeight number "Step [size] that this object will hop over"
 
 function INSTANCE:Renegade_Physics3Definition()
+    moveablePhysicsDefinitionClass.Instance.Renegade_MoveablePhysicsDefinition( self )
+
     self.NormalizedSpeed = physics3Class.DEFAULT_NORMALIZED_SPEED
     self.SlideAngle = physics3Class.DEFAULT_SLIDE_ANGLE
     self.StepHeight = physics3Class.DEFAULT_STEP_HEIGHT

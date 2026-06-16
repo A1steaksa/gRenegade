@@ -69,6 +69,8 @@ end
 --- @class SimpleGameObjectInstance
 
 function INSTANCE:Renegade_SimpleGameObject()
+    physicalGameObjectClass.Instance.Renegade_PhysicalGameObject( self )
+
     -- self:SetAppPacketType( appPacketTypeEnum.APPPACKETTYPE_SIMPLE )
 end
 

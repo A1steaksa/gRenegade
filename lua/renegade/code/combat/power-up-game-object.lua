@@ -116,6 +116,8 @@ end
 --- @field WeaponBag WeaponBagInstance "For backpacks, which can hold multiple weapons and ammo"
 
 function INSTANCE:Renegade_PowerUpGameObject()
+    simpleGameObjectClass.Instance.Renegade_SimpleGameObject( self )
+
     self.IdleSoundObject = nil
     self.State = powerUpStateEnum.STATE_BECOMING_IDLE
     self.WeaponBag = nil

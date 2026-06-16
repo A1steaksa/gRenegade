@@ -66,6 +66,8 @@ end
 
 --- @param box W3dBoxStruct
 function INSTANCE:Renegade_BoxPrototype( box )
+    prototypeClass.Instance.Renegade_Prototype( self )
+
     self.Definition = box
 end
 

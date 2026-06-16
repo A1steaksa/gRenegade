@@ -105,6 +105,8 @@ end
 --- @field PlayerTerminalType PlayerTerminalType
 
 function INSTANCE:Renegade_SimpleGameObjectDefinition()
+    physicalGameObjectDefinitionClass.Instance.Renegade_PhysicalGameObjectDefinition( self )
+
     self.IsEditorObject = false
     self.IsHiddenObject = false
     self.PlayerTerminalType = typeEnum.TYPE_NONE

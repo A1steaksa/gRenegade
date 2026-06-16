@@ -44,12 +44,10 @@ INSTANCE.IsNull3dObject = true
     --- @field NullLoader NullLoaderInstance
 
     --- Creates a new Null3dObjectInstance
-    --- @param connectedEntity Entity
-    --- @param name string
-    --- @return Null3dObjectInstance
-    --- @overload fun( connectedEntity: Entity, src: Null3dObjectInstance ): Null3dObjectInstance
-    function STATIC.New( connectedEntity, name )
-        return robustclass.New( "Renegade_Null3dObject" )
+    --- @overload fun( name: string ): Null3dObjectInstance
+    --- @overload fun( src: Null3dObjectInstance ): Null3dObjectInstance
+    function STATIC.New( ... )
+        return robustclass.New( "Renegade_Null3dObject", ... )
     end
 
     --- @param arg any
@@ -72,21 +70,21 @@ end
 --- @class Null3dObjectInstance
 --- @field Name string
 
---- @param connectedEntity Entity
 --- @param name string
---- @overload fun( self: Null3dObjectInstance, connectedEntity: Entity, src: Null3dObjectInstance )
-function INSTANCE:Renegade_Null3dObject( connectedEntity, name )
-	typecheck.AssertArgType( self.Class, 1, connectedEntity, "Entity" )
-    typecheck.AssertArgType( self.Class, 2, name, { "string", "Null3dObjectInstance" } )
-
-    self:SetConnectedEntity( connectedEntity )
+--- @overload fun( self: Null3dObjectInstance, src: Null3dObjectInstance )
+function INSTANCE:Renegade_Null3dObject( name )
+    typecheck.AssertArgType( self.Class, 1, name, { "string", "Null3dObjectInstance" } )
 
     -- ( connectedEntity: Entity, name: string )
     if typecheck.IsOfType( name, "string" ) then
+        renderObjectClass.Instance.Renegade_RenderObject( self )
+
         self.Name = name
 
     -- ( connectedEntity: Entity, src: Null3dObjectInstance )
     else
+        renderObjectClass.Instance.Renegade_RenderObject( self )
+
         local src = name --[[@as Null3dObjectInstance]]
         self.Name = src.Name
     end

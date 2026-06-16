@@ -87,6 +87,9 @@ end
 
     --- Constructs a new BaseGameObjectInstance
     function INSTANCE:Renegade_BaseGameObject()
+        persistClass.Instance.Renegade_Persist( self )
+        networkObjectClass.Instance.Renegade_NetworkObject( self )
+
         self.Definition = nil
         self._IsPostThinkAllowed = false
         self._EnableCinematicFreeze = true

@@ -95,6 +95,7 @@ end
 
     --- Constructs a new DamageableGameObjectInstance
     function INSTANCE:Renegade_DamageableGameObject()
+        scriptableGameObjectClass.Instance.Renegade_ScriptableGameObject( self )
         self._IsHealthBarDisplayed = true
         self:SetPlayerType( playerTypeEnum.Neutral )
     end

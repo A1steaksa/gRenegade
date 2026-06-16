@@ -400,75 +400,6 @@ end
 
 _ALIAS.Class = robustclass.Register
 
-
---[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	Purpose: (Internal) Constructs the given object
-
-	construct() fires all ancestor constructors for class_t in base-first,
-	declaration order, but never fires class_t's own constructor — that is
-	always the caller's responsibility (either the frame above or Create()).
-
-	For classes with multiple direct parents (__parents list), each parent
-	branch is walked fully and independently before moving to the next, so
-	that all of parent[1]'s ancestors are constructed before parent[2]'s
-	ancestors — matching declaration order throughout the hierarchy.
-
-	For classes with a single parent (only BaseClass, no __parents), the
-	original linear BaseClass chain walk is used unchanged.
-
-	Execution trace for D : B, C where B : A:
-	  Create calls construct(pObj, D, "D")
-	    D has __parents = {copyB, copyC}
-	    process copyB:
-	      construct(pObj, copyB, "B")     — copyB has BaseClass = copyA, no __parents
-	        construct(pObj, copyA, "A")   — no BaseClass, returns
-	        fires copyA["A"](pObj)        — A's constructor
-	      fires copyB["B"](pObj)          — B's constructor
-	    process copyC:
-	      construct(pObj, copyC, "C")     — copyC has no BaseClass, returns
-	      fires copyC["C"](pObj)          — C's constructor
-	  Create fires D["D"](pObj)           — D's constructor
-–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local function construct( pObj, class_t, classname, ... )
-
-	local parents = class_t.__parents
-
-	if ( parents ) then
-
-		-- Multiple direct parents: walk each branch fully in declaration order.
-		for i = 1, #parents do
-
-			local parent    = parents[ i ]
-			local parentname = parent.ClassName
-
-			construct( pObj, parent, parentname, ... )
-
-			local Constructor = parent[ parentname ]
-
-			if ( Constructor ) then
-				Constructor( pObj, ... )
-			end
-
-		end
-
-	elseif ( class_t.BaseClass ) then
-
-		-- Single ancestor chain: walk linearly as before.
-		local baseclass_t    = class_t.BaseClass
-		local baseclassname  = baseclass_t.ClassName
-
-		construct( pObj, baseclass_t, baseclassname, ... )
-
-		local Constructor = baseclass_t[ baseclassname ]
-
-		if ( Constructor ) then
-			Constructor( pObj, ... )
-		end
-
-	end
-
-end
-
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	Purpose: Creates a new specific object
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
@@ -547,19 +478,16 @@ function robustclass.Create( classname, ... )
 	end
 
 	--
-	-- Construct
+	-- Construct — only the derived class's own constructor is called here.
+	-- Parent constructors must be invoked explicitly from within the derived
+	-- constructor body.
 	--
 	if ( bConstruct == true ) then
 
-		-- construct() fires all ancestor constructors in base-first order but
-		-- deliberately does NOT call the derived class's own constructor — that
-		-- is our responsibility here, ensuring it runs exactly once and last.
-		construct( pObj, class_t, classname, ... )
+		local Constructor = class_t[ classname ]
 
-		local ConstructorDerived = class_t[ classname ]
-
-		if ( ConstructorDerived ) then
-			ConstructorDerived( pObj, ... )
+		if ( Constructor ) then
+			Constructor( pObj, ... )
 		end
 
 	end

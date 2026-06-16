@@ -115,16 +115,30 @@ end
 --- @field GapFiller GapFillerInstance
 --- @field HasBeenInUse boolean "For debugging purposes!"
 
-function INSTANCE:Renegade_MeshModel()
-	self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
-	self.AlternateMaterialDescription = meshMaterialDescriptionClass.New()
-	self.CurrentMaterialDescription = self.DefinitionMataterialDescription
-	self.MaterialInfo = materialInfoClass.New()
-	self.GapFiller = nil
+--- @param that MeshModelInstance?
+function INSTANCE:Renegade_MeshModel( that )
+	-- ( that: MeshModelInstance )
+	if that ~= nil then
 
-	self:SetFlag( meshGeometryFlagsTypeEnum.DIRTY_BOUNDS, true )
+		typecheck.NotImplementedError()
 
-	self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
+	-- ()
+	else
+		meshGeometryClass.Instance.Renegade_MeshGeometry( self )
+
+		self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
+		self.AlternateMaterialDescription = meshMaterialDescriptionClass.New()
+		self.CurrentMaterialDescription = self.DefinitionMataterialDescription
+		self.MaterialInfo = materialInfoClass.New()
+		self.GapFiller = nil
+
+		self:SetFlag( meshGeometryFlagsTypeEnum.DIRTY_BOUNDS, true )
+
+		self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
+		self.CurrentMaterialDescription = self.DefinitionMataterialDescription
+
+		self.MaterialInfo = materialInfoClass.New()
+	end
 end
 
 function INSTANCE:_Renegade_MeshModel()

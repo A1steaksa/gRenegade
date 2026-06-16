@@ -192,6 +192,8 @@ function INSTANCE:Renegade_RenderObject( src )
 
     -- ( src: RenderObjectInstance )
     if src then
+        persistClass.Instance.Renegade_Persist( self )
+
         self.Bits = src.Bits
         self.Transform = src.Transform
         self.NativeScreenSize = src.NativeScreenSize
@@ -210,6 +212,8 @@ function INSTANCE:Renegade_RenderObject( src )
 
     -- ()
     else
+        persistClass.Instance.Renegade_Persist( self )
+
         self.Bits = STATIC.DEFAULT_BITS
         self.Transform = matrix3dClass.New( true )
         self.NativeScreenSize = wW3dClass.GetDefaultNativeScreenSize()

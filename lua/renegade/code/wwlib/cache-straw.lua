@@ -62,13 +62,18 @@ end
 --- @param arg1 string | integer | nil
 function INSTANCE:Renegade_CacheStraw( arg1 )
     if arg1 == nil then arg1 = 4096 end
+
     typecheck.AssertArgType( STATIC.Class, 1, arg1, { "string", "number" }  )
 
-    if typecheck.IsOfType( arg1, "string" ) then
+    if isstring( arg1 ) then
+        strawClass.Instance.Renegade_Straw( self )
+
         self.Buffer = arg1 --[[@as string]]
         self.Index = 1
         self.Length = 0
-    elseif typecheck.IsOfType( arg1, "number" ) then
+    else
+        strawClass.Instance.Renegade_Straw( self )
+
         self.Buffer = ""
         self.Index = 1
         self.Length = 0

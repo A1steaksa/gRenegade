@@ -63,6 +63,8 @@ end
 --- @field ShadowManager any
 
 function INSTANCE:Renegade_MoveablePhysics()
+	dynamicPhysicsClass.Instance.Renegade_DynamicPhysics( self )
+
 	self.Mass = 1.0
 	self.MassInverted = 1.0
 	self.GravityScale = 1.0

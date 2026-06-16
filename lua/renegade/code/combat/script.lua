@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type GameObjectObserverClass
-local PARENT = CNC.Import( "code/combat/game-object-observer.lua" )
+local gameObjectObserverClass = CNC.Import( "code/combat/game-object-observer.lua" )
 
 --- @class ScriptClass : GameObjectObserverClass
 --- @field Instance ScriptInstance The metatable used by ScriptInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( gameObjectObserverClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "ScriptClass"
 --- @class ScriptInstance : GameObjectObserverInstance
@@ -44,6 +44,10 @@ end
 
 
 --- @class ScriptInstance
+
+function INSTANCE:Renegade_Script()
+    gameObjectObserverClass.Instance.Renegade_GameObjectObserver( self )
+end
 
 function INSTANCE:_Renegade_Script()
     typecheck.NotImplementedError()

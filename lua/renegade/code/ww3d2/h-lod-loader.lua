@@ -75,6 +75,10 @@ end
 
 --- @class HLodLoaderInstance
 
+function INSTANCE:Renegade_HLodLoader()
+    prototypeLoaderClass.Instance.Renegade_PrototypeLoader( self )
+end
+
 --- @return W3dChunkType
 function INSTANCE:ChunkType()
     return w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_HLOD

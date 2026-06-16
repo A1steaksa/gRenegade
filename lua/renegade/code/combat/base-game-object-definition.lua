@@ -63,6 +63,11 @@ end
 
 --- @class BaseGameObjectDefinitionInstance
 
+--- Constructs a new BaseGameObjectDefinitionInstance
+function INSTANCE:Renegade_BaseGameObjectDefinition()
+    definitionClass.Instance.Renegade_Definition( self )
+end
+
 --[[ Save / Load ]] do
 
     --- @param csave ChunkSaveInstance

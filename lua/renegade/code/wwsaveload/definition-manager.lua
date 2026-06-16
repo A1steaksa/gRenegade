@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type SaveLoadSubSystemClass
-local parentClass = CNC.Import( "code/wwsaveload/save-load-sub-system.lua" )
+local saveLoadSubSystemClass = CNC.Import( "code/wwsaveload/save-load-sub-system.lua" )
 
 --- @class DefinitionManagerClass : SaveLoadSubSystemClass
 --- @field instance DefinitionManagerInstance The metatable used by DefinitionManagerInstance
-local STATIC = CNC.CreateExport( parentClass )
+local STATIC = CNC.CreateExport( saveLoadSubSystemClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "DefinitionManagerClass"
 
@@ -200,6 +200,9 @@ end
 
 --- @class DefinitionManagerInstance
 
+function INSTANCE:Renegade_DefinitionManager()
+    saveLoadSubSystemClass.Instance.Renegade_SaveLoadSubSystem( self )
+end
 
 --[[ From SaveLoadSubSystemClass ]] do
 

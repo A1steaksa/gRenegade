@@ -67,6 +67,9 @@ end
 --- @field IsStripPath boolean
 
 function INSTANCE:Renegade_SimpleFileFactory()
+    fileFactoryClass.Instance.Renegade_FileFactory( self )
+    -- fileFactoryClass.Instance.Renegade_FileFactory( self )
+
     self.IsStripPath = false
 end
 

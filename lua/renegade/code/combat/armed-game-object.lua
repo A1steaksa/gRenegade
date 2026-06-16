@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type PhysicalGameObjectClass
-local PARENT = CNC.Import( "code/combat/physical-game-object.lua" )
+local physicalGameObjectClass = CNC.Import( "code/combat/physical-game-object.lua" )
 
 --- @class ArmedGameObjectClass : PhysicalGameObjectClass
 --- @field Instance ArmedGameObjectInstance The metatable used by ArmedGameObjectInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( physicalGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "ArmedGameObjectClass"
 --- @class ArmedGameObjectInstance : PhysicalGameObjectInstance
@@ -47,10 +47,9 @@ end
     --- @class ArmedGameObjectClass
 
     --- Creates a new ArmedGameObjectInstance
-    --- @vararg any
     --- @return ArmedGameObjectInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_ArmedGameObject", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_ArmedGameObject" )
     end
 
     --- @param arg any
@@ -69,11 +68,8 @@ end
 --- @class ArmedGameObjectInstance
 
 --- Constructs a new ArmedGameObjectInstance
---- @vararg any
-function INSTANCE:Renegade_ArmedGameObject( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
-
+function INSTANCE:Renegade_ArmedGameObject()
+    physicalGameObjectClass.Instance.Renegade_PhysicalGameObject( self )
 end
 
 

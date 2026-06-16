@@ -110,12 +110,13 @@ end
 
 
 --- Constructs a new CameraInstance
---- @param src CameraInstance
+--- @param src CameraInstance?
 function INSTANCE:Renegade_Camera( src )
 
     -- ( src: CameraInstance )
-    if src then
-        renderObjectClass.Instance.Renegade_RenderObject( self, nil, src )
+    if src ~= nil then
+        renderObjectClass.Instance.Renegade_RenderObject( self, src )
+
         self.Projection             = src.Projection
         self.Viewport               = src.Viewport
         self.ViewPlane              = src.ViewPlane
@@ -133,6 +134,7 @@ function INSTANCE:Renegade_Camera( src )
 
     -- ()
     else
+        renderObjectClass.Instance.Renegade_RenderObject( self )
 
         self.Projection = projectionType.PERSPECTIVE
         self.Viewport = viewportClass.New( Vector( 0, 0 ), Vector( 1, 1 ) ) -- "Pixel viewport to render into"

@@ -83,6 +83,8 @@ end
 function INSTANCE:Renegade_Mesh( src )
     --- ()
     if src == nil then
+        renderObjectClass.Instance.Renegade_RenderObject( self )
+
         self.Model = nil
         self.DecalMesh = nil
         self.LightEnvironment = nil
@@ -96,6 +98,7 @@ function INSTANCE:Renegade_Mesh( src )
         typecheck.AssertArgType( self.Class, 2, src, "MeshInstance" )
 
         renderObjectClass.Instance.Renegade_RenderObject( self, src )
+
         self.Model = nil
         self.DecalMesh = nil
         self.LightEnvironment = nil

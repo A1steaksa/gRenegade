@@ -74,6 +74,10 @@ end
 
 local PRINTF_BUFFER_SIZE = 1024
 
+function INSTANCE:Renegade_File()
+    -- Intentionally empty.  Exists for child classes to have a parent constructor to call
+end
+
 function INSTANCE:_Renegade_File()
     typecheck.NotImplementedError()
 end

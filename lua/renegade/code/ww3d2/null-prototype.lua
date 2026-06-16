@@ -66,6 +66,8 @@ end
 function INSTANCE:Renegade_NullPrototype( null )
     -- ()
     if null == nil then
+        prototypeClass.Instance.Renegade_Prototype( self )
+
         -- "  
         -- Note that the other members of the definition are uninitialized..  
         -- So don't rely on them if the name is "NULL".  
@@ -75,6 +77,8 @@ function INSTANCE:Renegade_NullPrototype( null )
 
     -- ( null: W3dNullObjectStruct )
     else
+        prototypeClass.Instance.Renegade_Prototype( self )
+
         self.Definition = null
     end
 end

@@ -131,6 +131,8 @@ end
 --- @field UseCreationEffect boolean
 
 function INSTANCE:Renegade_PhysicalGameObjectDefinition()
+    damageableGameObjectDefinitionClass.Instance.Renegade_DamageableGameObjectDefinition( self )
+
     self.Type = 0
     self.BullseyeOffsetZ = 0
     self.RadarBlipType = 0

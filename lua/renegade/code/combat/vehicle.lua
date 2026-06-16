@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type SmartGameObjectClass
-local PARENT = CNC.Import( "code/combat/smart-game-object.lua" )
+local smartGameObjectClass = CNC.Import( "code/combat/smart-game-object.lua" )
 
 --- @class VehicleGameObjectClass : SmartGameObjectClass
 --- @field Instance VehicleGameObjectInstance The metatable used by VehicleGameObjectInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( smartGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "VehicleGameObjectClass"
 --- @class VehicleGameObjectInstance : SmartGameObjectInstance
@@ -60,10 +60,9 @@ end
     --- @class VehicleGameObjectClass
 
     --- Creates a new VehicleGameObjectInstance
-    --- @vararg any
     --- @return VehicleGameObjectInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_VehicleGameObject", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_VehicleGameObject" )
     end
 
     --- @param arg any
@@ -82,11 +81,10 @@ end
 --- @class VehicleGameObjectInstance
 
 --- Constructs a new VehicleGameObjectInstance
---- @vararg any
-function INSTANCE:Renegade_VehicleGameObject( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
+function INSTANCE:Renegade_VehicleGameObject()
+    smartGameObjectClass.Instance.Renegade_SmartGameObject( self )
 
+    typecheck.NotImplementedError()
 end
 
 

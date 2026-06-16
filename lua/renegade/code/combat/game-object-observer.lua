@@ -46,10 +46,9 @@ INSTANCE.IsGameObjectObserver = true
     --- @class GameObjectObserverClass
 
     --- Creates a new GameObjectObserverInstance
-    --- @vararg any
     --- @return GameObjectObserverInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_GameObjectObserver", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_GameObjectObserver" )
     end
 
     --- @param arg any
@@ -71,10 +70,8 @@ end
 
 --- Constructs a new GameObjectObserverInstance
 --- @vararg any
-function INSTANCE:Renegade_GameObjectObserver( ... )
-    local args = { ... }
-    local argCount = select( "#", ... )
-
+function INSTANCE:Renegade_GameObjectObserver()
+    self.Id = 0
 end
 
 --- @return string

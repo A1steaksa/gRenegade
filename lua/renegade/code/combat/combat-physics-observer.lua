@@ -56,6 +56,10 @@ end
 
 --- @class CombatPhysicsObserverInstance
 
+function INSTANCE:Renegade_CombatPhysicsObserver()
+    -- Intentionally empty.  Exists for child classes to call a constructor
+end
+
 --- @return DamageableGameObjectInstance?
 function INSTANCE:AsDamageableGameObject()
     return nil

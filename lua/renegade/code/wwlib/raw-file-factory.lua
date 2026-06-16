@@ -54,6 +54,10 @@ end
 
 --- @class RawFileFactoryInstance
 
+function INSTANCE:Renegade_RawFileFactory()
+    fileFactoryClass.Instance.Renegade_FileFactory( self )
+end
+
 function INSTANCE:GetFile()
     typecheck.NotImplementedError()
 end

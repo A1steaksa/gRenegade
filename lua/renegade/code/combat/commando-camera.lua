@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type CameraClass
-local PARENT = CNC.Import( "code/ww3d2/camera.lua" )
+local cameraClass = CNC.Import( "code/ww3d2/camera.lua" )
 
 --- @class CommandoCameraClass : CameraClass
 --- @field instance CommandoCameraInstance The metatable used by CommandoCameraInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( cameraClass )
 STATIC.Class = "CommandoCameraClass"
 local isHotload = not table.IsEmpty( STATIC )
 
@@ -101,6 +101,7 @@ local CAMERA_UNWIND_SPEED = 1
 
 --- Constructs a new CommandoCameraInstance
 function INSTANCE:Renegade_CommandoCamera()
+    cameraClass.Instance.Renegade_Camera( self )
     self.HostModel = NULL
     self.AnchorPosition = Vector( 0,0,0 )
     self._IsValid = false

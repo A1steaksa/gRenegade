@@ -232,6 +232,8 @@ end
 --- @class TranslateDBInstance
 
 function INSTANCE:Renegade_TranslateDB()
+	saveLoadSubSystemClass.Instance.Renegade_SaveLoadSubSystem( self )
+
 	typecheck.NotImplementedError()
 end
 

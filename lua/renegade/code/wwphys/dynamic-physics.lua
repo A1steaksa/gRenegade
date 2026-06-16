@@ -76,6 +76,8 @@ end
 --- @field VisStatusLastUpdated any
 
 function INSTANCE:Renegade_DynamicPhysics()
+	physicsClass.Instance.Renegade_Physics( self )
+
 	self.DirtyVisObjectId = true
 	self.VisNodeId = 0
 	self.VisStatusLastUpdated = 0

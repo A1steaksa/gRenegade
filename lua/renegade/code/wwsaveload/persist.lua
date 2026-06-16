@@ -4,11 +4,11 @@
 local CNC = CNC_RENEGADE
 
 --- @type PostLoadableClass
-local PARENT = CNC.Import( "code/wwsaveload/post-loadable.lua" )
+local postLoadableClass = CNC.Import( "code/wwsaveload/post-loadable.lua" )
 
 --- @class PersistClass : PostLoadableClass
 --- @field Instance PersistInstance The metatable used by PersistInstance
-local STATIC = CNC.CreateExport( PARENT )
+local STATIC = CNC.CreateExport( postLoadableClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "PersistClass"
 
@@ -59,6 +59,11 @@ end
 
 
 --- @class PersistInstance
+
+--- Constructs a new PersistInstance
+function INSTANCE:Renegade_Persist()
+    postLoadableClass.Instance.Renegade_PostLoadable( self )
+end
 
 --- @return PersistFactoryInstance?
 function INSTANCE:GetFactory()
