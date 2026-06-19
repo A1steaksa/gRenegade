@@ -1,0 +1,20 @@
+{
+  "Name": "ModelNode",
+  "ParentNames": [
+  ],
+  "FileName": "model-node",
+  "CppName": "ModelNodeClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Model",
+      "BoneIndex"
+    ],
+    "Functions": [
+    ]
+  }
+}

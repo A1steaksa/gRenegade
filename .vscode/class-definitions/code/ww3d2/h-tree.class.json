@@ -1,0 +1,49 @@
+{
+  "Name": "HTree",
+  "ParentNames": [],
+  "FileName": "h-tree",
+  "CppName": "HTreeClass",
+  "CppPath": "Code/ww3d2/htree.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "CreateMorphed",
+      "CreateInterpolated"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "Name",
+      "NumPivots",
+      "Pivot",
+      "ScaleFactor"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "InitDefault",
+      "GetName",
+      "NumPivots",
+      "GetBoneIndex",
+      "GetBoneName",
+      "GetParentIndex",
+      "BaseUpdate",
+      "AnimationUpdate",
+      "BlendUpdate",
+      "ComboUpdate",
+      "GetTransform",
+      "GetVisibility",
+      "GetRootTransform",
+      "CaptureBone",
+      "ReleaseBone",
+      "IsBoneCaptured",
+      "ControlBone",
+      "GetBoneControl",
+      "SimpleEvaluatePivot",
+      "Scale",
+      "Free",
+      "ReadPivots"
+    ]
+  }
+}
