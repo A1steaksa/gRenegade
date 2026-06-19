@@ -499,6 +499,12 @@ end
 
 function STATIC.StaticConstructor()
 
+    --- @class W3dQuaternionStruct
+    --- @field Q integer[]
+    deserializeLib.RegisterComplexDataType( "W3dQuaternionStruct", {
+        { Name = "Q", Type = fundamentalDataTypeEnum.Float32, ArrayLength = 4 },
+    } )
+
     --- @class W3dTextureInfoStruct
     --- @field Attributes integer "Flags for this texture"
     --- @field AnimType integer "Animation logic"
@@ -711,4 +717,29 @@ function STATIC.StaticConstructor()
         { Name = "Name",      Type = fundamentalDataTypeEnum.String, Size = 2 * STATIC.W3D_NAME_LEN },
     } )
 
+    --- @class W3dHierarchyStruct
+    --- @field Version integer
+    --- @field Name string "Name of the hierarchy"
+    --- @field NumPivots integer
+    --- @field Center W3dVectorStruct
+    deserializeLib.RegisterComplexDataType( "W3dHierarchyStruct", {
+        { Name = "Version", Type = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Name", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
+        { Name = "NumPivots", Type = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Center", Type = "W3dVectorStruct" },
+    } )
+
+    --- @class W3dPivotStruct
+    --- @field Name string "Name of the node (UR_ARM, LR_LEG, TORSO, etc)"
+    --- @field ParentIdx integer "0xffffffff = root pivot; no parent"
+    --- @field Translation W3dVectorStruct "Translation to pivot point"
+    --- @field EulerAngles W3dVectorStruct "Orientation of the pivot point"
+    --- @field Rotation W3dQuaternionStruct "Orientation of the pivot point"
+    deserializeLib.RegisterComplexDataType( "W3dPivotStruct", {
+        { Name = "Name", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
+        { Name = "ParentIdx", Type = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Translation", Type = "W3dVectorStruct" },
+        { Name = "EulerAngles", Type = "W3dVectorStruct" },
+        { Name = "Rotation", Type = "W3dQuaternionStruct" },
+    } )
 end
