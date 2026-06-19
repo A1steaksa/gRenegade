@@ -81,7 +81,7 @@ INSTANCE.Static = STATIC
 
         --- @param a Matrix3dInstance
         --- @param b Matrix3dInstance
-        --- @return Vector
+        --- @return Matrix3dInstance
         function STATIC.Multiply( a, b )
             typecheck.NotImplementedError( "Multiply" )
         end
