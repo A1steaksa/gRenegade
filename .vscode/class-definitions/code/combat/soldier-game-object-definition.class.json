@@ -1,0 +1,39 @@
+{
+  "Name": "SoldierGameObjectDefinition",
+  "ParentNames": [
+    "SmartGameObjectDefinition"
+  ],
+  "FileName": "soldier-game-object-definition",
+  "CppName": "SoldierGameObjDef",
+  "CppPath": "Code/Combat/soldier.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "TurnRate",
+      "JumpVelocity",
+      "SkeletonHeight",
+      "SkeletonWidth",
+      "UseInnateBehavior",
+      "InnateAggressiveness",
+      "InnateTakeCoverProbability",
+      "InnateIsStationary",
+      "DialogList",
+      "FirstPersonHands",
+      "HumanAnimationOverrideDefinitionID",
+      "HumanLoiterCollectionDefinitionID",
+      "DeathSoundPresetID"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "Save",
+      "Load",
+      "GetFactory",
+      "GetDialogList"
+    ]
+  }
+}
