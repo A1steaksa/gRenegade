@@ -63,6 +63,9 @@ local CNC = CNC_RENEGADE
     include( "renegade/sh_binary-conversion.lua" )
     include( "renegade/sh_convars.lua" )
     include( "renegade/sh_class-utils.lua" )
+
+    -- Manually run some files that add to existing metatables
+    include( "renegade/code/wwmath/vector3.lua" )
 end
 
 -- Server-Side Garry's Mod Init
