@@ -1,0 +1,33 @@
+{
+  "Name": "SimpleAnimationControl",
+  "ParentNames": [
+    "AnimationControl"
+  ],
+  "FileName": "simple-animation-control",
+  "CppName": "SimpleAnimControlClass",
+  "CppPath": "Code/Combat/animcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Channel"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "SetAnimation",
+      "SetMode",
+      "GetMode",
+      "IsComplete",
+      "GetAnimationName",
+      "SetTargetFrame",
+      "GetTargetFrame",
+      "GetCurrentFrame",
+      "Update"
+    ]
+  }
+}
