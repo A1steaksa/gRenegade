@@ -11,6 +11,11 @@ LIB.Class = "ImportsLib"
 --- @private
 LIB.ExportedTables = {}
 
+--- For keeping track of which static constructors have already been run to avoid running them twice
+--- @type table<string, boolean>
+--- @private
+LIB.RunStaticConstructors = {}
+
 --- A prefix that will be added to the front of all paths passed to the Import function  
 --- For example: Setting this to `"my-addon"` would turn an Import path from `"some-dir/cool-script.lua"` to `"my-addon/some-dir/cool-script.lua"`
 LIB.ImportPathPrefix = "renegade"
@@ -103,7 +108,7 @@ function LIB.Import( path )
 
     -- Execute the script if it hasn't already been imported elsewhere
     local tbl = LIB.ExportedTables[path]
-    if not tbl then
+    if tbl == nil then
         if not file.Exists( path, "LUA" ) then
             error( "Cannot import missing file: " .. path )
         end
@@ -112,12 +117,14 @@ function LIB.Import( path )
 
         -- Confirm that the script exported something for us to import
         tbl = LIB.ExportedTables[path]
-        if not tbl then
+        if tbl == nil then
             typecheck.Error( LIB.Class, "Import", "No table was exported by script: " .. path )
+            error()
         end
 
         -- Call the post-load static constructor
-        if isfunction( tbl.StaticConstructor ) then
+        if LIB.RunStaticConstructors[path] == nil and isfunction( tbl.StaticConstructor ) then
+            LIB.RunStaticConstructors[path] = true
             tbl.StaticConstructor()
         end
     end
