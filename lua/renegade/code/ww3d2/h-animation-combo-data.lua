@@ -62,8 +62,8 @@ end
 --- @field Frame number
 --- @field PreviousFrame number
 --- @field Weight number
---- @field PivotMap PivotMapInstance
---- @field Shared boolean
+--- @field PivotMap table
+--- @field Shared boolean "This is set to false when the HAnimCombo allocates it"
 
 --- @param shared boolean? [Default: `false`]
 --- @overload fun( src: HAnimationComboDataInstance )
@@ -75,7 +75,7 @@ function INSTANCE:Renegade_HAnimationComboData( shared )
 
 		self.Shared = shared
 		self.HAnimation = hAnimationClass.New()
-		self.PivotMap = pivotMapClass.New( 0 )
+		self.PivotMap = {}
 		self.Frame = 0
 		self.PreviousFrame = 0
 		self.Weight = 1
@@ -84,11 +84,21 @@ function INSTANCE:Renegade_HAnimationComboData( shared )
 	end
 
 	-- ( src: HAnimationComboDataInstance )
-	typecheck.NotImplementedError()
+	typecheck.AssertArgType( INSTANCE.Class, 1, shared, "HAnimationComboDataInstance" )
+	local src = shared --[[@as HAnimationComboDataInstance]]
+
+	self.PivotMap = src:GetPivotMap()
+	self.HAnimation = src:GetHAnimation()
+
+	self.Shared = src:IsShared()
+	self.Frame = src:GetFrame()
+	self.PreviousFrame = src:GetPreviousFrame()
+	self.Weight = src:GetWeight()
 end
 
 function INSTANCE:_Renegade_HAnimationComboData()
-	typecheck.NotImplementedError()
+	self.HAnimation = nil
+	self.PivotMap = nil
 end
 
 function INSTANCE:Copy()
@@ -96,63 +106,88 @@ function INSTANCE:Copy()
 end
 
 function INSTANCE:Clear()
-	typecheck.NotImplementedError()
+	self.HAnimation = nil
+
+	-- "Not sure if the pivot map should be deleted or just have everything set to one."
+	-- "Removing it effectively sets it to one, so that's what I'm doing for now."
+	if self.PivotMap then
+		self.PivotMap = nil
+	end
+
+	self.Frame = 0.0
+	self.PreviousFrame = 0.0
+	self.Weight = 1.0
+	self.PivotMap = nil
 end
 
-function INSTANCE:SetHAnimation()
-	typecheck.NotImplementedError()
+--- @param motion HAnimationInstance
+function INSTANCE:SetHAnimation( motion )
+	self.HAnimation = motion
 end
 
 function INSTANCE:GiveHAnimation()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetFrame()
-	typecheck.NotImplementedError()
+--- @param frame number
+function INSTANCE:SetFrame( frame )
+	self.PreviousFrame = frame
+	self.Frame = frame
 end
 
-function INSTANCE:SetPrevFrame()
-	typecheck.NotImplementedError()
+--- @param frame number
+function INSTANCE:SetPrevFrame( frame )
+	self.PreviousFrame = frame
 end
 
-function INSTANCE:SetWeight()
-	typecheck.NotImplementedError()
+--- @param weight number
+function INSTANCE:SetWeight( weight )
+	self.Weight = weight
 end
 
-function INSTANCE:SetPivotMap()
-	typecheck.NotImplementedError()
+--- @param map table
+function INSTANCE:SetPivotMap( map )
+	self.PivotMap = map
 end
 
+--- @return HAnimationInstance
 function INSTANCE:PeekHAnimation()
-	typecheck.NotImplementedError()
+	return self.HAnimation
 end
 
+--- @return HAnimationInstance
 function INSTANCE:GetHAnimation()
-	typecheck.NotImplementedError()
+	return self.HAnimation
 end
 
+--- @return number
 function INSTANCE:GetFrame()
-	typecheck.NotImplementedError()
+	return self.Frame
 end
 
-function INSTANCE:GetPrevFrame()
-	typecheck.NotImplementedError()
+--- @return number
+function INSTANCE:GetPreviousFrame()
+	return self.PreviousFrame
 end
 
+--- @return number
 function INSTANCE:GetWeight()
-	typecheck.NotImplementedError()
+	return self.Weight
 end
 
+--- @return table
 function INSTANCE:PeekPivotMap()
-	typecheck.NotImplementedError()
+	return self.PivotMap
 end
 
+--- @return table
 function INSTANCE:GetPivotMap()
-	typecheck.NotImplementedError()
+	return self.PivotMap
 end
 
+--- @return boolean
 function INSTANCE:IsShared()
-	typecheck.NotImplementedError()
+	return self.Shared
 end
 
 function INSTANCE:BuildActivePivotMap()
