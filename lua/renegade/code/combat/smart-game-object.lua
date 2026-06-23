@@ -1,4 +1,4 @@
--- Based on SmartGameObj within Code/Combat/smartgameobj.cpp
+-- Based on SmartGameObj within Code/Combat/smartgameobj.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -11,6 +11,7 @@ local armedGameObjectClass = CNC.Import( "code/combat/armed-game-object.lua" )
 local STATIC = CNC.CreateExport( armedGameObjectClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "SmartGameObjectClass"
+
 --- @class SmartGameObjectInstance : ArmedGameObjectInstance
 --- @field Static SmartGameObjectClass The static table for this instance's class
 local INSTANCE = robustclass.Register( "Renegade_SmartGameObject : Renegade_ArmedGameObject" )
@@ -20,19 +21,16 @@ INSTANCE.Static = STATIC
 INSTANCE.IsSmartGameObject = true
 
 --#region Exported Enums
-
 --#endregion
-
 
 --#region Imports
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
---#endregion
 
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+--#endregion
 
 --#region Imported Enums
 --#endregion
-
 
 --[[ Chunk IDs ]] do
 
@@ -74,12 +72,12 @@ end
 --[[ Static Functions and Variables ]] do
 
     --- @class SmartGameObjectClass
+		--- @field GlobalSightRangeScale any
 
     --- Creates a new SmartGameObjectInstance
-    --- @vararg any
     --- @return SmartGameObjectInstance
-    function STATIC.New( ... )
-        return robustclass.New( "Renegade_SmartGameObject", ... )
+    function STATIC.New()
+        return robustclass.New( "Renegade_SmartGameObject" )
     end
 
     --- @param arg any
@@ -92,31 +90,284 @@ end
     end
 
     typecheck.RegisterType( "SmartGameObjectInstance", STATIC.IsSmartGameObject )
+
+	function STATIC.GetGlobalSightRangeScale()
+		typecheck.NotImplementedError()
+	end
+
+	function STATIC.SetGlobalSightRangeScale()
+		typecheck.NotImplementedError()
+	end
 end
 
 
 --- @class SmartGameObjectInstance
+--- @field Control any
+--- @field Controller any
+--- @field ControlEnabled any
+--- @field StealthEnabled any
+--- @field StealthPowerupTimer any
+--- @field StealthFiringTimer any
+--- @field StealthEffect any
+--- @field Action any
+--- @field ControlOwner any
+--- @field PlayerData any
+--- @field IsEnemySeenEnabled any
+--- @field MovingSoundTimer any
+--- @field Listener any
 
---- Constructs a new SmartGameObjectInstance
---- @vararg any
-function INSTANCE:Renegade_SmartGameObject( ... )
-    armedGameObjectClass.Instance.Renegade_ArmedGameObject( self )
-
-    typecheck.NotImplementedError()
+function INSTANCE:Renegade_SmartGameObject()
+	typecheck.NotImplementedError()
 end
 
+function INSTANCE:_Renegade_SmartGameObject()
+	typecheck.NotImplementedError()
+end
 
---[[ Save / Load ]] do
+function INSTANCE:Init()
+	typecheck.NotImplementedError()
+end
 
-    --- @param csave ChunkSaveInstance
-    --- @return boolean
-    function INSTANCE:Save( csave )
-        typecheck.NotImplementedError()
-    end
+function INSTANCE:CopySettings()
+	typecheck.NotImplementedError()
+end
 
-    --- @param cload ChunkLoadInstance
-    --- @return boolean
-    function INSTANCE:Load( cload )
-        typecheck.NotImplementedError()
-    end
+function INSTANCE:ReInit()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetDefinition()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:Save()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:Load()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnPostLoad()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ClearControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetBooleanControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetAnalogControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ImportControlCs()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ExportControlCs()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ImportControlSc()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ExportControlSc()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ControlEnable()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsControlEnabled()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ResetController()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GenerateControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetControlOwner()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetWeaponControlOwner()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetControlOwner()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetPlayerData()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetPlayerData()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:HasPlayer()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsHumanControlled()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsControlledByMe()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ApplyControl()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:Think()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:PostThink()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ApplyDamage()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetMaxSpeed()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetTurnRate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetAction()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:AsSmartGameObject()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ImportFrequent()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ExportFrequent()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ImportStateCs()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ExportStateCs()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ExportCreation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ImportCreation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsControlDataDirty()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsObjectVisible()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetEnemySeenEnabled()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsEnemySeenEnabled()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetLookTransform()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetVelocity()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsVisible()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnLogicalHeard()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:BeginHibernation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:EndHibernation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetInformation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:EnableStealth()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ToggleStealth()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsStealthEnabled()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsStealthed()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetStealthFadeDistance()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GrantStealthPowerup()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:RemainingStealthPowerupTime()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:PeekStealthEffect()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:AllocStealthEffect()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:RegisterListener()
+	typecheck.NotImplementedError()
 end
