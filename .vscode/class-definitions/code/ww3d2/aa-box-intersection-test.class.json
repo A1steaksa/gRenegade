@@ -1,0 +1,23 @@
+{
+  "Name": "AABoxIntersectionTest",
+  "ParentNames": [
+    "IntersectionTest"
+  ],
+  "FileName": "aa-box-intersection-test",
+  "CppName": "AABoxIntersectionTestClass",
+  "CppPath": "Code/ww3d2/inttest.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Box"
+    ],
+    "Functions": [
+      "Constructor",
+      "Cull",
+      "IntersectTriangle"
+    ]
+  }
+}
