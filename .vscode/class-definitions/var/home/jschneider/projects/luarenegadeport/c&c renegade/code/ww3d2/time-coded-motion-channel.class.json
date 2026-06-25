@@ -1,0 +1,36 @@
+{
+  "Name": "TimeCodedMotionChannel",
+  "ParentNames": [],
+  "FileName": "time-coded-motion-channel",
+  "CppName": "TimeCodedMotionChannelClass",
+  "CppPath": "var/home/JSchneider/Projects/LuaRenegadePort/C&C Renegade/Code/ww3d2/motchan.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "PivotIdx",
+      "Type",
+      "VectorLen",
+      "PacketSize",
+      "NumTimeCodes",
+      "LastTimeCodeIdx",
+      "CachedIdx",
+      "Data"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "GetType",
+      "GetPivot",
+      "GetVector",
+      "GetQuatVector",
+      "Free",
+      "SetIdentity",
+      "GetIndex",
+      "BinarySearchIndex"
+    ]
+  }
+}

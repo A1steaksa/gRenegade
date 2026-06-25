@@ -1,0 +1,30 @@
+{
+  "Name": "BitChannel",
+  "ParentNames": [],
+  "FileName": "bit-channel",
+  "CppName": "BitChannelClass",
+  "CppPath": "var/home/JSchneider/Projects/LuaRenegadePort/C&C Renegade/Code/ww3d2/motchan.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "PivotIdx",
+      "Type",
+      "DefaultVal",
+      "FirstFrame",
+      "LastFrame",
+      "Bits"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "GetType",
+      "GetPivot",
+      "GetBit",
+      "Free"
+    ]
+  }
+}

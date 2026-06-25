@@ -1,0 +1,36 @@
+{
+  "Name": "MotionChannel",
+  "ParentNames": [],
+  "FileName": "motion-channel",
+  "CppName": "MotionChannelClass",
+  "CppPath": "var/home/JSchneider/Projects/LuaRenegadePort/C&C Renegade/Code/ww3d2/motchan.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "PivotIdx",
+      "Type",
+      "VectorLen",
+      "ValueOffset",
+      "ValueScale",
+      "CompressedData",
+      "Data",
+      "FirstFrame",
+      "LastFrame"
+    ],
+    "Functions": [
+      "DoDataCompression",
+      "GetVector",
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "GetType",
+      "GetPivot",
+      "SetPivot",
+      "Free",
+      "SetIdentity"
+    ]
+  }
+}
