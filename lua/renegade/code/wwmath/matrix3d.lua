@@ -90,7 +90,12 @@ INSTANCE.Static = STATIC
         --- @param input Vector
         --- @return Vector
         function STATIC.TransformVector( transformationMatrix, input )
-            typecheck.NotImplementedError( "TransformVector" )
+            local row = transformationMatrix.Row
+            return Vector(
+                row[1][1] * input.x + row[1][2] * input.y + row[1][3] * input.z + row[1][4],
+                row[2][1] * input.x + row[2][2] * input.y + row[2][3] * input.z + row[2][4],
+                row[3][1] * input.x + row[3][2] * input.y + row[3][3] * input.z + row[3][4]
+            )
         end
 
         --- @param transformationMatrix Matrix3dInstance
