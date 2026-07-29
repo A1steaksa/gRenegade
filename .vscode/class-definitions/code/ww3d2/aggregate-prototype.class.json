@@ -1,0 +1,30 @@
+{
+  "Name": "AggregatePrototype",
+  "ParentNames": [
+    "Prototype"
+  ],
+  "FileName": "aggregate-prototype",
+  "CppName": "AggregatePrototypeClass",
+  "CppPath": "Code/ww3d2/agg_def.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "MPDefinition",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetName",
+      "GetClassId",
+      "Create",
+      "GetDefinition",
+      "SetDefinition"
+    ]
+  }
+}
