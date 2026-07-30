@@ -15,11 +15,11 @@ ENT.AutomaticFrameAdvance = true
 
 --#region Imports
 
-    --- @type PowerUpGameObjectClass
-    local powerUpGameObjectClass = CNC.Import( "code/combat/power-up-game-object.lua" )
+	--- @type PowerUpGameObjectClass
+	local powerUpGameObjectClass = CNC.Import( "code/combat/power-up-game-object.lua" )
 
-    --- @type PowerUpGameObjectDefinitionClass
-    local powerUpGameObjectDefinitionClass = CNC.Import( "code/combat/power-up-game-object-definition.lua" )
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -27,17 +27,8 @@ ENT.AutomaticFrameAdvance = true
 
 
 function ENT:Initialize()
-
-    local definition = powerUpGameObjectDefinitionClass.New()
-    definition.GrantHealth = 25
-    definition.IdleAnimationName = "idle"
-    definition.Name = "Box of bandages"
-
-    self.PowerUpGameObjectInstance = powerUpGameObjectClass.New()
-    self.PowerUpGameObjectInstance:Init( definition, self )
-
     if SERVER then
-        self:SetModel( "models/cnc_renegade/powerups/p_health1.mdl" )
+        self:SetModel( "models/props_junk/PopCan01a.mdl" )
         self:PhysicsInit( SOLID_VPHYSICS )
         self:SetMoveType( MOVETYPE_VPHYSICS )
         self:SetSolid( SOLID_NONE )
@@ -45,11 +36,23 @@ function ENT:Initialize()
         if phys:IsValid() then
             phys:EnableGravity( false )
             phys:EnableMotion( false )
-            phys:Wake()
         end
     end
 
     self:ResetSequence( "idle" )
+
+    if self.PowerUpGameObjectInstance == nil then
+        local definitionId = 1665
+
+        local definition = definitionManagerClass.FindDefinition( definitionId ) --[[@as PowerUpGameObjectDefinitionInstance]]
+        if definition == nil then
+            section.Error( "Unable to find definition ID ", definitionId, " for ", self )
+            return
+        end
+
+        self.PowerUpGameObjectInstance = powerUpGameObjectClass.New()
+        self.PowerUpGameObjectInstance:Init( definition, self )
+    end
 end
 
 --- @param isFullUpdate boolean
@@ -60,6 +63,11 @@ function ENT:OnRemove( isFullUpdate )
 end
 
 function ENT:Think()
+
+    -- This is hacky and bad and should be replaced with a proper looping animation solution ASAP
+    if self:IsSequenceFinished() then
+        self:ResetSequence( "idle" )
+    end
 
     if SERVER then
         self:NextThink( CurTime() )
