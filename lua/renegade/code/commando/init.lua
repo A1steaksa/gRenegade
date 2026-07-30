@@ -28,6 +28,12 @@ STATIC.Class = "InitClass"
 
     --- @type CommandoSaveLoadClass
     CNC.Import( "code/commando/commando-save-load.lua" )
+
+    --- @type SoldierGameObjectClass
+    CNC.Import( "code/combat/soldier-game-object-definition.lua" )
+
+    --- @type HumanPhysicsDefinitionClass
+    CNC.Import( "code/wwphys/human-physics-definition.lua" )
 end
 
 --#region Imports
