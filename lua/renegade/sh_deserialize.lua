@@ -24,7 +24,8 @@ STATIC.Class = "DeserializeLib"
         Float   = enumBuilder:Next(),
         Float32 = enumBuilder:Next(),
         Boolean = enumBuilder:Next(),
-        String  = enumBuilder:Next()
+        String  = enumBuilder:Next(),
+        Pointer = enumBuilder:Next(),
     }
     local fundamentalDataTypeEnum = STATIC.FUNDAMENTAL_DATA_TYPE
 --#endregion
@@ -44,6 +45,7 @@ STATIC.Class = "DeserializeLib"
 --- @class FundamentalDataTypeInfo
 --- @field Name string The pretty, print-able name of this data type
 --- @field DataType FundamentalDataType 
+--- @field DefaultValue any What the default state of this data type is when initialized without a specific value
 --- @field Size integer The number of bytes this data type takes up
 --- @field ConversionFunction fun( bytes: string ): any
 
@@ -71,13 +73,14 @@ STATIC.ComplexDataTypeRegistry = {}
 
 
 function STATIC.StaticConstructor()
-    STATIC.RegisterFundamentalDataType( "UInt32",  fundamentalDataTypeEnum.UInt32,  4,  STATIC.DeserializeUInt32  )
-    STATIC.RegisterFundamentalDataType( "UInt16",  fundamentalDataTypeEnum.UInt16,  1,  STATIC.DeserializeUInt16  )
-    STATIC.RegisterFundamentalDataType( "UInt8",   fundamentalDataTypeEnum.UInt8,   1,  STATIC.DeserializeUInt8   )
-    STATIC.RegisterFundamentalDataType( "Int",     fundamentalDataTypeEnum.Int,     4,  STATIC.DeserializeUInt32  )
-    STATIC.RegisterFundamentalDataType( "Float",   fundamentalDataTypeEnum.Float,   4,  STATIC.DeserializeFloat   )
-    STATIC.RegisterFundamentalDataType( "Float32", fundamentalDataTypeEnum.Float32, 4,  STATIC.DeserializeFloat   )
-    STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, 1,  STATIC.DeserializeBoolean )
+    STATIC.RegisterFundamentalDataType( "UInt32",  fundamentalDataTypeEnum.UInt32,      0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "UInt16",  fundamentalDataTypeEnum.UInt16,      0, 2,  STATIC.DeserializeUInt16  )
+    STATIC.RegisterFundamentalDataType( "UInt8",   fundamentalDataTypeEnum.UInt8,       0, 1,  STATIC.DeserializeUInt8   )
+    STATIC.RegisterFundamentalDataType( "Int",     fundamentalDataTypeEnum.Int,         0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "Float",   fundamentalDataTypeEnum.Float,     0.0, 4,  STATIC.DeserializeFloat   )
+    STATIC.RegisterFundamentalDataType( "Float32", fundamentalDataTypeEnum.Float32,   0.0, 4,  STATIC.DeserializeFloat   )
+    STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
+    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,   nil, 8,  STATIC.DeserializePointer )
 
     STATIC.RegisterComplexDataType( "Vector", {
         { Name = "X", Type = fundamentalDataTypeEnum.Float },
@@ -91,13 +94,15 @@ end
 
     --- @param name string
     --- @param dataType FundamentalDataType
+    --- @param defaultValue any
     --- @param size integer
     --- @param conversionFunction fun( bytes: string ): any
-    function STATIC.RegisterFundamentalDataType( name, dataType, size, conversionFunction )
+    function STATIC.RegisterFundamentalDataType( name, dataType, defaultValue, size, conversionFunction )
         STATIC.FundamentalDataTypeRegistry[dataType] = {
-            Name     = name,
-            DataType = dataType,
-            Size     = size,
+            Name               = name,
+            DataType           = dataType,
+            Size               = size,
+            DefaultValue       = defaultValue,
             ConversionFunction = conversionFunction
         }
     end
@@ -105,8 +110,6 @@ end
     --- @param name string
     --- @param schema ComplexDataTypeSchema
     function STATIC.RegisterComplexDataType( name, schema )
-        section.Start( "Registering Complex Data Type '", name, "'" )
-
         -- Calculate the size of this complex data type
         local size = 0
         for _, schemaEntry in ipairs( schema ) do
@@ -128,8 +131,6 @@ end
             Schema   = schema,
             Size     = size
         }
-
-        section.End()
     end
 end
 
@@ -173,6 +174,12 @@ end
         return registerEntry.Size
     end
 
+    --- @param dataType FundamentalDataType
+    --- @return any
+    function STATIC.GetFundamentalDataTypeDefault( dataType )
+        return STATIC.FundamentalDataTypeRegistry[dataType].DefaultValue
+    end
+
     --- @param dataType string
     --- @return integer
     function STATIC.GetComplexDataTypeSize( dataType )
@@ -201,6 +208,17 @@ end
     --- @param bytes string
     --- @return any
     function STATIC.Deserialize( dataType, bytes )
+        -- Strings get special handling
+        if dataType == fundamentalDataTypeEnum.String then
+            -- If there's a null byte in the string, treat that as the end of the string
+            local nullIndex = textUtils.IndexOf( bytes, "\0" )
+            if nullIndex ~= nil then
+                return bytes:sub( 0, nullIndex )
+            end
+
+            return bytes
+        end
+
         if STATIC.IsFundamentalDataType( dataType ) then
             return STATIC.DeserializeFundamentalDataType( dataType --[[@as FundamentalDataType]], bytes )
         elseif STATIC.IsComplexDataType( dataType ) then
@@ -224,14 +242,13 @@ end
 
         local schema = registeryEntry.Schema
         for _, field in ipairs( schema ) do
-            local isFundamentalDataType = isnumber( field.Type )
             local isArray = ( field.ArrayLength ~= nil )
-
+            local isfundamentalDataType = isnumber( field.Type )
             -- Figure out how many bytes each of this data type takes up
             local bytesToRead
             if field.Type == fundamentalDataTypeEnum.String then
                 bytesToRead = field.Size
-            elseif isFundamentalDataType then
+            elseif isfundamentalDataType then
                 bytesToRead = STATIC.GetFundamentalDataTypeSize( field.Type --[[@as FundamentalDataType]] )
             else
                 bytesToRead = STATIC.GetComplexDataTypeSize( field.Type --[[@as string]] )
@@ -247,12 +264,6 @@ end
                     local extractedBytes = bytes:sub( 1, bytesToRead )
                     bytes = bytes:sub( bytesToRead + 1)
 
-                    -- Strings don't need any decoding
-                    if field.Type == fundamentalDataTypeEnum.String then
-                        fieldArray[i] = bytes
-                        continue
-                    end
-
                     fieldArray[i] = STATIC.Deserialize( field.Type, extractedBytes )
                 end
             else
@@ -261,12 +272,6 @@ end
                 bytes = bytes:sub( bytesToRead + 1 )
                 if extractedBytes:len() ~= bytesToRead then
                     section.Error( "Tried to extract ", bytesToRead, " bytes but got ", extractedBytes:len(), " bytes instead" )
-                end
-
-                -- Strings don't need any decoding
-                if field.Type == fundamentalDataTypeEnum.String then
-                    result[field.Name] = bytes
-                    continue
                 end
 
                 result[field.Name] = STATIC.Deserialize( field.Type, extractedBytes )
@@ -306,6 +311,22 @@ end
     function STATIC.DeserializeUInt16( bytes )
         local b1, b2 = bytes:byte( 1, 2 )
         return (
+			b2 * 0x100 +
+			b1
+        )
+    end
+
+    --- @param bytes string
+    --- @return integer
+    function STATIC.DeserializePointer( bytes )
+        local b1, b2, b3, b4, b5, b6, b7, b8 = bytes:byte( 1, 8 )
+        return (
+            b8 * 0x100000000000000 +
+            b7 * 0x1000000000000 +
+            b6 * 0x10000000000 +
+            b5 * 0x100000000 +
+            b4 * 0x1000000 +
+			b3 * 0x10000 +
 			b2 * 0x100 +
 			b1
         )
