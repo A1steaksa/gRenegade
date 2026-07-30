@@ -1,4 +1,4 @@
--- Based on the enums within Code/wwsaveload/saveloadids.h
+-- Based on the enums within Code/wwsaveload/definitionclassids.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE

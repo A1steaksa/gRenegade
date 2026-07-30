@@ -69,13 +69,16 @@ INSTANCE.IsPhysics = true
         sourceModelPath = sourceModelPath:Replace( "\\", "/" )
         sourceModelPath = sourceModelPath:Replace( ".w3d", ".mdl" )
 
-        local model = wW3DAssetManagerClass.GetInstance():CreateRenderObject( connectedEntity, renderObjectName, sourceModelPath )
-        if model == nil then
-            section.Error( "Failed to create ", renderObjectName, " from ", filePath )
+        local renderObject = wW3DAssetManagerClass.GetInstance():CreateRenderObject( renderObjectName )
+        if renderObject == nil then
+            section.Error( "Failed to create '", renderObjectName, "' from '", filePath, "'" )
             error() -- To make LuaLS happy
         end
 
-        return model
+        renderObject:SetConnectedEntity( connectedEntity )
+        renderObject:SetSourceModelPath( sourceModelPath )
+
+        return renderObject
     end
 
 end
@@ -294,7 +297,7 @@ end
         return false
     end
 
-    --- @param test PhysicAaBoxIntersectionTestInstance|PhysicObBoxIntersectionTestInstance|PhysicMeshIntersectionTestInstance
+    --- @param test PhysicsAABoxIntersectionTestInstance|PhysicsOBBoxIntersectionTestInstance|PhysicMeshIntersectionTestInstance
     --- @return boolean
     function INSTANCE:IntersectionTest( test )
         return false

@@ -47,8 +47,8 @@ INSTANCE.IsPhysics3Def = true
 --#region Imported Enums
 
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
-	local wWPhysicsFactoryIds = wWPhysicsIds.WWPhysicsFactoryIds
-    local wWPhysicsDefinitionIds = wWPhysicsIds.WWPhysicsDefinitionIds
+	local wWPhysicsFactoryIdEnum = wWPhysicsIds.WW_PHYSICS_FACTORY_ID
+    local wWPhysicsDefinitionIdEnum = wWPhysicsIds.WW_PHYSICS_DEFINITION_ID
 --#endregion
 
 
@@ -89,7 +89,7 @@ end
     typecheck.RegisterType( "Physics3DefinitionInstance", STATIC.IsPhysics3Definition )
 
     function STATIC.StaticConstructor()
-        STATIC.Physics3DefinitionFactory = simplePersistFactoryClass.New( STATIC, wWPhysicsFactoryIds.PHYSICS_CHUNKID_PHYS3DEF )
+        STATIC.Physics3DefinitionFactory = simplePersistFactoryClass.New( STATIC, wWPhysicsFactoryIdEnum.PHYSICS_CHUNKID_PHYS3DEF )
     end
 end
 
@@ -108,7 +108,7 @@ end
 
 --- @return WWPhysicsDefinitionId
 function INSTANCE:GetClassId()
-    return wWPhysicsDefinitionIds.CLASSID_PHYS3DEF
+    return wWPhysicsDefinitionIdEnum.CLASSID_PHYS3DEF
 end
 
 --- @param connectedEntity Entity

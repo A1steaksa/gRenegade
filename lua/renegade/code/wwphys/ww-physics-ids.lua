@@ -34,7 +34,7 @@ local STATIC = CNC.CreateExport()
     --- NOTE: It is important that *NONE* of these ID's are ever changed!
     --- "  
     --- @enum WWPhysicsFactoryId
-    STATIC.WWPhysicsFactoryIds = {
+    STATIC.WW_PHYSICS_FACTORY_ID = {
         -- "Sub-System chunk id's"
         PHYSICS_CHUNKID_STATIC_DATA_SUBSYSTEM    = enumBuilder:Set( saveLoadIds.CHUNKID_WWPHYS_BEGIN ),
         PHYSICS_CHUNKID_STATIC_OBJECTS_SUBSYSTEM = enumBuilder:Next(),
@@ -98,7 +98,7 @@ local STATIC = CNC.CreateExport()
 
     --- "DefinitionClass ClassID's for WWPHYS"
     --- @enum WWPhysicsDefinitionId
-    STATIC.WWPhysicsDefinitionIds = {
+    STATIC.WW_PHYSICS_DEFINITION_ID = {
         CLASSID_DECOPHYSDEF            = enumBuilder:Set( classIds.PHYSICS ),
         CLASSID_HUMANPHYSDEF           = enumBuilder:Next(),
         CLASSID_MOTORCYCLEDEF          = enumBuilder:Next(),

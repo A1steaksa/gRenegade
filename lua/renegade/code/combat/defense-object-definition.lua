@@ -71,7 +71,7 @@ end
     --- Creates a new DefenseObjectDefinitionInstance
     --- @return DefenseObjectDefinitionInstance
     function STATIC.New()
-        return robustclass.New( "Renegade_DefenseDefinition")
+        return robustclass.New( "Renegade_DefenseObjectDefinition")
     end
 
     ---@param arg any

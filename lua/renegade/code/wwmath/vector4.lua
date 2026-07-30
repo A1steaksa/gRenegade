@@ -20,7 +20,7 @@ INSTANCE.IsVector4 = true
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class Vector4
+    --- @class Vector4Class
 
     --- Creates a new Vector4Instance
     --- @overload fun(): Vector4Instance

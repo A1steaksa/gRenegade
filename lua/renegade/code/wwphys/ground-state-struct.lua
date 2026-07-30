@@ -3,19 +3,19 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class GroundStateClass
---- @field Instance GroundStateInstance The metatable used by GroundStateInstance
+--- @class GroundStateStructClass
+--- @field Instance GroundStateStructInstance The metatable used by GroundStateStructInstance
 local STATIC = CNC.CreateExport()
 local isHotload = not table.IsEmpty( STATIC )
-STATIC.Class = "GroundStateClass"
+STATIC.Class = "GroundStateStructClass"
 
---- @class GroundStateInstance
---- @field Static GroundStateClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_GroundState" )
-INSTANCE.Class = "GroundStateInstance"
+--- @class GroundStateStructInstance
+--- @field Static GroundStateStructClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_GroundStateStruct" )
+INSTANCE.Class = "GroundStateStructInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
-INSTANCE.IsGroundState = true
+INSTANCE.IsGroundStateStruct = true
 
 
 --#region Exported Enums
@@ -37,16 +37,16 @@ INSTANCE.IsGroundState = true
 
 --[[ Static Functions and Variables ]] do
 
-    --- @class GroundStateClass
+    --- @class GroundStateStructClass
 
-    --- Creates a new GroundStateInstance
-    --- @return GroundStateInstance
+    --- Creates a new GroundStateStructInstance
+    --- @return GroundStateStructInstance
     function STATIC.New()
-        return robustclass.New( "Renegade_GroundState" )
+        return robustclass.New( "Renegade_GroundStateStruct" )
     end
 
     --- @param arg any
-    --- @return boolean `true` if the passed argument is a(n) GroundStateInstance, `false` otherwise
+    --- @return boolean `true` if the passed argument is a(n) GroundStateStructInstance, `false` otherwise
     function STATIC.IsGroundState( arg )
         if not istable( arg ) then return false end
         if getmetatable( arg ) ~= INSTANCE then return false end
@@ -54,11 +54,11 @@ INSTANCE.IsGroundState = true
         return arg.IsGroundState and true or false
     end
 
-    typecheck.RegisterType( "GroundStateInstance", STATIC.IsGroundState )
+    typecheck.RegisterType( "GroundStateStructInstance", STATIC.IsGroundState )
 end
 
 
---- @class GroundStateInstance
+--- @class GroundStateStructInstance
 --- @field IsDirty boolean "Data contained within is invalid"
 --- @field OnGround boolean "Indicates whether the object is "on the ground"
 --- @field OnDynamicObject boolean "Must 'dirty' the groundstate at end of frame if we're on a [dynamic object]"
@@ -69,8 +69,8 @@ end
 --- @field GroundObject PhysicsInstance "...the object we are on"
 --- @field GroundRenderObject RenderObjectInstance
 
---- Constructs a new GroundStateInstance
-function INSTANCE:Renegade_GroundState()
+--- Constructs a new GroundStateStructInstance
+function INSTANCE:Renegade_GroundStateStruct()
     self.IsDirty = true
     self.OnGround = false
     self.OnDynamicObject = false

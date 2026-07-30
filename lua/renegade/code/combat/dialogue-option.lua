@@ -82,12 +82,12 @@ end
 --- @param src DialogueOptionInstance?
 function INSTANCE:Renegade_DialogueOption( src )
     self.Weight = 1
-    self.ConversationID = 0
+    self.ConversationId = 0
 
     -- ( src: DialogueOptionInstance )
     if src ~= nil then
         self.Weight = src.Weight
-        self.ConversationID = src.ConversationID
+        self.ConversationId = src.ConversationId
     end
 end
 

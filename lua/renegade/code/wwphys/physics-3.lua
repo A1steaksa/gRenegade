@@ -44,8 +44,8 @@ INSTANCE.IsPhysics3 = true
 	--- @type AABoxClass
 	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
-	--- @type GroundStateClass
-	local groundStateClass = CNC.Import( "code/wwphys/ground-state-struct.lua" )
+	--- @type GroundStateStructClass
+	local groundStateStructClass = CNC.Import( "code/wwphys/ground-state-struct.lua" )
 
 	--- @type RenderObjectClass
 	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
@@ -164,7 +164,7 @@ end
 --- @field StepHeight number Step [size] that this object will hop over
 --- @field MoveMode MoveModeType "Current movement mode"
 --- @field GroundObject PhysicsInstance "Object that we are standing on"
---- @field GroundState GroundStateInstance? "Info on the surface we're standing on (if any)"
+--- @field GroundState GroundStateStructInstance? "Info on the surface we're standing on (if any)"
 --- @field AnimationMove Vector "How far this object moved for animation purposes"
 --- @field History Physics3HistoryInstance "History of our state for smarter network updating"
 --- @field LatencyError Vector "Remaining latency error"
@@ -174,7 +174,7 @@ end
 function INSTANCE:Renegade_Physics3()
 	moveablePhysicsClass.Instance.Renegade_MoveablePhysics( self )
 
-	self.GroundState = groundStateClass.New()
+	self.GroundState = groundStateStructClass.New()
 
 	self.CollisionBox = aABoxClass.New()
 	self.CollisionBox.Center:SetUnpacked( 0, 0, 1 )

@@ -26,14 +26,14 @@ INSTANCE.IsActionParamsStruct = true
     local enumBuilder = enumBuilderClass.New()
 
     --- @enum SoldierAiState
-    STATIC.SoldierAiState = {
+    STATIC.SOLDIER_AI_STATE = {
         NO_AI_STATE_CHANGE      = enumBuilder:Set( -1 ),
         AI_STATE_IDLE           = enumBuilder:Set( 0 ),
         AI_STATE_SECONDARY_IDLE = enumBuilder:Next(),
         AI_STATE_SEARCH         = enumBuilder:Next(),
         AI_STATE_COMBAT         = enumBuilder:Next()
     }
-    local soldierAiStateEnum = STATIC.SoldierAiState
+    local soldierAiStateEnum = STATIC.SOLDIER_AI_STATE
 --#endregion
 
 --#region Imports
