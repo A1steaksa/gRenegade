@@ -10,12 +10,30 @@
   },
   "Instance": {
     "Fields": [
-      "Name",
-      "HierarchyTreeName",
-      "LodCount",
-      "Lod",
-      "Aggregates",
-      "ProxyArray"
+      {
+        "Name": "Name",
+        "DataType": "any"
+      },
+      {
+        "Name": "HierarchyTreeName",
+        "DataType": "any"
+      },
+      {
+        "Name": "LodCount",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Lod",
+        "DataType": "any"
+      },
+      {
+        "Name": "Aggregates",
+        "DataType": "any"
+      },
+      {
+        "Name": "ProxyArray",
+        "DataType": "any"
+      }
     ],
     "Functions": [
       "Constructor",

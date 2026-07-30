@@ -69,12 +69,20 @@ end
 --- @field Aggregates SubObjectArrayInstance
 --- @field ProxyArray any
 
-function INSTANCE:Renegade_HLodDefinition()
+--- @param srcLod HLodInstance?
+function INSTANCE:Renegade_HLodDefinition( srcLod )
     self.Name = nil
     self.HierarchyTreeName = nil
     self.LodCount = 0
     self.Lod = nil
     self.ProxyArray = nil
+
+    self.Aggregates = subObjectArrayClass.New()
+
+    -- ( srcLod: HLodInstance )
+    if srcLod ~= nil then
+        INSTANCE.Initialize( self, srcLod )
+    end
 end
 
 function INSTANCE:_Renegade_HLodDefinition()
