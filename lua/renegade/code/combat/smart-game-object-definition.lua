@@ -21,8 +21,19 @@ INSTANCE.Static = STATIC
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Chunk IDs ]] do
@@ -74,6 +85,8 @@ end
 
 --- Constructs a new SmartGameObjectDefinitionInstance
 function INSTANCE:Renegade_SmartGameObjectDefinition()
+    armedGameObjectDefinitionClass.Instance.Renegade_ArmedGameObjectDefinition( self )
+
     self.SightRange = 0
     self.SightArc = math.rad( 0 )
     self.ListenerScale = 1
@@ -82,11 +95,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean true
 function INSTANCE:Load( cload )
-
-    section.Start( "Loading " .. INSTANCE.Class )
-
     local ids = STATIC.ChunkIds
-    local fundamentalDataTypeEnum = STATIC.DATA_TYPE
 
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
@@ -96,11 +105,11 @@ function INSTANCE:Load( cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
             while cload:OpenMicroChunk() do
                 local didRead =
-                    self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_RANGE, fundamentalDataTypeEnum.Float, "SightRange" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_ARC, fundamentalDataTypeEnum.Float, "SightArc" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_LISTENER_SCALE, fundamentalDataTypeEnum.Float, "ListenerScale" )
-                    or self:ReadMicroChunkWWString( cload, ids.LEGACY_MICROCHUNKID_DEF_INFO_ICON_TEXTURE_FILENAME, "InfoIconTextureFilename" )
-                    or self:ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_STEALTH_UNIT, fundamentalDataTypeEnum.Boolean, "IsStealthUnit" )
+                    chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_RANGE, fundamentalDataTypeEnum.Float, self, "SightRange" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_SIGHT_ARC, fundamentalDataTypeEnum.Float, self, "SightArc" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_LISTENER_SCALE, fundamentalDataTypeEnum.Float, self, "ListenerScale" )
+                    or chunkIOClass.ReadMicroChunkWWString( cload, ids.LEGACY_MICROCHUNKID_DEF_INFO_ICON_TEXTURE_FILENAME, self, "InfoIconTextureFilename" )
+                    or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_IS_STEALTH_UNIT, fundamentalDataTypeEnum.Boolean, self, "IsStealthUnit" )
 
                 if not didRead then
                     section.Print( "Unrecognized " .. INSTANCE.Class .. " Variable Chunk ID", cload:CurMicroChunkId() )
@@ -114,8 +123,6 @@ function INSTANCE:Load( cload )
 
         cload:CloseChunk()
     end
-
-    section.End()
 
     return true
 end
