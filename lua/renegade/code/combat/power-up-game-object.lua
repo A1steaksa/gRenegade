@@ -38,26 +38,35 @@ INSTANCE.IsPowerUpGameObject = true
 
 --#region Imports
 
-    --- @type SimplePersistFactoryClass
-    local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
+	--- @type SimplePersistFactoryClass
+	local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
 
-    --- @type CombatChunkIdClass
-    local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
+	--- @type CombatChunkIdClass
+	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
-    --- @type PhysicalGameObjectClass
-    local physicalGameObjectClass = CNC.Import( "code/combat/physical-game-object.lua" )
+	--- @type PhysicalGameObjectClass
+	local physicalGameObjectClass = CNC.Import( "code/combat/physical-game-object.lua" )
 
-    --- @type BaseGameObjectClass
-    local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
+	--- @type BaseGameObjectClass
+	local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+
+	--- @type GameObjectManagerClass
+	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+
+	--- @type CollisionTypeClass
+	local collisionTypeClass = CNC.Import( "code/ww3d2/collision-types.lua" )
+
+	--- @type PhysicsAABoxIntersectionTestClass
+	local physicsAABoxIntersectionTestClass = CNC.Import( "code/wwphys/physics-aa-box-intersection-test.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
+	local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
 --#endregion
 
 
@@ -87,7 +96,7 @@ end
     end
 
     function STATIC.StaticConstructor()
-        STATIC.PowerUpGameObjectPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkId.CHUNKID_GAME_OBJECT_POWERUP )
+        STATIC.PowerUpGameObjectPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkIdClass.CHUNKID_GAME_OBJECT_POWERUP )
     end
 
     --- @param arg any
@@ -205,19 +214,38 @@ end
         -- the powerup before being instructed to do so, 
         -- so that this doesn't lag
         -- "
-
         if combatManagerClass.IAmServer() and self.State ~= powerUpStateEnum.STATE_GRANTING then
 
+            -- "Check my bounding box for collisions with Soldiers"
             local model = self:PeekModel()
             if not model then
                 section.Error( self, ": ", self.Class, ": Think: No model was found" )
                 return
             end
-
-            -- "Check my bounding box for collisions with Soldiers"
             local box = model:GetBoundingBox()
 
-            section.Print( model, " | ", box.Center, " | ", box.Extent )
+            for _, object in ipairs( gameObjectManagerClass.GetSmartGameObjectList() ) do
+                local soldier = object:AsSoldierGameObject()
+
+                if object:AsVehicleGameObject() then
+                    typecheck.NotImplementedError()
+                end
+
+                if soldier ~= nil and soldier:WantsPowerups() then
+
+                    local test = physicsAABoxIntersectionTestClass.New( box, collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP, collisionTypeClass.COLLISION_TYPE_PHYSICAL )
+
+                    local soldierPhysicalObject = object:PeekPhysicalObject()
+
+                    section.Print( "Soldier Physical Object: ", soldierPhysicalObject )
+
+                    local result = soldierPhysicalObject:IntersectionTest( test )
+                    if result then
+                        self:Grant( soldier ) -- "Don't grant any more"
+                        break
+                    end
+                end
+            end
         end
     end
 
