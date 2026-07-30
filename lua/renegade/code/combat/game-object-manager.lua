@@ -11,20 +11,20 @@ STATIC.Class = "GameObjectManagerClass"
 
 --#region Imports
 
-    --- @type PersistentGameObjectObserverManagerClass
-    local persistentGameObjectObserverManagerClass = CNC.Import( "code/combat/persistent-game-object-observer-manager.lua" )
+	--- @type PersistentGameObjectObserverManagerClass
+	local persistentGameObjectObserverManagerClass = CNC.Import( "code/combat/persistent-game-object-observer-manager.lua" )
 
-    --- @type NetworkObjectManagerClass
-    local networkObjectManagerClass = CNC.Import( "code/wwnet/network-object-manager.lua" )
+	--- @type NetworkObjectManagerClass
+	local networkObjectManagerClass = CNC.Import( "code/wwnet/network-object-manager.lua" )
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type ScriptManagerClass
-    local scriptManagerClass = CNC.Import( "code/combat/script-manager.lua" )
+	--- @type ScriptManagerClass
+	local scriptManagerClass = CNC.Import( "code/combat/script-manager.lua" )
 
-    --- @type GameObjectObserverManagerClass
-    local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
+	--- @type GameObjectObserverManagerClass
+	local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
 --#endregion
 
 
@@ -78,6 +78,12 @@ STATIC.NETID_SERVER_FPS          = enumBuilder:Next()
 STATIC.NETID_SERVER_WEATHER      = enumBuilder:Next()
 STATIC.NETID_SERVER_BACKGROUND   = enumBuilder:Next()
 
+function STATIC.StaticConstructor()
+    STATIC.GameObjectList         = {}
+    STATIC.SmartGameObjectList    = {}
+    STATIC.StarGameObjectList     = {}
+    STATIC.BuildingGameObjectList = {}
+end
 
 function STATIC.Init()
     STATIC.DestroyAll()
@@ -239,7 +245,7 @@ end
     end
 
     --- @return SmartGameObjectInstance[]
-    function STATIC.GetSmaryGameObjectList()
+    function STATIC.GetSmartGameObjectList()
         return STATIC.SmartGameObjectList
     end
 end

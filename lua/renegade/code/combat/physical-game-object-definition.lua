@@ -47,7 +47,6 @@ INSTANCE.IsPhysicalGameObjectDefinition = true
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
-
 --#region Imported Enums
 
 	local oratorTypeEnum = oratorTypeClass.ORATOR_TYPE

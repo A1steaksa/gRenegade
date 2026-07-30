@@ -35,9 +35,10 @@ INSTANCE.IsHAnimationCombo = true
     --- @class HAnimationComboClass
 
     --- Creates a new HAnimationComboInstance
+	--- @param animationCount integer?
     --- @return HAnimationComboInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_HAnimationCombo" )
+    function STATIC.New( animationCount )
+        return robustclass.New( "Renegade_HAnimationCombo", animationCount )
     end
 
     --- @param arg any
@@ -70,7 +71,6 @@ function INSTANCE:Renegade_HAnimationCombo( animationCount )
 	for i = 1, animationCount do
 		self.HAnimationComboData[i] = hAnimationComboDataClass.New()
 	end
-	
 end
 
 function INSTANCE:_Renegade_HAnimationCombo()

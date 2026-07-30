@@ -134,6 +134,8 @@ end
 function INSTANCE:Renegade_SoldierGameObjectDefinition()
     smartGameObjectDefinitionClass.Instance.Renegade_SmartGameObjectDefinition( self )
 
+    self.DialogList = {}
+
     self.TurnRate = math.rad( 360.0 )
     self.JumpVelocity = 2
     self.SkeletonHeight = 0
@@ -148,8 +150,6 @@ function INSTANCE:Renegade_SoldierGameObjectDefinition()
 
     -- "We want soldiers to use innate conversations by default"
     self.AllowInnateConversations = true
-
-	typecheck.NotImplementedError()
 end
 
 --- @return integer
@@ -184,6 +184,7 @@ function INSTANCE:Load( cload )
         elseif chunkId == ids.CHUNKID_DEF_DIALOG_ENTRY then
             if dialogIndex <= dialogEventsEnum.DIALOG_MAX then
                 dialogIndex = dialogIndex + 1
+                self.DialogList[dialogIndex] = dialogueClass.New()
                 self.DialogList[dialogIndex]:Load( cload )
             end
 

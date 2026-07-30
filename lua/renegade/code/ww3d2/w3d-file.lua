@@ -179,7 +179,7 @@ local STATIC = CNC.CreateExport()
             W3D_CHUNK_SOUNDROBJ_HEADER                      = enumBuilder:Next(),                   --- general information such as name and version
             W3D_CHUNK_SOUNDROBJ_DEFINITION                  = enumBuilder:Next(),                   --- chunk containing the definition of the sound that is to play    
     }
-    local w3dChunkTypesEnum = STATIC.W3D_CHUNK_TYPE
+    local w3dChunkTypeEnum = STATIC.W3D_CHUNK_TYPE
 
     --- @enum W3dShaderBits
     STATIC.W3D_SHADER_BITS = {

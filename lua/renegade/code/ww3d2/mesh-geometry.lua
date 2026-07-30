@@ -64,11 +64,14 @@ INSTANCE.IsMeshGeometry = true
 
 	--- @type Vector4Class
 	local vector4Class = CNC.Import( "code/wwmath/vector4.lua" )
+
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 --#endregion
 
 --#region Imported Enums
 
-	local w3dChunkTypesEnum = w3dFileIds.W3D_CHUNK_TYPE
+	local w3dChunkTypeEnum = w3dFileIds.W3D_CHUNK_TYPE
 	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion

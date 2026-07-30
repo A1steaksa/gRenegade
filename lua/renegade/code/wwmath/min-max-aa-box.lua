@@ -62,6 +62,9 @@ function INSTANCE:Renegade_MinMaxAABox( ... )
     local argCount = #args
     typecheck.AssertArgCount( self.Class, argCount, { 0, 1, 2 } )
 
+    self.MinCorner = Vector( 0, 0, 0 )
+    self.MaxCorner = Vector( 0, 0, 0 )
+
     -- ()
     if argCount == 0 then
         return
@@ -103,6 +106,7 @@ end
 function INSTANCE:Init( box )
     typecheck.AssertArgType( self.Class, 1, box, { "AABoxInstance", "table" } )
 
+    -- "Initializes this box from a center-extent box"
     -- ( box: AABoxInstance )
     if typecheck.IsOfType( box, "AABoxInstance" ) then
         self.MinCorner = box.Center - box.Extent
@@ -110,8 +114,11 @@ function INSTANCE:Init( box )
         return
     end
 
+    -- "Init the box from an array of points"
+    -- "Makes a box which encloses the given array of points"
     -- ( points: Vector[] )
     local points = box --[[@as Vector[] ]]
+    assert( points ~= nil )
 
     self.MinCorner = points[1]
     self.MaxCorner = points[1]

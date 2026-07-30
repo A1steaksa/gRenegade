@@ -107,7 +107,7 @@ end
 --- @return HTreeInstance?
 --- @overload fun( id: integer ): HTreeInstance?
 function INSTANCE:GetTree( name )
-    typecheck.AssertArgType( self.Class, 1, name, { "string", "number" } )
+    typecheck.AssertArgType( INSTANCE.Class, 1, name, { "string", "number" } )
 
     -- ( name: string ): HTreeInstance?
     if isstring( name ) then

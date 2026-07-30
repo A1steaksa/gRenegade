@@ -53,14 +53,15 @@ end
 
 
 --- @class MoveablePhysicsInstance
---- @field Mass any
---- @field MassInverted any
---- @field GravityScale any
---- @field Elasticity any
---- @field Controller any
---- @field Carrier any
---- @field CarrierSubObject any
---- @field ShadowManager any
+--- @field SourcePhysObj PhysObj The Connected Entity's PhysObj
+--- @field Mass number
+--- @field MassInverted number
+--- @field GravityScale number
+--- @field Elasticity number
+--- @field Controller PhysicsControllerInstance
+--- @field Carrier PhysicsInstance
+--- @field CarrierSubObject RenderObjectInstance
+--- @field ShadowManager DynamicShadowManagerInstance
 
 function INSTANCE:Renegade_MoveablePhysics()
 	dynamicPhysicsClass.Instance.Renegade_DynamicPhysics( self )
@@ -86,6 +87,11 @@ function INSTANCE:Init( definition, connectedEntity )
 	self.MassInverted = 1.0 / self.Mass
 	self.GravityScale = definition.GravityScale
 	self.Elasticity = definition.Elasticity
+
+	self.SourcePhysObj = connectedEntity:GetPhysicsObject()
+	if self.SourcePhysObj:IsValid() then
+		self.SourcePhysObj:SetMass( self.Mass )
+	end
 
 	dynamicPhysicsClass.Instance.Init( self, definition, connectedEntity )
 end

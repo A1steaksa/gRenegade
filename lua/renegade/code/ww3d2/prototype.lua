@@ -25,6 +25,9 @@ INSTANCE.IsPrototype = true
 
 	--- @type MeshLoaderClass
 	local meshLoaderClass = CNC.Import( "code/ww3d2/mesh-loader.lua" )
+
+	--- @type HModelLoaderClass
+	local hModelLoaderClass = CNC.Import( "code/ww3d2/h-model-loader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -54,6 +57,7 @@ INSTANCE.IsPrototype = true
 
     function STATIC.StaticConstructor()
         STATIC.MeshLoader = meshLoaderClass.New()
+        STATIC.HModelLoader = hModelLoaderClass.New()
     end
 end
 

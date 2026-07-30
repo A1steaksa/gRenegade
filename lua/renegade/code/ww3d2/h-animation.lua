@@ -50,8 +50,12 @@ INSTANCE.IsHAnimation = true
 end
 
 
+--- "  
+--- This is the base class for all animation formats used in W3D.  
+--- It contains the virtual interface that all animations must support.  
+--- "  
 --- @class HAnimationInstance
---- @field HasEmbeddedSounds any
+--- @field HasEmbeddedSounds boolean
 
 function INSTANCE:Renegade_HAnimation()
 	typecheck.NotImplementedError()
@@ -73,6 +77,7 @@ function INSTANCE:GetKey()
 	typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:GetNumFrames()
 	typecheck.NotImplementedError()
 end

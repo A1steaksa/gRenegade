@@ -49,10 +49,17 @@ INSTANCE.IsPhysicsController = true
     typecheck.RegisterType( "PhysicsControllerInstance", STATIC.IsPhysicsController )
 end
 
-
+--- "  
+--- This is an object which abstractly describes the control state
+--- for a physics object.
+---
+---  PhysControllers are not persistant objects on their own but they
+---  do provide a save and load method so that you can embed them in
+---  another object if you want to.
+--- "  
 --- @class PhysicsControllerInstance
---- @field MoveVector any
---- @field TurnLeft any
+--- @field MoveVector Vector
+--- @field TurnLeft number
 
 function INSTANCE:Renegade_PhysicsController()
 	typecheck.NotImplementedError()

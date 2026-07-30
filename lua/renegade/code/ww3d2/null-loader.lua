@@ -69,7 +69,7 @@ function INSTANCE:ChunkType()
 end
 
 --- @param cload ChunkLoadInstance
---- @return PrototypeInstance
+--- @return PrototypeInstance?
 function INSTANCE:LoadW3d( cload )
     typecheck.NotImplementedError()
 end

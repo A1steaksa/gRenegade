@@ -70,7 +70,7 @@ function INSTANCE:ChunkType()
 end
 
 --- @param cload ChunkLoadInstance
---- @return PrototypeInstance
+--- @return PrototypeInstance?
 function INSTANCE:LoadW3d( cload )
     local box = cload:ReadStruct( "W3dBoxStruct" )
     --- @cast box W3dBoxStruct

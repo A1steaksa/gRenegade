@@ -99,6 +99,9 @@ end
 --- Constructs a new DamageableGameObjectDefinitionInstance
 function INSTANCE:Renegade_DamageableGameObjectDefinition()
     scriptableGameObjectDefinitionClass.Instance.Renegade_ScriptableGameObjectDefinition( self )
+
+    self.DefenseObjectDefinition = defenseObjectDefinitionClass.New()
+
     self.TranslatedNameId = 0
     -- self.EncyclopediaType = encyclopediaTypeEnum.Unknown
     self.EncyclopediaId = 0
@@ -134,7 +137,7 @@ function INSTANCE:Load( cload )
             end
 
         elseif chunkId == ids.CHUNKID_DEF_DEFENSEOBJECTDEF then
-            defenseObjectDefinitionClass.Instance.Load( self --[[@as DefenseObjectDefinitionInstance]], cload )
+            self.DefenseObjectDefinition:Load( cload )
 
         else
             section.Warn( "Unrecognized ", INSTANCE.Class, " Chunk ID: ", chunkId )

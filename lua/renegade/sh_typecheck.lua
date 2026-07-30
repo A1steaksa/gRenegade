@@ -56,6 +56,7 @@ LIB.EntityTypes = {
         end
 
         -- Register built-in type checks
+        LIB.RegisterType( "Vector", isvector )
         LIB.RegisterType( "Color", IsColor )
         LIB.RegisterType( "Entity", function( value )
             local typeString = type( value )
@@ -77,10 +78,10 @@ LIB.EntityTypes = {
             for _, expectedType in ipairs( expectedTypes ) do
                 expectedType = LIB.CleanString( expectedType )
 
-                local customType = LIB.CustomTypes[ expectedType ]
+                local customType = LIB.CustomTypes[ expectedType:lower() ]
 
                 local isCorrectType = false
-                if customType then
+                if customType ~= nil then
                     -- If a custom data type has been registered with this type name, use the custom type's check function
                     -- to validate whether the argument is actually this type.
                     isCorrectType = customType.CheckFunction( valueToCheck )

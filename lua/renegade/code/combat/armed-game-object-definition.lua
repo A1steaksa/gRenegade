@@ -123,16 +123,12 @@ end
 function INSTANCE:Load( cload )
     local ids = STATIC.ChunkIds
 
-    section.Start( "Loading " .. INSTANCE.Class )
-
     while cload:OpenChunk() do
         local chunkId = cload:CurChunkId()
 
         if chunkId == STATIC.ChunkIds.CHUNKID_DEF_PARENT then
             physicalGameObjectDefinitionClass.Instance.Load( self, cload )
         elseif chunkId == STATIC.ChunkIds.CHUNKID_DEF_VARIABLES then
-            section.Start( INSTANCE.Class .. " Variables Start" )
-
             while cload:OpenMicroChunk() do
                 local didRead =
                     chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_DEF_WEAPON_TILT_RATE, fundamentalDataTypeEnum.Float, self, "WeaponTiltRate" )
@@ -152,16 +148,12 @@ function INSTANCE:Load( cload )
 
                 cload:CloseMicroChunk()
             end
-
-            section.End()
         else
             section.Print( "Unrecognized ", INSTANCE.Class, " Chunk ID", cload:CurChunkId() )
         end
 
         cload:CloseChunk()
     end
-
-    section.End()
 
     return true
 end
