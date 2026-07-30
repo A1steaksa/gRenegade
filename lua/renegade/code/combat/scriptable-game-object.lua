@@ -112,7 +112,7 @@ end
     end
 
     function INSTANCE:_Renegade_ScriptableGameObject()
-        self:RemoveAllObservers()
+        INSTANCE.RemoveAllObservers( self )
 
         -- "Delete the ObservertimerLIst"
         self.ObserverTimerList = {}
@@ -128,11 +128,9 @@ end
     --- @param definition ScriptableGameObjectDefinitionInstance
     --- @param connectedEntity Entity
     function INSTANCE:Init( definition, connectedEntity )
-
-        section.Print( Color( 0, 255, 255 ), "CONNECTED ENTITY: ", connectedEntity )
-
         baseGameObjectClass.Instance.Init( self, definition, connectedEntity )
-        self:CopySettings( definition )
+
+        INSTANCE.CopySettings( self, definition )
     end
 
     --- @param definition ScriptableGameObjectDefinitionInstance
@@ -147,7 +145,7 @@ end
 
                     -- "Don't call Add observer, because we don't want Created called yet."
                     -- "StartObservers should be called later, which will call Created"
-                    self:InsertObserver( script )
+                    INSTANCE.InsertObserver( self, script )
                 end
             end
         end
@@ -156,18 +154,18 @@ end
     --- @param definition ScriptableGameObjectDefinitionInstance
     function INSTANCE:ReInit( definition )
         -- "Remove all currently running scripts"
-        self:RemoveAllObservers()
+        INSTANCE.RemoveAllObservers( self )
 
         -- "Copy any internal settings from the definition"
-        self:CopySettings( definition )
+        INSTANCE.CopySettings( self, definition )
 
         -- "Reset our definition pointer"
-        baseGameObjectClass.Instance.Init( self, definition, self:GetConnectedEntity() )
+        baseGameObjectClass.Instance.Init( self, definition, INSTANCE.GetConnectedEntity( self ) )
     end
 
     function INSTANCE:PostReInit()
         -- "Start the new scripts executing"
-        self:StartObservers()
+        INSTANCE.StartObservers( self )
     end
 
     --- @return ScriptableGameObjectDefinitionInstance
@@ -176,9 +174,9 @@ end
     end
 
     function INSTANCE:SetDeletePending()
-        if not self:IsDeletePending() then
+        if not INSTANCE.IsDeletePending( self ) then
             if combatManagerClass.AreObserversActive() then
-                local observerList = self:GetObservers()
+                local observerList = INSTANCE.GetObservers( self )
                 for _, observer in ipairs( observerList ) do
                     observer:Destroyed( self )
                 end
@@ -212,7 +210,7 @@ end
         baseGameObjectClass.Instance.OnPostLoad( self )
 
         -- "Delete any NULL pointers"
-        local observerList = self:GetObservers()
+        local observerList = INSTANCE.GetObservers( self )
         for index = 1, observerList do
             if observerList[index] == nil then
                 table.remove( observerList, index )
@@ -231,12 +229,12 @@ end
 --[[ Thinking ]] do
 
     function INSTANCE:Think()
-        if self:IsAlwaysDirty() then
-            self:SetObjectDirtyBit( networkObjectClass.DIRTY_BIT.BIT_FREQUENT, true )
+        if INSTANCE.IsAlwaysDirty( self ) then
+            INSTANCE.SetObjectDirtyBit( self, networkObjectClass.DIRTY_BIT.BIT_FREQUENT, true )
         end
 
         if self.ObserverCreatedPending then
-            self:StartObservers()
+            INSTANCE.StartObservers( self )
             self.ObserverCreatedPending = false
         end
 
@@ -259,7 +257,7 @@ end
             -- When the timer expires
             if observerTimer:Update() then
                 -- Let observers know 
-                local observerList = self:GetObservers()
+                local observerList = INSTANCE.GetObservers( self )
                 for observerIndex, observer in ipairs( observerList ) do
                     local observerTimer = self.ObserverTimerList[observerIndex]
                     if observer:getId() == observerTimer.ObserverId then
@@ -281,7 +279,7 @@ end
                 local sender = customTimer.Sender
 
                 -- Fire the custom timer's event
-                local observerList = self:GetObservers()
+                local observerList = INSTANCE.GetObservers( self )
                 for _, observer in ipairs( observerList ) do
                     observer:Custom( self, customTimer.Type, customTimer.Param, sender )
                 end
@@ -303,7 +301,7 @@ end
 
     --- @param observer GameObjectObserverInstance
     function INSTANCE:AddObserver( observer )
-        self:InsertObserver( observer )
+        INSTANCE.InsertObserver( self, observer )
 
         -- "Don't call created if in the editor"
         if combatManagerClass.AreObserversActive() then
@@ -320,7 +318,7 @@ end
 
     function INSTANCE:RemoveAllObservers()
         while #self.Observers ~= 0 do
-            self:RemoveObserver( self.Observers[0] )
+            INSTANCE.RemoveObserver( self, self.Observers[0] )
         end
     end
 
@@ -331,7 +329,7 @@ end
     --- "
     function INSTANCE:StartObservers()
         -- "If we just came from the editor, call created on all [our] observers"
-        local observerList = self:GetObservers()
+        local observerList = INSTANCE.GetObservers( self )
         for index, observer in ipairs( observerList ) do
             observer:Created( self )
         end
@@ -437,6 +435,6 @@ end
         baseGameObjectClass.Instance.ImportCreation( self, packet )
 
         -- "Ensure we don't have any scripts running"
-        self:RemoveAllObservers()
+        INSTANCE.RemoveAllObservers( self )
     end
 end

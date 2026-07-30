@@ -23,27 +23,30 @@ INSTANCE.Static = STATIC
 
 --#region Imports
 
-    --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type PlayerTypeClass
-    local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
+	--- @type PlayerTypeClass
+	local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
-    --- @type BaseGameObjectClass
-    local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
+	--- @type BaseGameObjectClass
+	local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
 
-    --- @type NetworkObjectClass
-    local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
+	--- @type NetworkObjectClass
+	local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
 
-    --- @type ColorClass
-    local colorClass = CNC.Import( "code/combat/colors.lua" )
+	--- @type ColorClass
+	local colorClass = CNC.Import( "code/combat/colors.lua" )
+
+	--- @type DefenseObjectClass
+	local defenseObjectClass = CNC.Import( "code/combat/defense-object.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
-    local dirtyBitEnum = networkObjectClass.DIRTY_BIT
+	local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
+	local dirtyBitEnum = networkObjectClass.DIRTY_BIT
 --#endregion
 
 
@@ -96,12 +99,15 @@ end
     --- Constructs a new DamageableGameObjectInstance
     function INSTANCE:Renegade_DamageableGameObject()
         scriptableGameObjectClass.Instance.Renegade_ScriptableGameObject( self )
+
+        self.DefenseObject = defenseObjectClass.New()
+
         self._IsHealthBarDisplayed = true
-        self:SetPlayerType( playerTypeEnum.Neutral )
+        INSTANCE.SetPlayerType( self, playerTypeEnum.Neutral )
     end
 
     function INSTANCE:_Renegade_DamageableGameObject()
-        self:RemoveAllObservers()
+        INSTANCE.RemoveAllObservers( self )
     end
 end
 
@@ -112,12 +118,12 @@ end
     --- @param connectedEntity Entity
     function INSTANCE:Init( definition, connectedEntity )
         scriptableGameObjectClass.Instance.Init( self, definition, connectedEntity )
-        self:CopySettings( definition )
+        INSTANCE.CopySettings( self, definition )
     end
 
     --- @param definition DamageableGameObjectDefinitionInstance    
     function INSTANCE:CopySettings( definition )
-        self:SetPlayerType( definition.DefaultPlayerType )
+        INSTANCE.SetPlayerType( self, definition.DefaultPlayerType )
         self.DefenseObject:Init( definition.DefenseObjectDefinition, self )
     end
 
@@ -129,9 +135,9 @@ end
         scriptableGameObjectClass.Instance.ReInit( self, definition )
 
         -- "Copy any internal settings from the definition"
-        self:CopySettings( definition )
+        INSTANCE.CopySettings( self, definition )
 
-        self:SetPlayerType( oldPlayerType )
+        INSTANCE.SetPlayerType( self, oldPlayerType )
     end
 
     --- @return DamageableGameObjectDefinitionInstance    
@@ -175,7 +181,7 @@ function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
         return
     end
 
-    if self:IsDeletePending() then
+    if INSTANCE.IsDeletePending( self ) then
         return
     end
 
@@ -188,7 +194,7 @@ function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
     local diff = oldHealth + oldShield - newHealth - newShield
 
     -- "Notify the observers"
-    local observerList = self:GetObservers()
+    local observerList = INSTANCE.GetObservers( self )
 
     for index = 1, #observerList do
         observerList[index]:Damaged( self, damager:GetOwner() --[[@as ArmedGameObjectInstance]], diff )
@@ -200,7 +206,7 @@ function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
             observerList[index]:Killed( self, damager:GetOwner() --[[@as ArmedGameObjectInstance]] )
         end
 
-        self:CompletelyDamaged( damager )
+        INSTANCE.CompletelyDamaged( self, damager )
     end
 end
 
@@ -215,17 +221,17 @@ end
     --- Originally `Get_Info_Icon_Texture_Filename`
     --- @return IMaterial
     function INSTANCE:GetInfoIconMaterial()
-        return self:GetDefinition().InfoIconMaterial
+        return INSTANCE.GetDefinition( self ).InfoIconMaterial
     end
 
     --- @return integer
     function INSTANCE:GetTranslatedNameId()
-        return self:GetDefinition().TranslatedNameId
+        return INSTANCE.GetDefinition( self ).TranslatedNameId
     end
 
     --- @return boolean
     function INSTANCE:IsTargetable()
-        return not self:GetDefinition().NotTargetable
+        return not INSTANCE.GetDefinition( self ).NotTargetable
     end
 
     --- @return boolean
@@ -257,7 +263,7 @@ end
     function INSTANCE:SetPlayerType( playerType )
         self.PlayerType = playerType
 
-        self:SetObjectDirtyBit( dirtyBitEnum.BIT_RARE, true )
+        INSTANCE.SetObjectDirtyBit( self, dirtyBitEnum.BIT_RARE, true )
     end
 
     --- @return boolean
@@ -277,8 +283,8 @@ end
         return (
             damageableGameObject == self
             or (
-                self:IsTeamPlayer()
-                and self:GetPlayerType() == damageableGameObject:GetPlayerType()
+                INSTANCE.IsTeamPlayer( self )
+                and INSTANCE.GetPlayerType( self ) == damageableGameObject:GetPlayerType()
             )
         )
     end
@@ -289,7 +295,7 @@ end
         return (
             damageableGameObject ~= self
             and playerTypeClass.PlayerTypesAreEnemies(
-                self:GetPlayerType(),
+                INSTANCE.GetPlayerType( self ),
                 damageableGameObject:GetPlayerType()
             )
         )

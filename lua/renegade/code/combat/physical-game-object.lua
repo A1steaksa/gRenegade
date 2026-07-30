@@ -47,42 +47,114 @@ INSTANCE.IsPhysicalGameObject = true
 
 --#region Imports
 
-    --- @type PhysicsObserverClass
-    local physicsObserverClass = CNC.Import( "code/wwphys/physics-observer.lua" )
+	--- @type PhysicsObserverClass
+	local physicsObserverClass = CNC.Import( "code/wwphys/physics-observer.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 
-    --- @type BaseGameObjectClass
-    local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
+	--- @type BaseGameObjectClass
+	local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
 
-    --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
-    --- @type PlayerTypeClass
-    local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
+	--- @type PlayerTypeClass
+	local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
-    --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
+	--- @type RadarManagerClass
+	local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 
-    --- @type NetworkObjectClass
-    local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
+	--- @type NetworkObjectClass
+	local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
 
-    --- @type GameObjectManagerClass
-    local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+	--- @type GameObjectManagerClass
+	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+
+	--- @type SimpleAnimationControlClass
+	local simpleAnimationControlClass = CNC.Import( "code/combat/simple-animation-control.lua" )
+
+	--- @type TextUtils
+	local textUtils = CNC.Import( "sh_text-utils.lua" )
+
+	--- @type AssetsClass
+	local assetsClass = CNC.Import( "code/combat/assets.lua" )
+
+	--- @type RenderObjectClass
+	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
+
+	--- @type HumanAnimationControlClass
+	local humanAnimationControlClass = CNC.Import( "code/combat/human-animation-control.lua" )
+
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+
+	--- @type ScriptableGameObjectClass
+	local scriptableGameObjectClass = CNC.Import( "code/combat/scriptable-game-object.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local expirationReactionTypeEnum = physicsObserverClass.EXPIRATION_REACTION_TYPE
-    local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
-    local blipColorTypeEnum = radarManagerClass.BLIP_COLOR_TYPE
-    local dirtyBitEnum = networkObjectClass.DIRTY_BIT
+	local expirationReactionTypeEnum = physicsObserverClass.EXPIRATION_REACTION_TYPE
+	local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
+	local blipColorTypeEnum = radarManagerClass.BLIP_COLOR_TYPE
+	local dirtyBitEnum = networkObjectClass.DIRTY_BIT
+	local animationModeEnum = renderObjectClass.ANIMATION_MODE
+	local animationControlAnimationModeEnum = humanAnimationControlClass.ANIMATION_CONTROL_ANIMATION_MODE
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
+
+
+--[[ Chunk IDs ]] do
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+	    XXXCHUNKID_PARENT_OLD_OLD = enumBuilder:Set( 910991145 ),
+        CHUNKID_VARIABLES         = enumBuilder:Next(),
+        XXX_CHUNKID_SCRIPTS       = enumBuilder:Next(),
+        LEGACY_CHUNKID_DEFENSE    = enumBuilder:Next(),
+        XXXCHUNKID_LISTENER       = enumBuilder:Next(),
+        XXXCHUNKID_REFERENCEABLE  = enumBuilder:Next(),
+        XXXCHUNKID_OBSER_XXX_VER  = enumBuilder:Next(),
+        LEGACY_CHUNKID_PARENT_OLD = enumBuilder:Next(),
+        CHUNKID_ANIM_CONTROL      = enumBuilder:Next(),
+        CHUNKID_HOST_GAME_OBJ     = enumBuilder:Next(),
+        CHUNKID_PARENT            = enumBuilder:Next(),
+
+
+        XXXMICROCHUNKID_ID                    = enumBuilder:Set( 1 ),
+        XXXMICROCHUNKID_GANG                  = enumBuilder:Next(),
+        MICROCHUNKID_PHYS_OBSERVER_PTR        = enumBuilder:Next(),
+        XXXMICROCHUNKID_REFERENCEABLE_PTR     = enumBuilder:Next(),
+        XXXMICROCHUNKID_DISTANCE_PRIORITY     = enumBuilder:Next(),
+        XXXMICROCHUNKID_TIME_PRIORITY         = enumBuilder:Next(),
+        XXXMICROCHUNKID_PRIORITY              = enumBuilder:Next(),
+        XXXMICROCHUNKID_GAME_OBJ_OBSERVER_PTR = enumBuilder:Next(),
+        LEGACY_MICROCHUNKID_PLAYER_TYPE       = enumBuilder:Next(),
+        MICROCHUNKID_PHYSICAL_OBJECT          = enumBuilder:Next(),
+        MICROCHUNKID_HIBERNATION_TIMER        = enumBuilder:Next(),
+        MICROCHUNKID_HIBERNATION_ENABLE       = enumBuilder:Next(),
+        MICROCHUNKID_HOST_GAME_OBJ_BONE       = enumBuilder:Next(),
+
+        MICROCHUNKID_RADAR_BLIP_SHAPE_TYPE           = enumBuilder:Next(),
+        MICROCHUNKID_RADAR_BLIP_COLOR_TYPE           = enumBuilder:Next(),
+        MICROCHUNKID_RADAR_BLIP_INTENSITY            = enumBuilder:Next(),
+        MICROCHUNKID_ACTIVE_CONVERSATION             = enumBuilder:Next(),
+        MICROCHUNKID_HUD_POKABLE_INDICATOR           = enumBuilder:Next(),
+        MICROCHUNKID_IS_INNATE_CONVERSATIONS_ENABLED = enumBuilder:Next(),
+    }
+end
 
 
 --[[ Static Functions and Variables ]] do
@@ -146,7 +218,7 @@ local HIBERNATION_DELAY = 30
         self.PendingHostObjectId = 0
         self.HudPokableIndicatorEnabled = false
         self.IsInnateConversationsEnabled = true
-        self:ResetServerSkips( 255 )
+        INSTANCE.ResetServerSkips( self, 255 )
     end
 
     function INSTANCE:_Renegade_PhysicalGameObject()
@@ -164,13 +236,13 @@ end
     --- @param connectedEntity Entity
     function INSTANCE:Init( definition, connectedEntity )
         damageableGameObjectClass.Instance.Init( self, definition, connectedEntity )
-        self:CopySettings( definition )
+        INSTANCE.CopySettings( self, definition )
 
-        self:HideMuzzleFlashes()
+        INSTANCE.HideMuzzleFlashes( self )
 
         -- "If the definition calls for it, add a material effect to the object"
         if definition.UseCreationEffect then
-            local physicalObject = self:PeekPhysicalObject()
+            local physicalObject = INSTANCE.PeekPhysicalObject( self )
             if physicalObject then
                 -- Omitted transition effect
                 -- TODO: Implement transition effect
@@ -180,12 +252,12 @@ end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
     function INSTANCE:CopySettings( definition )
-        section.Start( "Copy Settings" )
+        section.Start( self.Class, " - ", INSTANCE.Class, " - Copy Settings" )
 
         -- "Release our hold on the physics object"
         if self.PhysicsObject then
             -- Omitted original logic
-            self:GetConnectedEntity():PhysicsDestroy()
+            INSTANCE.GetConnectedEntity( self ):PhysicsDestroy()
         end
 
         -- "Set the Physical Object"
@@ -195,16 +267,16 @@ end
             return
         end
 
-        section.Print( self.Class, " - CopySettings - ", self:GetConnectedEntity() )
-        if self:GetConnectedEntity() == nil then error() end
+        section.Print( self.Class, " - CopySettings - ", INSTANCE.GetConnectedEntity( self ) )
+        if INSTANCE.GetConnectedEntity( self ) == nil then error() end
 
-        self.PhysicsObject = physicsObjectDefinition:Create( self:GetConnectedEntity() ) --[[@as PhysicsInstance]]
+        self.PhysicsObject = physicsObjectDefinition:Create( INSTANCE.GetConnectedEntity( self ) ) --[[@as PhysicsInstance]]
         if not self.PhysicsObject then
             section.Error( "Could not create definition instance for " .. definition.PhysicsDefinitionId )
             return
         end
 
-        self.PhysicsObject:SetConnectedEntity( self:GetConnectedEntity() )
+        self.PhysicsObject:SetConnectedEntity( INSTANCE.GetConnectedEntity( self ) )
 
         self.PhysicsObject:SetCollisionGroup( collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP )
         self.PhysicsObject:SetObserver( self )
@@ -214,26 +286,29 @@ end
 
         --- "Do we still use this?????"
         -- Omitted setting animation from definition
+        if definition.Animation:len() ~= 0 then
+            INSTANCE.SetAnimation( self, definition.Animation )
+        end
 
-        self:EnableHibernation( definition.DefaultHibernationEnable )
+        INSTANCE.EnableHibernation( self, definition.DefaultHibernationEnable )
 
-        self:ResetRadarBlipShapeType()
+        INSTANCE.ResetRadarBlipShapeType( self )
 
         section.End()
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
     function INSTANCE:ReInit( definition )
-        local transformationMatrix = self:GetTransform()
+        local transformationMatrix = INSTANCE.GetTransform( self )
 
         -- "Re-initialize the base class"
         damageableGameObjectClass.Instance.ReInit( self, definition )
 
         -- "Copy any internal settings from the definition"
-        self:CopySettings( definition )
+        INSTANCE.CopySettings( self, definition )
 
         -- "Restore the necessary settings"
-        self:SetTransform( transformationMatrix )
+        INSTANCE.SetTransform( self, transformationMatrix )
     end
 
     --- @return PhysicalGameObjectDefinitionInstance
@@ -252,14 +327,87 @@ end
 
     --- @param cload ChunkLoadInstance
     function INSTANCE:Load( cload )
-        typecheck.NotImplementedError()
+        local ids = STATIC.ChunkIds
+
+        -- Temporary holder for the PhysicsObserverId
+        local readTable = {}
+
+        while cload:OpenChunk() do
+            local curChunkId = cload:CurChunkId()
+
+            if curChunkId == ids.LEGACY_CHUNKID_PARENT_OLD then
+                scriptableGameObjectClass.Instance.Load( self, cload )
+
+            elseif curChunkId == ids.CHUNKID_PARENT then
+                damageableGameObjectClass.Instance.Load( self, cload )
+
+            elseif curChunkId == ids.CHUNKID_VARIABLES then
+                while cload:OpenMicroChunk() do
+                    local microChunkId = cload:CurMicroChunkId()
+
+                    local didRead = (
+                        -- Omitted reading physics observer pointer
+                           chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_PHYS_OBSERVER_PTR,               fundamentalDataTypeEnum.Pointer, readTable, "PhysicsObserverPointer"            )
+					    or chunkIOClass.ReadMicroChunk( cload, ids.LEGACY_MICROCHUNKID_PLAYER_TYPE,              fundamentalDataTypeEnum.Int,     self,      "PlayerType"                   )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_PHYSICAL_OBJECT,                 fundamentalDataTypeEnum.Pointer, self,      "PhysObj"                      )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HIBERNATION_TIMER,               fundamentalDataTypeEnum.Float,   self,      "HibernationTimer"             )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HIBERNATION_ENABLE,              fundamentalDataTypeEnum.Boolean, self,      "HibernationEnable"            )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HOST_GAME_OBJ_BONE,              fundamentalDataTypeEnum.Int,     self,      "HostGameObjBone"              )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_RADAR_BLIP_SHAPE_TYPE,           fundamentalDataTypeEnum.Int,     self,      "RadarBlipShapeType"           )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_RADAR_BLIP_COLOR_TYPE,           fundamentalDataTypeEnum.Int,     self,      "RadarBlipColorType"           )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_RADAR_BLIP_INTENSITY,            fundamentalDataTypeEnum.Float,   self,      "RadarBlipIntensity"           )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_ACTIVE_CONVERSATION,             fundamentalDataTypeEnum.Pointer, self,      "ActiveConversation"           )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_POKABLE_INDICATOR,           fundamentalDataTypeEnum.Boolean, self,      "HUDPokableIndicatorEnabled"   )
+						or chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_IS_INNATE_CONVERSATIONS_ENABLED, fundamentalDataTypeEnum.Boolean, self,      "IsInnateConversationsEnabled" )
+                    )
+
+                    if not didRead then
+                        section.Warn( INSTANCE.Class, " - Load - Unrecognized PhysicalGameObj Variable chunkID (", microChunkId, ")" )
+                    end
+
+                    cload:CloseMicroChunk()
+                end
+
+            elseif curChunkId == ids.LEGACY_CHUNKID_DEFENSE then
+                self.DefenseObject:Load( cload )
+
+            elseif curChunkId == ids.CHUNKID_ANIM_CONTROL then
+                -- "Build AnimControl"
+                INSTANCE.SetAnimation( self, nil )
+                self.AnimationControl:Load( cload )
+
+            elseif curChunkId == ids.CHUNKID_HOST_GAME_OBJ then
+                section.Warn( INSTANCE.Class, " - Load - Skipping CHUNKID_HOST_GAME_OBJ" )
+            else
+                section.Warn( "Unrecognized PhysicalGameObj chunkID (", curChunkId, ")" )
+            end
+
+            cload:CloseChunk()
+        end
+
+        assert( self.PhysicsObject ~= nil )
+        saveLoadSystemClass.RequestRefCountedPointerRemap( self.PhysicsObject )
+
+        if self.ActiveConversation ~= nil then
+            saveLoadSystemClass.RequestRefCountedPointerRemap( self.ActiveConversation )
+        end
+
+        -- "Register the multiple-inheritance versions of our this pointer"
+        assert( readTable.PhysicsObserverPointer ~= nil )
+        if readTable.PhysicsObserverPointer ~= nil then
+            saveLoadSystemClass.RegisterPointer( readTable.PhysicsObserverPointer, self --[[@as CombatPhysicsObserverInstance]] )
+        end
+
+        saveLoadSystemClass.RegisterPostLoadCallback( self )
+
+        return true
     end
 
     function INSTANCE:OnPostLoad()
         -- "Plug ourselves back into the physics object as an observer"
         self.PhysicsObject:SetObserver( self )
 
-        self:HideMuzzleFlashes()
+        INSTANCE.HideMuzzleFlashes( self )
         damageableGameObjectClass.Instance.OnPostLoad( self )
     end
 
@@ -291,27 +439,27 @@ end
 
     --- @param transformationMatrix Matrix3dInstance
     function INSTANCE:SetTransform( transformationMatrix )
-        self:PeekPhysicalObject():SetTransform( transformationMatrix )
+        INSTANCE.PeekPhysicalObject( self ):SetTransform( transformationMatrix )
     end
 
     --- @return Matrix3dInstance
     function INSTANCE:GetTransform()
-        return self:PeekPhysicalObject():GetTransform()
+        return INSTANCE.PeekPhysicalObject( self ):GetTransform()
     end
 
     --- @return Vector
     function INSTANCE:GetPosition()
-        return self:PeekPhysicalObject():GetPosition()
+        return INSTANCE.PeekPhysicalObject( self ):GetPosition()
     end
 
     --- @param pos Vector
     function INSTANCE:SetPosition( pos )
-        self:PeekPhysicalObject():SetPosition( pos )
+        INSTANCE.PeekPhysicalObject( self ):SetPosition( pos )
     end
 
     --- @return number
     function INSTANCE:GetFacing()
-        return self:PeekPhysicalObject():GetFacing()
+        return INSTANCE.PeekPhysicalObject( self ):GetFacing()
     end
 end
 
@@ -320,9 +468,10 @@ end
 
     --- @return RenderObjectInstance?
     function INSTANCE:PeekModel()
-        return self:PeekPhysicalObject():PeekModel()
+        return INSTANCE.PeekPhysicalObject( self ):PeekModel()
     end
 
+    --- @return AnimationControlInstance
     function INSTANCE:GetAnimationControl()
         return self.AnimationControl
     end
@@ -333,18 +482,62 @@ end
     end
 
     --- "Note: Set_Animation calls will force an AnimControl to be created, if needed"
-    --- @param animationName string
+    --- @param animationName string?
     --- @param looping boolean? [Default: true]
     --- @param frameOffset number? [Default: 0.0]
     function INSTANCE:SetAnimation( animationName, looping, frameOffset )
-        looping = looping or true
-        frameOffset = frameOffset or 0.0
+        if looping == nil then looping = true end
+        if frameOffset == nil then frameOffset = 0.0 end
+
+        if self.AnimationControl == nil then
+            -- "Be sure we have a anim control"
+            self.AnimationControl = simpleAnimationControlClass.New()
+        end
+
+        local animName = animationName
+        if animationName ~= nil and animationName:len() ~= 0 then
+
+            -- "Make sure it lead with model name"
+            if textUtils.IndexOf( animationName, "." ) == nil then
+                animName = assetsClass.CreateAnimationName( animationName, INSTANCE.PeekModel( self ):GetName() )
+            end
+
+            self.AnimationControl:SetModel( INSTANCE.PeekModel( self ) )
+
+            self.AnimationControl:SetAnimation( animName, 0, frameOffset )
+            self.AnimationControl:SetMode( ( looping and animationControlAnimationModeEnum.ANIM_MODE_LOOP or animationControlAnimationModeEnum.ANIM_MODE_ONCE ) )
+
+            -- "Force the object to start using the anim"
+            self.AnimationControl:Update( 0 )
+
+            -- "'Dirty' the object for networking"
+            INSTANCE.SetObjectDirtyBit( self, dirtyBitEnum.BIT_RARE, true )
+        end
     end
 
     --- @param animationName string
     --- @param frame integer
     function INSTANCE:SetAnimationFrame( animationName, frame )
-        typecheck.NotImplementedError()
+        if self.AnimationControl == nil then
+            -- "Be sure we have a anim control"
+            INSTANCE.SetAnimationControl( self, simpleAnimationControlClass.New() )
+        end
+
+        local animName = animationName
+        if animationName:len() ~= 0 then
+            -- "Make sure it lead with model name"
+            if textUtils.IndexOf( animationName, "." ) == nil then
+                animName = assetsClass.CreateAnimationName( animationName, INSTANCE.PeekModel( self ):GetName() )
+            end
+
+            self.AnimationControl:SetModel( INSTANCE.PeekModel( self ) )
+
+            self.AnimationControl:SetAnimation( animName, 0 )
+            self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_STOP, FRAME )
+
+            -- "'Dirty' the object for networking"
+            INSTANCE.SetObjectDirtyBit( self, dirtyBitEnum.BIT_RARE, true )
+        end
     end
 end
 
@@ -353,12 +546,12 @@ end
 
     --- @return number
     function INSTANCE:GetBullseyeOffsetZ()
-        return self:GetDefinition().BullseyeOffsetZ
+        return INSTANCE.GetDefinition( self ).BullseyeOffsetZ
     end
 
     --- @return Vector
     function INSTANCE:GetBullseyePosition()
-        return self:GetPosition()
+        return INSTANCE.GetPosition( self )
     end
 
     --- @param string string
@@ -391,28 +584,28 @@ end
     --- @param collisionBoxName string? [Default: None]
     function INSTANCE:ApplyDamageExtended( damager, scale, direction, collisionBoxName )
         -- This isn't very "extended" of them
-        self:ApplyDamage( damager, scale )
+        INSTANCE.ApplyDamage( self, damager, scale )
     end
 
     --- @param damager OffenseObjectInstance
     function INSTANCE:CompletelyDamaged( damager )
-        if self:GetDefinition().KilledExplosion ~= 0 then
-            local pos = self:GetPosition()
+        if INSTANCE.GetDefinition( self ).KilledExplosion ~= 0 then
+            local pos = INSTANCE.GetPosition( self )
 
             -- "Build a transform with the same heading as the object"
-            local zRotation = self:GetTransform():GetZRotation()
+            local zRotation = INSTANCE.GetTransform( self ):GetZRotation()
             local transformationMatrix = matrix3dClass.New( pos )
             transformationMatrix:RotateZ( zRotation )
 
             -- "Create the explosion"
-            explosionManagerClass.CreateExplosionat( self:GetDefinition().KilledExplosion, transformationMatrix, damager:GetOwner() )
+            explosionManagerClass.CreateExplosionat( INSTANCE.GetDefinition( self ).KilledExplosion, transformationMatrix, damager:GetOwner() )
 
             -- "Reveal this object to the player's encyclopedia"
             if damager:GetOwner() == combatManagerClass.GetTheStar() then
                 encyclopediaManagerClass.RevealObject( self )
             end
         end
-        self:SetDeletePending()
+        INSTANCE.SetDeletePending( self )
     end
 
     --- @return boolean
@@ -431,7 +624,7 @@ end
 
     --- @return integer
     function INSTANCE:GetType()
-        return self:GetDefinition().Type
+        return INSTANCE.GetDefinition( self ).Type
     end
 end
 
@@ -441,16 +634,16 @@ end
     function INSTANCE:PostThink()
         if self.AnimationControl then
             -- "For some reason??  Some vehicles come in with an anim control, but not model in the anim control."
-            if self:GetAnimationControl() and not self:GetAnimationControl():PeekModel() then
-                self:GetAnimationControl():SetModel( self:PeekModel() )
+            if INSTANCE.GetAnimationControl( self ) and not INSTANCE.GetAnimationControl( self ):PeekModel() then
+                INSTANCE.GetAnimationControl( self ):SetModel( INSTANCE.PeekModel( self ) )
             end
         end
 
         -- "Handle Pending Host"
         if self.PendingHostObjectId ~= 0 then
-            self:ResetHibernating()
+            INSTANCE.ResetHibernating( self )
             self.HostGameObject = gameObjectManagerClass.FindPhysicalGameObject( self.PendingHostObjectId )
-            self:SetObjectDirtyBit( dirtyBitEnum.BIT_RARE, true )
+            INSTANCE.SetObjectDirtyBit( self, dirtyBitEnum.BIT_RARE, true )
             if self.HostGameObject then
                 -- "Found em"
                 self.PendingHostObjectId = 0
@@ -459,7 +652,7 @@ end
 
         -- "If host bone controlled"
         if self.HostGameObject then
-            self:TeleportToHostBone()
+            INSTANCE.TeleportToHostBone( self )
         end
 
         damageableGameObjectClass.Instance.PostThink( self )
@@ -468,7 +661,7 @@ end
             self.HibernationTimer = self.HibernationTimer - FrameTime()
 
             if self.HibernationTimer <= 0 then
-                self:BeginHibernation()
+                INSTANCE.BeginHibernation( self )
             end
         end
 
@@ -480,8 +673,8 @@ end
 
             if not animComplete and self.AnimationControl:IsComplete() then
                 -- "We just completed.  Return animation complete IF this is not a smart obj with animation action"
-                if self:AsSmartGameObject() or not self:AsSmartGameObject():GetAction():IsAnimating() then
-                    local observerList = self:GetObservers()
+                if INSTANCE.AsSmartGameObject( self ) or not INSTANCE.AsSmartGameObject( self ):GetAction():IsAnimating() then
+                    local observerList = INSTANCE.GetObservers( self )
                     for index = 1, #observerList do
                         observerList[index]:AnimationComplete( self, self.AnimationControl:GetAnimationName() )
                     end
@@ -496,13 +689,13 @@ end
 
     --- @param group CollisionGroupType
     function INSTANCE:SetCollisionGroup( group )
-        self:PeekPhysicalObject():SetCollisionGroup( group )
+        INSTANCE.PeekPhysicalObject( self ):SetCollisionGroup( group )
     end
 
     --- @param observedObject PhysicsInstance
     --- @return ExpirationReactionType
     function INSTANCE:ObjectExpired( observedObject )
-        self:SetDeletePending()
+        INSTANCE.SetDeletePending( self )
         return expirationReactionTypeEnum.EXPIRATION_APPROVED
     end
 end
@@ -593,15 +786,15 @@ end
     --- @param isHibernationEnabled boolean
     function INSTANCE:EnableHibernation( isHibernationEnabled )
         self.HibernationEnable = isHibernationEnabled
-        if self:IsHibernating() then
+        if INSTANCE.IsHibernating( self ) then
             self.HibernationTimer = 1
         end
     end
 
     function INSTANCE:ResetHibernating()
         -- "Notify the object that is has just finished hibernating"
-        if self:IsHibernating() then
-            self:EndHibernation()
+        if INSTANCE.IsHibernating( self ) then
+            INSTANCE.EndHibernation( self )
         end
 
         self.HibernationTimer = math.min( HIBERNATION_DELAY, self.HibernationTimer + FrameTime() * 2 )
@@ -636,7 +829,7 @@ end
     end
 
     function INSTANCE:ResetRadarBlipShapeType()
-        self.RadarBlipShapeType = self:GetDefinition().RadarBlipType
+        self.RadarBlipShapeType = INSTANCE.GetDefinition( self ).RadarBlipType
     end
 
     --- @return integer
@@ -664,7 +857,7 @@ end
     }
 
     function INSTANCE:ResetRadarBlipColorType()
-        local playerType = self:GetPlayerType()
+        local playerType = INSTANCE.GetPlayerType( self )
         self.RadarBlipColorType = (
             STATIC.RadarBlipColorTypes[playerType]
             or
@@ -712,7 +905,7 @@ end
 
     --- @return integer
     function INSTANCE:GetVisId()
-        local physicsObject = self:PeekPhysicalObject()
+        local physicsObject = INSTANCE.PeekPhysicalObject( self )
 
         -- "Do we have a physics object we can use?"
         if physicsObject then
@@ -724,7 +917,7 @@ end
 
     --- @return boolean, Vector 
     function INSTANCE:GetWorldPosition()
-        return true, self:GetPosition()
+        return true, INSTANCE.GetPosition( self )
     end
 end
 
@@ -733,7 +926,7 @@ end
 
     --- @return boolean
     function INSTANCE:AreInnateConversationsEnabled()
-        return self:GetDefinition().AllowInnateConversations and self.IsInnateConversationsEnabled
+        return INSTANCE.GetDefinition( self ).AllowInnateConversations and self.IsInnateConversationsEnabled
     end
 
     --- @param shouldEnableInnateConversations boolean
@@ -762,7 +955,7 @@ end
 --- @param isHudPokableIndicatorEnabled boolean
 function INSTANCE:EnableHudPokableIndicator( isHudPokableIndicatorEnabled )
     self.HudPokableIndicatorEnabled = isHudPokableIndicatorEnabled
-    self:SetObjectDirtyBit( networkObjectClass.DIRTY_BIT.BIT_RARE, true )
+    INSTANCE.SetObjectDirtyBit( self, networkObjectClass.DIRTY_BIT.BIT_RARE, true )
 end
 
 --- @return boolean
@@ -774,7 +967,7 @@ end
 function INSTANCE:SetPlayerType( id )
     damageableGameObjectClass.Instance.SetPlayerType( self, id )
 
-    self:ResetRadarBlipColorType()
+    INSTANCE.ResetRadarBlipColorType( self )
 end
 
 

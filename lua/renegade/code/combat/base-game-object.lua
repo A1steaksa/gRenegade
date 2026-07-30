@@ -123,7 +123,7 @@ end
     --- @param definition BaseGameObjectDefinitionInstance
     --- @param connectedEntity Entity
     function INSTANCE:Init( definition, connectedEntity )
-        self:SetConnectedEntity( connectedEntity )
+        INSTANCE.SetConnectedEntity( self, connectedEntity )
         self.Definition = definition
     end
 
@@ -169,12 +169,12 @@ end
 
     --- @param id integer
     function INSTANCE:SetId( id )
-        self:SetNetworkId( id )
+        INSTANCE.SetNetworkId( self, id )
     end
 
     --- @return integer
     function INSTANCE:GetId()
-        return self:GetNetworkId()
+        return INSTANCE.GetNetworkId( self )
     end
 end
 
