@@ -66,6 +66,10 @@ local CNC = CNC_RENEGADE
 
     -- Manually run some files that add to existing metatables
     include( "renegade/code/wwmath/vector3.lua" )
+
+
+    -- Debug Files
+    include( "renegade/sh_players.lua" )
 end
 
 -- Server-Side Garry's Mod Init
