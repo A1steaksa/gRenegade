@@ -34,14 +34,23 @@ INSTANCE.IsMesh = true
 	--- @type MeshModelClass
 	local meshModelClass = CNC.Import( "code/ww3d2/mesh-model.lua" )
 
-    --- @type WW3dErrorTypes
-    local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
+	--- @type WW3dErrorTypes
+	local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
+
+	--- @type MeshClass
+	local meshClass = CNC.Import( "code/ww3d2/mesh.lua" )
+
+	--- @type VertexMaterialClass
+	local vertexMaterialClass = CNC.Import( "code/ww3d2/vertex-material.lua" )
+
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 --#endregion
 
 --#region Imported Enums
 
-	local flagsTypeEnum = meshGeometryClass.FLAGS_TYPE
-    local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
+	local flagsTypeEnum = vertexMaterialClass.FLAGS_TYPE
+	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -99,7 +108,7 @@ function INSTANCE:Renegade_Mesh( src )
 
         renderObjectClass.Instance.Renegade_RenderObject( self, src )
 
-        self.Model = nil
+        self.Model = src.Model
         self.DecalMesh = nil
         self.LightEnvironment = nil
         self.BaseVertexOffset = src.BaseVertexOffset
@@ -113,8 +122,9 @@ function INSTANCE:_Renegade_Mesh()
     typecheck.NotImplementedError()
 end
 
+--- @return MeshInstance
 function INSTANCE:Clone()
-    typecheck.NotImplementedError()
+    return meshClass.New( self )
 end
 
 function INSTANCE:ClassId()
@@ -131,8 +141,16 @@ function INSTANCE:SetName( name )
     self.Model:SetName( name )
 end
 
+--- @return integer "...the number of polys (tris) in this mesh"
 function INSTANCE:GetNumPolys()
-    typecheck.NotImplementedError()
+    if self.Model then
+        local numPasses = self.Model:GetPassCount()
+        assert( numPasses > 0, "Numpasses is too low: '" .. numPasses .. "'" )
+        local polyCount = self.Model:GetPolygonCount()
+        return numPasses * polyCount
+    else
+        return 0
+    end
 end
 
 function INSTANCE:Render()
@@ -176,9 +194,16 @@ function INSTANCE:GetObjectSpaceBoundingSphere()
     end
 end
 
+--- "Returns the obj-space bounding box"
 --- @return AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox()
-    typecheck.NotImplementedError()
+    if self.Model then
+        return self.Model:GetBoundingBox()
+    else
+        local box = aABoxClass.New()
+        box:Init( Vector( 0, 0, 0 ), Vector( 1, 1, 1 ) )
+        return box
+    end
 end
 
 function INSTANCE:Scale()

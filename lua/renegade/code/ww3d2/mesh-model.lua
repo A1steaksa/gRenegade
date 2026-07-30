@@ -308,6 +308,7 @@ function INSTANCE:MakeColorArrayUnique()
 	typecheck.NotImplementedError()
 end
 
+--- Note: This functiuon is from `Code/ww3d2/meshmdlio.cpp` but IS on the `MeshModelInstance` class  
 --- @param cload ChunkLoadInstance
 --- @return WW3dErrorType
 function INSTANCE:LoadW3d( cload )

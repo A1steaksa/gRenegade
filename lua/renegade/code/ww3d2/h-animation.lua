@@ -58,15 +58,16 @@ end
 --- @field HasEmbeddedSounds boolean
 
 function INSTANCE:Renegade_HAnimation()
-	typecheck.NotImplementedError()
+	self.HasEmbeddedSounds = false
 end
 
 function INSTANCE:_Renegade_HAnimation()
 	typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetName()
-	typecheck.NotImplementedError()
+	CNC.VirtualFunction()
 end
 
 function INSTANCE:GetHName()

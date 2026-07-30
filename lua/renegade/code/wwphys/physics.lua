@@ -585,12 +585,14 @@ end
 
 --[[ Shadow Casting ]] do
 
-    function INSTANCE:EnableShadowGeneration()
-        typecheck.NotImplementedError()
+    --- @param areShadowsEnabled boolean
+    function INSTANCE:EnableShadowGeneration( areShadowsEnabled )
+        INSTANCE.SetFlag( self, STATIC.CASTSHADOW, areShadowsEnabled )
     end
 
+    --- @return boolean
     function INSTANCE:IsShadowGenerationEnabled()
-        typecheck.NotImplementedError()
+        return INSTANCE.GetFlag( self, STATIC.CASTSHADOW )
     end
 end
 
@@ -881,8 +883,10 @@ end
     end
 end
 
-function INSTANCE:GetFlag()
-    typecheck.NotImplementedError()
+--- @param flag integer
+--- @return boolean
+function INSTANCE:GetFlag( flag )
+    return ( ( bit.band( self.Flags, flag ) == flag ) )
 end
 
 --- @param flag integer

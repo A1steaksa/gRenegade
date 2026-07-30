@@ -24,9 +24,14 @@ INSTANCE.IsHModelLoader = true
 --#endregion
 
 --#region Imports
+
+	--- @type W3dFileIds
+	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local w3dChunkTypeEnum = w3dFileIds.W3D_CHUNK_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -58,10 +63,12 @@ function INSTANCE:Renegade_HModelLoader()
     prototypeLoaderClass.Instance.Renegade_PrototypeLoader( self )
 end
 
+--- @return W3dChunkType
 function INSTANCE:ChunkType()
-	typecheck.NotImplementedError()
+    return w3dChunkTypeEnum.W3D_CHUNK_HMODEL
 end
 
+--- @return PrototypeInstance?
 function INSTANCE:LoadW3d()
 	typecheck.NotImplementedError()
 end

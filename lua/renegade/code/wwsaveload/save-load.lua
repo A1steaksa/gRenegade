@@ -13,6 +13,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
 
 --#region Imports
+
+	--- @type CombatChunkIdClass
+	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 --#endregion
 
 
@@ -125,16 +128,20 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --[[ Pointer Remapping Interface ]] do
 
-        function STATIC.RegisterPointer()
-            typecheck.NotImplementedError()
+        --- @param oldPointer any
+        --- @param newPointer any
+        function STATIC.RegisterPointer( oldPointer, newPointer )
+            section.Warn( STATIC.Class, " - RegisterPointer - Skipping registering ('", oldPointer, "' => '", newPointer, "')" )
         end
 
-        function STATIC.RequestPointerRemap()
-            typecheck.NotImplementedError()
+        --- @param pointerToConvert any
+        function STATIC.RequestPointerRemap( pointerToConvert )
+            section.Warn( STATIC.Class, " - RequestPointerRemap - Skipping remapping ", pointerToConvert )
         end
 
-        function STATIC.RequestRefCountedPointerRemap()
-            typecheck.NotImplementedError()
+        --- @param pointerToConvert any
+        function STATIC.RequestRefCountedPointerRemap( pointerToConvert )
+            section.Warn( STATIC.Class, " - RequestRefCountedPointerRemap - Skipping remapping ", pointerToConvert )
         end
     end
 
@@ -175,7 +182,10 @@ local isHotload = not table.IsEmpty( STATIC )
         ---@param factory PersistFactoryInstance
         function STATIC.RegisterPersistFactory( factory )
 
-            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", factory:ChunkId() )
+            local chunkId = factory:ChunkId()
+            local chunkName = table.KeyFromValue( combatChunkIdClass, chunkId )
+
+            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", chunkId, " (", chunkName, ")" )
 
             STATIC.LinkFactory( factory )
         end

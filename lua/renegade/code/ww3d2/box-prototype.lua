@@ -30,6 +30,12 @@ INSTANCE.IsBoxPrototype = true
 
 	--- @type W3dFileIds
 	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
+
+	--- @type AABoxRenderObjectClass
+	local aABoxRenderObjectClass = CNC.Import( "code/ww3d2/aa-box-render-object.lua" )
+
+	--- @type OBBoxRenderObjectClass
+	local oBBoxRenderObjectClass = CNC.Import( "code/ww3d2/ob-box-render-object.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -88,10 +94,8 @@ end
 --- @return RenderObjectInstance
 function INSTANCE:Create()
     if bit.band( self.Definition.Attributes, w3dFileIds.W3D_BOX_ATTRIBUTE_ORIENTED ) == 1 then
-        typecheck.NotImplementedError()
-        -- return oBBoxRenderObjectClass.New( self.Definition )
+        return oBBoxRenderObjectClass.New( self.Definition )
     else
-        typecheck.NotImplementedError()
-        -- return aABoxRenderObjectClass.New( self.Definition )
+        return aABoxRenderObjectClass.New( self.Definition )
     end
 end

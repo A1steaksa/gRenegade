@@ -27,6 +27,15 @@ INSTANCE.IsRenderObject = true
 
     local enumBuilder = enumBuilderClass.New()
 
+    -- "Hierarchical Animation"
+    --- @enum RenderObjectAnimationMode
+    STATIC.ANIMATION_MODE = {
+        ANIM_MODE_MANUAL = enumBuilder:Set( 0 ),
+        ANIM_MODE_LOOP = enumBuilder:Next(),
+        ANIM_MODE_ONCE = enumBuilder:Next(),
+    }
+    local animationModeEnum = STATIC.ANIMATION_MODE
+
     --- "  
     --- Note:  It is very important that these values NEVER CHANGE.  
     --- That means when adding a new class id, it should be added to the end of the enum.  
@@ -184,7 +193,8 @@ end
 --- @field Scene SceneInstance
 --- @field Container RenderObjectInstance
 --- @field UserData any
---- @field SourceModelPath string The Source engine `.mdl` file 
+--- @field ConnectedEntity Entity The Source engine Entity this Render Object is connected to
+--- @field SourceModelPath string The Source engine `.mdl` file this Render Object is connected to 
 
 --- Constructs a new RenderObjectInstance
 --- @param src RenderObjectInstance? Another RenderObjectInstance to copy
@@ -230,14 +240,40 @@ function INSTANCE:_Renegade_RenderObject()
 end
 
 
+--[[ Source Engine Connection ]] do
+
+    --- @param ent Entity
+    function INSTANCE:SetConnectedEntity( ent )
+        self.ConnectedEntity = ent
+    end
+
+        --- @return Entity
+    function INSTANCE:GetConnectedEntity()
+        return self.ConnectedEntity
+    end
+
+    --- @param modelPath string
+    function INSTANCE:SetSourceModelPath( modelPath )
+        self.SourceModelPath = modelPath
+    end
+
+    --- @return string
+    function INSTANCE:GetSourceModelPath()
+        return self.SourceModelPath
+    end
+end
+
+
 --[[ Render Object Interface - Cloning and Identification ]] do
 
+    --- @return RenderObjectInstance
     function INSTANCE:Clone()
-        typecheck.NotImplementedError()
+        CNC.VirtualFunction()
     end
 
     --- @return integer
     function INSTANCE:ClassId()
+        CNC.VirtualFunction()
         return STATIC.RENDER_OBJECT_CLASS_ID.CLASSID_UNKNOWN
     end
 
@@ -246,16 +282,19 @@ end
         return "UNNAMED"
     end
 
-    function INSTANCE:SetName()
-        typecheck.NotImplementedError()
+    --- @param name string
+    function INSTANCE:SetName( name )
+        CNC.VirtualFunction()
     end
 
+    --- @return string?
     function INSTANCE:GetBaseModelName()
-        typecheck.NotImplementedError()
+        CNC.VirtualFunction()
     end
 
-    function INSTANCE:SetBaseModelName()
-        typecheck.NotImplementedError()
+    --- @param name string
+    function INSTANCE:SetBaseModelName( name )
+        CNC.VirtualFunction()
     end
 
     --- @return integer
@@ -297,8 +336,16 @@ function INSTANCE:PeekScene()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetContainer()
-    typecheck.NotImplementedError()
+
+--- @param container RenderObjectInstance
+function INSTANCE:SetContainer( container )
+    -- "  
+    -- Either we aren't currently in a container or we are clearing our container, otherwise
+    -- Houston, there is a problem!  
+    -- "  
+    -- Omitted assert because it makes LuaLS sad and probably isn't needed...  Probably?
+
+    self.Container = container
 end
 
 
@@ -385,21 +432,41 @@ end
     end
 end
 
-function INSTANCE:NotifyAdded()
-    typecheck.NotImplementedError()
+--- "  
+--- Notifies the object that it is in a scene
+--- This function will be called whenever an object is directly or indirectly added to a scene
+--- An example of "indirect" addition would be if you were added as a sub-object to an HModel 
+--- that was already in a scene.
+---   
+--- Override this function if you want to register your object for per-frame-updating or
+--- as a VertexProcessor.  (See the Register method of SceneClass, ParticleBufferClass, etc)  
+---  
+--- Container objects must forward this notification to their sub objects.  
+--- "  
+--- @param scene SceneInstance
+function INSTANCE:NotifyAdded( scene )
+    self.Scene = scene
 end
 
-function INSTANCE:NotifyRemoved()
-    typecheck.NotImplementedError()
+--- "  
+--- Notifies an object that it has been removed  
+--- Works similar to the Notify_Added function.  You can override and Unregister yourself from
+--- any scene based special processing.  Container objects must recurse to their sub objects. 
+--- "  
+function INSTANCE:NotifyRemoved( scene )
+    self.Scene = nil
 end
 
+--- @return integer
 function INSTANCE:GetNumSubObjects()
-    typecheck.NotImplementedError()
+    CNC.VirtualFunction()
+    return 0
 end
 
 --- @param index integer
 --- @return RenderObjectInstance?
 function INSTANCE:GetSubObject( index )
+    CNC.VirtualFunction()
     return nil
 end
 
@@ -429,40 +496,54 @@ function INSTANCE:GetSubObjectBoneIndex()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:AddSubObjectToBone()
-    typecheck.NotImplementedError()
+--- "Add an object to a named bone"
+--- @param subObject RenderObjectInstance
+--- @param boneName string
+--- @return boolean
+function INSTANCE:AddSubObjectToBone( subObject, boneName )
+    local boneIndex = INSTANCE.GetBoneIndex( self, boneName )
+    return INSTANCE.AddSubObjectToBone( self, subObject, boneIndex )
 end
 
 function INSTANCE:RemoveSubObjectsFromBone()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAnimation()
-    typecheck.NotImplementedError()
+--- @overload fun()
+--- @overload fun( self, motion: HAnimationInstance, frame: number, animationMode: RenderObjectAnimationMode )
+--- @overload fun( self, motion0: HAnimationInstance, frame0: number, motion1: HAnimationInstance, frame1: number, percentage: number )
+--- @overload fun( self, animationCombo: HAnimationComboInstance )
+function INSTANCE:SetAnimation( ... )
+    CNC.VirtualFunction()
 end
 
-function INSTANCE:SetAnimation()
-    typecheck.NotImplementedError()
-end
-
+--- @return HAnimationInstance
 function INSTANCE:PeekAnimation()
-    typecheck.NotImplementedError()
+    CNC.VirtualFunction()
 end
 
+--- @return integer
 function INSTANCE:GetNumBones()
-    typecheck.NotImplementedError()
+    CNC.VirtualFunction()
 end
 
-function INSTANCE:GetBoneName()
-    typecheck.NotImplementedError()
+--- @param boneIndex integer
+--- @return string
+function INSTANCE:GetBoneName( boneIndex )
+    CNC.VirtualFunction()
 end
 
-function INSTANCE:GetBoneIndex()
-    typecheck.NotImplementedError()
+--- @param boneName string
+--- @return integer
+function INSTANCE:GetBoneIndex( boneName )
+    CNC.VirtualFunction()
 end
 
-function INSTANCE:GetBoneTransform()
-    typecheck.NotImplementedError()
+--- @param bone string|integer
+--- @return Matrix3dInstance
+function INSTANCE:GetBoneTransform( bone )
+    CNC.VirtualFunction()
+    return ( INSTANCE.GetTransform( self ) )
 end
 
 function INSTANCE:CaptureBone()
@@ -481,6 +562,7 @@ function INSTANCE:ControlBone()
     typecheck.NotImplementedError()
 end
 
+--- @return HTreeInstance
 function INSTANCE:GetHTree()
     typecheck.NotImplementedError()
 end
@@ -518,7 +600,7 @@ function INSTANCE:IntersectSphereQuick()
 end
 
 function INSTANCE:GetBoundingSphere()
-    if bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ~= 1 then
+    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingSphere
@@ -526,7 +608,7 @@ end
 
 --- @return AABoxInstance
 function INSTANCE:GetBoundingBox()
-    if bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ~= 1 then
+    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingBox
@@ -594,8 +676,9 @@ function INSTANCE:GetLodCount()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetLodBias()
-    typecheck.NotImplementedError()
+--- @param bias number
+function INSTANCE:SetLodBias( bias )
+    CNC.VirtualFunction()
 end
 
 function INSTANCE:CalculateCostValueArrays()
@@ -662,10 +745,12 @@ function INSTANCE:IsReallyVisible()
     typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsNotHiddenAtAll()
-    typecheck.NotImplementedError()
+    return ( bit.band( self.Bits, STATIC.IS_NOT_HIDDEN_AT_ALL ) == STATIC.IS_NOT_HIDDEN_AT_ALL )
 end
 
+--- @return boolean
 function INSTANCE:IsVisible()
     typecheck.NotImplementedError()
 end
@@ -686,8 +771,13 @@ function INSTANCE:IsAnimationHidden()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAnimationHidden()
-    typecheck.NotImplementedError()
+--- @param isHidden boolean
+function INSTANCE:SetAnimationHidden( isHidden )
+    if isHidden then
+        self.Bits = bit.band( self.Bits, bit.bnot( STATIC.IS_NOT_ANIMATION_HIDDEN ) )
+    else
+        self.Bits = bit.bor( self.Bits, STATIC.IS_NOT_ANIMATION_HIDDEN )
+    end
 end
 
 function INSTANCE:IsForceVisible()
@@ -706,28 +796,48 @@ function INSTANCE:SetHasUserLighting()
     typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsTranslucent()
-    typecheck.NotImplementedError()
+    return bit.band( self.Bits, STATIC.IS_TRANSLUCENT ) == STATIC.IS_TRANSLUCENT
 end
 
-function INSTANCE:SetTranslucent()
-    typecheck.NotImplementedError()
+--- @param isTranslucent boolean
+function INSTANCE:SetTranslucent( isTranslucent )
+    if isTranslucent then
+        self.Bits = bit.bor( self.Bits, STATIC.IS_TRANSLUCENT )
+    else
+        self.Bits = bit.band( self.Bits, bit.bnot( STATIC.IS_TRANSLUCENT ) )
+    end
 end
 
+--- @return integer
 function INSTANCE:GetCollisionType()
-    typecheck.NotImplementedError()
+    return bit.band( self.Bits, STATIC.COLLISION_TYPE_MASK )
 end
 
-function INSTANCE:SetCollisionType()
-    typecheck.NotImplementedError()
+--- @param collisionType integer
+function INSTANCE:SetCollisionType( collisionType )
+    self.Bits = bit.band(
+        self.Bits,
+        bit.bnot( STATIC.COLLISION_TYPE_MASK )
+    )
+
+    self.Bits = bit.bor(
+        self.Bits,
+        bit.bor(
+            bit.band( collisionType, STATIC.COLLISION_TYPE_MASK ),
+            collisionTypeClass.COLLISION_TYPE_ALL
+        )
+    )
 end
 
 function INSTANCE:IsComplete()
     typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsInScene()
-    typecheck.NotImplementedError()
+    return self.Scene ~= nil
 end
 
 function INSTANCE:GetNativeScreenSize()
@@ -746,8 +856,13 @@ function INSTANCE:IsSubObjectsMatchLodEnabled()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetSubObjectTransformsDirty()
-    typecheck.NotImplementedError()
+--- @param onOff boolean
+function INSTANCE:SetSubObjectTransformsDirty( onOff )
+    if onOff then
+        self.Bits = bit.bor( self.Bits, STATIC.SUBOBJ_TRANSFORMS_DIRTY )
+    else
+        self.Bits = bit.band( self.Bits, bit.bnot( STATIC.SUBOBJ_TRANSFORMS_DIRTY ) )
+    end
 end
 
 --- @return boolean
@@ -791,8 +906,42 @@ function INSTANCE:UpdateCachedBoundingVolumes()
     self:ValidateCachedBoundingVolumes()
 end
 
+--- "  
+--- Updates our bits according to our sub-objects  
+---  
+--- This should be called by any object that contains other objects whenever a sub object is
+--- added or removed.  It updates the status of the attribute bits which are supposed to be 
+--- the union of all of the sub-objects attributes.  (I.e. if one of our sub-objects is 
+--- translucent, then we should be marked as translucent).  
+--- "  
 function INSTANCE:UpdateSubObjectBits()
-    typecheck.NotImplementedError()
+    -- "This doesn't do anything for non-composite objects"
+    if self:GetNumSubObjects() == 0 then
+        return
+    end
+
+    -- "Go through all of our sub-objects"
+    local collisionType = 0
+    local isTranslucent = false
+
+    for subObjectIndex = 1, self:GetNumSubObjects() do
+        local renderObject = self:GetSubObject( subObjectIndex )
+        if renderObject == nil then
+            section.Error( self.Class, ":UpdateSubObjectBits - Failed to get sub object '", subObjectIndex, "'" )
+            return
+        end
+
+        collisionType = bit.bor( collisionType, renderObject:GetCollisionType() )
+        isTranslucent = isTranslucent or renderObject:IsTranslucent()
+    end
+
+    self:SetCollisionType( collisionType )
+    self:SetTranslucent( isTranslucent )
+
+    -- "If we are a sub-object, tell our container to do this"
+    if self.Container ~= nil then
+        self.Container:UpdateSubObjectBits()
+    end
 end
 
 function INSTANCE:BoundingVolumesValid()

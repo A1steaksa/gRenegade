@@ -24,6 +24,21 @@ INSTANCE.IsOBBoxRenderObject = true
 --#endregion
 
 --#region Imports
+
+	--- @type OBBoxClass
+	local oBBoxClass = CNC.Import( "code/wwmath/obbox.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type RenderObjectClass
+	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
+
+	--- @type SphereClass
+	local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
+
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -53,14 +68,58 @@ end
 
 
 --- @class OBBoxRenderObjectInstance
---- @field CachedBox any
+--- @field CachedBox OBBoxInstance
 
-function INSTANCE:Renegade_OBBoxRenderObject()
-	typecheck.NotImplementedError()
-end
+--- @param src W3dBoxStruct|OBBoxRenderObjectInstance|OBBoxInstance?
+function INSTANCE:Renegade_OBBoxRenderObject( src )
+	self.CachedBox = oBBoxClass.New()
 
-function INSTANCE:Renegade_OBBoxRenderObject()
-	typecheck.NotImplementedError()
+	-- "Constructor"
+	-- ()
+	if src == nil then
+		--- @cast src nil
+
+		boxRenderObjectClass.Instance.Renegade_BoxRenderObject( self )
+
+		INSTANCE.UpdateCachedBox( self )
+		return
+	else
+		typecheck.AssertArgType( INSTANCE.Class, 1, src, { "W3dBoxStruct", "OBBoxRenderObjectInstance", "OBBoxInstance" } )
+
+		-- "Init from a definition"
+		-- ( def: W3dBoxStruct )
+		if typecheck.IsOfType( src, "W3dBoxStruct" ) then
+			local def = src --[[@as W3dBoxStruct]]
+
+			boxRenderObjectClass.Instance.Renegade_BoxRenderObject( self, def )
+
+			INSTANCE.UpdateCachedBox( self )
+			return
+
+		-- "Copy constructor"
+		-- ( src: OBBoxRenderObjectInstance )
+		elseif typecheck.IsOfType( src, "OBBoxRenderObjectInstance" ) then
+			--- @cast src OBBoxRenderObjectInstance
+
+			boxRenderObjectClass.Instance.Renegade_BoxRenderObject( self )
+
+			typecheck.NotImplementedError()
+			return
+
+		-- "Constructor from a wwmath obbox"
+		-- ( box: OBBoxInstance )
+		else
+			local box = src --[[@as OBBoxInstance]]
+
+			boxRenderObjectClass.Instance.Renegade_BoxRenderObject( self )
+
+			self.ObjectSpaceCenter = Vector( 0, 0, 0 )
+			self.ObjectSpaceExtent = box.Extent
+			INSTANCE.SetTransform( self, matrix3dClass.New( box.Basis, box.Center ) )
+			INSTANCE.UpdateCachedBox( self ) -- "Cached box should == box!"
+			return
+		end
+	end
 end
 
 function INSTANCE:Clone()
@@ -79,8 +138,10 @@ function INSTANCE:SpecialRender()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTransform()
-	typecheck.NotImplementedError()
+--- @param matrix Matrix3dInstance
+function INSTANCE:SetTransform( matrix )
+	renderObjectClass.Instance.SetTransform( self, matrix )
+	INSTANCE.UpdateCachedBox( self )
 end
 
 function INSTANCE:SetPosition()
@@ -107,18 +168,27 @@ function INSTANCE:IntersectObBox()
 	typecheck.NotImplementedError()
 end
 
+--- @return SphereInstance
 function INSTANCE:GetObjectSpaceBoundingSphere()
-	typecheck.NotImplementedError()
+	local sphere = sphereClass.New()
+	sphere:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent:Length() )
+	return sphere
 end
 
+--- @return AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox()
-	typecheck.NotImplementedError()
+	local box = aABoxClass.New()
+	box:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent )
+	return box
 end
 
 function INSTANCE:GetBox()
 	typecheck.NotImplementedError()
 end
 
+--- "Update the cached world-space box"
 function INSTANCE:UpdateCachedBox()
-	typecheck.NotImplementedError()
+	self.CachedBox.Center = matrix3dClass.TransformVector( self.Transform, self.ObjectSpaceCenter )
+	self.CachedBox.Extent = self.ObjectSpaceExtent
+	self.CachedBox.Basis = self.Transform
 end

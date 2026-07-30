@@ -1628,10 +1628,36 @@ end
 
     --- @param min Vector
     --- @param max Vector
-    --- @param setMin Vector
-    --- @param setMax Vector
-    function INSTANCE:TransformMinMaxAABox( min, max, setMin, setMax )
-        typecheck.NotImplementedError( "TransformMinMaxAABox" )
+    --- @return Vector min
+    --- @return Vector max
+    function INSTANCE:TransformMinMaxAABox( min, max )
+        local temp0, temp1
+
+        -- "Init the min and max to the translation of the transform"
+        local setMin = Vector(
+            self.Row[1][4],
+            self.Row[2][4],
+            self.Row[3][4]
+        )
+        local setMax = Vector( setMin )
+
+        -- "Now push them both out by the projections of the original intervals"
+        for i = 1, 3 do
+            for j = 1, 3 do
+                temp0 = self.Row[i][j] * min[j]
+                temp1 = self.Row[i][j] * max[j]
+
+                if temp0 < temp1 then
+                    setMin[i] = setMin[i] + temp0
+                    setMax[i] = setMax[i] + temp1
+                else
+                    setMin[i] = setMin[i] + temp1
+                    setMax[i] = setMax[i] + temp0
+                end
+            end
+        end
+
+        return setMin, setMax
     end
 
     --- @param center Vector

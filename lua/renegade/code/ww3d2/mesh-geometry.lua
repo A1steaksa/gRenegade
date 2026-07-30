@@ -333,7 +333,10 @@ end
 
 	--- @return AABoxInstance
 	function INSTANCE:GetBoundingBox()
-		typecheck.NotImplementedError()
+		local box = aABoxClass.New()
+		box.Center = ( self.BoundBoxMax + self.BoundBoxMin ) * 0.5
+		box.Extent = ( self.BoundBoxMax - self.BoundBoxMin ) * 0.5
+		return box
 	end
 
 	--- "Get the bounding sphere"
@@ -705,7 +708,19 @@ end
 	--- @param cload ChunkLoadInstance
 	--- @return WW3dErrorType
 	function INSTANCE:ReadVertexInfluences( cload )
-		typecheck.NotImplementedError()
+		local links = INSTANCE.GetBoneLinks( self, true )
+		assert( links ~= nil )
+
+		for i = 1, INSTANCE.GetVertexCount( self ) do
+			local vertexInfluence = cload:ReadStruct( "W3dVertInfStruct" )
+			if vertexInfluence == nil then
+				return wW3dErrorTypeEnum.WW3D_ERROR_LOAD_FAILED
+			end
+			links[i] = vertexInfluence.BoneIndex
+		end
+		INSTANCE.SetFlag( self, meshGeometryFlagsTypeEnum.SKIN, true )
+
+		return wW3dErrorTypeEnum.WW3D_ERROR_OK
 	end
 
 	--- @protected

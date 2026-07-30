@@ -83,6 +83,8 @@ end
 --- @param definition MoveablePhysicsDefinitionInstance
 --- @param connectedEntity Entity
 function INSTANCE:Init( definition, connectedEntity )
+
+	
 	self.Mass = definition.Mass
 	self.MassInverted = 1.0 / self.Mass
 	self.GravityScale = definition.GravityScale
@@ -116,24 +118,34 @@ function INSTANCE:PostTimestepProcess()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetMass()
-	typecheck.NotImplementedError()
+--- @param mass number
+function INSTANCE:SetMass( mass )
+	self.Mass = mass
+	self.MassInverted = ( 1.0 / mass )
+
+	if self.SourcePhysObj ~= nil and self.SourcePhysObj:IsValid() then
+		self.SourcePhysObj:SetMass( self.Mass )
+	end
 end
 
+--- @return number
 function INSTANCE:GetMass()
-	typecheck.NotImplementedError()
+	return self.Mass
 end
 
+--- @return number
 function INSTANCE:GetMassInv()
-	typecheck.NotImplementedError()
+	return self.MassInverted
 end
 
-function INSTANCE:SetGravityMultiplier()
-	typecheck.NotImplementedError()
+--- @param grav number
+function INSTANCE:SetGravityMultiplier( grav )
+	self.GravityScale = grav
 end
 
+--- @return number
 function INSTANCE:GetGravityMultiplier()
-	typecheck.NotImplementedError()
+	return self.GravityScale
 end
 
 function INSTANCE:SetElasticity()
@@ -168,8 +180,10 @@ function INSTANCE:CinematicMoveTo()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetController()
-	typecheck.NotImplementedError()
+
+--- @param control PhysicsControllerInstance
+function INSTANCE:SetController( control )
+	self.Controller = control
 end
 
 function INSTANCE:GetController()
