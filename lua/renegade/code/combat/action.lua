@@ -32,9 +32,10 @@ INSTANCE.IsAction = true
     --- @class ActionClass
 
     --- Creates a new ActionInstance
+	--- @param object SmartGameObjectInstance
     --- @return ActionInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_Action" )
+    function STATIC.New( object )
+        return robustclass.New( "Renegade_Action", object )
     end
 
     --- @param arg any
@@ -51,14 +52,20 @@ end
 
 
 --- @class ActionInstance
---- @field ActionObject any
---- @field ActionCode any
---- @field Parameters any
---- @field IsPaused any
---- @field ActCount any
+--- @field ActionObject SmartGameObjectInstance
+--- @field ActionCode ActionCodeInstance
+--- @field Parameters SafeActionParamsStructInstance
+--- @field IsPaused boolean
+--- @field ActCount integer
 
-function INSTANCE:Renegade_Action()
-	typecheck.NotImplementedError()
+
+--- @param object SmartGameObjectInstance
+function INSTANCE:Renegade_Action( object )
+	self.ActionCode = nil
+	self.ActCount = 0
+	self.IsPaused = false
+	assert( object ~= nil )
+	self.ActionObject = object
 end
 
 function INSTANCE:_Renegade_Action()
