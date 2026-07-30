@@ -340,7 +340,7 @@ function STATIC.GameInit()
 
         -- "Load the map"
         gameInitManagerClass.InitializeSP()
-        gameInitManagerClass.StartGame( "m01.mix.txt", -1, 0 )
+        gameInitManagerClass.StartGame( "c&c_under.mix.txt", -1, 0 )
     end
 
 
