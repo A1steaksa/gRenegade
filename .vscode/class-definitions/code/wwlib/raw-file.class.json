@@ -1,0 +1,52 @@
+{
+  "Name": "RawFile",
+  "ParentNames": [
+    "File"
+  ],
+  "FileName": "raw-file",
+  "CppName": "RawFileClass",
+  "CppPath": "Code/wwlib/rawfile.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Rights",
+      "BiasStart",
+      "BiasLength",
+      "Handle",
+      "Handle",
+      "Filename",
+      "Date",
+      "Time"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Destructor",
+      "FileName",
+      "SetName",
+      "Create",
+      "Delete",
+      "IsAvailable",
+      "IsOpen",
+      "Open",
+      "Read",
+      "Seek",
+      "Size",
+      "Write",
+      "Close",
+      "GetDateTime",
+      "SetDateTime",
+      "Error",
+      "Bias",
+      "GetFileHandle",
+      "Attach",
+      "Detach",
+      "TransferBlockSize",
+      "RawSeek",
+      "Reset"
+    ]
+  }
+}

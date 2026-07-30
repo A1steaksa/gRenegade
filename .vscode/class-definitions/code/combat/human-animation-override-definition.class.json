@@ -1,0 +1,49 @@
+{
+  "Name": "HumanAnimationOverrideDefinition",
+  "ParentNames": [
+    "Definition"
+  ],
+  "FileName": "human-animation-override-definition",
+  "CppName": "HumanAnimOverrideDef",
+  "CppPath": "Code/Combat/globalsettings.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "RunEmptyHands",
+        "DataType": "any"
+      },
+      {
+        "Name": "WalkEmptyHands",
+        "DataType": "any"
+      },
+      {
+        "Name": "RunAtChest",
+        "DataType": "any"
+      },
+      {
+        "Name": "WalkAtChest",
+        "DataType": "any"
+      },
+      {
+        "Name": "RunAtHip",
+        "DataType": "any"
+      },
+      {
+        "Name": "WalkAtHip",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "Save",
+      "Load",
+      "GetFactory"
+    ]
+  }
+}

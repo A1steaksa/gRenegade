@@ -1,0 +1,360 @@
+-- Based on HumanStateClass within Code/Combat/humanstate.h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+
+--- @class HumanStateClass
+--- @field Instance HumanStateInstance The metatable used by HumanStateInstance
+local STATIC = CNC.CreateExport()
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "HumanStateClass"
+
+--- @class HumanStateInstance
+--- @field Static HumanStateClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_HumanState" )
+INSTANCE.Class = "HumanStateInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsHumanState = true
+
+--#region Exported Enums
+--#endregion
+
+--#region Imports
+
+	--- @type HumanAnimationControlClass
+	local humanAnimationControlClass = CNC.Import( "code/combat/human-animation-control.lua" )
+
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+
+	--- @type WeaponClass
+	local weaponClass = CNC.Import( "code/combat/weapon.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local humanStateTypeEnum = humanAnimationControlClass.HUMAN_STATE_TYPE
+	local weaponHoldStyleTypeEnum = weaponClass.WEAPON_HOLD_STYLE_TYPE
+	local humanStateFlagsTypeEnum = humanAnimationControlClass.HUMAN_STATE_FLAGS_TYPE
+--#endregion
+
+
+--[[ Chunk IDs ]] do
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+    STATIC.ChunkIds = {
+        CHUNKID_VARIABLES   	 = enumBuilder:Set( 915991207 ),
+        XXX_CHUNKID_ANIM_CONTROL = enumBuilder:Next(),
+
+        MICROCHUNKID_STATE             				= enumBuilder:Set( 1 ),
+		MICROCHUNKID_SUB_STATE						= enumBuilder:Next(),
+		MICROCHUNKID_STATE_LOCKED					= enumBuilder:Next(),
+		MICROCHUNKID_WEAPON_HOLD_STYLE				= enumBuilder:Next(),
+		XXXMICROCHUNKID_WEAPON_STATE				= enumBuilder:Next(),
+		MICROCHUNKID_AIMING_TILT					= enumBuilder:Next(),
+		MICROCHUNKID_AIMING_TURN					= enumBuilder:Next(),
+		MICROCHUNKID_TURN_VELOCITY					= enumBuilder:Next(),
+		MICROCHUNKID_PHYSOBJ						= enumBuilder:Next(),
+		MICROCHUNKID_LOITER_DELAY					= enumBuilder:Next(),
+		MICROCHUNKID_STATE_FLAGS					= enumBuilder:Next(),
+		MICROCHUNKID_JUMP_TM						= enumBuilder:Next(),
+		MICROCHUNKID_STATE_TIMER					= enumBuilder:Next(),
+		MICROCHUNKID_LOITERS_ALLOWED				= enumBuilder:Next(),
+		MICROCHUNKID_WEAPON_HOLD_TIMER				= enumBuilder:Next(),
+		MICROCHUNKID_HUMAN_ANIM_OVERRIDE_DEF_ID		= enumBuilder:Next(),
+		MICROCHUNKID_HUMAN_LOITER_COLLECTION_DEF_ID	= enumBuilder:Next()
+    }
+end
+
+
+--[[ Static Functions and Variables ]] do
+
+    --- @class HumanStateClass
+
+	STATIC.CORPSE_PERSIST_TIME = 2.0
+
+    --- Creates a new HumanStateInstance
+    --- @return HumanStateInstance
+    function STATIC.New()
+        return robustclass.New( "Renegade_HumanState" )
+    end
+
+    --- @param arg any
+    --- @return boolean `true` if the passed argument is a(n) HumanStateInstance, `false` otherwise
+    function STATIC.IsHumanState( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.IsHumanState and true or false
+    end
+
+    typecheck.RegisterType( "HumanStateInstance", STATIC.IsHumanState )
+
+	function STATIC.SetPrecision()
+		typecheck.NotImplementedError()
+	end
+
+	function STATIC.GetWoundAnimation()
+		typecheck.NotImplementedError()
+	end
+
+	function STATIC.GetDeathAnimation()
+		typecheck.NotImplementedError()
+	end
+end
+
+
+--- @class HumanStateInstance
+--- @field StateLocked boolean
+--- @field State HumanStateType
+--- @field StateTimer number
+--- @field StateFlags integer
+--- @field SubState integer
+--- @field WeaponHoldStyle integer "How is he holding his weapon?"
+--- @field WeaponHoldTimer number "How long until we lower the weapon?"
+--- @field LoitersAllowed boolean
+--- @field LoiterDelay number
+--- @field AimingTilt number
+--- @field AimingTurn number
+--- @field HumanPhysics HumanPhysicsInstance? "Our local copy // Physical Object for Human"
+--- @field AnimationControl HumanAnimationControlInstance "Our local copy // Animation Control for Human Model"
+--- @field TurnVelocity number
+--- @field LegRotation number
+--- @field JumpTM Matrix3dInstance
+--- @field RecoilTimer number "Remaining recoil time."
+--- @field RecoilScale number "Scale factor on the recoil motion."
+--- @field NoAnimationBlend boolean
+--- @field WeaponFired boolean
+--- @field HumanAnimationOverride HumanAnimationOverrideDefinitionInstance
+--- @field HumanLoiterCollection HumanLoiterGlobalSettingsDefinitionInstance
+
+function INSTANCE:Renegade_HumanState()
+	self.State = humanStateTypeEnum.UPRIGHT
+	self.StateFlags = 0
+	self.StateTimer = 0
+	self.SubState = 0
+	self.StateLocked = false
+	self.AnimationControl = nil
+	self.WeaponHoldStyle = weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_EMPTY_HANDS
+	self.HumanPhysics = nil
+	self.TurnVelocity = 0
+	self.AimingTilt = 0
+	self.AimingTurn = 0
+	self.RecoilTimer = 0.0
+	self.RecoilScale = 1.0
+	self.LoiterDelay = 0
+	self.LoitersAllowed = true
+	self.LegRotation = 0
+	self.WeaponHoldTimer = 0
+	self.NoAnimationBlend = false
+	self.HumanAnimationOverride = nil
+	self.HumanLoiterCollection = nil
+	self.WeaponFired = false
+	self:ResetLoiterDelay()
+end
+
+function INSTANCE:_Renegade_HumanState()
+	if self.HumanPhysics ~= nil then
+		self.HumanPhysics = nil
+	end
+end
+
+--- @param humanPhysics HumanPhysicsInstance?
+function INSTANCE:Init( humanPhysics )
+	self.HumanPhysics = humanPhysics
+end
+
+function INSTANCE:Reset()
+	-- "Clear the sniping flag"
+	if self:GetStateFlag( humanStateFlagsTypeEnum.SNIPING_FLAG ) then
+		self:ToggleStateFlag( humanStateFlagsTypeEnum.SNIPING_FLAG )
+	end
+end
+
+--- @param animationControl HumanAnimationControlInstance
+function INSTANCE:SetAnimationControl( animationControl )
+	self.AnimationControl = animationControl
+	self.AnimationControl:SetModel(self.HumanPhysics:PeekModel() )
+end
+
+--- @param definitionId integer
+function INSTANCE:SetHumanAnimationOverride( definitionId )
+	self.HumanAnimationOverride = definitionManagerClass.FindDefinition( definitionId ) --[[@as HumanAnimationOverrideDefinitionInstance]]
+end
+
+--- @param definitionId integer
+function INSTANCE:SetHumanLoiterCollection( definitionId )
+	self.HumanLoiterCollection = definitionManagerClass.FindDefinition( definitionId ) --[[@as HumanLoiterGlobalSettingsDefinitionInstance]]
+end
+
+--- @param csave ChunkSaveInstance
+--- @return boolean
+function INSTANCE:Save( csave )
+	typecheck.NotImplementedError()
+end
+
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:Load( cload )
+	typecheck.NotImplementedError()
+end
+
+--- @param state HumanStateType
+--- @param subState integer? [Default: `0`]
+function INSTANCE:SetState( state, subState )
+	if subState == nil then subState = 0 end
+
+	typecheck.NotImplementedError()
+end
+
+--- @return HumanStateType
+function INSTANCE:GetState()
+	return self.State
+end
+
+--- @return string
+function INSTANCE:GetStateName()
+	-- Replaced original function contents as they were crazy
+	return table.KeyFromValue( humanStateTypeEnum, self.State )
+end
+
+--- @return boolean
+function INSTANCE:IsStateInterruptable()
+	local state = self.State
+	return (
+		   state == humanStateTypeEnum.UPRIGHT
+		or state == humanStateTypeEnum.WOUNDED
+		or state == humanStateTypeEnum.LAND
+		or state == humanStateTypeEnum.LOITER
+		or state == humanStateTypeEnum.ANIMATION
+	)
+end
+
+--- @param subState integer
+function INSTANCE:SetSubState( subState )
+	typecheck.NotImplementedError()
+end
+
+--- @return integer
+function INSTANCE:GetSubState()
+	return self.SubState
+end
+
+--- @return boolean
+function INSTANCE:IsSubStateAdjustable()
+	typecheck.NotImplementedError()
+end
+
+--- @return number
+function INSTANCE:GetStateTimer()
+	return self.StateTimer
+end
+
+--- @param timer number
+function INSTANCE:SetStateTimer( timer )
+	self.StateTimer = timer
+end
+
+--- @param flag integer
+function INSTANCE:ToggleStateFlag( flag )
+	self.StateFlags = bit.bxor( self.StateFlags, flag )
+end
+
+--- @param flag integer
+--- @return boolean
+function INSTANCE:GetStateFlag( flag )
+	return bit.band( self.StateFlags, flag ) ~= 0
+end
+
+function INSTANCE:DropWeapon()
+	self.WeaponHoldTimer = 0.001
+end
+
+function INSTANCE:RaiseWeapon()
+	self.WeaponHoldTimer = 10
+end
+
+function INSTANCE:StartTransitionAnimation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:StartScriptedAnimation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:StopScriptedAnimation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ForceAnimation()
+	typecheck.NotImplementedError()
+end
+
+--- @param vel number
+function INSTANCE:SetTurnVelocity( vel )
+	self.TurnVelocity = vel
+end
+
+function INSTANCE:UpdateWeapon()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateAiming()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateState()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:PostThink()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateAnimation()
+	typecheck.NotImplementedError()
+end
+
+--- @return boolean
+function INSTANCE:IsLocked()
+	return self.StateLocked
+end
+
+function INSTANCE:GetLegMode()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetOuchType()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ResetLoiterDelay()
+	self.LoiterDelay = math.Rand( 0, 6 ) - 3
+end
+
+--- @param allowed boolean
+function INSTANCE:SetLoitersAllowed( allowed )
+	self.LoitersAllowed = allowed
+end
+
+function INSTANCE:GetInformation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateRecoil()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:BeginJump()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:CompleteJump()
+	typecheck.NotImplementedError()
+end

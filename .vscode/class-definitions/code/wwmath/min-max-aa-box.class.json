@@ -1,0 +1,29 @@
+{
+  "Name": "MinMaxAABox",
+  "ParentNames": [],
+  "FileName": "min-max-aa-box",
+  "CppName": "MinMaxAABoxClass",
+  "CppPath": "Code/WWMath/aabox.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "MinCorner",
+      "MaxCorner"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Init",
+      "InitEmpty",
+      "AddPoint",
+      "AddBox",
+      "AddBox",
+      "Transform",
+      "Translate",
+      "Volume"
+    ]
+  }
+}

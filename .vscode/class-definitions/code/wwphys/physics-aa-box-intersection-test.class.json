@@ -1,0 +1,25 @@
+{
+  "Name": "PhysicsAABoxIntersectionTest",
+  "ParentNames": [
+    "AABoxIntersectionTest"
+  ],
+  "FileName": "physics-aa-box-intersection-test",
+  "CppName": "PhysAABoxIntersectionTestClass",
+  "CppPath": "Code/wwphys/physinttest.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "CollisionGroup",
+      "CheckStaticObjs",
+      "CheckDynamicObjs",
+      "IntersectedObjects"
+    ],
+    "Functions": [
+      "Constructor",
+      "AddIntersectedObject"
+    ]
+  }
+}

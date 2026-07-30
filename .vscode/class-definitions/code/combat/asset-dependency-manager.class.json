@@ -1,0 +1,22 @@
+{
+  "Name": "AssetDependencyManager",
+  "ParentNames": [],
+  "FileName": "asset-dependency-manager",
+  "CppName": "AssetDependencyManager",
+  "CppPath": "Code/Combat/assetdep.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "SaveAlwaysDependencies",
+      "SaveLevelDependencies",
+      "SaveDependencies",
+      "LoadLevelAssets",
+      "LoadAlwaysAssets",
+      "LoadAssets"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": []
+  }
+}

@@ -1,0 +1,195 @@
+-- This file contains code common to all bridge scripts
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+--- @class CommonBridgeLib
+local LIB = CNC.CreateExport()
+LIB.Class = "CommonBridgeLib"
+
+
+--#region Imports
+
+    --- @type Matrix3dClass
+    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+    --- @type PlayerTypeClass
+    local playerType = CNC.Import( "code/combat/player-type.lua" )
+
+    --- @type InfoEntityLib
+    local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
+--#endregion
+
+
+--#region Imported Enums
+
+    local dispositionEnum = infoEntityLib.DISPOSITION
+--#endregion
+
+--[[
+    Note to maintainers:
+    I hate these bridge files.  They need to be replaced with a better system to bridge the gap between Renegade and Source.
+    Might be a rewrite, might be a different approach entirely.  I don't care.
+--]]
+
+--- @param ent Entity
+--- @return boolean
+function LIB.IsGdi( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.GDI
+end
+
+--- @param ent Entity
+--- @return boolean
+function LIB.IsNod( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    return LIB.GetPlayerType( ent ) == playerType.PLAYER_TYPE_ENUM.Nod
+end
+
+--- Determines if a given Entity considers another given Entity to be its teammate.
+--- Note: This relationship may not be symmetrical.
+--- @param ent Entity
+--- @param otherEnt Entity  
+--- @return boolean
+function LIB.IsTeammate( ent, otherEnt )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
+
+    if infoEntityLib.HasEntityInfo( otherEnt ) then
+        local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
+        return info.FeelingTowardPlayer == dispositionEnum.Friendly
+    end
+
+    return false
+end
+
+--- @param ent Entity
+--- @param otherEnt Entity  
+--- @return boolean
+function LIB.IsEnemy( ent, otherEnt )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
+
+    if infoEntityLib.HasEntityInfo( otherEnt ) then
+        local info = infoEntityLib.GetEntityInfo( otherEnt ) --[[@as InfoEntityData]]
+        local disposition = info.FeelingTowardPlayer
+        return disposition == dispositionEnum.Enemy
+    end
+
+    return false
+end
+
+--- @param ent Entity
+--- @param otherEnt Entity  
+--- @return boolean
+function LIB.IsNeutral( ent, otherEnt )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+    typecheck.AssertArgType( LIB.Class, 2, otherEnt, "Entity" )
+
+    if infoEntityLib.HasEntityInfo( ent ) then
+        local info = infoEntityLib.GetEntityInfo( ent ) --[[@as InfoEntityData]]
+        return info.FeelingTowardPlayer == dispositionEnum.Neutral
+    end
+
+    return true
+end
+
+--- Create a transformation matrix in Renegade's coordinate space to represent a given position and angle in Source's coordinate space
+--- @param pos Vector
+--- @param ang Angle
+--- @return Matrix3dInstance
+function LIB.CreateRenegadeTransform( pos, ang )
+    -- Create a new matrix starting with identity
+    local matrix = matrix3dClass.New( false )
+    local row = matrix.Row
+    local row1, row2, row3 = row[1], row[2], row[3]
+
+    row1.x, row1.x, row1.z =  0,  0, -1
+    row2.x, row2.y, row2.z = -1,  0,  0
+    row3.x, row3.y, row3.z =  0,  1,  0
+
+    row1.w = pos.x
+    row2.w = pos.y
+    row3.w = pos.z
+
+    -- "Coordinates in Source are (X,Y,Z), where X is forward/East, Y is left/North, and Z is up"
+    -- https://developer.valvesoftware.com/wiki/Coordinates
+
+    -- Apply Source rotations to the matrix
+    matrix:RotateY( math.rad( ang.yaw    ) )
+    matrix:RotateX( math.rad( -ang.pitch ) )
+    matrix:RotateZ( math.rad( -ang.roll  ) )
+
+    -- Correct Source rotations into Renegade's coordinate space
+    matrix:RotateY( math.rad( 180 ) )
+    matrix:RotateX( math.rad( -90 ) )
+    matrix:RotateZ( math.rad( 90  ) )
+
+    return matrix
+end
+
+--- Gets a transformation matrix that represents a given Entity
+--- @param ent Entity
+--- @return Matrix3dInstance
+function LIB.GetTransform( ent )
+    return LIB.CreateRenegadeTransform( ent:GetPos(), ent:GetAngles() )
+end
+
+--- Gets a transformation matrix that represents the local player's current viewpoint
+--- @return Matrix3dInstance
+function LIB.GetCameraTransform()
+    local viewSetup = render.GetViewSetup() --[[@as ViewSetup]]
+    return LIB.CreateRenegadeTransform( viewSetup.origin, viewSetup.angles )
+end
+
+--- Gets a transformation matrix that represents the local player's current position and rotation
+function LIB.GetPlayerTransform()
+    local viewSetup = render.GetViewSetup() --[[@as ViewSetup]]
+    viewSetup.angles.pitch = 0
+    viewSetup.angles.roll  = 0
+    return LIB.CreateRenegadeTransform( viewSetup.origin, viewSetup.angles )
+end
+
+--- [[ Private ]]
+
+--- This function is what all others rely on to determine the faction of a given Entity  
+--- Note: This can be used with all types of Entity
+--- @param ent Entity
+--- @return PlayerTypeEnum
+function LIB.GetPlayerType( ent )
+    typecheck.AssertArgType( LIB.Class, 1, ent, "Entity" )
+
+    local class = ent:GetClass()
+
+    -- TODO: Implement something better here
+
+    if ent:IsPlayer() then
+        --- @cast ent Player
+        return playerType.PLAYER_TYPE_ENUM.Renegade
+    end
+
+    if IsEnemyEntityName( class ) then
+        return playerType.PLAYER_TYPE_ENUM.Nod
+    end
+
+    if IsFriendEntityName( class ) then
+        return playerType.PLAYER_TYPE_ENUM.GDI
+    end
+
+    return playerType.PLAYER_TYPE_ENUM.Neutral
+end
+
+--- @param ent Entity
+--- @return boolean
+--- @private
+function LIB.CanHaveRelationships( ent )
+    if not typecheck.IsOfType( ent, "Entity" ) then
+        return false
+    end
+
+    if not ent.GetRelationship then
+        return false
+    end
+
+    return true
+end

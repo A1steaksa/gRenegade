@@ -1,0 +1,48 @@
+{
+  "Name": "PathManager",
+  "ParentNames": [],
+  "FileName": "path-manager",
+  "CppName": "PathMgrClass",
+  "CppPath": "Code/wwphys/pathmgr.h",
+  "Static": {
+    "Fields": [
+      {
+        "Name": "AvailablePathList",
+        "DataType": "PathSolveClass",
+        "ArrayDepth": 1
+      },
+      {
+        "Name": "UsedPathList",
+        "DataType": "PathSolveClass",
+        "ArrayDepth": 1
+      },
+      {
+        "Name": "ActivePath",
+        "DataType": "PathSolveClass",
+        "ArrayDepth": 0
+      },
+      {
+        "Name": "TicksPerMilliSec",
+        "DataType": "integer",
+        "ArrayDepth": 0
+      }
+    ],
+    "Functions": [
+      "Initialize",
+      "Shutdown",
+      "ResolvePaths",
+      "PeekActivePath",
+      "Save",
+      "Load",
+      "RequestPathObject",
+      "ReturnPathObject",
+      "AllocateObjects",
+      "FreeObjects",
+      "ActivateNewPriorityPath"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": []
+  }
+}

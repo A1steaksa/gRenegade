@@ -1,0 +1,20 @@
+{
+  "Name": "HLodLoader",
+  "ParentNames": [
+    "PrototypeLoader"
+  ],
+  "FileName": "h-lod-loader",
+  "CppName": "HLodLoaderClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

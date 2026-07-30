@@ -1,0 +1,28 @@
+{
+  "Name": "SimpleGameObject",
+  "ParentNames": [
+    "PhysicalGameObject"
+  ],
+  "FileName": "simple-game-object",
+  "CppName": "SimpleGameObj",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "GetDefinition",
+      "AsSimpleGameObject",
+      "IsHiddenObject",
+      "Save",
+      "Load",
+      "GetFactory",
+      "OnPostLoad",
+      "IsAlwaysDirty"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "Name": "NullPrototype",
+  "ParentNames": [
+    "Prototype"
+  ],
+  "FileName": "null-prototype",
+  "CppName": "NullPrototypeClass",
+  "CppPath": "Code/ww3d2/nullrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Definition"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetName",
+      "GetClassId",
+      "Create"
+    ]
+  }
+}

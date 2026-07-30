@@ -1,0 +1,35 @@
+{
+  "Name": "PhysicsController",
+  "ParentNames": [],
+  "FileName": "physics-controller",
+  "CppName": "PhysControllerClass",
+  "CppPath": "Code/wwphys/physcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "MoveVector",
+      "TurnLeft"
+    ],
+    "Functions": [
+      "Constructor",
+      "Reset",
+      "SetMoveForward",
+      "SetMoveLeft",
+      "SetMoveUp",
+      "SetTurnLeft",
+      "GetMoveForward",
+      "GetMoveLeft",
+      "GetMoveUp",
+      "GetTurnLeft",
+      "ResetMove",
+      "GetMoveVector",
+      "ResetTurn",
+      "IsInactive",
+      "Save",
+      "Load"
+    ]
+  }
+}

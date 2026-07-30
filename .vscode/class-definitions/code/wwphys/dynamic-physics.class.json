@@ -1,0 +1,43 @@
+{
+  "Name": "DynamicPhysics",
+  "ParentNames": [
+    "Physics"
+  ],
+  "FileName": "dynamic-physics",
+  "CppName": "DynamicPhysClass",
+  "CppPath": "Code/wwphys/dynamicphys.h",
+  "Static": {
+    "Fields": [
+      "DisableDynamicPhysicsSimulation",
+      "DisableDynamicPhysicsRendering"
+    ],
+    "Functions": [
+      "DisableAllSimulation",
+      "DisableAllRendering",
+      "IsAllSimulationDisabled",
+      "IsAllRenderingDisabled"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "DirtyVisObjectId",
+      "VisNodeId",
+      "VisStatusLastUpdated"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "AsDynamicPhysicsClass",
+      "Init",
+      "SetModel",
+      "UpdateVisibilityStatus",
+      "GetVisObjectId",
+      "IsSimulationDisabled",
+      "IsRenderingDisabled",
+      "Save",
+      "Load",
+      "OnPostLoad",
+      "InternalUpdateVisibilityStatus"
+    ]
+  }
+}

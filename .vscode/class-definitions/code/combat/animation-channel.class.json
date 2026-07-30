@@ -1,0 +1,40 @@
+{
+  "Name": "AnimationChannel",
+  "ParentNames": [],
+  "FileName": "animation-channel",
+  "CppName": "AnimChannelClass",
+  "CppPath": "Code/Combat/animcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Animation",
+      "Frame",
+      "NumFrames",
+      "TargetFrame",
+      "Mode"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "SetAnimation",
+      "PeekAnimation",
+      "SetMode",
+      "GetMode",
+      "IsComplete",
+      "GetAnimationName",
+      "SetFrame",
+      "GetFrame",
+      "GetProgress",
+      "SetTargetFrame",
+      "GetTargetFrame",
+      "Update",
+      "GetAnimationData",
+      "UpdateModel"
+    ]
+  }
+}

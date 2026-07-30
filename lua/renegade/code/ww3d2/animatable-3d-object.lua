@@ -1,0 +1,453 @@
+-- Based on Animatable3dObjectClass within Code/ww3d2/animobj.h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+--- @type CompositeRenderObjectClass
+local compositeRenderObjectClass = CNC.Import( "code/ww3d2/composite-render-object.lua" )
+
+--- @class Animatable3dObjectClass : CompositeRenderObjectClass
+--- @field Instance Animatable3dObjectInstance The metatable used by Animatable3dObjectInstance
+local STATIC = CNC.CreateExport( compositeRenderObjectClass )
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "Animatable3dObjectClass"
+
+--- @class Animatable3dObjectInstance : CompositeRenderObjectInstance
+--- @field Static Animatable3dObjectClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_Animatable3dObject : Renegade_CompositeRenderObject" )
+INSTANCE.Class = "Animatable3dObjectInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsAnimatable3dObject = true
+
+--#region Exported Enums
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+    --- "  
+    --- Animation state for the next frame.  When we add more flexible motion
+    --- compositing, add a new state and its associated data to the union below
+    --- "  
+    --- @enum MotionMode
+    STATIC.MOTION_MODE = {
+        NONE			= enumBuilder:Set( 0 ),
+        BASE_POSE		= enumBuilder:Next(),
+        SINGLE_ANIM		= enumBuilder:Next(),
+        DOUBLE_ANIM		= enumBuilder:Next(),
+        MULTIPLE_ANIM	= enumBuilder:Next(),
+    }
+    local motionModeEnum = STATIC.MOTION_MODE
+
+	--- "
+	--- Animation state for the next frame.  When we add more flexible motion
+	--- compositing, add a new state and its associated data to the union below
+	--- "
+	--- @enum AnimationState
+	STATIC.ANIMATION_STATE = {
+		NONE 		  = enumBuilder:Set( 0 ),
+		BASE_POSE 	  = enumBuilder:Next(),
+		SINGLE_ANIM   = enumBuilder:Next(),
+		DOUBLE_ANIM   = enumBuilder:Next(),
+		MULTIPLE_ANIM = enumBuilder:Next(),
+	}
+	local animationStateEnum = STATIC.ANIMATION_STATE
+--#endregion
+
+--#region Imports
+
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+	--- @type RenderObjectClass
+	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type HTreeClass
+	local hTreeClass = CNC.Import( "code/ww3d2/h-tree.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local renderObjectAnimationModeEnum = renderObjectClass.ANIMATION_MODE
+--#endregion
+
+--[[ Static Functions and Variables ]] do
+
+    --- @class Animatable3dObjectClass
+
+    --- Creates a new Animatable3dObjectInstance
+    --- @return Animatable3dObjectInstance
+    function STATIC.New()
+        return robustclass.New( "Renegade_Animatable3dObject" )
+    end
+
+    --- @param arg any
+    --- @return boolean `true` if the passed argument is a(n) Animatable3dObjectInstance, `false` otherwise
+    function STATIC.IsAnimatable3dObject( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.IsAnimatable3dObject and true or false
+    end
+
+    typecheck.RegisterType( "Animatable3dObjectInstance", STATIC.IsAnimatable3dObject )
+end
+
+--- "CurMotionMode == SINGLE_ANIM"
+--- @class ModeAnimation
+--- @field Motion HAnimationInstance?
+--- @field Frame number
+--- @field PreviousFrame number
+--- @field AnimationMode integer
+--- @field LastSyncTime number
+
+--- "CurMotionMode == DOUBLE_ANIM"
+--- @class ModeInterpolation
+--- @field Motion0 HAnimationInstance?
+--- @field Motion1 HAnimationInstance?
+--- @field Frame0 number
+--- @field Frame1 number
+--- @field PreviousFrame0 number
+--- @field PreviousFrame1 number
+--- @field Percentage number
+
+--- "CurMotionMode == MULTIPLE_ANIM"
+--- @class ModeCombo
+--- @field AnimationCombo HAnimationComboInstance?
+
+--- @class Animatable3dObjectInstance
+--- @field IsTreeValid boolean "Is the hierarchy tree currently valid"
+--- @field HTree HTreeInstance "Hierarchy Tree"
+--- @field CurrentMotionMode MotionMode
+--- @field ModeAnimation ModeAnimation
+--- @field ModeInterpolation ModeInterpolation
+--- @field ModeCombo ModeCombo
+
+--- @param src Animatable3dObjectInstance?
+--- @overload fun( self:Animatable3dObjectInstance, hTreeName: string )
+function INSTANCE:Renegade_Animatable3dObject( src )
+	typecheck.AssertArgType( self.Class, 1, src, { "string", "Animatable3dObjectInstance" } )
+
+	-- ( hTreeName: string )
+	if isstring( src ) then
+		local hTreeName = src --[[@as string]]
+
+		compositeRenderObjectClass.Instance.Renegade_CompositeRenderObject( self )
+
+		self.IsTreeValid = false
+		self.CurrentMotionMode = motionModeEnum.BASE_POSE
+
+		-- "Inline struct members can't be initialized in init list for some reason..."
+		self.ModeAnimation = {
+			Motion = nil,
+			Frame = 0.0,
+			PreviousFrame = 0.0,
+			LastSyncTime = wW3dClass.GetSyncTime(),
+			AnimationMode = renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
+		}
+		self.ModeInterpolation = {
+			Motion0 = nil,
+			Motion1 = nil,
+			Frame0 = 0.0,
+			PreviousFrame0 = 0.0,
+			PreviousFrame1 = 0.0,
+			Frame1 = 0.0,
+			Percentage = 0.0
+		}
+		self.ModeCombo = {
+			AnimationCombo = nil
+		}
+
+		-- "Store a pointer to the htree"
+		if hTreeName == nil then
+			self.HTree = nil
+		elseif hTreeName:len() == 0 then
+			self.HTree = hTreeClass.New()
+			self.HTree:InitDefault()
+		else
+			local source = ww3dAssetManagerClass.GetInstance():GetHTree( hTreeName )
+			if source ~= nil then
+				self.HTree = hTreeClass.New( source )
+			else
+				section.Warn( "Unable to find HTree: '", hTreeName, "'" )
+				self.HTree = hTreeClass.New()
+				self.HTree:InitDefault()
+			end
+		end
+
+		return
+
+	-- ( src: Animatable3dObjectInstance )
+	else
+		compositeRenderObjectClass.Instance.Renegade_CompositeRenderObject( self, src )
+
+		self.IsTreeValid = false
+		self.CurrentMotionMode = motionModeEnum.BASE_POSE
+		self.HTree = nil
+
+		typecheck.NotImplementedError()
+	end
+end
+
+function INSTANCE:_Renegade_Animatable3dObject()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:Render()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SpecialRender()
+	typecheck.NotImplementedError()
+end
+
+--- "Sets the transform and marks sub-objects as dirty"
+--- @param matrix Matrix3dInstance
+function INSTANCE:SetTransform( matrix )
+	compositeRenderObjectClass.Instance.SetTransform( self, matrix )
+	self:SetHierarchyValid( false )
+end
+
+function INSTANCE:SetPosition()
+	typecheck.NotImplementedError()
+end
+
+--- @overload fun( self )
+--- @overload fun( self, animationCombo: HAnimationComboInstance )
+--- @overload fun( self, motion: HAnimationInstance, frame: number, mode: RenderObjectAnimationMode? )
+--- @overload fun( self, motion0: HAnimationInstance, frame0: number, motion1: HAnimationInstance, frame1: number, percentage: number )
+function INSTANCE:SetAnimation( ... )
+	local args = {...}
+	local argCount = #args
+
+	typecheck.AssertArgCount( INSTANCE.Class, argCount, { 0, 1, 2, 3, 5 } )
+
+	-- "Set the animation state to "none" (base pose)""
+	-- ()
+	if argCount == 0 then
+		self:Release()
+		self.CurrentMotionMode = animationStateEnum.BASE_POSE
+		self:SetHierarchyValid( false )
+		return
+	end
+
+	-- "Set animation state with an anim combo"
+	-- ( animationCombo: HAnimationComboInstance )
+	if argCount == 1 then
+		local animationCombo = args[1] --[[@as HAnimationComboInstance]]
+		self:Release()
+
+		self.CurrentMotionMode = motionModeEnum.MULTIPLE_ANIM
+		self.ModeCombo.AnimationCombo = animationCombo
+		self:SetHierarchyValid( false )
+		return
+	end
+
+	-- "Set the animation state to the given anim/frame"
+	-- (motion: HAnimationInstance, frame: number, mode: RenderObjectAnimationMode )
+	if argCount == 2 or argCount == 3 then
+		local motion = args[1] --[[@as HAnimationInstance]]
+		local frame  = args[2] --[[@as number]]
+		local mode 	 = args[3] and args[3] or renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
+
+		if motion then
+			self:Release()
+			self.CurrentMotionMode = motionModeEnum.SINGLE_ANIM
+			self.ModeAnimation.Motion = motion
+			self.ModeAnimation.PreviousFrame = self.ModeAnimation.Frame
+			self.ModeAnimation.Frame = frame
+			self.ModeAnimation.LastSyncTime = wW3dClass.GetSyncTime()
+			self.ModeAnimation.AnimationMode = mode
+		else
+			self.CurrentMotionMode = motionModeEnum.BASE_POSE
+			self:Release()
+		end
+
+		self:SetHierarchyValid( false )
+		return
+	end
+
+	-- "Set the animation state to a blend of two anims"
+	-- ( motion0: HAnimationInstance, frame0: number, motion1: HAnimationInstance, frame1: number, percentage: number )
+	if argCount == 5 then
+		local motion0    = args[1] --[[@as HAnimationInstance]]
+		local frame0     = args[2] --[[@as number]]
+		local motion1    = args[3] --[[@as HAnimationInstance]]
+		local frame1     = args[4] --[[@as number]]
+		local percentage = args[5] --[[@as number]]
+
+        self:Release()
+
+        self.CurrentMotionMode = motionModeEnum.DOUBLE_ANIM
+        self.ModeInterpolation.Motion0 = motion0
+        self.ModeInterpolation.Motion1 = motion1
+        self.ModeInterpolation.PreviousFrame0 = self.ModeInterpolation.Frame0
+        self.ModeInterpolation.PreviousFrame1 = self.ModeInterpolation.Frame1
+        self.ModeInterpolation.Frame0 = frame0
+        self.ModeInterpolation.Frame1 = frame1
+        self.ModeInterpolation.Percentage = percentage
+        self:SetHierarchyValid( false )
+		return
+	end
+end
+
+function INSTANCE:PeekAnimation()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsAnimationComplete()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetNumBones()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneName()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneIndex()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:GetBoneTransform()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:CaptureBone()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ReleaseBone()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:IsBoneCaptured()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ControlBone()
+	typecheck.NotImplementedError()
+end
+
+--- @return HTreeInstance
+function INSTANCE:GetHTree()
+	return self.HTree
+end
+
+--- "If the animation is 'single', evaluate the given pivot and return its transform."
+--- @param boneIndex integer
+--- @param frame number?
+--- @return boolean, Matrix3dInstance
+function INSTANCE:SimpleEvaluateBone( boneIndex, frame )
+	local returnValue = false
+	local transformationMatrix
+
+	if frame == nil then
+		-- "Only do this for simple animations"
+		if
+			   self.CurrentMotionMode == motionModeEnum.NONE
+			or self.CurrentMotionMode == motionModeEnum.BASE_POSE
+			or self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM
+		then
+			-- "Determine which frame we should be on, then use this information to determine the bone's transform."
+			local currentFrame = self:ComputeCurrentFrame()
+			returnValue, transformationMatrix = self:SimpleEvaluateBone( boneIndex, currentFrame )
+		else
+			self:UpdateSubObjectTransforms()
+			transformationMatrix = self.HTree:GetTransform( boneIndex)
+		end
+	else
+		-- "Only do this for simple animations"
+		if self.HTree ~= nil then
+			if self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+				returnValue, transformationMatrix = self.HTree:SimpleEvaluatePivot( self.ModeAnimation.Motion, boneIndex, frame, self:GetTransform() )
+			elseif self.CurrentMotionMode == motionModeEnum.NONE or self.CurrentMotionMode == motionModeEnum.BASE_POSE then
+				returnValue, transformationMatrix = self.HTree:SimpleEvaluatePivot( boneIndex, self:GetTransform() )
+			else
+				transformationMatrix = self.Transform
+			end
+		else
+			transformationMatrix = self.Transform
+		end
+	end
+
+	return returnValue, transformationMatrix
+end
+
+--- @param newHTree HTreeInstance
+function INSTANCE:SetHTree( newHTree )
+	-- "Just assign it..."
+	if self.HTree ~= nil then
+		self.HTree = nil
+	end
+	self.HTree = hTreeClass.New( newHTree )
+end
+
+function INSTANCE:ComputeCurrentFrame()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateSubObjectTransforms()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:BaseUpdate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:AnimationUpdate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:BlendUpdate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:ComboUpdate()
+	typecheck.NotImplementedError()
+end
+
+--- @return boolean
+function INSTANCE:IsHierarchyValid()
+	return self.IsTreeValid
+end
+
+--- @param onOff boolean
+function INSTANCE:SetHierarchyValid( onOff )
+	self.IsTreeValid = onOff
+end
+
+function INSTANCE:SingleAnimationProgress()
+	typecheck.NotImplementedError()
+end
+
+--- "Releases any anims being held by this object"
+function INSTANCE:Release()
+    local mode = self.CurrentMotionMode
+    if mode == motionModeEnum.BASE_POSE then
+        return
+    elseif mode == motionModeEnum.SINGLE_ANIM then
+        if self.ModeAnimation.Motion ~= nil then
+            self.ModeAnimation.Motion = nil
+        end
+        return
+    elseif mode == motionModeEnum.DOUBLE_ANIM then
+        if self.ModeInterpolation.Motion0 ~= nil then
+            self.ModeInterpolation.Motion0 = nil
+        end
+
+        if self.ModeInterpolation.Motion1 ~= nil then
+            self.ModeInterpolation.Motion1 = nil
+        end
+        return
+    elseif mode == motionModeEnum.MULTIPLE_ANIM then
+        return
+    end
+end

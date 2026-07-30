@@ -16,35 +16,5 @@
             "stopOnEntry": true,
             "useCHook": true
         },
-        {
-            "type": "LuaHelper-Debug",
-            "request": "launch",
-            "name": "LuaHelper-Attach",
-            "description": "通用模式,通常调试项目请选择此模式",
-            "cwd": "",
-            "luaFileExtension": "",
-            "connectionPort": 8818,
-            "stopOnEntry": true,
-            "useCHook": true,
-            "autoPathMode": true
-        },
-        {
-            "name": "Debug Lua Interpreter",
-            "type": "lua-local",
-            "request": "launch",
-            "program": {
-                "lua": "lua",
-                "file": "${file}"
-            }
-        },
-        {
-            "name": "Debug Custom Lua Environment",
-            "type": "lua-local",
-            "request": "launch",
-            "program": {
-                "command": "command"
-            },
-            "args": []
-        }
     ]
 }

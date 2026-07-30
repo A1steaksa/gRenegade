@@ -1,0 +1,31 @@
+{
+  "Name": "SimpleFileFactory",
+  "ParentNames": [
+    "FileFactory"
+  ],
+  "FileName": "simple-file-factory",
+  "CppName": "SimpleFileFactoryClass",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "SubDirectory",
+      "IsStripPath",
+      "Mutex"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetFile",
+      "ReturnFile",
+      "GetSubDirectory",
+      "SetSubDirectory",
+      "PrependSubDirectory",
+      "AppendSubDirectory",
+      "GetStripPath",
+      "SetStripPath"
+    ]
+  }
+}

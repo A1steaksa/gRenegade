@@ -1,0 +1,73 @@
+-- Based on {{CppClassName}} within {{CppFilePath}}
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+{{{ParentImports}}}
+
+{{#if IsStaticOnly~}}
+--- @class {{StaticClassName}}{{{LuaLanguageServerStaticParents}}}
+local STATIC = CNC.CreateExport({{{CreateExportParents}}})
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "{{StaticClassName}}"
+{{else}}
+--- @class {{StaticClassName}}{{{LuaLanguageServerStaticParents}}}
+--- @field Instance {{InstanceClassName}} The metatable used by {{InstanceClassName}}
+local STATIC = CNC.CreateExport({{{CreateExportParents}}})
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "{{StaticClassName}}"
+
+--- @class {{InstanceClassName}}{{{LuaLanguageServerInstanceParents}}}
+--- @field Static {{StaticClassName}} The static table for this instance's class
+local INSTANCE = robustclass.Register( "{{RobustClassName}}{{RobustClassParents}}" )
+INSTANCE.Class = "{{InstanceClassName}}"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.Is{{BaseClassName}} = true
+{{/if}}
+
+--#region Exported Enums
+{{EnumBuilderImport~}}
+{{EnumExports~}}
+--#endregion
+
+--#region Imports
+{{ClassImports~}}
+--#endregion
+
+--#region Imported Enums
+{{EnumImports~}}
+--#endregion
+
+{{#if IsStaticOnly~}}
+--- @class {{StaticClassName}}
+{{StaticFields~}}
+{{StaticFunctions~}}
+{{else~}}
+--[[ Static Functions and Variables ]] do
+
+    --- @class {{StaticClassName}}
+{{StaticFields}}
+    --- Creates a new {{InstanceClassName}}
+    --- @return {{InstanceClassName}}
+    function STATIC.New()
+        return robustclass.New( "{{RobustClassName}}" )
+    end
+
+    --- @param arg any
+    --- @return boolean `true` if the passed argument is a(n) {{InstanceClassName}}, `false` otherwise
+    function STATIC.Is{{BaseClassName}}( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.Is{{BaseClassName}} and true or false
+    end
+
+    typecheck.RegisterType( "{{InstanceClassName}}", STATIC.Is{{BaseClassName}} )
+{{StaticFunctions~}}
+end
+
+
+--- @class {{InstanceClassName}}
+{{InstanceFields~}}
+{{InstanceFunctions~}}
+{{~/if}}

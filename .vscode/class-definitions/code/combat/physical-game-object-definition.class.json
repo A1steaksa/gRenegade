@@ -1,0 +1,33 @@
+{
+    "Name": "PhysicalGameObjectDefinition",
+    "ParentNames": [ "DamageableGameObjectDefinition" ],
+    "CppName": "PhysicalGameObjDef",
+    
+    "Static": {
+        "Fields": [],
+        "Functions": []
+    },
+
+    "Instance": {
+        "Fields": [
+            "Type",
+            "RadarBlipType",
+            "BullseyeOffsetZ",
+            "Animation",
+            "PhysicsDefinitionId",
+            "KilledExplosion",
+            "DefaultHibernationEnable",
+            "AllowInnateConversations",
+            "OratorType",
+            "UseCreationEffect"
+        ],
+        "Functions": [
+            "Constructor",
+            "Save",
+            "Load",
+            "IsValidConfig",
+            "GetPhysicsDefinitionId",
+            "GetOratorType"
+        ]
+    }
+}

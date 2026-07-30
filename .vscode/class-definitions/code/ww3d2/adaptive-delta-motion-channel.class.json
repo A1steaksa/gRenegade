@@ -1,0 +1,35 @@
+{
+  "Name": "AdaptiveDeltaMotionChannel",
+  "ParentNames": [],
+  "FileName": "adaptive-delta-motion-channel",
+  "CppName": "AdaptiveDeltaMotionChannelClass",
+  "CppPath": "var/home/JSchneider/Projects/LuaRenegadePort/C&C Renegade/Code/ww3d2/motchan.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "PivotIdx",
+      "Type",
+      "VectorLen",
+      "NumFrames",
+      "Scale",
+      "Data",
+      "CacheFrame",
+      "CacheData"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "GetType",
+      "GetPivot",
+      "GetVector",
+      "GetQuatVector",
+      "Free",
+      "Getframe",
+      "Decompress"
+    ]
+  }
+}

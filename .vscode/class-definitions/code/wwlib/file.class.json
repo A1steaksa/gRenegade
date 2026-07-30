@@ -1,0 +1,38 @@
+{
+  "Name": "File",
+  "ParentNames": [],
+  "FileName": "file",
+  "CppName": "FileClass",
+  "CppPath": "Code/wwlib/wwfile.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Destructor",
+      "FileName",
+      "SetName",
+      "Create",
+      "Delete",
+      "IsAvailable",
+      "IsOpen",
+      "Open",
+      "Read",
+      "Seek",
+      "Tell",
+      "Size",
+      "Write",
+      "Close",
+      "GetDateTime",
+      "SetDateTime",
+      "Error",
+      "GetFileHandle",
+      "Bias",
+      "",
+      "Printf",
+      "PrintfIndented"
+    ]
+  }
+}

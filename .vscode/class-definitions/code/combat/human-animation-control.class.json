@@ -1,0 +1,48 @@
+{
+  "Name": "HumanAnimationControl",
+  "ParentNames": [
+    "AnimationControl"
+  ],
+  "FileName": "human-animation-control",
+  "CppName": "HumanAnimControlClass",
+  "CppPath": "Code/Combat/animcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Channel1",
+      "Channel2",
+      "Channel2rAtio",
+      "AnimationSpeedScale",
+      "DataList",
+      "AnimationCombo",
+      "Skeleton"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "SetModel",
+      "SetAnimation",
+      "SetAnimation",
+      "SetMode",
+      "GetMode",
+      "IsComplete",
+      "GetAnimationName",
+      "GetFrame",
+      "GetProgress",
+      "SetTargetFrame",
+      "GetTargetFrame",
+      "GetCurrentFrame",
+      "SetAnimationSpeedScale",
+      "Update",
+      "PeekAnimation",
+      "GetInformation",
+      "GetSkeleton",
+      "BuildSkeletonAnimationName"
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "Name": "AnimationControl",
+  "ParentNames": [],
+  "FileName": "animation-control",
+  "CppName": "AnimControlClass",
+  "CppPath": "Code/Combat/animcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Model"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "SetModel",
+      "PeekModel",
+      "SetAnimation",
+      "SetMode",
+      "GetMode",
+      "IsComplete",
+      "GetAnimationName",
+      "SetTargetFrame",
+      "GetTargetFrame",
+      "GetCurrentFrame",
+      "PeekAnimation",
+      "Update"
+    ]
+  }
+}

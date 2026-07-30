@@ -16,8 +16,47 @@
 	// 	"description": "Log output to console"
 	// }
 
+	"Note to maintainers": {
+		"prefix": "note",
+		"description": "Shortcut for a block comment intended for future maintainers",
+		"scope": "lua",
+		"body": [
+			"--[[",
+			"    Note to maintainers:",
+			"    $0",
+			"--]]",
+		]
+	},
+
+	"@As Cast": {
+		"prefix": "as",
+		"description": "Shortcut for --[[@as <type>]]",
+		"scope": "lua",
+		"body": [
+			"--[[@as $0]]"
+		]
+	},
+
+	"Print": {
+		"prefix": "pr",
+		"description": "Shortcut for `section.Print()`",
+		"scope": "lua",
+		"body": [
+			"section.Print( $0 )"
+		]
+	},
+
+	"Not Implemented": {
+		"prefix": "noi",
+		"description": "Shortcut for `typecheck.NotImplementedError()`",
+		"scope": "lua",
+		"body": [
+			"typecheck.NotImplementedError()"
+		]
+	},
+
 	"C&C Renegade Lua Class": {
-		"prefix": "newclass",
+		"prefix": "class",
 		"description": "A Lua class template that mimics a C++ class, created for porting aspects of Command and Conquer: Renegade to Garry's Mod",
 		"isFileTemplate": true,
 		"scope": "lua",
@@ -27,42 +66,36 @@
 			"--- @class Renegade",
 			"local CNC = CNC_RENEGADE",
 			"",
-			"local STATIC, INSTANCE",
+			"--- @class ${3:LuaClassName}Class",
+			"--- @field Instance ${3}Instance The metatable used by ${3}Instance",
+			"local STATIC = CNC.CreateExport()",
+			"local isHotload = not table.IsEmpty( STATIC )",
+			"STATIC.Class = \"${3}Class\"",
 			"",
-			"--[[ Class Setup ]] do",
-			"",
-			"    --- The instanced components of ${3:LuaClassName}",
-			"    --- @class ${3}Instance",
-			"    --- @field Static ${3} The static table for this instance's class",
-			"    INSTANCE = robustclass.Register( \"Renegade_${3}\" )",
-			"",
-			"    --- The static components of ${3}",
-			"    --- @class ${3}",
-			"    --- @field Instance ${3}Instance The Metatable used by ${3}Instance",
-			"    STATIC = CNC.CreateExport()",
-			"",
-			"    STATIC.Instance = INSTANCE",
-			"    INSTANCE.Static = STATIC",
-			"    INSTANCE.Is${3} = true",
-			"end",
+			"--- @class ${3}Instance",
+			"--- @field Static ${3}Class The static table for this instance's class",
+			"local INSTANCE = robustclass.Register( \"Renegade_${3}\" )",
+			"INSTANCE.Class = \"${3}Instance\"",
+			"STATIC.Instance = INSTANCE",
+			"INSTANCE.Static = STATIC",
+			"INSTANCE.Is${3} = true",
 			"",
 			"",
-			"--#region Imports",
-			"",
+			"--#region Exported Enums",
 			"--#endregion",
 			"",
 			"",
-			"--#region Enums",
+			"--#region Imports",
+			"--#endregion",
 			"",
+			"",
+			"--#region Imported Enums",
 			"--#endregion",
 			"",
 			"",
 			"--[[ Static Functions and Variables ]] do",
-			"    local CLASS = \"${3}\"",
 			"",
-			"    --- [[ Public ]]",
-			"",
-			"    --- @class ${3}",
+			"    --- @class ${3}Class",
 			"",
 			"    --- Creates a new ${3}Instance",
 			"    --- @vararg any",
@@ -71,8 +104,8 @@
 			"        return robustclass.New( \"Renegade_${3}\", ... )",
 			"    end",
 			"",
-			"    ---@param arg any",
-			"    ---@return boolean `true` if the passed argument is a(n) ${3}Instance, `false` otherwise",
+			"    --- @param arg any",
+			"    --- @return boolean `true` if the passed argument is a(n) ${3}Instance, `false` otherwise",
 			"    function STATIC.Is${3}( arg )",
 			"        if not istable( arg ) then return false end",
 			"        if getmetatable( arg ) ~= INSTANCE then return false end",
@@ -81,111 +114,66 @@
 			"    end",
 			"",
 			"    typecheck.RegisterType( \"${3}Instance\", STATIC.Is${3} )",
-			"",
-			"    --- [[ Protected ]]",
-			"",
-			"    --- @class ${3}",
-			"",
-			"",
-			"    --- [[ Private ]]",
-			"",
-			"    --- @class ${3}",
-			"",
 			"end",
 			"",
 			"",
-			"--[[ Instanced Functions and Variables ]] do",
-			"    local CLASS = \"${3}Instance\"",
+			"--- @class ${3}Instance",
 			"",
-			"    --- [[ Public ]]",
+			"--- Constructs a new ${3}Instance",
+			"--- @vararg any",
+			"function INSTANCE:Renegade_${3}( ... )",
+			"    local args = { ... }",
+            "    local argCount = select( \"#\", ... )",
 			"",
-			"    --- @class ${3}Instance",
+			"    ${0}",
+			"end",
 			"",
-			"    --- Constructs a new ${3}Instance",
-			"    --- @vararg any",
-			"    function INSTANCE:Renegade_${3}( ... )",
-			"        local args = { ... }",
-            "        local argCount = select( \"#\", ... )",
-			"",
-			"        $0",
-			"    end",
-			"",
-			"",
-			"    --- [[ Protected ]]",
-			"",
-			"    --- @class ${3}Instance",
-			"",
-			"",
-			"    --- [[ Private ]]",
-			"",
-			"    --- @class ${3}Instance",
-			"",
-			"end"
 		]
 	},
 
-	"Section": {
-		"prefix": "section",
-		"description": "A section with a self-contained scope",
+	"C&C Renegade Lua Static Class": {
+		"prefix": "staticclass",
+		"description": "A Lua class template that mimics a static C++ class, created for porting aspects of Command and Conquer: Renegade to Garry's Mod",
+		"isFileTemplate": true,
+		"scope": "lua",
 		"body": [
+			"-- Based on ${1:CppClassName} within ${2:FilePath}.cpp/h",
+			"",
+			"--- @class Renegade",
+			"local CNC = CNC_RENEGADE",
+			"",
+			"--- @class ${3:LuaClassName}Class",
+			"local STATIC = CNC.CreateExport()",
+			"local isHotload = not table.IsEmpty( STATIC )",
+			"STATIC.Class = \"${3}Class\"",
+			"",
+			"",
+			"--#region Exported Enums",
+			"--#endregion",
+			"",
+			"",
+			"--#region Imports",
+			"--#endregion",
+			"",
+			"",
+			"--#region Imported Enums",
+			"--#endregion",
+			"",
+			"",
+			"--- @class ${3}Class",
+			"",
+			"$0",
+		]
+	},
+
+	"Group": {
+		"prefix": "group",
+		"description": "A grouping of code with a label and self-contained scope",
+		"scope": "lua",
+        "body": [
 			"--[[ $1 ]] do",
 			"    $0",
 			"end"
 		  ],
-	},
-
-	"Class Method": {
-		"prefix": "method",
-		"description": "A Lua Class method template",
-		"body": [
-			"function ${1|INSTANCE:,STATIC.|}${2:FunctionName}(${3: ... })",
-			"    ${0:typecheck.NotImplementedError( CLASS, \"${2}\" )}",
-			"end"
-		]
-	},
-
-	"Static Getter": {
-		"prefix": "gets",
-		"description": "Creates a static method that returns a variable",
-		"body": [
-			"--- @return $1",
-			"function STATIC.${2:FunctionName}()",
-			"    return STATIC.$3",
-			"end"
-		]
-	},
-
-	"Static Setter": {
-		"prefix": "sets",
-		"description": "Creates a static method that takes in a value and sets a variable to it",
-		"body": [
-			"--- @param ${1:ParameterName} ${2:ParameterType}",
-			"function STATIC.${3:FunctionName}( $1 )",
-			"    STATIC.$4 = $1",
-			"end"
-		]
-	},
-
-	"Instance Getter": {
-		"prefix": "geti",
-		"description": "Creates an instanced method that returns a variable",
-		"body": [
-			"--- @return $1",
-			"function INSTANCE:${2:FunctionName}()",
-			"    return self.$3",
-			"end"
-		]
-	},
-
-	"Instance Setter": {
-		"prefix": "seti",
-		"description": "Creates an instanced method that takes in a value and sets a variable to it",
-		"body": [
-			"--- @param ${1:ParameterName} ${2:ParameterType}",
-			"function INSTANCE:${3:FunctionName}( $1 )",
-			"    self.$4 = $1",
-			"end"
-		]
 	}
-
 }

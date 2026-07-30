@@ -1,0 +1,44 @@
+{
+  "Name": "CompositeRenderObject",
+  "ParentNames": [
+    "RenderObject"
+  ],
+  "FileName": "composite-render-object",
+  "CppName": "CompositeRenderObjClass",
+  "CppPath": "Code/ww3d2/composite.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Name",
+      "BaseModelName",
+      "ObjectSphere",
+      "ObjectBox"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Restart",
+      "GetName",
+      "SetName",
+      "GetBaseModelName",
+      "SetBaseModelName",
+      "GetNumPolys",
+      "NotifyAdded",
+      "NotifyRemoved",
+      "CastRay",
+      "CastAaBox",
+      "CastObBox",
+      "IntersectAaBox",
+      "IntersectObBox",
+      "CreateDecal",
+      "DeleteDecal",
+      "GetObjectSpaceBoundingSphere",
+      "GetObjectSpaceBoundingBox",
+      "UpdateObjectSpaceBoundingVolumes",
+      "SetUserData"
+    ]
+  }
+}

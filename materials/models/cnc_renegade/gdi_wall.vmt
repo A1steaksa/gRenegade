@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/gdi_wall"
+	"$surfaceprop" "Concrete"
+}

@@ -1,0 +1,53 @@
+{
+  "Name": "HLodDefinition",
+  "ParentNames": [],
+  "FileName": "h-lod-definition",
+  "CppName": "HLodDefClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "Name",
+        "DataType": "any"
+      },
+      {
+        "Name": "HierarchyTreeName",
+        "DataType": "any"
+      },
+      {
+        "Name": "LodCount",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Lod",
+        "DataType": "any"
+      },
+      {
+        "Name": "Aggregates",
+        "DataType": "any"
+      },
+      {
+        "Name": "ProxyArray",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "Save",
+      "GetName",
+      "Initialize",
+      "SaveHeader",
+      "SaveLodArray",
+      "SaveAggregateArray",
+      "Free",
+      "ReadHeader",
+      "ReadProxyArray"
+    ]
+  }
+}

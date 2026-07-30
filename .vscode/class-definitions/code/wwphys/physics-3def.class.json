@@ -1,0 +1,30 @@
+{
+  "Name": "Physics3Def",
+  "ParentNames": [
+    "MoveablePhysicsDefinition"
+  ],
+  "FileName": "physics-3def",
+  "CppName": "Phys3DefClass",
+  "CppPath": "Code/wwphys/phys3.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "NormSpeed",
+      "SlideAngle",
+      "StepHeight"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "GetTypeName",
+      "IsType",
+      "GetFactory",
+      "Save",
+      "Load"
+    ]
+  }
+}
