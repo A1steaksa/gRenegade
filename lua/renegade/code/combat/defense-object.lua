@@ -189,7 +189,9 @@ end
 
     --- @param newHealth number
     function INSTANCE:SetHealth( newHealth )
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return end
 
         local oldHealth = self:GetHealth()
@@ -204,7 +206,9 @@ end
 
     --- @param healthToAdd number
     function INSTANCE:AddHealth( healthToAdd )
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return end
 
         local clampedHealth = math.Clamp( ownerEntity:Health() + healthToAdd, 0, self:GetHealthMax() )
@@ -213,7 +217,9 @@ end
 
     --- @return number
     function INSTANCE:GetHealth()
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return 0 end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return 0 end
 
         return ownerEntity:Health()
@@ -221,18 +227,22 @@ end
 
     --- @param newHealthMax number
     function INSTANCE:SetHealthMax( newHealthMax )
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return end
 
         local clampedHealthMax = math.Clamp( newHealthMax, 0, MAX_MAX_HEALTH )
         ownerEntity:SetMaxHealth( clampedHealthMax )
-        
+
         self:MarkOwnerDirty()
     end
 
     --- @return number
     function INSTANCE:GetHealthMax()
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return 0 end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return 0 end
 
         return ownerEntity:GetMaxHealth()
@@ -247,7 +257,9 @@ end
 
     --- @param newShieldStrength number
     function INSTANCE:SetShieldStrength( newShieldStrength )
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return end
 
         local oldShieldStrength = self:GetShieldStrength()
@@ -280,7 +292,9 @@ end
 
     --- @return number
     function INSTANCE:GetShieldStrength()
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return 0 end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return 0 end
 
         if ownerEntity:IsPlayer() then
@@ -293,8 +307,10 @@ end
 
     --- @param newShieldStrengthMax number
     function INSTANCE:SetShieldStrengthMax( newShieldStrengthMax )
-        local ownerEntity = self.Owner.ConnectedEntity
-        if not IsValid( ownerEntity ) then return end
+        local owner = self.Owner
+        if not owner then return 0 end
+        local ownerEntity = owner.ConnectedEntity
+        if not IsValid( ownerEntity ) then return 0 end
 
         local clampedShieldStrengthMax = math.Clamp( newShieldStrengthMax, 0, MAX_MAX_SHIELD_STRENGTH )
 
@@ -310,7 +326,9 @@ end
 
     --- @return number
     function INSTANCE:GetShieldStrengthMax()
-        local ownerEntity = self.Owner.ConnectedEntity
+        local owner = self.Owner
+        if not owner then return 0 end
+        local ownerEntity = owner.ConnectedEntity
         if not IsValid( ownerEntity ) then return 0 end
 
         if ownerEntity:IsPlayer() then
