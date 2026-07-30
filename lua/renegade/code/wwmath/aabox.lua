@@ -117,11 +117,12 @@ function INSTANCE:__eq( other )
     return ( self.Center == other.Center ) and ( self.Extent == other.Extent )
 end
 
---- @overload fun( points: Vector[] )
+--- @overload fun( self, center: Vector, extent: Vector )
+--- @overload fun( self, points: Vector[] )
 function INSTANCE:Init( ... )
     local args = { ... }
     local argCount = select( "#", ... )
-    typecheck.AssertArgCount( STATIC.Class, argCount, 1 )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
 
     if argCount == 1 then
         typecheck.AssertArgType( STATIC.Class, 1, args[1], "table" )
@@ -153,6 +154,22 @@ function INSTANCE:Init( ... )
 
         typecheck.NotImplementedError( "MinMaxAABox and LineSeg" )
     end
+
+    if argCount == 2 then
+        local arg1 = args[1]
+        local arg2 = args[2]
+        if typecheck.IsOfType( args[1], "Vector" ) then
+            typecheck.AssertArgType( INSTANCE.Class, 2, arg2, "Vector" )
+            local center = arg1 --[[@as Vector]]
+            local extent = arg2 --[[@as Vector]]
+
+            self.Center = center
+            self.Extent = extent
+            return
+        end
+
+    end
+
 end
 
 --- @param min Vector

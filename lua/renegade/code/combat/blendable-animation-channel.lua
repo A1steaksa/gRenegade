@@ -22,6 +22,9 @@ INSTANCE.IsBlendableAnimationChannel = true
 --#endregion
 
 --#region Imports
+
+	--- @type AnimationChannelClass
+	local animationChannelClass = CNC.Import( "code/combat/animation-channel.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -51,13 +54,17 @@ end
 
 
 --- @class BlendableAnimationChannelInstance
---- @field NewChannel any
---- @field OldChannel any
---- @field BlendTimer any
---- @field BlendTotal any
+--- @field NewChannel AnimationChannelInstance
+--- @field OldChannel AnimationChannelInstance
+--- @field BlendTimer number
+--- @field BlendTotal number
 
 function INSTANCE:Renegade_BlendableAnimationChannel()
-	typecheck.NotImplementedError()
+	self.BlendTimer = 0
+	self.BlendTotal = 0
+
+	self.NewChannel = animationChannelClass.New()
+	self.OldChannel = animationChannelClass.New()
 end
 
 function INSTANCE:Save()
@@ -68,24 +75,80 @@ function INSTANCE:Load()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAnimation()
-	typecheck.NotImplementedError()
+--- @param animation string|HAnimationInstance
+--- @param blendTime number
+--- @param startFrame number
+function INSTANCE:SetAnimation( animation, blendTime, startFrame )
+	-- "If setting to our current anim, bail"
+	if self.NewChannel:PeekAnimation() == nil and animation == nil then
+		return
+	end
+
+	if self.NewChannel:PeekAnimation() ~= nil and animation ~= nil then
+
+		--- @type string|HAnimationInstance
+		local comparison = self.NewChannel:PeekAnimation()
+
+		-- If the animation is provided as a string, compare it with the name of the new channel animation
+		if typecheck.IsOfType( animation, "string" ) then
+			--- @cast comparison HAnimationInstance
+
+			section.Warn( comparison )
+
+			comparison = comparison:GetName()
+		end
+
+		if comparison == animation then
+			return
+		end
+	end
+
+	-- "If no current channel, or no blend, or no new name, don't blend"
+	if self.NewChannel:PeekAnimation() == nil or blendTime == 0 or animation == nil then
+		self.BlendTotal = 0.0
+		self.BlendTimer = 0.0
+	elseif self.BlendTotal == 0.0 then -- "If not currently blending"
+		self.OldChannel = self.NewChannel
+		self.BlendTimer = 0.0
+		self.BlendTotal = blendTime
+	elseif ( self.BlendTimer / self.BlendTotal ) > 0.5 then -- "If more than halfway through the old blend"
+		self.OldChannel = self.NewChannel
+		self.BlendTimer = ( 1.0 - ( self.BlendTimer / self.BlendTotal ) ) * blendTime
+		self.BlendTotal = blendTime
+	else
+		self.BlendTimer = ( self.BlendTimer / self.BlendTotal ) * blendTime
+		self.BlendTotal = blendTime
+	end
+	self.NewChannel:SetAnimation( animation )
+	if self.NewChannel:PeekAnimation() ~= nil then
+		self.NewChannel:SetFrame( startFrame )
+	end
+	if animation == nil then
+		self.OldChannel:SetAnimation( nil )
+	end
 end
 
-function INSTANCE:SetMode()
-	typecheck.NotImplementedError()
+--- @param mode AnimationControlAnimationMode
+--- @param frame number? [Default: -1]
+function INSTANCE:SetMode( mode, frame )
+	if frame == nil then frame = -1 end
+
+	self.NewChannel:SetMode( mode, frame )
 end
 
+--- @return AnimationControlAnimationMode
 function INSTANCE:GetMode()
-	typecheck.NotImplementedError()
+	return self.NewChannel:GetMode()
 end
 
+--- @return boolean
 function INSTANCE:IsComplete()
-	typecheck.NotImplementedError()
+	return self.NewChannel:IsComplete()
 end
 
+--- @return string
 function INSTANCE:GetAnimationName()
-	typecheck.NotImplementedError()
+	return self.NewChannel:GetAnimationName()
 end
 
 function INSTANCE:SetTargetFrame()
@@ -100,16 +163,54 @@ function INSTANCE:PeekAnimation()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Update()
-	typecheck.NotImplementedError()
+--- @param deltaTime number
+function INSTANCE:Update( deltaTime )
+	-- "If blending between two animations"
+	if self.BlendTotal ~= 0.0 then
+		-- "Bump blend timer forward"
+		self.BlendTimer = self.BlendTimer + deltaTime
+		-- "Blend complete, remove oldanim"
+		if self.BlendTimer >= self.BlendTotal then
+			self.BlendTotal = 0.0
+			self.BlendTimer = 0.0
+			self.OldChannel:SetAnimation( nil )
+		end
+	end
+
+	-- "Calculate which frame we are on in each of the animations"
+	self.NewChannel:Update( deltaTime )
+	self.OldChannel:Update( deltaTime )
 end
 
 function INSTANCE:GetAnimationData()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:UpdateModel()
-	typecheck.NotImplementedError()
+--- @param animationModel RenderObjectInstance
+function INSTANCE:UpdateModel( animationModel )
+	-- "Assume no blending"
+	local blendRatio = 1.0
+
+	-- "If blending between two animations"
+	if self.BlendTotal ~= 0.0 then
+		-- "Calculate the blend percentage between the two animations."
+		-- "This starts at 0.0 (all OldAnimation) and proceeds to 1.0 (all Animation)"
+		blendRatio = math.Clamp( self.BlendTimer / self.BlendTotal, 0, 1 )
+	end
+
+	if self.OldChannel:PeekAnimation() then
+		animationModel:SetAnimation(
+			self.OldChannel:PeekAnimation(),
+			self.OldChannel:GetFrame(),
+			self.NewChannel:PeekAnimation(),
+			self.NewChannel:GetFrame(),
+			blendRatio
+		)
+	elseif self.NewChannel:PeekAnimation() then
+		animationModel:SetAnimation( self.NewChannel:PeekAnimation(), self.NewChannel:GetFrame() )
+	else
+		animationModel:SetAnimation()
+	end
 end
 
 function INSTANCE:GetFrame()

@@ -27,6 +27,12 @@ INSTANCE.IsSmartGameObject = true
 
 	--- @type EnumBuilderClass
 	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type ActionClass
+	local actionClass = CNC.Import( "code/combat/action.lua" )
+
+	--- @type GameObjectManagerClass
+	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -72,7 +78,10 @@ end
 --[[ Static Functions and Variables ]] do
 
     --- @class SmartGameObjectClass
-		--- @field GlobalSightRangeScale any
+    --- @field GlobalSightRangeScale number
+
+    --- "Client who controls this object"
+    STATIC.SERVER_CONTROL_OWNER = -99999
 
     --- Creates a new SmartGameObjectInstance
     --- @return SmartGameObjectInstance
@@ -91,129 +100,188 @@ end
 
     typecheck.RegisterType( "SmartGameObjectInstance", STATIC.IsSmartGameObject )
 
+    --- @return number
 	function STATIC.GetGlobalSightRangeScale()
-		typecheck.NotImplementedError()
+		return STATIC.GlobalSightRangeScale
 	end
 
-	function STATIC.SetGlobalSightRangeScale()
-		typecheck.NotImplementedError()
+    --- @param scale number
+	function STATIC.SetGlobalSightRangeScale( scale )
+		STATIC.GlobalSightRangeScale = scale
 	end
 end
 
 
 --- @class SmartGameObjectInstance
---- @field Control any
---- @field Controller any
---- @field ControlEnabled any
---- @field StealthEnabled any
---- @field StealthPowerupTimer any
---- @field StealthFiringTimer any
---- @field StealthEffect any
---- @field Action any
---- @field ControlOwner any
---- @field PlayerData any
---- @field IsEnemySeenEnabled any
---- @field MovingSoundTimer any
---- @field Listener any
+--- @field Control ControlInstance
+--- @field Controller PhysicsControllerInstance "Controller for the physics object"
+--- @field ControlEnabled boolean
+--- @field StealthEnabled boolean "Stealth enabled by script or initialization code"
+--- @field StealthPowerupTimer number "Stealth power is in effect"
+--- @field StealthFiringTimer number "Timer for de-cloaking during"
+--- @field StealthEffect StealthEffectInstance? "Possible stealth effect"
+--- @field Action ActionInstance "For actions"
+--- @field ControlOwner integer "Client who controls this object"
+--- @field PlayerData PlayerDataInstance
+--- @field IsEnemySeenEnabled boolean
+--- @field MovingSoundTimer number
+--- @field Listener LogicalListenerInstance
 
 function INSTANCE:Renegade_SmartGameObject()
-	typecheck.NotImplementedError()
+    armedGameObjectClass.Instance.Renegade_ArmedGameObject( self )
+
+    self.Action = actionClass.New( self )
+    self.ControlOwner = STATIC.SERVER_CONTROL_OWNER
+    self.ControlEnabled = true
+    self.IsEnemySeenEnabled = false
+    self.MovingSoundTimer = 0
+    self.PlayerData = nil
+    self.StealthEnabled = false
+    self.StealthPowerupTimer = 0.0
+    self.StealthFiringTimer = 0.0
+    self.StealthEffect = nil
+
+    gameObjectManagerClass.AddSmart( self )
+
+    -- Omitted setting up audio listener
+    -- self.Listener = wWAudioClass.GetInstance():CreateLogicalListener()
+    -- self.Listener:RegisterCallback( audioCallbackEventEnum.EVENT_LOGICAL_HEARD, self )
 end
 
 function INSTANCE:_Renegade_SmartGameObject()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Init()
-	typecheck.NotImplementedError()
+
+--[[ Definitions ]] do
+
+    --- @param definition SmartGameObjectDefinitionInstance
+    --- @param connectedEntity Entity
+    function INSTANCE:Init( definition, connectedEntity )
+        armedGameObjectClass.Instance.Init( self, definition, connectedEntity )
+        INSTANCE.CopySettings( self, definition )
+    end
+
+    --- @param definition SmartGameObjectDefinitionInstance
+    function INSTANCE:CopySettings( definition )
+
+        local moveable = INSTANCE.PeekPhysicalObject( self ):AsMoveablePhysics()
+        if moveable ~= nil then
+            INSTANCE.PeekPhysicalObject( self ):AsMoveablePhysics():SetController( self.Controller )
+        end
+        INSTANCE.RegisterListener( self )
+
+        if definition.IsStealthUnit then
+            INSTANCE.EnableStealth( self, true )
+        end
+    end
+
+    function INSTANCE:ReInit()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GetDefinition()
+        typecheck.NotImplementedError()
+    end
 end
 
-function INSTANCE:CopySettings()
-	typecheck.NotImplementedError()
+
+--[[ Save / Load ]] do
+
+    function INSTANCE:Save()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:Load()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:OnPostLoad()
+        typecheck.NotImplementedError()
+    end
 end
 
-function INSTANCE:ReInit()
-	typecheck.NotImplementedError()
+
+--[[ Commands ]] do
+
+    function INSTANCE:ClearControl()
+        self.Control:ClearControl()
+    end
+
+    --- @param control BooleanControl
+    --- @param state boolean
+    function INSTANCE:SetBooleanControl( control, state )
+        if state == nil then state = true end
+
+        self.Control:SetBoolean( control, state )
+    end
+
+    --- @param control AnalogControl
+    --- @param value number
+    function INSTANCE:SetAnalogControl( control, value )
+        self.Control:SetAnalog( control, value )
+    end
+
+    --- @param packet BitStreamInstance
+    function INSTANCE:ImportControlCs( packet )
+        self.Control:ImportCs( packet )
+    end
+
+    --- @param packet BitStreamInstance
+    function INSTANCE:ExportControlCs( packet )
+        self.Control:ExportCs( packet )
+    end
+
+    --- @param packet BitStreamInstance
+    function INSTANCE:ImportControlSc( packet )
+        self.Control:ImportSc( packet )
+    end
+
+    --- @param packet BitStreamInstance
+    function INSTANCE:ExportControlSc( packet )
+        self.Control:ExportSc( packet )
+    end
+
+    function INSTANCE:GetControl()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ControlEnable()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:IsControlEnabled()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ResetController()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:GenerateControl()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return integer
+    function INSTANCE:GetControlOwner()
+        return self.ControlOwner
+    end
+
+    --- @return integer
+    function INSTANCE:GetWeaponControlOwner()
+        return INSTANCE.GetControlOwner( self )
+    end
+
+    --- @param controlOwner integer
+    function INSTANCE:SetControlOwner( controlOwner )
+        self.ControlOwner = controlOwner
+    end
 end
 
-function INSTANCE:GetDefinition()
-	typecheck.NotImplementedError()
-end
 
-function INSTANCE:Save()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:Load()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:OnPostLoad()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ClearControl()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetBooleanControl()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetAnalogControl()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ImportControlCs()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ExportControlCs()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ImportControlSc()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ExportControlSc()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetControl()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ControlEnable()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:IsControlEnabled()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ResetController()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GenerateControl()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetControlOwner()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetWeaponControlOwner()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetControlOwner()
-	typecheck.NotImplementedError()
-end
-
+--- @return PlayerDataInstance
 function INSTANCE:GetPlayerData()
-	typecheck.NotImplementedError()
+    return self.PlayerData
 end
 
 function INSTANCE:SetPlayerData()
@@ -225,7 +293,8 @@ function INSTANCE:HasPlayer()
 end
 
 function INSTANCE:IsHumanControlled()
-	typecheck.NotImplementedError()
+    -- "There is a human cPlayer object for this smart object"
+    return self.ControlOwner >= 0
 end
 
 function INSTANCE:IsControlledByMe()
@@ -236,56 +305,77 @@ function INSTANCE:ApplyControl()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Think()
-	typecheck.NotImplementedError()
+
+--[[ Thinking ]] do
+
+    function INSTANCE:Think()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:PostThink()
+        typecheck.NotImplementedError()
+    end
 end
 
-function INSTANCE:PostThink()
-	typecheck.NotImplementedError()
+
+--- @param damager OffenseObjectInstance
+--- @param scale number? [Default: `1.0`]
+--- @param alternateSkin integer [Default: `-1`]
+function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
+	if scale == nil then scale = 1.0 end
+    if alternateSkin == nil then alternateSkin = -1 end
+
+    typecheck.NotImplementedError()
 end
 
-function INSTANCE:ApplyDamage()
-	typecheck.NotImplementedError()
+--[[ Object Motion ]] do
+
+    --- @return number
+    function INSTANCE:GetMaxSpeed()
+        return 10
+    end
+
+    --- @return number
+    function INSTANCE:GetTurnRate()
+        return math.rad( 360 )
+    end
 end
 
-function INSTANCE:GetMaxSpeed()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetTurnRate()
-	typecheck.NotImplementedError()
-end
-
+--- @return ActionInstance
 function INSTANCE:GetAction()
-	typecheck.NotImplementedError()
+    return self.Action
 end
 
+--- @return SmartGameObjectInstance
 function INSTANCE:AsSmartGameObject()
-	typecheck.NotImplementedError()
+	return self
 end
 
-function INSTANCE:ImportFrequent()
-	typecheck.NotImplementedError()
-end
+--[[ State Import/Export ]] do
 
-function INSTANCE:ExportFrequent()
-	typecheck.NotImplementedError()
-end
+    function INSTANCE:ImportFrequent()
+        typecheck.NotImplementedError()
+    end
 
-function INSTANCE:ImportStateCs()
-	typecheck.NotImplementedError()
-end
+    function INSTANCE:ExportFrequent()
+        typecheck.NotImplementedError()
+    end
 
-function INSTANCE:ExportStateCs()
-	typecheck.NotImplementedError()
-end
+    function INSTANCE:ImportStateCs()
+        typecheck.NotImplementedError()
+    end
 
-function INSTANCE:ExportCreation()
-	typecheck.NotImplementedError()
-end
+    function INSTANCE:ExportStateCs()
+        typecheck.NotImplementedError()
+    end
 
-function INSTANCE:ImportCreation()
-	typecheck.NotImplementedError()
+    function INSTANCE:ExportCreation()
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ImportCreation()
+        typecheck.NotImplementedError()
+    end
 end
 
 function INSTANCE:IsControlDataDirty()
@@ -296,24 +386,28 @@ function INSTANCE:IsObjectVisible()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetEnemySeenEnabled()
-	typecheck.NotImplementedError()
+--- @param enabled boolean
+function INSTANCE:SetEnemySeenEnabled( enabled )
+	self.IsEnemySeenEnabled = enabled
 end
 
 function INSTANCE:IsEnemySeenEnabled()
-	typecheck.NotImplementedError()
+    return self.IsEnemySeenEnabled
 end
 
+--- @return Matrix3dInstance
 function INSTANCE:GetLookTransform()
-	typecheck.NotImplementedError()
+    return INSTANCE.GetTransform( self )
 end
 
+--- @return Vector
 function INSTANCE:GetVelocity()
-	typecheck.NotImplementedError()
+	return Vector( 0, 0, 0 )
 end
 
+--- @return boolean
 function INSTANCE:IsVisible()
-	typecheck.NotImplementedError()
+    return true
 end
 
 function INSTANCE:OnLogicalHeard()
@@ -332,39 +426,54 @@ function INSTANCE:GetInformation()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:EnableStealth()
-	typecheck.NotImplementedError()
+
+--[[ Stealth Interface ]] do
+
+    --- "Turn this object's cloaking device on or off"
+    --- @param onOff boolean
+    function INSTANCE:EnableStealth( onOff )
+        typecheck.NotImplementedError()
+    end
+
+    function INSTANCE:ToggleStealth()
+        typecheck.NotImplementedError()
+    end
+
+    --- "Is this object's cloaking device turned on?  (May not be cloaked yet though)"
+    --- @return boolean
+    function INSTANCE:IsStealthEnabled()
+        typecheck.NotImplementedError()
+    end
+
+    --- "Is this object actually stealthed (takes some time to turn on and off...)"
+    --- @return boolean
+    function INSTANCE:IsStealthed()
+        typecheck.NotImplementedError()
+    end
+
+    --- "Humans and vehicles fade in at different distances"
+    --- @return number
+    function INSTANCE:GetStealthFadeDistance()
+        return 25.0
+    end
+
+    --- @param seconds number
+    function INSTANCE:GrantStealthPowerup( seconds )
+        typecheck.NotImplementedError()
+    end
+
+    --- @return number
+    function INSTANCE:RemainingStealthPowerupTime()
+        typecheck.NotImplementedError()
+    end
+
+    --- @return StealthEffectInstance?
+    function INSTANCE:PeekStealthEffect()
+        typecheck.NotImplementedError()
+    end
 end
 
-function INSTANCE:ToggleStealth()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:IsStealthEnabled()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:IsStealthed()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetStealthFadeDistance()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GrantStealthPowerup()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:RemainingStealthPowerupTime()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:PeekStealthEffect()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:AllocStealthEffect()
+function INSTANCE:AllocateStealthEffect()
 	typecheck.NotImplementedError()
 end
 

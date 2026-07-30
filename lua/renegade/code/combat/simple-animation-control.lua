@@ -24,6 +24,9 @@ INSTANCE.IsSimpleAnimationControl = true
 --#endregion
 
 --#region Imports
+
+	--- @type BlendableAnimationChannelClass
+	local blendableAnimationChannelClass = CNC.Import( "code/combat/blendable-animation-channel.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -53,10 +56,14 @@ end
 
 
 --- @class SimpleAnimationControlInstance
---- @field Channel any
+--- @field Channel BlendableAnimationChannelInstance
 
 function INSTANCE:Renegade_SimpleAnimationControl()
-	typecheck.NotImplementedError()
+    animationControlClass.Instance.Renegade_AnimationControl( self )
+
+    self.Channel = blendableAnimationChannelClass.New()
+
+    -- Empty in the original code
 end
 
 function INSTANCE:_Renegade_SimpleAnimationControl()
@@ -71,20 +78,31 @@ function INSTANCE:Load()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAnimation()
-	typecheck.NotImplementedError()
+--- @param animation string|HAnimationInstance
+--- @param blendTime number? [Default: `0.0`]
+--- @param startFrame number? [Default: `0.0`]
+function INSTANCE:SetAnimation( animation, blendTime, startFrame )
+    if blendTime == nil then blendTime = 0.0 end
+    if startFrame == nil then startFrame = 0.0 end
+
+    self.Channel:SetAnimation( animation, blendTime, startFrame )
 end
 
-function INSTANCE:SetMode()
-	typecheck.NotImplementedError()
+--- @param mode AnimationControlAnimationMode
+--- @param frame number? [Default: -1]
+function INSTANCE:SetMode( mode, frame )
+    if frame == nil then frame = -1 end
+
+	self.Channel:SetMode( mode, frame )
 end
 
 function INSTANCE:GetMode()
 	typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsComplete()
-	typecheck.NotImplementedError()
+    return self.Channel:IsComplete()
 end
 
 function INSTANCE:GetAnimationName()
@@ -103,6 +121,12 @@ function INSTANCE:GetCurrentFrame()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Update()
-	typecheck.NotImplementedError()
+--- @param deltaTime number
+function INSTANCE:Update( deltaTime )
+    self.Channel:Update( deltaTime )
+
+    -- "Setup the model for the current frame(s)"
+    assert( self.Model ~= nil )
+
+    self.Channel:UpdateModel( self.Model )
 end

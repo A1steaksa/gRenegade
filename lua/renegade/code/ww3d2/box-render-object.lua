@@ -27,6 +27,9 @@ INSTANCE.IsBoxRenderObject = true
 
 	--- @type BoxLoaderClass
 	local boxLoaderClass = CNC.Import( "code/ww3d2/box-loader.lua" )
+
+	--- @type W3dFileIds
+	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -35,8 +38,8 @@ INSTANCE.IsBoxRenderObject = true
 --[[ Static Functions and Variables ]] do
 
     --- @class BoxRenderObjectClass
-		--- @field IsInitted any
-		--- @field DisplayMask any
+	--- @field IsInitted boolean
+	--- @field DisplayMask any
 
     --- Creates a new BoxRenderObjectInstance
     --- @return BoxRenderObjectInstance
@@ -59,6 +62,10 @@ INSTANCE.IsBoxRenderObject = true
 		STATIC.BoxLoader = boxLoaderClass.New()
 	end
 
+	--- "
+	--- Global initialization needed for boxes to work
+	--- Allocates materials which all boxes share.  Initializes vertex tables, etc.
+	--- "
 	function STATIC.Init()
 		typecheck.NotImplementedError()
 	end
@@ -78,36 +85,77 @@ end
 
 
 --- @class BoxRenderObjectInstance
---- @field Name any
---- @field Color any
---- @field ObjectSpaceCenter any
---- @field ObjectSpaceExtent any
---- @field Opacity any
+--- @field Name string
+--- @field Color Color
+--- @field ObjectSpaceCenter Vector
+--- @field ObjectSpaceExtent Vector
+--- @field Opacity number
 
-function INSTANCE:Renegade_BoxRenderObject()
+
+--- @param src W3dBoxStruct|BoxRenderObjectInstance?
+function INSTANCE:Renegade_BoxRenderObject( src )
 	renderObjectClass.Instance.Renegade_RenderObject( self )
 
-	typecheck.NotImplementedError()
+	-- ()
+	if src == nil then
+		self.Name = ""
+		self.Color = Color( 255, 255, 255 )
+		self.Opacity = 0.25
+		self.ObjectSpaceCenter = Vector( 0, 0, 0 )
+		self.ObjectSpaceExtent = Vector( 1, 1, 1 )
+		return
+
+	else
+		typecheck.AssertArgType( INSTANCE.Class, 1, src, { "W3dBoxStruct", "BoxRenderObjectInstance" } )
+
+		-- ( def: W3dBoxStruct )
+		if typecheck.IsOfType( src, "w3dBoxStruct" ) then
+			local def = src --[[@as W3dBoxStruct]]
+
+			INSTANCE.SetName( self, def.Name )
+			self.Color = Color( def.Color.R, def.Color.G, def.Color.B )
+			self.ObjectSpaceCenter = Vector( def.Center.X, def.Center.Y, def.Center.Z )
+			self.ObjectSpaceExtent = Vector( def.Extent.X, def.Extent.Y, def.Extent.Z )
+			local collisionBits = bit.rshift(
+				bit.band(
+					def.Attributes,
+					w3dFileIds.W3D_BOX_ATTRIBUTE_COLLISION_TYPE_MASK
+				),
+				w3dFileIds.W3D_BOX_ATTRIBUTE_COLLISION_TYPE_SHIFT
+			)
+			INSTANCE.SetCollisionType( self, bit.lshift( collisionBits, 1 ) )
+			self.Opacity = 0.25
+			return
+
+		-- ( box: BoxRenderObjectInstance )
+		else
+			--- @cast src BoxRenderObjectInstance
+
+			typecheck.NotImplementedError()
+			return
+		end
+	end
 end
 
-function INSTANCE:Renegade_BoxRenderObject()
-	typecheck.NotImplementedError()
-end
-
+--- @return integer
 function INSTANCE:GetNumPolys()
-	typecheck.NotImplementedError()
+	return 12
 end
 
+--- @return string
 function INSTANCE:GetName()
-	typecheck.NotImplementedError()
+	return self.Name
 end
 
-function INSTANCE:SetName()
-	typecheck.NotImplementedError()
+--- @param name string
+function INSTANCE:SetName( name )
+	self.Name = name
 end
 
-function INSTANCE:SetColor()
-	typecheck.NotImplementedError()
+--- "Sets the color of the box"
+--- @param color Color
+function INSTANCE:SetColor( color )
+	self.Color = color
 end
 
 function INSTANCE:SetOpacity()
@@ -122,12 +170,14 @@ function INSTANCE:SetLocalMinMax()
 	typecheck.NotImplementedError()
 end
 
+--- @return Vector
 function INSTANCE:GetLocalCenter()
-	typecheck.NotImplementedError()
+	return self.ObjectSpaceCenter
 end
 
+--- @return Vector
 function INSTANCE:GetLocalExtent()
-	typecheck.NotImplementedError()
+	return self.ObjectSpaceExtent
 end
 
 function INSTANCE:UpdateCachedBox()

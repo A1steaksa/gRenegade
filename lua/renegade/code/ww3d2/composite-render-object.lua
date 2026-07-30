@@ -24,6 +24,12 @@ INSTANCE.IsCompositeRenderObject = true
 --#endregion
 
 --#region Imports
+
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
+
+	--- @type SphereClass
+	local sphereClass = CNC.Import( "code/wwmath/sphere.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -54,13 +60,16 @@ end
 
 
 --- @class CompositeRenderObjectInstance
---- @field Name any
---- @field BaseModelName any
---- @field ObjectSphere any
---- @field ObjectBox any
+--- @field Name string "Name of the render object"
+--- @field BaseModelName string "Name of the original render obj (before aggregation)"
+--- @field ObjectSphere SphereInstance "Object-space bounding sphere"
+--- @field ObjectBox AABoxInstance|MinMaxAABoxInstance "Object-space bounding box"
 
 --- @param other CompositeRenderObjectInstance?
 function INSTANCE:Renegade_CompositeRenderObject( other )
+	self.ObjectBox = aABoxClass.New()
+	self.ObjectSphere = sphereClass.New()
+
 	-- ()
 	if other == nil then
 		renderObjectClass.Instance.Renegade_RenderObject( self )
@@ -84,12 +93,15 @@ function INSTANCE:Restart()
 	typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetName()
-	typecheck.NotImplementedError()
+	return self.Name
 end
 
-function INSTANCE:SetName()
-	typecheck.NotImplementedError()
+--- "Sets the name of this render object"
+--- @param name string
+function INSTANCE:SetName( name )
+	self.Name = name
 end
 
 function INSTANCE:GetBaseModelName()
@@ -116,19 +128,19 @@ function INSTANCE:CastRay()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:CastAaBox()
+function INSTANCE:CastAABox()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:CastObBox()
+function INSTANCE:CastOBBox()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:IntersectAaBox()
+function INSTANCE:IntersectAABox()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:IntersectObBox()
+function INSTANCE:IntersectOBBox()
 	typecheck.NotImplementedError()
 end
 
@@ -140,12 +152,14 @@ function INSTANCE:DeleteDecal()
 	typecheck.NotImplementedError()
 end
 
+--- @return SphereInstance
 function INSTANCE:GetObjectSpaceBoundingSphere()
-	typecheck.NotImplementedError()
+	return self.ObjectSphere
 end
 
+--- @return AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox()
-	typecheck.NotImplementedError()
+	return self.ObjectBox --[[@as AABoxInstance]]
 end
 
 function INSTANCE:UpdateObjectSpaceBoundingVolumes()

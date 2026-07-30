@@ -318,8 +318,47 @@ function INSTANCE:CreateHAnimationIterator()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetHAnimation()
-	typecheck.NotImplementedError()
+--- @param name string
+--- @return HAnimationInstance?
+function INSTANCE:GetHAnimation( name )
+	-- "Try to find the hanim"
+	local animation = self.HAnimationManager:GetAnimation( name )
+
+	-- "If we didn't find it, try to load on demand"
+	if self.Ww3dLoadOnDemand and animation == nil then
+		-- "If this is NOT a known missing anim"
+		if not self.HAnimationManager:IsMissing( name ) then
+
+			-- Omitted reporting the load on demand call to AssetStatusClass
+
+			local fileName
+			local dotIndex = textUtils.IndexOf( name, "." )
+			local animationName
+			if dotIndex ~= nil then
+				animationName = name:sub( dotIndex + 1 )
+				fileName = animationName .. ".w3d"
+			else
+				section.Error( INSTANCE.Class, " - GetHAnimation - Animation ", name, " has no . in the name" )
+				return
+			end
+
+			-- "If we can't find it, try the parent directory"
+			if self:Load3dAssets( fileName ) == false then
+				local newFileName = "..\\" .. fileName
+				self:Load3dAssets( newFileName )
+			end
+
+			-- "Try [again]"
+			animation = self.HAnimationManager:GetAnimation( name )
+			if animation == nil then
+				-- "This is now a KNOWN missing anim"
+				self.HAnimationManager:RegisterMissing( name )
+				-- Omitted reporting missing HAnim to AssetStatusClass
+			end
+		end
+	end
+
+	return animation
 end
 
 function INSTANCE:AddAnimation()
@@ -401,8 +440,34 @@ function INSTANCE:CreateHTreeIterator()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetHTree()
-	typecheck.NotImplementedError()
+--- "Returns a pointer to the named HTree"
+--- @param name string
+--- @return HTreeInstance?
+function INSTANCE:GetHTree( name )
+	-- "Try to find the htree"
+	local hTree = self.HTreeManager:GetTree( name )
+
+	-- "If we didn't find it, try to load on demand"
+	if self.Ww3dLoadOnDemand and hTree == nil then
+		section.Warn( "Loading HTree on demand: '", name, "'" )
+
+		local fileName = name .. ".w3d"
+
+		-- "If we can't find it, try the parent [directory]"
+		if INSTANCE.Load3dAssets( self, fileName ) == false then
+			local newFileName = "..\\" .. fileName
+			INSTANCE.Load3dAssets( self, newFileName )
+		end
+
+		-- "Try again"
+		hTree = self.HTreeManager:GetTree( name )
+
+		if hTree == nil then
+			section.Error( "Failed to load HTree on demand: '", name, "'" )
+		end
+	end
+
+	return hTree
 end
 
 --- "  

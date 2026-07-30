@@ -529,20 +529,30 @@ end
 	end
 end
 
-function STATIC.EnableSorting()
-	typecheck.NotImplementedError()
+--- @param onOff boolean
+function STATIC.EnableSorting( onOff )
+	STATIC._IsSortingEnabled = onOff
 end
 
+--- @return boolean
 function STATIC.IsSortingEnabled()
-	typecheck.NotImplementedError()
+	return STATIC._IsSortingEnabled
+
+	-- "  
+	-- Have to invalidate mesh rendering system because meshes are put
+	-- into different fvfs depending on their sort state  
+	-- "  
+	-- Omitted invalidating the dx8 mesh renderer
 end
 
-function STATIC.SetScreenUvBias()
-	typecheck.NotImplementedError()
+--- @param onOff boolean
+function STATIC.SetScreenUvBias( onOff )
+	STATIC._IsScreenUvBiased = onOff
 end
 
+--- @return boolean
 function STATIC.IsScreenUvBiased()
-	typecheck.NotImplementedError()
+	return STATIC._IsScreenUvBiased
 end
 
 function STATIC.SetCollisionBoxDisplayMask()

@@ -24,15 +24,49 @@ INSTANCE.IsSoldierGameObject = true
 --#endregion
 
 --#region Imports
+
+	--- @type ArmorWarheadManagerClass
+	local armorWarheadManagerClass = CNC.Import( "code/combat/armor-warhead-manager.lua" )
+
+	--- @type HumanAnimationControlClass
+	local humanAnimationControlClass = CNC.Import( "code/combat/human-animation-control.lua" )
+
+	--- @type ActionParamsStructClass
+	local actionParamsStructClass = CNC.Import( "code/combat/action-params-struct.lua" )
+
+	--- @type SimplePersistFactoryClass
+	local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
+
+	--- @type CombatChunkIdClass
+	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
+
+	--- @type GameObjectManagerClass
+	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type HTreeClass
+	local hTreeClass = CNC.Import( "code/ww3d2/h-tree.lua" )
+
+	--- @type HumanStateClass
+	local humanStateClass = CNC.Import( "code/combat/human-state.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local specialDamageTypeEnum = armorWarheadManagerClass.SPECIAL_DAMAGE_TYPE
+	local soldierAiStateEnum = actionParamsStructClass.SOLDIER_AI_STATE
 --#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
     --- @class SoldierGameObjectClass
-		--- @field DisplayDebugBoxForGhostCollision any
+	--- @field DisplayDebugBoxForGhostCollision boolean
+	--- @field SoldierGameObjectPersistFactory SimplePersistFactoryInstance
+
+	STATIC.DisplayDebugBoxForGhostCollision = false
 
     --- Creates a new SoldierGameObjectInstance
     --- @return SoldierGameObjectInstance
@@ -50,6 +84,13 @@ INSTANCE.IsSoldierGameObject = true
     end
 
     typecheck.RegisterType( "SoldierGameObjectInstance", STATIC.IsSoldierGameObject )
+
+	function STATIC.StaticConstructor()
+
+		section.Warn( "Soldier Static Constructor Ran!" )
+
+		STATIC.SoldierGameObjectPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkIdClass.CHUNKID_GAME_OBJECT_SOLDIER )
+	end
 
 	function STATIC.SayDynamicDialogue()
 		typecheck.NotImplementedError()
@@ -70,7 +111,7 @@ end
 --- @field BackWeaponRenderModel RenderObjectInstance
 --- @field BackFlagRenderModel RenderObjectInstance
 --- @field WeaponAnimationControl AnimationControlInstance
---- @field DetonateC4 boolean
+--- @field _DetonateC4 boolean
 --- @field TransitionCompletionData TransitionCompletionDataStruct
 --- @field AnimationName string
 --- @field Vehicle VehicleGameObjectInstance
@@ -96,14 +137,14 @@ end
 --- @field FacingAllowBodyTurn boolean
 --- @field InnateEnableBits integer
 --- @field InnateObserver SoldierObserverInstance
---- @field AiState SoldierAiStateInstance
+--- @field AiState SoldierAiState
 --- @field SpeechAnimation DynamicSpeechAnimationInstance
 --- @field GenerateIdleFacialAnimationTimer number
 --- @field HeadModel RenderObjectInstance
 --- @field EmotIconModel RenderObjectInstance
 --- @field EmotIconTimer number
 --- @field InFlyMode boolean
---- @field IsVisible boolean
+--- @field _IsVisible boolean
 --- @field LadderUpMask boolean
 --- @field LadderDownMask boolean
 --- @field ReloadingTilt number
@@ -112,27 +153,99 @@ end
 --- @field RenderObjectList RenderObjectInstance[]
 
 function INSTANCE:Renegade_SoldierGameObject()
-	typecheck.NotImplementedError()
+	smartGameObjectClass.Instance.Renegade_SmartGameObject( self )
+
+	self.HumanState = humanStateClass.New()
+
+	self.WeaponRenderModel = nil
+	self.BackWeaponRenderModel = nil
+	self.BackFlagRenderModel = nil
+	self.WeaponAnimControl = nil
+	self.TransitionCompletionData = nil
+	self.Vehicle = nil
+	self.LegFacing = 0
+	self.SyncLegs = false
+	self.LastLegMode = false
+	self.HeadLookDuration = 0
+	self.HeadRotation = Vector( 0, 0, 0 )
+	self.HeadLookTarget = Vector( 0, 0, 0 )
+	self.HeadLookAngle = Vector( 0, 0, 0 )
+	self.HeadLookAngleTimer = 0
+	self.InnateEnableBits = 0xFFFFFFFF
+	self.InnateObserver = nil
+	self.SpecialDamageMode = specialDamageTypeEnum.NONE
+	self.SpecialDamageTimer = 0
+	self.GenerateIdleFacialAnimTimer = 0
+	self.KeyRing = 0
+	self.InFlyMode = false
+	self._IsVisible = true
+	self.CurrentSpeech = nil
+	self.AiState = soldierAiStateEnum.AI_STATE_IDLE
+	self.SpeechAnim = nil
+	self.HeadModel = nil
+	self.EmotIconModel = nil
+	self.EmotIconTimer = 0
+	self.LadderUpMask = false
+	self.LadderDownMask = false
+	self.SpecialDamageEffect = nil
+	self.HealingEffect = nil
+	self.ReloadingTilt = 0
+	self.WaterWake = nil
+	self.WeaponChanged = false
+
+	-- "All humans need a [HumanAnimationControlInstance]"
+	INSTANCE.SetAnimationControl( self, humanAnimationControlClass.New() )
+	-- INSTANCE.SetAppPacketType( self, appPacketTypeEnum.APPPACKETTYPE_SOLDIER )
+
+	-- "Create a water wake object"
+	-- self.WaterWake = surfaceEffectsManagerClass.CreatePersistantEmitter()
+	-- Omitted creating water wake object
 end
 
 function INSTANCE:_Renegade_SoldierGameObject()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Init()
+--- @param definition SoldierGameObjectDefinitionInstance?
+--- @param connectedEntity Entity
+function INSTANCE:Init( definition, connectedEntity )
+	-- ()
+	if definition == nil then
+		INSTANCE.ReInit( self, INSTANCE.GetDefinition( self ) )
+		return
+	end
+
+	-- ( definition: SoldierGameObjectDefinitionInstance )
+	smartGameObjectClass.Instance.Init( self, definition, connectedEntity )
+	INSTANCE.CopySettings( self, definition )
+end
+
+--- @param definition SoldierGameObjectDefinitionInstance
+function INSTANCE:CopySettings( definition )
+	self.HumanState:Init( INSTANCE.PeekHumanPhysics( self ) )
+	-- "Must set the anim control after the phys object"
+	self.HumanState:SetAnimationControl( INSTANCE.GetAnimationControl( self ) --[[@as HumanAnimationControlInstance]] )
+
+	if INSTANCE.GetDefinition( self ).HumanAnimationOverrideDefinitionID ~= 0 then
+		self.HumanState:SetHumanAnimationOverride( INSTANCE.GetDefinition( self ).HumanAnimationOverrideDefinitionID )
+	end
+
+	if INSTANCE.GetDefinition( self ).HumanLoiterCollectionDefinitionID ~= 0 then
+		self.HumanState:SetHumanLoiterCollection( INSTANCE.GetDefinition( self ).HumanLoiterCollectionDefinitionID )
+	end
+
+	INSTANCE.AdjustSkeleton( self, definition.SkeletonHeight, definition.SkeletonWidth )
+
+end
+
+--- @param definition SoldierGameObjectDefinitionInstance
+function INSTANCE:ReInit( definition )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:CopySettings()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:ReInit()
-	typecheck.NotImplementedError()
-end
-
+--- @return SoldierGameObjectDefinitionInstance
 function INSTANCE:GetDefinition()
-	typecheck.NotImplementedError()
+	return self.Definition --[[@as SoldierGameObjectDefinitionInstance]]
 end
 
 function INSTANCE:Save()
@@ -147,12 +260,16 @@ function INSTANCE:OnPostLoad()
 	typecheck.NotImplementedError()
 end
 
+--- @return SimplePersistFactoryInstance
 function INSTANCE:GetFactory()
-	typecheck.NotImplementedError()
+	return STATIC.SoldierGameObjectPersistFactory
 end
 
+--- @return HumanPhysicsInstance?
 function INSTANCE:PeekHumanPhysics()
-	typecheck.NotImplementedError()
+	section.Print( "Spaghetto: '", INSTANCE.PeekPhysicalObject( self ), "'" )
+
+	return INSTANCE.PeekPhysicalObject( self ):AsHumanPhysics()
 end
 
 function INSTANCE:Think()
@@ -163,8 +280,15 @@ function INSTANCE:PostThink()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetControlOwner()
-	typecheck.NotImplementedError()
+--- @param controlOwner integer
+function INSTANCE:SetControlOwner( controlOwner )
+	if INSTANCE.IsHumanControlled( self ) then
+		gameObjectManagerClass.RemoveStar( self )
+	end
+	smartGameObjectClass.Instance.SetControlOwner( self, controlOwner )
+	if INSTANCE.IsHumanControlled( self ) then
+		gameObjectManagerClass.AddStar( self )
+	end
 end
 
 function INSTANCE:GenerateControl()
@@ -431,8 +555,9 @@ function INSTANCE:SetModel()
 	typecheck.NotImplementedError()
 end
 
+--- @return SoldierGameObjectInstance
 function INSTANCE:AsSoldierGameObject()
-	typecheck.NotImplementedError()
+	return self
 end
 
 function INSTANCE:GetVelocity()
@@ -451,8 +576,29 @@ function INSTANCE:CanSee()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:AdjustSkeleton()
-	typecheck.NotImplementedError()
+--- @param height number
+--- @param width number
+function INSTANCE:AdjustSkeleton( height, width )
+	-- "Only adjust male skeletons"
+	local renderObject = INSTANCE.PeekModel( self ) --[[@as Animatable3dObjectInstance]]
+	if not renderObject or not renderObject:GetHTree() or renderObject:GetHTree():GetName():sub( 3, 3 ) ~= "A" then
+		return
+	end
+
+	local treeBase, treeTall, treeWide
+
+	if treeBase == nil then
+		treeBase = ww3dAssetManagerClass.GetInstance():GetHTree( "s_a_human" )
+		treeTall = ww3dAssetManagerClass.GetInstance():GetHTree( "s_a_tall" )
+		treeWide = ww3dAssetManagerClass.GetInstance():GetHTree( "s_a_wide" )
+	end
+
+	if ( treeBase ~= nil ) and ( treeTall ~= nil ) and ( treeWide ~= nil ) then
+		local tree = hTreeClass.CreateInterpolated( treeBase, treeTall, treeWide, height, width )
+		if tree then
+			renderObject:SetHTree( tree )
+		end
+	end
 end
 
 function INSTANCE:LookAt()
@@ -580,7 +726,7 @@ function INSTANCE:HasKey()
 end
 
 function INSTANCE:WantsPowerups()
-	typecheck.NotImplementedError()
+	return INSTANCE.IsHumanControlled( self )
 end
 
 function INSTANCE:AllowSpecialDamageStateLock()

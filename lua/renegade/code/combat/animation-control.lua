@@ -51,10 +51,10 @@ end
 
 
 --- @class AnimationControlInstance
---- @field Model any
+--- @field Model RenderObjectInstance?
 
 function INSTANCE:Renegade_AnimationControl()
-	typecheck.NotImplementedError()
+	self.Model = nil
 end
 
 function INSTANCE:_Renegade_AnimationControl()
@@ -65,23 +65,31 @@ function INSTANCE:Save()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Load()
+--- @param cload ChunkLoadInstance
+function INSTANCE:Load( cload )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetModel()
-	typecheck.NotImplementedError()
+--- @param animationModel RenderObjectInstance?
+function INSTANCE:SetModel( animationModel )
+	self.Model = animationModel
 end
 
+--- @return RenderObjectInstance
 function INSTANCE:PeekModel()
+	return self.Model
+end
+
+--- @param animation string|HAnimationInstance|nil
+--- @param blendTime number? [Default: `0.0`]
+--- @param startFrame number? [Default: `0.0`]
+function INSTANCE:SetAnimation( animation, blendTime, startFrame )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAnimation()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetMode()
+--- @param mode AnimationControlAnimationMode
+--- @param frame number? [Default: -1]
+function INSTANCE:SetMode( mode, frame )
 	typecheck.NotImplementedError()
 end
 
@@ -113,6 +121,7 @@ function INSTANCE:PeekAnimation()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Update()
+--- @param deltaTime number
+function INSTANCE:Update( deltaTime )
 	typecheck.NotImplementedError()
 end
