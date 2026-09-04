@@ -21,6 +21,8 @@ STATIC.Class = "DeserializeLib"
         UInt16  = enumBuilder:Next(),
         UInt8   = enumBuilder:Next(),
         Int     = enumBuilder:Next(),
+        ULong   = enumBuilder:Next(),
+        Long    = enumBuilder:Next(),
         Float   = enumBuilder:Next(),
         Float32 = enumBuilder:Next(),
         Boolean = enumBuilder:Next(),
@@ -42,6 +44,21 @@ STATIC.Class = "DeserializeLib"
 --#endregion
 
 
+--- @class DeserializeLib
+
+--- @class ComplexDataTypeSchemaField
+--- @field Name string The key that this field will be stored under
+--- @field DataType string|FundamentalDataType Either the name of a complex data type or a fundamental data type enum
+--- @field Length integer? (Optional) The number of bytes this field consumes if the data type isn't fixed-length
+--- @field ArrayLength integer? (Optional) Makes this field into an array if set
+
+--- A "union" of several possible fields.  The largest sized field will be the amount of bytes read
+--- @class ComplexDataTypeSchemaUnionField
+--- @field Union ComplexDataTypeSchema
+
+--- @alias ComplexDataTypeSchema (ComplexDataTypeSchemaField|ComplexDataTypeSchemaUnionField)[]
+
+
 --- @class FundamentalDataTypeInfo
 --- @field Name string The pretty, print-able name of this data type
 --- @field DataType FundamentalDataType 
@@ -49,24 +66,14 @@ STATIC.Class = "DeserializeLib"
 --- @field Size integer The number of bytes this data type takes up
 --- @field ConversionFunction fun( bytes: string ): any
 
+--- @type table<FundamentalDataType, FundamentalDataTypeInfo>
+STATIC.FundamentalDataTypeRegistry = {}
+
+
 --- @class ComplexDataTypeInfo
 --- @field Name string The name that will be used to reference to this data type
 --- @field Schema ComplexDataTypeSchema The layout of the complex data type
 --- @field Size integer The size, in bytes, of this data type
-
---- A schema is simply an ordered list of fields
---- @alias ComplexDataTypeSchema ComplexDataTypeSchemaField[]
-
---- @class ComplexDataTypeSchemaField
---- @field Name string The key that this field will be stored under
---- @field Type string|FundamentalDataType Either the name of a complex data type or a fundamental data type enum
---- @field Size integer? (Optional) The number of bytes this field consumes if the data type isn't fixed-length
---- @field ArrayLength integer? (Optional) Makes this field into an array if set
-
---- @class DeserializeLib
-
---- @type table<FundamentalDataType, FundamentalDataTypeInfo>
-STATIC.FundamentalDataTypeRegistry = {}
 
 --- @type table<string, ComplexDataTypeInfo>
 STATIC.ComplexDataTypeRegistry = {}
@@ -77,15 +84,17 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "UInt16",  fundamentalDataTypeEnum.UInt16,      0, 2,  STATIC.DeserializeUInt16  )
     STATIC.RegisterFundamentalDataType( "UInt8",   fundamentalDataTypeEnum.UInt8,       0, 1,  STATIC.DeserializeUInt8   )
     STATIC.RegisterFundamentalDataType( "Int",     fundamentalDataTypeEnum.Int,         0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "ULong",   fundamentalDataTypeEnum.ULong,       0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "Long",    fundamentalDataTypeEnum.Long,        0, 4,  STATIC.DeserializeInt32   )
     STATIC.RegisterFundamentalDataType( "Float",   fundamentalDataTypeEnum.Float,     0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Float32", fundamentalDataTypeEnum.Float32,   0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
-    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,   nil, 8,  STATIC.DeserializePointer )
+    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,   0, 4,  STATIC.DeserializeUInt32 )
 
     STATIC.RegisterComplexDataType( "Vector", {
-        { Name = "X", Type = fundamentalDataTypeEnum.Float },
-        { Name = "Y", Type = fundamentalDataTypeEnum.Float },
-        { Name = "Z", Type = fundamentalDataTypeEnum.Float },
+        { Name = "X", DataType = fundamentalDataTypeEnum.Float },
+        { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
+        { Name = "Z", DataType = fundamentalDataTypeEnum.Float },
     } )
 end
 
@@ -110,27 +119,75 @@ end
     --- @param name string
     --- @param schema ComplexDataTypeSchema
     function STATIC.RegisterComplexDataType( name, schema )
-        -- Calculate the size of this complex data type
-        local size = 0
-        for _, schemaEntry in ipairs( schema ) do
-            if schemaEntry.Type == fundamentalDataTypeEnum.String then
-                size = size + schemaEntry.Size
-                continue
-            end
-
-            -- Account for arrays
-            local countMultiplier = schemaEntry.ArrayLength or 1
-            local dataTypeSize = STATIC.GetDataTypeSize( schemaEntry.Type )
-            local totalFieldSize = dataTypeSize * countMultiplier
-
-            size = size + totalFieldSize
-        end
+        local size = STATIC.CalculateSchemaSize( schema )
 
         STATIC.ComplexDataTypeRegistry[name] = {
             Name     = name,
             Schema   = schema,
             Size     = size
         }
+    end
+
+    --- @param unionFields ComplexDataTypeSchema
+    --- @return integer byteCount
+    function STATIC.CalculateSchemaUnionFieldSize( unionFields )
+        local unionSize = 0
+
+        for unionFieldIndex, unionField in ipairs( unionFields ) do
+            local unionFieldSize
+            if unionField.Union ~= nil then
+                --- @cast unionField ComplexDataTypeSchemaUnionField
+
+                unionFieldSize = STATIC.CalculateSchemaUnionFieldSize( unionField.Union )
+            else
+                --- @cast unionField ComplexDataTypeSchemaField
+
+                unionFieldSize = STATIC.CalculateSchemaFieldSize( unionField )
+            end
+
+            unionSize = math.max( unionSize, unionFieldSize )
+        end
+
+        return unionSize
+    end
+
+    --- @param schemaField ComplexDataTypeSchemaField
+    --- @return integer byteCount
+    function STATIC.CalculateSchemaFieldSize( schemaField )
+        local dataTypeSize
+        if schemaField.DataType == fundamentalDataTypeEnum.String then
+            dataTypeSize = schemaField.Length
+        else
+            dataTypeSize = STATIC.GetDataTypeSize( schemaField.DataType )
+        end
+
+        local countMultiplier = schemaField.ArrayLength or 1
+
+        return dataTypeSize * countMultiplier
+    end
+
+    --- @param schema ComplexDataTypeSchema
+    --- @return integer byteCount
+    function STATIC.CalculateSchemaSize( schema )
+        local schemaSize = 0
+
+        for schemaIndex, schemaEntry in ipairs( schema ) do
+            local entrySize  = 0
+
+            if schemaEntry.Union ~= nil then
+                --- @cast schemaEntry ComplexDataTypeSchemaUnionField
+
+                entrySize = STATIC.CalculateSchemaUnionFieldSize( schemaEntry.Union )
+            else
+                --- @cast schemaEntry ComplexDataTypeSchemaField
+
+                entrySize = STATIC.CalculateSchemaFieldSize( schemaEntry )
+            end
+
+            schemaSize = schemaSize + entrySize
+        end
+
+        return schemaSize
     end
 end
 
@@ -147,6 +204,17 @@ end
     --- @return boolean
     function STATIC.IsComplexDataType( dataType )
         return STATIC.ComplexDataTypeRegistry[dataType] ~= nil
+    end
+
+    --- @param dataType string|FundamentalDataType
+    --- @return string
+    function STATIC.GetDataTypeName( dataType )
+        if typecheck.IsOfType( dataType, "string" ) then
+            return dataType --[[@as string]]
+        elseif typecheck.IsOfType( dataType, "number" ) then
+            return table.KeyFromValue( fundamentalDataTypeEnum, dataType )
+        end
+        return "Unknown data type '" .. tostring( dataType ) .. "'"
     end
 
     --- @param dataType FundamentalDataType|string
@@ -196,7 +264,7 @@ end
 
 --[[ Deserializers ]] do
 
-    -- Credit for the original parsing code goes to:
+    -- Credit for the original binary C++ parsing code goes to:
     -- ----------------------------------------------------------------------------
     -- Kamil Marciniak <github.com/forkerer> wrote this code. As long as you retain this 
     -- notice, you can do whatever you want with this stuff. If we
@@ -204,9 +272,10 @@ end
     -- buy me a beer in return.
     -- ----------------------------------------------------------------------------
 
-    --- @param dataType FundamentalDataType|string
+    --- @generic T
+    --- @param dataType FundamentalDataType|`T`
     --- @param bytes string
-    --- @return any
+    --- @return T
     function STATIC.Deserialize( dataType, bytes )
         -- Strings get special handling
         if dataType == fundamentalDataTypeEnum.String then
@@ -228,9 +297,33 @@ end
         section.Error( "Unable to deserialize datatype '", dataType, "' which is neither a registered fundamental or complex data type" )
     end
 
-    --- @param dataType string
+    --- @generic T
+    --- @param dataType FundamentalDataType|`T`
     --- @param bytes string
-    --- @return any
+    --- @return T[]|any[]
+    function STATIC.DeserializeArray( dataType, bytes )
+        local dataTypeSize = STATIC.GetDataTypeSize( dataType )
+
+        local arrayLength = bytes:len() / dataTypeSize
+        if arrayLength ~= math.floor( arrayLength ) then
+            section.Error( "Cannot deserialize array of datatype '", dataType, "' from ", bytes:len(), " bytes of data.  Datatype requires ", dataTypeSize, " bytes.  Got non-integer array length of: ", arrayLength, "" )
+        end
+
+        local result = {}
+        for i = 0, arrayLength - 1 do
+            local startIndex = 1 + i * dataTypeSize
+            local dataTypeBytes = bytes:sub( startIndex, startIndex + dataTypeSize )
+
+            result[#result+1] = STATIC.Deserialize( dataType, dataTypeBytes )
+        end
+
+        return result
+    end
+
+    --- @generic T
+    --- @param dataType `T`
+    --- @param bytes string
+    --- @return T?
     function STATIC.DeserializeComplexDataType( dataType, bytes )
         local registeryEntry = STATIC.ComplexDataTypeRegistry[dataType]
         if registeryEntry == nil then
@@ -239,42 +332,68 @@ end
         end
 
         local result = {}
-
         local schema = registeryEntry.Schema
-        for _, field in ipairs( schema ) do
-            local isArray = ( field.ArrayLength ~= nil )
-            local isfundamentalDataType = isnumber( field.Type )
-            -- Figure out how many bytes each of this data type takes up
-            local bytesToRead
-            if field.Type == fundamentalDataTypeEnum.String then
-                bytesToRead = field.Size
-            elseif isfundamentalDataType then
-                bytesToRead = STATIC.GetFundamentalDataTypeSize( field.Type --[[@as FundamentalDataType]] )
-            else
-                bytesToRead = STATIC.GetComplexDataTypeSize( field.Type --[[@as string]] )
-            end
+        for schemaFieldIndex, schemaField in ipairs( schema ) do
 
-            if isArray then
-                local fieldArray = {}
-                result[field.Name] = fieldArray
+            -- Union field
+            if schemaField.Union then
+                --- @cast schemaField ComplexDataTypeSchemaUnionField
 
-                -- Deserialize each element of the array
-                for i = 1, field.ArrayLength do
-                    -- Get this array element's bytes
-                    local extractedBytes = bytes:sub( 1, bytesToRead )
-                    bytes = bytes:sub( bytesToRead + 1)
+                local bytesToRead = STATIC.CalculateSchemaUnionFieldSize( schemaField.Union )
 
-                    fieldArray[i] = STATIC.Deserialize( field.Type, extractedBytes )
+                if bytes:len() < bytesToRead then
+                    section.Error( "Attempted to read ", bytesToRead, " bytes but only ", bytes:len(), " bytes remain" )
+                    return
                 end
-            else
-                -- Get this field's bytes
+
+                -- Get the bytes for this union
                 local extractedBytes = bytes:sub( 1, bytesToRead )
                 bytes = bytes:sub( bytesToRead + 1 )
-                if extractedBytes:len() ~= bytesToRead then
-                    section.Error( "Tried to extract ", bytesToRead, " bytes but got ", extractedBytes:len(), " bytes instead" )
+
+                -- Deserialize those same bytes into each of the possible fields of the union
+                for unionFieldIndex, unionField in ipairs( schemaField.Union ) do
+                    result[unionField.Name] = STATIC.Deserialize( unionField.DataType, extractedBytes )
                 end
 
-                result[field.Name] = STATIC.Deserialize( field.Type, extractedBytes )
+            -- Single field
+            else
+                --- @cast schemaField ComplexDataTypeSchemaField
+
+                local isArray = ( schemaField.ArrayLength ~= nil )
+                local isfundamentalDataType = isnumber( schemaField.DataType )
+
+                -- Figure out how many bytes each of this data type takes up
+                local bytesToRead
+                if schemaField.DataType == fundamentalDataTypeEnum.String then
+                    bytesToRead = schemaField.Length
+                elseif isfundamentalDataType then
+                    bytesToRead = STATIC.GetFundamentalDataTypeSize( schemaField.DataType --[[@as FundamentalDataType]] )
+                else
+                    bytesToRead = STATIC.GetComplexDataTypeSize( schemaField.DataType --[[@as string]] )
+                end
+
+                if isArray then
+                    local fieldArray = {}
+                    result[schemaField.Name] = fieldArray
+
+                    -- Deserialize each element of the array
+                    for i = 1, schemaField.ArrayLength do
+                        -- Get this array element's bytes
+                        local extractedBytes = bytes:sub( 1, bytesToRead )
+                        bytes = bytes:sub( bytesToRead + 1)
+
+                        fieldArray[i] = STATIC.Deserialize( schemaField.DataType, extractedBytes )
+                    end
+                else
+                    -- Get this field's bytes
+                    local extractedBytes = bytes:sub( 1, bytesToRead )
+                    bytes = bytes:sub( bytesToRead + 1 )
+                    if extractedBytes:len() ~= bytesToRead then
+                        section.Error( "Tried to extract ", bytesToRead, " bytes but got ", extractedBytes:len(), " bytes instead" )
+                    end
+
+                    result[schemaField.Name] = STATIC.Deserialize( schemaField.DataType, extractedBytes )
+                end
             end
         end
 
@@ -296,7 +415,7 @@ end
 
     --- @param bytes string
     --- @return integer
-    function STATIC.DeserializePointer( bytes )
+    function STATIC.DeserializeUInt64( bytes )
         local b1, b2, b3, b4, b5, b6, b7, b8 = bytes:byte( 1, 8 )
         return (
             b8 * 0x100000000000000 +
@@ -312,6 +431,18 @@ end
 
     --- @param bytes string
     --- @return integer
+    function STATIC.DeserializeInt64( bytes )
+        local unsignedInt = STATIC.DeserializeUInt64( bytes )
+
+        if unsignedInt > 0x7FFFFFFFFFFFFFFF then
+            return ( unsignedInt - 0x10000000000000000 )
+        end
+
+        return unsignedInt
+    end
+
+    --- @param bytes string
+    --- @return integer
     function STATIC.DeserializeUInt32( bytes )
         local b1, b2, b3, b4 = bytes:byte( 1, 4 )
         return (
@@ -320,6 +451,18 @@ end
 			b2 * 0x100 +
 			b1
         )
+    end
+
+    --- @param bytes string
+    --- @return integer
+    function STATIC.DeserializeInt32( bytes )
+        local unsignedInt = STATIC.DeserializeUInt32( bytes )
+
+        if unsignedInt > 0x7FFFFFFF then
+            return ( unsignedInt - 0x100000000 )
+        end
+
+        return unsignedInt
     end
 
     --- @param bytes string
