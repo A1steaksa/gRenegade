@@ -1,0 +1,37 @@
+{
+  "Name": "TextureLoader",
+  "ParentNames": [],
+  "FileName": "texture-loader",
+  "CppName": "TextureLoader",
+  "CppPath": "Code/ww3d2/textureloader.h",
+  "Static": {
+    "Fields": [
+      {
+        "Name": "TextureLoadSuspended",
+        "DataType": "boolean"
+      }
+    ],
+    "Functions": [
+      "Init",
+      "Deinit",
+      "ValidateTextureSize",
+      "LoadThumbnail",
+      "LoadSurfaceImmediate",
+      "RequestThumbnail",
+      "RequestBackgroundLoading",
+      "RequestForegroundLoading",
+      "FlushPendingLoadTasks",
+      "Update",
+      "IsDx8Thread",
+      "SuspendTextureLoad",
+      "ContinueTextureLoad",
+      "ProcessForegroundLoad",
+      "ProcessForegroundThumbnail",
+      "BeginLoadAndQueue"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": []
+  }
+}
