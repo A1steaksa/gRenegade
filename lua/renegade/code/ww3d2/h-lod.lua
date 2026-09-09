@@ -184,8 +184,8 @@ function INSTANCE:Renegade_HLod( ... )
 				self.Lod[iLod].MaxScreenSize = definition.Lod[iLod].MaxScreenSize
 				for iModel = 1, definition.Lod[iLod].ModelCount do
 					local renderObject = ww3dAssetManagerClass.GetInstance():CreateRenderObject( definition.Lod[iLod].ModelName[iModel] )
-					local boneIndex = definition.Lod[iLod].BoneIndex[iModel]
 
+					local boneIndex = definition.Lod[iLod].BoneIndex[iModel]
 					-- Convert from a 0 based to 1 based index
 					boneIndex = boneIndex + 1
 
@@ -360,7 +360,7 @@ function INSTANCE:Render( renderInfo )
 			--- @cast lodModel MeshInstance
 			lodModel:Render( renderInfo, self.HTree.SourceBones )
 		else
-			-- lodModel:Render( renderInfo )
+			lodModel:Render( renderInfo )
 		end
 	end
 
@@ -534,7 +534,7 @@ function INSTANCE:AddSubObjectToBone( subObject, bone )
 
 	local result = true
 
-	self.AdditionalModels[#self.AdditionalModels] = newNode
+	self.AdditionalModels[#self.AdditionalModels + 1] = newNode
 
 	INSTANCE.UpdateSubObjectBits( self )
 	INSTANCE.UpdateObjectSpaceBoundingVolumes( self )
