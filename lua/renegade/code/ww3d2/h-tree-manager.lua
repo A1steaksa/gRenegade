@@ -90,8 +90,18 @@ function INSTANCE:LoadTree( cload )
 
         -- "Insert to hash table for fast name based search"
         local name = newTree:GetName()
-        section.Warn( "Name: '", name, "' " )
-        local lowerCaseName = newTree:GetName():lower()
+
+        if name == nil or #name == 0 then
+            
+            for k, v in pairs( newTree ) do
+                section.Print( k, ". '", v, "'" )
+            end
+
+            section.Error( "HTreeManager Cannot store nameless HTree!" )
+        end
+
+        --- @cast name string\
+        local lowerCaseName = name:lower()
         self.TreeHash[lowerCaseName] = newTree
     end
     return 0
