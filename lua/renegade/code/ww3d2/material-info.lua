@@ -133,8 +133,10 @@ function INSTANCE:HasTimeVariantTextureMappers()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetTexture()
-	typecheck.NotImplementedError()
+--- @param index integer
+--- @return TextureInstance
+function INSTANCE:GetTexture( index )
+	return self.Textures[index]
 end
 
 function INSTANCE:PeekTexture()
