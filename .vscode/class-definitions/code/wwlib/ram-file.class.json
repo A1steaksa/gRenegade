@@ -1,0 +1,66 @@
+{
+  "Name": "RAMFile",
+  "ParentNames": [
+    "File"
+  ],
+  "FileName": "ram-file",
+  "CppName": "RAMFileClass",
+  "CppPath": "Code/wwlib/ramfile.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "Buffer",
+        "DataType": "CharInstance"
+      },
+      {
+        "Name": "MaxLength",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Length",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Offset",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Access",
+        "DataType": "integer"
+      },
+      {
+        "Name": "IsOpen",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "IsAllocated",
+        "DataType": "boolean"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "FileName",
+      "SetName",
+      "Create",
+      "Delete",
+      "IsAvailable",
+      "IsOpen",
+      "Open",
+      "Read",
+      "Seek",
+      "Size",
+      "Write",
+      "Close",
+      "GetDateTime",
+      "SetDateTime",
+      "Error",
+      "Bias",
+      "OperatorCharConst"
+    ]
+  }
+}
