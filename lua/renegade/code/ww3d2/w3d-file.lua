@@ -522,7 +522,7 @@ function STATIC.StaticConstructor()
     --- @class W3dQuaternionStruct
     --- @field Q integer[]
     deserializeLib.RegisterComplexDataType( "W3dQuaternionStruct", {
-        { Name = "Q", Type = fundamentalDataTypeEnum.Float32, ArrayLength = 4 },
+        { Name = "Q", DataType = fundamentalDataTypeEnum.Float32, ArrayLength = 4 },
     } )
 
     --- @class W3dTextureInfoStruct
@@ -531,10 +531,10 @@ function STATIC.StaticConstructor()
     --- @field FrameCount integer "Number of frames (1 if not animated)"
     --- @field FrameRate number "Frame rate, frames per second in floating point"
     deserializeLib.RegisterComplexDataType( "W3dTextureInfoStruct", {
-        { Name = "Attributes", Type = fundamentalDataTypeEnum.UInt16  },
-        { Name = "AnimType",   Type = fundamentalDataTypeEnum.UInt16  },
-        { Name = "FrameCount", Type = fundamentalDataTypeEnum.UInt32  },
-        { Name = "FrameRate",  Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "Attributes", DataType = fundamentalDataTypeEnum.UInt16  },
+        { Name = "AnimType",   DataType = fundamentalDataTypeEnum.UInt16  },
+        { Name = "FrameCount", DataType = fundamentalDataTypeEnum.UInt32  },
+        { Name = "FrameRate",  DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
     --- @class W3dShaderStruct
@@ -555,22 +555,22 @@ function STATIC.StaticConstructor()
     --- @field PostDetailAlphaFunc integer
     --- @field Pad integer
     deserializeLib.RegisterComplexDataType( "W3dShaderStruct", {
-        { Name = "DepthCompare",        Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "DepthMask",           Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "ColorMask",           Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "DestBlend",           Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "FogFunc",             Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "PriGradient",         Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "SecGradient",         Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "SrcBlend",            Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "Texturing",           Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "DetailColorFunc",     Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "DetailAlphaFunc",     Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "ShaderPreset",        Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "AlphaTest",           Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "PostDetailColorFunc", Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "PostDetailAlphaFunc", Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "Pad",                 Type = fundamentalDataTypeEnum.UInt8 },
+        { Name = "DepthCompare",        DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "DepthMask",           DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "ColorMask",           DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "DestBlend",           DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "FogFunc",             DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "PriGradient",         DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "SecGradient",         DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "SrcBlend",            DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "Texturing",           DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "DetailColorFunc",     DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "DetailAlphaFunc",     DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "ShaderPreset",        DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "AlphaTest",           DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "PostDetailColorFunc", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "PostDetailAlphaFunc", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "Pad",                 DataType = fundamentalDataTypeEnum.UInt8 },
     } )
 
     --- "RGB color, one byte per channel, padded to an even 4 bytes"
@@ -580,10 +580,10 @@ function STATIC.StaticConstructor()
     --- @field B integer
     --- @field Pad integer
     deserializeLib.RegisterComplexDataType( "W3dRGBStruct", {
-        { Name = "R", Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "G", Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "B", Type = fundamentalDataTypeEnum.UInt8 },
-        { Name = "Pad", Type = fundamentalDataTypeEnum.UInt8 },
+        { Name = "R", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "G", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "B", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "Pad", DataType = fundamentalDataTypeEnum.UInt8 },
     } )
 
     --- @class W3dVertexMaterialStruct
@@ -596,14 +596,14 @@ function STATIC.StaticConstructor()
     --- @field Opacity number      -- "How opaque the material is, 0.0 = invisible, 1.0 = fully opaque (default = 1)"
     --- @field Translucency number -- "How much light passes through the material. (default = 0)"
     deserializeLib.RegisterComplexDataType( "W3dVertexMaterialStruct", {
-        { Name = "Attributes", Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Ambient",    Type = "W3dRGBStruct" },
-        { Name = "Diffuse",    Type = "W3dRGBStruct" },
-        { Name = "Specular",   Type = "W3dRGBStruct" },
-        { Name = "Emissive",   Type = "W3dRGBStruct" },
-        { Name = "Shininess",    Type = fundamentalDataTypeEnum.Float32 },
-        { Name = "Opacity",      Type = fundamentalDataTypeEnum.Float32 },
-        { Name = "Translucency", Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "Attributes", DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Ambient",    DataType = "W3dRGBStruct" },
+        { Name = "Diffuse",    DataType = "W3dRGBStruct" },
+        { Name = "Specular",   DataType = "W3dRGBStruct" },
+        { Name = "Emissive",   DataType = "W3dRGBStruct" },
+        { Name = "Shininess",    DataType = fundamentalDataTypeEnum.Float32 },
+        { Name = "Opacity",      DataType = fundamentalDataTypeEnum.Float32 },
+        { Name = "Translucency", DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
     --- @class W3dVectorStruct
@@ -611,9 +611,9 @@ function STATIC.StaticConstructor()
     --- @field Y number
     --- @field Z number
     deserializeLib.RegisterComplexDataType( "W3dVectorStruct", {
-        { Name = "X", Type = fundamentalDataTypeEnum.Float32 },
-        { Name = "Y", Type = fundamentalDataTypeEnum.Float32 },
-        { Name = "Z", Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "X", DataType = fundamentalDataTypeEnum.Float32 },
+        { Name = "Y", DataType = fundamentalDataTypeEnum.Float32 },
+        { Name = "Z", DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
     --- @class W3dTriStruct
@@ -622,18 +622,18 @@ function STATIC.StaticConstructor()
     --- @field Normal W3dVectorStruct "Plane normal"
     --- @field Distance number "Plane distance"
     deserializeLib.RegisterComplexDataType( "W3dTriStruct", {
-        { Name = "Vindex",     Type = fundamentalDataTypeEnum.UInt32, ArrayLength = 3 },
-        { Name = "Attributes", Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Normal",     Type = "W3dVectorStruct" },
-        { Name = "Distance",   Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "Vindex",     DataType = fundamentalDataTypeEnum.UInt32, ArrayLength = 3 },
+        { Name = "Attributes", DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Normal",     DataType = "W3dVectorStruct" },
+        { Name = "Distance",   DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
     --- @class W3dTexCoordStruct
     --- @field U number
     --- @field V number
     deserializeLib.RegisterComplexDataType( "W3dTexCoordStruct", {
-        { Name = "U", Type = fundamentalDataTypeEnum.Float32 },
-        { Name = "V", Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "U", DataType = fundamentalDataTypeEnum.Float32 },
+        { Name = "V", DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
 
@@ -681,27 +681,27 @@ function STATIC.StaticConstructor()
         --- @field SphCenter W3dVectorStruct "Center of bounding sphere"
         --- @field SphRadius number "Bounding sphere radius"
         deserializeLib.RegisterComplexDataType( "W3dMeshHeader3Struct", {
-            { Name = "Version",    Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Attributes", Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Version",    DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Attributes", DataType = fundamentalDataTypeEnum.UInt32 },
 
-            { Name = "MeshName",      Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-            { Name = "ContainerName", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
+            { Name = "MeshName",      DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+            { Name = "ContainerName", DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
 
-            { Name = "NumTris",                 Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "NumVertices",             Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "NumMaterials",            Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "NumDamageStages",         Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "SortLevel",               Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "AttPrelitVersionributes", Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "FutureCounts",            Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "NumTris",                 DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "NumVertices",             DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "NumMaterials",            DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "NumDamageStages",         DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "SortLevel",               DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "AttPrelitVersionributes", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "FutureCounts",            DataType = fundamentalDataTypeEnum.UInt32 },
 
-            { Name = "VertexChannels", Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "FaceChannels",   Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "VertexChannels", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "FaceChannels",   DataType = fundamentalDataTypeEnum.UInt32 },
 
-            { Name = "Min",       Type = "W3dVectorStruct" },
-            { Name = "Max",       Type = "W3dVectorStruct" },
-            { Name = "SphCenter", Type = "W3dVectorStruct" },
-            { Name = "SphRadius", Type = fundamentalDataTypeEnum.Float32 },
+            { Name = "Min",       DataType = "W3dVectorStruct" },
+            { Name = "Max",       DataType = "W3dVectorStruct" },
+            { Name = "SphCenter", DataType = "W3dVectorStruct" },
+            { Name = "SphRadius", DataType = fundamentalDataTypeEnum.Float32 },
         } )
 
         -- "  
@@ -712,8 +712,8 @@ function STATIC.StaticConstructor()
         --- @field BoneIndex integer
         --- @field Pad integer[]
         deserializeLib.RegisterComplexDataType( "W3dVertInfStruct", {
-            { Name = "BoneIndex", Type = fundamentalDataTypeEnum.UInt16 },
-            { Name = "Pad",       Type = fundamentalDataTypeEnum.UInt8, ArrayLength = 6 },
+            { Name = "BoneIndex", DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "Pad",       DataType = fundamentalDataTypeEnum.UInt8, ArrayLength = 6 },
         } )
     end
 
@@ -723,10 +723,10 @@ function STATIC.StaticConstructor()
     --- @field ShaderCount integer "how many shaders are used"
     --- @field TextureCount integer "how many textures are used"
     deserializeLib.RegisterComplexDataType( "W3dMaterialInfoStruct", {
-        { Name = "PassCount",           Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "VertexMaterialCount", Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "ShaderCount",         Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "TextureCount",        Type = fundamentalDataTypeEnum.UInt32 },
+        { Name = "PassCount",           DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "VertexMaterialCount", DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "ShaderCount",         DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "TextureCount",        DataType = fundamentalDataTypeEnum.UInt32 },
     } )
 
     --- @class W3dBoxStruct
@@ -737,12 +737,12 @@ function STATIC.StaticConstructor()
     --- @field Center W3dVectorStruct "Center of the box"
     --- @field Extent W3dVectorStruct "Extent of the box"
     deserializeLib.RegisterComplexDataType( "W3dBoxStruct", {
-        { Name = "Version",     Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Attributes",  Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Name",        Type = fundamentalDataTypeEnum.String, Size = 2 * STATIC.W3D_NAME_LEN },
-        { Name = "Color",       Type = "W3dRGBStruct"    },
-        { Name = "Center",      Type = "W3dVectorStruct" },
-        { Name = "Extent",      Type = "W3dVectorStruct" },
+        { Name = "Version",     DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Attributes",  DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Name",        DataType = fundamentalDataTypeEnum.String, Length = 2 * STATIC.W3D_NAME_LEN },
+        { Name = "Color",       DataType = "W3dRGBStruct"    },
+        { Name = "Center",      DataType = "W3dVectorStruct" },
+        { Name = "Extent",      DataType = "W3dVectorStruct" },
     } )
 
     --- @class W3dHLodHeaderStruct
@@ -751,26 +751,26 @@ function STATIC.StaticConstructor()
     --- @field Name string
     --- @field HierarchyName string "Name of the hierarchy tree to use (\0 if none)"
     deserializeLib.RegisterComplexDataType( "W3dHLodHeaderStruct", {
-        { Name = "Version",       Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "LodCount",      Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Name",          Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-        { Name = "HierarchyName", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
+        { Name = "Version",       DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "LodCount",      DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Name",          DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+        { Name = "HierarchyName", DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
     } )
 
     --- @class W3dHLodArrayHeaderStruct
     --- @field ModelCount integer
     --- @field MaxScreenSize number "If model is bigger than this, switch to higher lod."
     deserializeLib.RegisterComplexDataType( "W3dHLodArrayHeaderStruct", {
-        { Name = "ModelCount",     Type = fundamentalDataTypeEnum.UInt32  },
-        { Name = "MaxScreenSize",  Type = fundamentalDataTypeEnum.Float32 },
+        { Name = "ModelCount",     DataType = fundamentalDataTypeEnum.UInt32  },
+        { Name = "MaxScreenSize",  DataType = fundamentalDataTypeEnum.Float32 },
     } )
 
     --- @class W3dHLodSubObjectStruct
     --- @field BoneIndex integer
     --- @field Name string
     deserializeLib.RegisterComplexDataType( "W3dHLodSubObjectStruct", {
-        { Name = "BoneIndex", Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Name",      Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN * 2 },
+        { Name = "BoneIndex", DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Name",      DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN * 2 },
     } )
 
     --- @class W3dHierarchyStruct
@@ -779,10 +779,10 @@ function STATIC.StaticConstructor()
     --- @field NumPivots integer
     --- @field Center W3dVectorStruct
     deserializeLib.RegisterComplexDataType( "W3dHierarchyStruct", {
-        { Name = "Version",   Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Name",      Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-        { Name = "NumPivots", Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Center",    Type = "W3dVectorStruct" },
+        { Name = "Version",   DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Name",      DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+        { Name = "NumPivots", DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Center",    DataType = "W3dVectorStruct" },
     } )
 
     --- @class W3dPivotStruct
@@ -792,11 +792,11 @@ function STATIC.StaticConstructor()
     --- @field EulerAngles W3dVectorStruct "Orientation of the pivot point"
     --- @field Rotation W3dQuaternionStruct "Orientation of the pivot point"
     deserializeLib.RegisterComplexDataType( "W3dPivotStruct", {
-        { Name = "Name",        Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-        { Name = "ParentIdx",   Type = fundamentalDataTypeEnum.UInt32 },
-        { Name = "Translation", Type = "W3dVectorStruct" },
-        { Name = "EulerAngles", Type = "W3dVectorStruct" },
-        { Name = "Rotation",    Type = "W3dQuaternionStruct" },
+        { Name = "Name",        DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+        { Name = "ParentIdx",   DataType = fundamentalDataTypeEnum.UInt32 },
+        { Name = "Translation", DataType = "W3dVectorStruct" },
+        { Name = "EulerAngles", DataType = "W3dVectorStruct" },
+        { Name = "Rotation",    DataType = "W3dQuaternionStruct" },
     } )
 
     --[[ WHA (Westwood Hierarchy Animations) ]] do
@@ -819,11 +819,11 @@ function STATIC.StaticConstructor()
         --- @field NumFrames integer
         --- @field FrameRate integer
         deserializeLib.RegisterComplexDataType( "W3dAnimHeaderStruct", {
-            { Name = "Version",       Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Name",          Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-            { Name = "HierarchyName", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-            { Name = "NumFrames",     Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "FrameRate",     Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Version",       DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Name",          DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+            { Name = "HierarchyName", DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+            { Name = "NumFrames",     DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "FrameRate",     DataType = fundamentalDataTypeEnum.UInt32 },
         } )
 
         --- @class W3dCompressedAnimHeaderStruct
@@ -834,12 +834,12 @@ function STATIC.StaticConstructor()
         --- @field FrameRate integer
         --- @field Flavor integer
         deserializeLib.RegisterComplexDataType( "W3dCompressedAnimHeaderStruct", {
-            { Name = "Version",       Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Name",          Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-            { Name = "HierarchyName", Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
-            { Name = "NumFrames",     Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "FrameRate",     Type = fundamentalDataTypeEnum.UInt16 },
-            { Name = "Flavor",        Type = fundamentalDataTypeEnum.UInt16 },
+            { Name = "Version",       DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Name",          DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+            { Name = "HierarchyName", DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
+            { Name = "NumFrames",     DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "FrameRate",     DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "Flavor",        DataType = fundamentalDataTypeEnum.UInt16 },
         } )
 
         --- @enum AnimationChannelEnum
@@ -878,16 +878,16 @@ function STATIC.StaticConstructor()
             --- @field VectorLength integer "Length of each vector in this channel"
             --- @field Flags integer "Channel type."
             --- @field Pivot integer "Pivot affected by this channel"
-            --- @field pad integer
+            --- @field Pad integer
             --- @field Data number[] "Will be (LastFrame - FirstFrame + 1) * VectorLen long"
             deserializeLib.RegisterComplexDataType( "W3dAnimChannelStruct", {
-                { Name = "FirstFrame", Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "LastFrame",  Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "VectorLen",  Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Flags",      Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Pivot",      Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "pad",        Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Data",       Type = fundamentalDataTypeEnum.Float32, ArrayLength = 1 },
+                { Name = "FirstFrame",   DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "LastFrame",    DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "VectorLength", DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Flags",        DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Pivot",        DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Pad",          DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Data",         DataType = fundamentalDataTypeEnum.Float32, ArrayLength = 1 },
             } )
 
 
@@ -905,12 +905,12 @@ function STATIC.StaticConstructor()
             --- @field DefaultVal integer "Default state when outside valid range."
             --- @field Data integer[] "Will be (LastFrame - FirstFrame + 1) / 8 long"
             deserializeLib.RegisterComplexDataType( "W3dBitChannelStruct", {
-                { Name = "FirstFrame", Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "LastFrame",  Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Flags",      Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Pivot",      Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "DefaultVal", Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Data",       Type = fundamentalDataTypeEnum.UInt8, ArrayLength = 1 },
+                { Name = "FirstFrame", DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "LastFrame",  DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Flags",      DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Pivot",      DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "DefaultVal", DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Data",       DataType = fundamentalDataTypeEnum.UInt8, ArrayLength = 1 },
             } )
         end
 
@@ -929,11 +929,11 @@ function STATIC.StaticConstructor()
             --- @field Flags integer "Channel type."
             --- @field Data integer[] "Will be (NumTimeCodes * ( ( VectorLength * sizeof(uint32) ) + sizeof(uint32) ) )"
             deserializeLib.RegisterComplexDataType( "W3dTimeCodedAnimChannelStruct", {
-                { Name = "NumTimeCodes", Type = fundamentalDataTypeEnum.UInt32 },
-                { Name = "Pivot",        Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "VectorLength", Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Flags",        Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Data",         Type = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
+                { Name = "NumTimeCodes", DataType = fundamentalDataTypeEnum.UInt32 },
+                { Name = "Pivot",        DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "VectorLength", DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Flags",        DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Data",         DataType = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
             } )
 
             -- "The bit channel is encoded right into the MSB of each time code"
@@ -946,11 +946,11 @@ function STATIC.StaticConstructor()
             --- @field DefaultValue integer "Default state when outside valid range"
             --- @field Data integer[] "Will be (NumTimeCodes * sizeof(uint32) )"
             deserializeLib.RegisterComplexDataType( "W3dTimeCodedBitChannelStruct", {
-                { Name = "NumTimeCodes", Type = fundamentalDataTypeEnum.UInt32 },
-                { Name = "Pivot",        Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "Flags",        Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "DefaultValue", Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Data",         Type = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
+                { Name = "NumTimeCodes", DataType = fundamentalDataTypeEnum.UInt32 },
+                { Name = "Pivot",        DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "Flags",        DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "DefaultValue", DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Data",         DataType = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
             } )
         end
 
@@ -964,12 +964,12 @@ function STATIC.StaticConstructor()
             --- @field Scale number "Filter Table Scale"
             --- @field Data integer[] "OpCode Data Stream"
             deserializeLib.RegisterComplexDataType( "W3dAdaptiveDeltaAnimChannelStruct", {
-                { Name = "NumFrames", Type = fundamentalDataTypeEnum.UInt32 },
-                { Name = "Pivot",        Type = fundamentalDataTypeEnum.UInt16 },
-                { Name = "VectorLength", Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Flags",        Type = fundamentalDataTypeEnum.UInt8 },
-                { Name = "Scale",        Type = fundamentalDataTypeEnum.Float },
-                { Name = "Data",         Type = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
+                { Name = "NumFrames", DataType = fundamentalDataTypeEnum.UInt32 },
+                { Name = "Pivot",        DataType = fundamentalDataTypeEnum.UInt16 },
+                { Name = "VectorLength", DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Flags",        DataType = fundamentalDataTypeEnum.UInt8 },
+                { Name = "Scale",        DataType = fundamentalDataTypeEnum.Float },
+                { Name = "Data",         DataType = fundamentalDataTypeEnum.UInt32, ArrayLength = 1 },
             } )
         end
     end
@@ -992,24 +992,24 @@ function STATIC.StaticConstructor()
         --- @field Version integer
         --- @field Name string
         deserializeLib.RegisterComplexDataType( "W3dAggregateHeaderStruct", {
-            { Name = "Version", Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Name",  Type = fundamentalDataTypeEnum.String, Size = STATIC.W3D_NAME_LEN },
+            { Name = "Version", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Name",  DataType = fundamentalDataTypeEnum.String, Length = STATIC.W3D_NAME_LEN },
         } )
 
         --- @class W3dAggregateInfoStruct
         --- @field BaseModelName string
         --- @field SubObjectCount integer
         deserializeLib.RegisterComplexDataType( "W3dAggregateInfoStruct", {
-            { Name = "BaseModelName",  Type = fundamentalDataTypeEnum.String, Size = ( STATIC.W3D_NAME_LEN * 2 ) },
-            { Name = "SubObjectCount", Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "BaseModelName",  DataType = fundamentalDataTypeEnum.String, Length = ( STATIC.W3D_NAME_LEN * 2 ) },
+            { Name = "SubObjectCount", DataType = fundamentalDataTypeEnum.UInt32 },
         } )
 
         --- @class W3dAggregateSubObjectStruct
         --- @field SubObjectName string
         --- @field BoneName string
         deserializeLib.RegisterComplexDataType( "W3dAggregateSubObjectStruct", {
-            { Name = "SubObjectName", Type = fundamentalDataTypeEnum.String, Size = ( STATIC.W3D_NAME_LEN * 2 ) },
-            { Name = "BoneName",      Type = fundamentalDataTypeEnum.String, Size = ( STATIC.W3D_NAME_LEN * 2 ) },
+            { Name = "SubObjectName", DataType = fundamentalDataTypeEnum.String, Length = ( STATIC.W3D_NAME_LEN * 2 ) },
+            { Name = "BoneName",      DataType = fundamentalDataTypeEnum.String, Length = ( STATIC.W3D_NAME_LEN * 2 ) },
         } )
 
         --- "Structures for version 1.1 and newer"
@@ -1017,7 +1017,7 @@ function STATIC.StaticConstructor()
         --- @class W3dTextureReplacerHeaderStruct
         --- @field ReplacedTexturesCount integer
         deserializeLib.RegisterComplexDataType( "W3dTextureReplacerHeaderStruct", {
-            { Name = "ReplacedTexturesCount", Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "ReplacedTexturesCount", DataType = fundamentalDataTypeEnum.UInt32 },
         } )
 
         --- @class W3dTextureReplacerStruct
@@ -1027,11 +1027,11 @@ function STATIC.StaticConstructor()
         --- @field NewTextureName string
         --- @field TextureParameters W3dTextureInfoStruct
         deserializeLib.RegisterComplexDataType( "W3dTextureReplacerStruct", {
-            { Name = "MeshPath",        Type = fundamentalDataTypeEnum.String, ArrayLength = STATIC.MESH_PATH_ENTRIES, Size = STATIC.MESH_PATH_ENTRY_LEN },
-            { Name = "BonePath",        Type = fundamentalDataTypeEnum.String, ArrayLength = STATIC.MESH_PATH_ENTRIES, Size = STATIC.MESH_PATH_ENTRY_LEN },
-            { Name = "OldTextureName",  Type = fundamentalDataTypeEnum.String, Size = 260 },
-            { Name = "NewTextureName",  Type = fundamentalDataTypeEnum.String, Size = 260 },
-            { Name = "TextureParameters",  Type = "W3dTextureInfoStruct" },
+            { Name = "MeshPath",        DataType = fundamentalDataTypeEnum.String, ArrayLength = STATIC.MESH_PATH_ENTRIES, Length = STATIC.MESH_PATH_ENTRY_LEN },
+            { Name = "BonePath",        DataType = fundamentalDataTypeEnum.String, ArrayLength = STATIC.MESH_PATH_ENTRIES, Length = STATIC.MESH_PATH_ENTRY_LEN },
+            { Name = "OldTextureName",  DataType = fundamentalDataTypeEnum.String, Length = 260 },
+            { Name = "NewTextureName",  DataType = fundamentalDataTypeEnum.String, Length = 260 },
+            { Name = "TextureParameters",  DataType = "W3dTextureInfoStruct" },
         } )
 
         --- "Structures for version 1.2 asnd newer"
@@ -1041,9 +1041,9 @@ function STATIC.StaticConstructor()
         --- @field Flags integer
         --- @field Reserved integer[]
         deserializeLib.RegisterComplexDataType( "W3dAggregateMiscInfo", {
-            { Name = "OriginalClassId", Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Flags",           Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Reserved",        Type = fundamentalDataTypeEnum.UInt32, ArrayLength = 3 },
+            { Name = "OriginalClassId", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Flags",           DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Reserved",        DataType = fundamentalDataTypeEnum.UInt32, ArrayLength = 3 },
         } )
     end
 end

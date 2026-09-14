@@ -69,9 +69,9 @@ INSTANCE.IsMixFileFactory = true
         --- @field Offset integer "Offset from start of data section."
         --- @field Size integer "Size of data subfile."
         deserializeLib.RegisterComplexDataType( "FileInfoStruct", {
-            { Name = "Crc",    Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Offset", Type = fundamentalDataTypeEnum.UInt32 },
-            { Name = "Size",   Type = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Crc",    DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Offset", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "Size",   DataType = fundamentalDataTypeEnum.UInt32 },
         } )
 
         --- @class MixFileHeader
@@ -79,9 +79,9 @@ INSTANCE.IsMixFileFactory = true
         --- @field HeaderOffset integer
         --- @field NamesOffset integer
         deserializeLib.RegisterComplexDataType( "MixFileHeader", {
-            { Name = "Signature",    Type = fundamentalDataTypeEnum.String, Size = 4 },
-            { Name = "HeaderOffset", Type = fundamentalDataTypeEnum.Int },
-            { Name = "NamesOffset",  Type = fundamentalDataTypeEnum.Int },
+            { Name = "Signature",    DataType = fundamentalDataTypeEnum.String, Length = 4 },
+            { Name = "HeaderOffset", DataType = fundamentalDataTypeEnum.Int },
+            { Name = "NamesOffset",  DataType = fundamentalDataTypeEnum.Int },
         } )
     end
 end
