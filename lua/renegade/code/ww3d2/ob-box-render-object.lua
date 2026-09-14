@@ -131,7 +131,7 @@ function INSTANCE:ClassId()
 end
 
 function INSTANCE:Render()
-	typecheck.NotImplementedError()
+	-- typecheck.NotImplementedError()
 end
 
 function INSTANCE:SpecialRender()
