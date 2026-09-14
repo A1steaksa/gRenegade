@@ -181,7 +181,6 @@ function INSTANCE:Load( cload )
     section.Start( "Loading " .. INSTANCE.Class )
 
     local ids = STATIC.ChunkIds
-    local fundamentalDataTypeEnum = STATIC.DATA_TYPE
 
     while cload:OpenChunk() do
         local id = cload:CurChunkId()
