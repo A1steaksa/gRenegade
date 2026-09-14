@@ -185,7 +185,8 @@ end
 function INSTANCE:GetFile( fileName )
     -- Replaced binary search with map lookup
 
-    local crc = tonumber( util.CRC( fileName:upper() ) )
+    local crc = crcClass.CrcStringInsensitive( fileName )
+
     local info = self.FileInfo[crc]
 
     --- @type RawFileInstance
