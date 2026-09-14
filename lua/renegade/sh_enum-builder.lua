@@ -50,6 +50,11 @@ function INSTANCE:Next()
     return id
 end
 
+--- @return integer # The ID that was used most recently
+function INSTANCE:Repeat()
+    return INSTANCE.NextId - 1
+end
+
 --- @param newId integer The new starting ID
 --- @return integer # The new ID to allow for changing the next ID number and assigning that ID to an enumeration
 function INSTANCE:Set( newId )
