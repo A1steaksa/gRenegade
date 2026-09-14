@@ -80,8 +80,21 @@ end
 function INSTANCE:GetVector( frame, setVector )
     if frame < self.FirstFrame or frame > self.LastFrame then
         self:SetIdentity( setVector )
+        return
     else
+        local vFrame = frame - self.FirstFrame
 
+        if self.Data then
+            for i = 1, self.VectorLength do
+                setVector[i] = self.Data[vFrame * self.VectorLength + i]
+            end
+        else
+            local scale = self.ValueScale / 65535.0
+            for i = 1, self.VectorLength do
+                local value = self.CompressedData[vFrame * self.VectorLength + i]
+                setVector[i] = value * scale + self.ValueOffset
+            end
+        end
     end
 end
 
