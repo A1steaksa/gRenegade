@@ -122,6 +122,7 @@ end
 
 			-- "Get a pointer to the file object"
 			local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+
 			if file ~= nil then
 				if file:IsAvailable() then
 					-- "Open the file"
@@ -156,7 +157,7 @@ end
 				--- Read the filename of each asset from the chunk and
 				--- load its assets into the asset manager.
 				--- "
-				section.Start( "(Not Actually) Loading assets" )
+				section.Start( "Loading assets" )
 				local assetCount = 0
 				while cload:OpenMicroChunk() do
 					if cload:CurMicroChunkId() == ids.VARID_ASSET_FILENAME then
@@ -165,6 +166,7 @@ end
 						local _, fileName = cload:Read( size )
 						if fileName == nil then
 							section.Warn( "AssetDependencyManager Failed to read file name from chunk" )
+							continue
 						end
 
 						assetCount = assetCount + 1
@@ -184,18 +186,16 @@ end
 
 					cload:CloseMicroChunk()
 				end
-				section.End( "(Fake) Loaded ", assetCount, " assets" )
+				section.End( "Loaded ", assetCount, " assets" )
 			end
 
 			cload:CloseChunk()
 		end
 	end
 
-	--- @param path string?
-	--- @return string?
+	--- @param path string
+	--- @return string
 	function STATIC.GetFileNameFromPath( path )
-		if path == nil then return end
-
 		-- "Find the last occurance of the directory deliminator"
 		local lastOccurranceIndex = textUtils.LastIndexOf( path, "/" )
 
@@ -207,8 +207,8 @@ end
 		end
 	end
 
-	--- @param fileName string?
-	--- @return string?
+	--- @param fileName string
+	--- @return string
 	function STATIC.AssetNameFromFileName( fileName )
 		-- "Get the filename from this path"
 		local assetName = STATIC.GetFileNameFromPath( fileName )
