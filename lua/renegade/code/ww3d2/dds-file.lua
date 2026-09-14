@@ -487,12 +487,9 @@ end
 
 --- Replaces "Get_Memory_Pointer"
 --- @param level integer
---- @param x integer
---- @param y integer
 --- @return integer index
-function INSTANCE:GetPixelDdsMemoryIndex( level, x, y )
-	local width = self:GetWidth( level )
-	return self.LevelOffsets[level]  + ( x / 4 ) * 8 + ( ( y / 4 ) * ( width / 4 ) ) * 8;
+function INSTANCE:GetMemoryIndex( level )
+	return self.LevelOffsets[level]
 end
 
 --- @param level integer
@@ -521,12 +518,23 @@ end
 function INSTANCE:CopyLevelToSurface( level, destinationFormat, width, height, renderTarget )
 	local containsAlpha = false
 
-	for y = 0, width - 1, 4 do
-		for x = 0, height - 1, 4 do
-			local blockContainsAlpha = self:Get4X4Block( renderTarget, level, x, y, destinationFormat )
+	render.PushRenderTarget( renderTarget )
+	cam.Start2D()
+	render.OverrideAlphaWriteEnable( true, true )
+	render.Clear( 0, 0, 0, 0, true, true )
+
+	render.OverrideBlend( false )
+
+	for y = 0, height - 1, 4 do
+		for x = 0, width - 1, 4 do
+			local blockContainsAlpha = self:Get4X4Block( level, x, y, destinationFormat )
 			containsAlpha = containsAlpha or blockContainsAlpha
 		end
 	end
+
+	render.OverrideAlphaWriteEnable( false, false )
+	cam.End2D()
+	render.PopRenderTarget()
 
 	if self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT1 and containsAlpha then
 		section.Warn( "DXT1 format should not contain alpha information - file ", self.Name )
@@ -557,45 +565,38 @@ local function argbToColor( argb )
 	return Color( red, green, blue, alpha )
 end
 
---- @param renderTarget ITexture
 --- @param x integer
 --- @param y integer
 --- @param colorInt integer
-local function drawPixel( renderTarget, x, y, colorInt )
-	render.PushRenderTarget( renderTarget )
-	cam.Start2D()
-
+local function drawPixel( x, y, colorInt )
 	local color = argbToColor( colorInt )
+
 	surface.SetDrawColor( color )
 	surface.DrawRect( x, y, 1, 1 )
-
-	cam.End2D()
-	render.PopRenderTarget()
 end
 
---- @param renderTarget ITexture
 --- @param level integer
 --- @param sourceX integer
 --- @param sourceY integer
 --- @param destinationFormat WW3dFormat
 --- @return boolean containsAlpha
-function INSTANCE:Get4X4Block( renderTarget, level, sourceX, sourceY, destinationFormat )
+function INSTANCE:Get4X4Block( level, sourceX, sourceY, destinationFormat )
 
 	-- "Verify the block alignment"
-	assert( bit.band( sourceX, 3 ) == 0 )
+	assert( bit.band( sourceX, 3 ) == 0, "SourceX: " .. sourceX )
 	assert( bit.band( sourceY, 3 ) == 0 )
 
 	-- "Verify level"
 	assert( level < self.MipLevels )
 
 	-- "Verify coordinate bounds"
-	assert( sourceX < self:GetWidth( level ) )
-	assert( sourceY < self:GetHeight( level ) )
+	local width  = self:GetWidth( level )
+	local height = self:GetHeight( level )
+	assert( sourceX <= width, "SourceX: " .. sourceX .. ", level: " .. level .. ", width: " .. self:GetWidth( level ) )
+	assert( sourceY <= height, "SourceY: " .. sourceY .. ", level: " .. level .. ", height: " .. self:GetHeight( level )  )
 
 	if self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT1 then
-
-		local blockMemoryIndex = self:GetPixelDdsMemoryIndex( level, sourceX, sourceY )
-
+		local blockMemoryIndex = self:GetMemoryIndex( level ) + ( sourceX / 4 ) * 8 + ( ( sourceY / 4 ) * ( width / 4 ) ) * 8
 		if blockMemoryIndex + 3 > self.DdsMemory:len() then
 			section.Warn( "Skipping getPixel because index ", blockMemoryIndex, " is beyond the DDS memory's max length of ", #self.DdsMemory )
 		end
@@ -630,7 +631,7 @@ function INSTANCE:Get4X4Block( renderTarget, level, sourceX, sourceY, destinatio
 
 					line = bit.rshift( line, 2 )
 
-					drawPixel( renderTarget, sourceX + x, sourceY + y, destinationPixel )
+					drawPixel( sourceX + x, sourceY + y, destinationPixel )
 				end
 			end
 
@@ -641,7 +642,6 @@ function INSTANCE:Get4X4Block( renderTarget, level, sourceX, sourceY, destinatio
 				local lineIndex = blockMemoryIndex + 4 + y
 				local line = deserializeLib.DeserializeUInt16( self.DdsMemory:sub( lineIndex, lineIndex + 1 ) )
 				for x = 0, 3 do
-
 					local lineBand = bit.band( line, 3 )
 
 					if lineBand == 0 then
@@ -657,14 +657,116 @@ function INSTANCE:Get4X4Block( renderTarget, level, sourceX, sourceY, destinatio
 
 					line = bit.rshift( line, 2 )
 
-					drawPixel( renderTarget, sourceX + x, sourceY + y, destinationPixel )
+					drawPixel( sourceX + x, sourceY + y, destinationPixel )
 				end
 			end
 
 			return containsAlpha -- "Alpha block...?"
 		end
+	
+	elseif self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT2 then
+		return false
+	elseif self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT3 then
+		return false
+	elseif self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT4 then
+		return false
+	elseif self.Format == wW3dFormatEnum.WW3D_FORMAT_DXT5 then
+		-- "Init alphas"
+		local alphaBlockIndex = self:GetMemoryIndex( level ) + ( sourceX / 4 ) * 16 + ( ( sourceY / 4 ) * ( width / 4 ) ) * 16
+		local alphaBlock = self.DdsMemory:sub( alphaBlockIndex )
+
+		local alphas = {}
+		alphas[1] = deserializeLib.DeserializeUInt8( alphaBlock:sub( 1, 1 ) )
+		alphas[2] = deserializeLib.DeserializeUInt8( alphaBlock:sub( 2, 2 ) )
+
+		-- "8-alpha or 6-alpha block?"
+		if alphas[1] > alphas[2] then
+			alphas[3] = ( 6 * alphas[1] + 1 * alphas[2] + 3 ) / 7 -- "Bit code 010"
+			alphas[4] = ( 5 * alphas[1] + 2 * alphas[2] + 3 ) / 7 -- "Bit code 011"
+			alphas[5] = ( 4 * alphas[1] + 3 * alphas[2] + 3 ) / 7 -- "Bit code 100"
+			alphas[6] = ( 3 * alphas[1] + 4 * alphas[2] + 3 ) / 7 -- "Bit code 101"
+			alphas[7] = ( 2 * alphas[1] + 5 * alphas[2] + 3 ) / 7 -- "Bit code 110"
+			alphas[8] = ( 1 * alphas[1] + 6 * alphas[2] + 3 ) / 7 -- "Bit code 111"
+		else
+			alphas[3] = ( 4 * alphas[1] + 1 * alphas[2] + 2 ) / 5 -- "Bit code 010"
+			alphas[4] = ( 3 * alphas[1] + 2 * alphas[2] + 2 ) / 5 -- "Bit code 011"
+			alphas[5] = ( 2 * alphas[1] + 3 * alphas[2] + 2 ) / 5 -- "Bit code 100"
+			alphas[6] = ( 1 * alphas[1] + 4 * alphas[2] + 2 ) / 5 -- "Bit code 101"
+			alphas[7] = 0                                         -- "Bit code 110"
+			alphas[8] = 255                                       -- "Bit code 111"
+		end
+
+		-- "Init colors"
+		local colorBlockIndex = alphaBlockIndex + 8
+		local colorBlock0String = self.DdsMemory:sub( colorBlockIndex + 0, colorBlockIndex + 1 )
+		local colorBlock2String = self.DdsMemory:sub( colorBlockIndex + 2, colorBlockIndex + 3 )
+		local colorBlock0 = deserializeLib.DeserializeUInt16( colorBlock0String )
+		local colorBlock2 = deserializeLib.DeserializeUInt16( colorBlock2String )
+		local color0 = STATIC.RGB565ToARGB8888( colorBlock0 )
+		local color1 = STATIC.RGB565ToARGB8888( colorBlock2 )
+
+		local destinationPixel = 0
+		local bitIndex = 0
+		local containsAlpha = 0xFF
+
+		local alphaIndices = {}
+		local alphaIndicesIndex = 1
+
+		-- A bit mask for the rightmost three bits
+		local threeBitMask = 0x7
+
+		for a = 0, 1 do
+			local alphaBlock3 = ( alphaBlock:byte( 3, 3 ) )
+			local alphaBlock4 = ( alphaBlock:byte( 4, 4 ) )
+			local alphaBlock5 = ( alphaBlock:byte( 5, 5 ) )
+
+			alphaIndices[alphaIndicesIndex + 0] = 1 + bit.band( alphaBlock3, threeBitMask )
+			alphaIndices[alphaIndicesIndex + 1] = 1 + bit.band( bit.rshift( alphaBlock3, 3 ), threeBitMask )
+			alphaIndices[alphaIndicesIndex + 2] = 1 +  bit.bor( bit.rshift( alphaBlock3, 6 ), bit.lshift( bit.band( alphaBlock4, 1 ), 2 ) )
+			alphaIndices[alphaIndicesIndex + 3] = 1 + bit.band( bit.rshift( alphaBlock4, 1 ), threeBitMask )
+			alphaIndices[alphaIndicesIndex + 4] = 1 + bit.band( bit.rshift( alphaBlock4, 4 ), threeBitMask )
+			alphaIndices[alphaIndicesIndex + 5] = 1 +  bit.bor( bit.rshift( alphaBlock4, 7 ), bit.lshift( bit.band( alphaBlock5, 3 ), 1 ) )
+			alphaIndices[alphaIndicesIndex + 6] = 1 + bit.band( bit.rshift( alphaBlock5, 2 ), threeBitMask )
+			alphaIndices[alphaIndicesIndex + 7] = 1 + bit.rshift( alphaBlock5, 5 )
+
+			alphaIndicesIndex = alphaIndicesIndex + 8
+			alphaBlockIndex = alphaBlockIndex + 3
+			alphaBlock = self.DdsMemory:sub( alphaBlockIndex )
+		end
+
+		alphaIndicesIndex = 1
+		for y = 0, 3 do
+			local lineIndex = colorBlockIndex + 4 + y
+			local line = string.byte( self.DdsMemory, lineIndex, lineIndex )
+			for x = 0, 3 do
+				local alphaValue = alphas[alphaIndices[alphaIndicesIndex]]
+				alphaIndicesIndex = alphaIndicesIndex + 1
+				containsAlpha = bit.band( containsAlpha, alphaValue )
+				alphaValue = bit.lshift( alphaValue, 24 )
+
+				-- "Extract color"
+				local lineBand = bit.band( line, 3 )
+				if lineBand == 0 then
+					destinationPixel = bit.bor( color0, alphaValue )
+				elseif lineBand == 1 then
+					destinationPixel = bit.bor( color1, alphaValue )
+				elseif lineBand == 2 then
+					destinationPixel = bit.bor( STATIC.CombineColors( color1, color0, 85 ), alphaValue )
+				elseif lineBand == 3 then
+					destinationPixel = bit.bor( STATIC.CombineColors( color0, color1, 85 ), alphaValue )
+				end
+
+				line = bit.rshift( line, 2 )
+
+				drawPixel( sourceX + x, sourceY + y, destinationPixel )
+
+				bitIndex = bitIndex + 3
+			end
+		end
+
 	end
 
+	return false
 end
 
 --- @return boolean success
