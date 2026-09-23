@@ -410,12 +410,14 @@ end
 
 --[[ Name ]] do
 
-    function INSTANCE:SetName()
-        typecheck.NotImplementedError()
+    --- @param name string
+    function INSTANCE:SetName( name )
+        self.Name = name
     end
 
+    --- @return string
     function INSTANCE:GetName()
-        typecheck.NotImplementedError()
+        return self.Name
     end
 end
 
@@ -471,12 +473,15 @@ end
 
 --[[ Material Effects ]] do
 
-    function INSTANCE:AddEffectToMe()
-        typecheck.NotImplementedError()
+    --- @param effect MaterialEffectInstance
+    function INSTANCE:AddEffectToMe( effect )
+        table.insert( self.MaterialEffectsOnMe, effect )
     end
 
-    function INSTANCE:RemoveEffectFromMe()
-        typecheck.NotImplementedError()
+    --- @param effect MaterialEffectInstance
+    function INSTANCE:RemoveEffectFromMe( effect )
+        assert( effect ~= nil )
+        table.RemoveByValue( self.MaterialEffectsOnMe, effect )
     end
 
     function INSTANCE:DoAnyEffectsSuppressShadows()
@@ -525,12 +530,15 @@ end
 
 --[[ Immovable ]] do
 
-    function INSTANCE:SetImmovable()
-        typecheck.NotImplementedError()
+    --- "The IMMOVABLE state is used to turn off an object's simulation."
+    --- @param onOff boolean
+    function INSTANCE:SetImmovable( onOff )
+        self:SetFlag( STATIC.IMMOVABLE, onOff )
     end
 
+    --- @return boolean
     function INSTANCE:IsImmovable()
-        typecheck.NotImplementedError()
+        return self:GetFlag( STATIC.IMMOVABLE )
     end
 end
 
@@ -561,12 +569,16 @@ end
 
 --[[ User Control ]] do
 
-    function INSTANCE:EnableUserControl()
-        typecheck.NotImplementedError()
+    --- "Enabling this flag makes the physics object ingore all physics and just move according to its controller"  
+    --- @param onOff boolean
+    function INSTANCE:EnableUserControl( onOff )
+        self:SetFlag( STATIC.USERCONTROL, onOff )
+        self:SetFlag( STATIC.ASLEEP, false )
     end
 
+    --- @return boolean
     function INSTANCE:IsUserControlEnabled()
-        typecheck.NotImplementedError()
+        return self:GetFlag( STATIC.USERCONTROL )
     end
 end
 
@@ -635,8 +647,14 @@ end
 
 --[[ Pre-Lit ]] do
 
-    function INSTANCE:EnableIsPreLit()
-        typecheck.NotImplementedError()
+    --- "
+    --- Is Pre-Lit.  
+    --- This flag indicates that this \object has precomputed light maps
+    --- and does not need to have the static lights applied to it.
+    --- "
+    --- @param onOff boolean
+    function INSTANCE:EnableIsPreLit( onOff )
+        self:SetFlag( STATIC.IS_PRE_LIT, onOff )
     end
 
     function INSTANCE:IsPreLit()

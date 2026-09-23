@@ -156,12 +156,12 @@ end
 
 --- @param frame number
 function INSTANCE:SetTargetFrame( frame )
-	typecheck.NotImplementedError()
+	self.NewChannel:SetTargetFrame( frame )
 end
 
 --- @return number
 function INSTANCE:GetTargetFrame()
-	typecheck.NotImplementedError()
+	return self.NewChannel:GetTargetFrame()
 end
 
 --- @return HAnimationInstance

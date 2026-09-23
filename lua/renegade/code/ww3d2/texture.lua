@@ -387,28 +387,68 @@ function INSTANCE:GetTextureName()
 	return self.Name
 end
 
+--- @return string
 function INSTANCE:GetFullPath()
-	typecheck.NotImplementedError()
+	if self.FullPath == nil or self.FullPath:len() == 0 then
+		return self.Name
+	end
+
+	return self.FullPath
 end
 
+--- "Each textrure has a unique id"
+--- @return boolean
 function INSTANCE:GetId()
-	typecheck.NotImplementedError()
+	return self.TextureId
 end
 
 function INSTANCE:GetMipLevelCount()
 	typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:GetWidth()
-	typecheck.NotImplementedError()
+	return self.Width
 end
 
+--- @return integer
 function INSTANCE:GetHeight()
-	typecheck.NotImplementedError()
+	return self.Height
 end
 
 function INSTANCE:Init()
-	typecheck.NotImplementedError()
+
+	-- "If the texture has already been initialized we should exit now"
+	if self.Initialized then
+		return
+	end
+
+	-- "  
+	-- If the texture has recently been inactivated, increase the inactivation time 
+	-- (this texture obviously should not have been inactivated yet).  
+	-- "  
+	if tobool( self.InactivationTime ) and tobool( self.LastInactivationSyncTime ) then
+		if ( wW3dClass.GetSyncTime() - self.LastInactivationSyncTime ) < self.InactivationTime then
+			self.ExtendedInactivationTime = 3 * self.InactivationTime
+		end
+		self.LastInactivationSyncTime = 0
+	end
+
+	if not self.SourceMaterial then
+		if not wW3dClass.GetThumbnailEnabled() or self.MipLevelCount == mipCountTypeEnum.MIP_LEVELS_1 then
+			textureLoaderClass.RequestForegroundLoading( self )
+		else
+			local format = self.TextureFormat
+			self:LoadLockedSurface()
+			self.TextureFormat = format
+		end
+	end
+
+	if not self.Initialized then
+		textureLoaderClass.RequestBackgroundLoading( self )
+	end
+
+	self.LastAccessed = wW3dClass.GetSyncTime()
 end
 
 function INSTANCE:SetInactivationTime()
@@ -459,21 +499,30 @@ function INSTANCE:SetMipMapping()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetUAddrMode()
-	typecheck.NotImplementedError()
+
+--[[ Texture Address Mode ]] do
+
+	--- @return TextureAddressMode
+	function INSTANCE:GetUAddressMode()
+		return self.UAddressMode
+	end
+
+	--- @return TextureAddressMode
+	function INSTANCE:GetVAddressMode()
+		return self.VAddressMode
+	end
+
+	--- @param mode TextureAddressMode
+	function INSTANCE:SetUAddressMode( mode )
+		self.UAddressMode = mode
+	end
+
+	--- @param mode TextureAddressMode
+	function INSTANCE:SetVAddressMode( mode )
+		self.VAddressMode = mode
+	end
 end
 
-function INSTANCE:GetVAddrMode()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetUAddrMode()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetVAddrMode()
-	typecheck.NotImplementedError()
-end
 
 function INSTANCE:GetTextureMemoryUsage()
 	typecheck.NotImplementedError()
@@ -498,8 +547,9 @@ function INSTANCE:Invalidate()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:PeekDx8Texture()
-	typecheck.NotImplementedError()
+--- @return IMaterial?
+function INSTANCE:PeekSourceMaterial()
+	return self.SourceMaterial
 end
 
 function INSTANCE:IsMissingTexture()
@@ -507,34 +557,111 @@ function INSTANCE:IsMissingTexture()
 end
 
 function INSTANCE:IsDirty()
-	typecheck.NotImplementedError()
+	return self.Dirty
 end
 
 function INSTANCE:Clean()
-	typecheck.NotImplementedError()
+	self.Dirty = false
 end
 
+--- @return integer
 function INSTANCE:GetReduction()
-	typecheck.NotImplementedError()
+	if self.MipLevelCount == mipCountTypeEnum.MIP_LEVELS_1 then
+		return 0
+	end
+
+	local reduction = wW3dClass.GetTextureReduction()
+	if tobool( self.MipLevelCount ) and reduction > self.MipLevelCount then
+		reduction = self.MipLevelCount
+	end
+
+	return reduction
 end
 
+--- @return WW3dFormat
 function INSTANCE:GetTextureFormat()
-	typecheck.NotImplementedError()
+	return self.TextureFormat
 end
 
+--- @return boolean
 function INSTANCE:IsCompressionAllowed()
-	typecheck.NotImplementedError()
+	return self._IsCompressionAllowed
 end
 
-function INSTANCE:Apply()
-	typecheck.NotImplementedError()
+--- @param stage boolean
+function INSTANCE:Apply( stage )
+	if not self.Initialized then
+		self:Init()
+	end
+	self.LastAccessed = wW3dClass.GetSyncTime()
+
+	-- "Set texture itself"
+	if wW3dClass.IsTexturingEnabled() then
+		render.SetMaterial( self.SourceMaterial )
+	else
+		render.SetColorMaterial()
+	end
+
+	-- Omitted setting texture stage state
+
+	local flags = self.SourceMaterial:GetInt( "$flags" )
+
+	-- The 'S' in 'CLAMPS' means 'horizontal' or 'U'
+	local TEXTUREFLAGS_CLAMPS = 0x00000004
+	local uAddressMode = self:GetUAddressMode()
+	if uAddressMode == textureAddressModeEnum.TEXTURE_ADDRESS_REPEAT then
+		-- Remove horizontal clamping so it will repeat
+		flags = bit.bxor( flags, TEXTUREFLAGS_CLAMPS )
+	elseif uAddressMode == textureAddressModeEnum.TEXTURE_ADDRESS_CLAMP then
+		-- Add horizontal clamping
+		flags = bit.bor( flags, TEXTUREFLAGS_CLAMPS )
+	end
+
+	local TEXTUREFLAGS_CLAMPT = 0x00000008
+	local vAddressMode = self:GetVAddressMode()
+	if vAddressMode == textureAddressModeEnum.TEXTURE_ADDRESS_REPEAT then
+		-- Remove vertical clamping so it will repeat
+		flags = bit.bxor( flags, TEXTUREFLAGS_CLAMPT )
+	elseif vAddressMode == textureAddressModeEnum.TEXTURE_ADDRESS_CLAMP then
+		-- Add vertical clamping
+		flags = bit.bor( flags, TEXTUREFLAGS_CLAMPT )
+	end
+
+	self.SourceMaterial:SetInt( "$flags", flags )
 end
 
 function INSTANCE:LoadLockedSurface()
-	typecheck.NotImplementedError()
+	textureLoaderClass.RequestThumbnail( self )
+
+	self.Initialized = false
 end
 
-function INSTANCE:ApplyNewSurface()
-	typecheck.NotImplementedError()
+--- @param texture ITexture
+--- @param initialize boolean
+function INSTANCE:ApplyNewSurface( texture, initialize )
+	self.SourceMaterial = CreateMaterial(
+		"mat_" .. texture:GetName(),
+		"VertexLitGeneric",
+		{
+			["$basetexture"] = texture:GetName(),
+			["$model"] = 1,
+			["$translucent"] = 1,
+			["$vertexcolor"] = 1,
+			["$vertexalpha"] = 1,
+			["$alpha"] = 1,
+		}
+	)
+
+	if initialize then
+		self.Initialized = true
+	end
+
+	-- Omitted a whole bunch of D3D and DX8 stuff I don't understand
+
+	if initialize then
+		self.TextureFormat = wW3dFormatEnum.WW3D_FORMAT_R8G8B8
+		self.Width = texture:Width()
+		self.Height = texture:Height()
+	end
 end
 

@@ -109,7 +109,7 @@ end
         --- @param b Matrix3dInstance
         --- @return Matrix3dInstance
         function STATIC.Multiply( a, b )
-            typecheck.NotImplementedError( "Multiply" )
+            return a * b
         end
 
         --- @param transformationMatrix Matrix3dInstance

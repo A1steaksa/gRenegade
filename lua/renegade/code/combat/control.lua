@@ -51,9 +51,10 @@ INSTANCE.IsControl = true
     --- @class ControlClass
 
     --- Creates a new ControlInstance
+	--- @param owner SmartGameObjectInstance
     --- @return ControlInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_Control" )
+    function STATIC.New( owner )
+        return robustclass.New( "Renegade_Control", owner )
     end
 
     --- @param arg any
@@ -74,13 +75,16 @@ end
 
 
 --- @class ControlInstance
+--- @field Owner SmartGameObjectInstance
 --- @field OneTimeBooleanBits integer
 --- @field PendingOneTimeBooleanBits integer
 --- @field ContinuousBooleanBits integer
 --- @field PendingContinuousBooleanBits integer
 --- @field AnalogValues number[]
 
-function INSTANCE:Renegade_Control()
+--- @param owner SmartGameObjectInstance
+function INSTANCE:Renegade_Control( owner )
+	self.Owner = owner
 	self.PendingOneTimeBooleanBits = 0
 	self:ClearControl()
 end
@@ -131,8 +135,30 @@ function INSTANCE:SetAnalog()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetAnalog()
-	typecheck.NotImplementedError()
+--- @param control AnalogControl
+--- @return number
+function INSTANCE:GetAnalog( control )
+	if self.Owner == nil then
+		return 0
+	end
+
+	local ply = self.Owner:GetConnectedEntity()
+	if not IsValid( ply ) or not ply:IsPlayer() then
+		return 0
+	end
+	--- @cast ply Player
+
+	local cmd = ply:GetCurrentCommand()
+
+	if control == analogControlEnum.ANALOG_MOVE_FORWARD then
+		return math.Clamp( cmd:GetForwardMove() / ply:GetMaxSpeed(), -1, 1 )
+	elseif control == analogControlEnum.ANALOG_MOVE_LEFT then
+		return math.Clamp( -cmd:GetSideMove() / ply:GetMaxSpeed(), -1, 1 )
+	elseif control == analogControlEnum.ANALOG_MOVE_UP then
+		return math.Clamp( cmd:GetUpMove() / ply:GetMaxSpeed(), -1, 1 )
+	end
+
+	return 0
 end
 
 function INSTANCE:ImportCs()

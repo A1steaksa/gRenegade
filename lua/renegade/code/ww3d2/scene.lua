@@ -99,8 +99,9 @@ function INSTANCE:GetFogEnable()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetFogColor()
-	typecheck.NotImplementedError()
+--- @param color Color
+function INSTANCE:SetFogColor( color )
+	self.FogColor = color
 end
 
 function INSTANCE:GetFogColor()

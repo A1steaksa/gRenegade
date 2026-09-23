@@ -137,7 +137,7 @@ function INSTANCE:Tell()
 end
 
 function INSTANCE:Size()
-    typecheck.NotImplementedError()
+    return 0
 end
 
 --- @param buffer string

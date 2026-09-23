@@ -218,7 +218,13 @@ STATIC.Class = "CombatManagerClass"
     end
 
     function STATIC.SceneInit()
-        typecheck.NotImplementedError()
+        -- "Game scene is where the main action occurs!"
+        STATIC.GameScene = physicsSceneClass.New()
+        STATIC.GameScene:SetAmbientLight( Color( 0.55,0.55,0.55 ) )
+        STATIC.GameScene:SetAmbientLight( Color( 1,1,1 ) )
+        STATIC.GameScene:SetFogColor( Color( 0.6, 0.6, 0.6 ) )
+
+        -- Omitted enabling and disabling collision detections
     end
 
     --[[ Level Loading ]] do

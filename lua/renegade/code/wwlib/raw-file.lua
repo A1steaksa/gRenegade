@@ -384,8 +384,10 @@ function INSTANCE:Close()
     end
 end
 
+--- "Gets the date and time the file was last modified."
+--- @return integer
 function INSTANCE:GetDateTime()
-    typecheck.NotImplementedError()
+    return file.Time( self.Filename, "THIRDPARTY" )
 end
 
 function INSTANCE:SetDateTime()

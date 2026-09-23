@@ -373,8 +373,30 @@ end
     --- entire scene rendering overhead.  
     --- "  
 
-	function STATIC.BeginRender()
-		typecheck.NotImplementedError()
+	--- "Mark the start of rendering for a new frame"
+	--- @param clear boolean
+	--- @param clearZ boolean
+	--- @param color Color
+	--- @return WW3dErrorType
+	function STATIC.BeginRender( clear, clearZ, color )
+		if not STATIC._IsInitted then
+			return wW3dErrorTypeEnum.WW3D_ERROR_OK
+		end
+
+		-- Omitted memory allocation statistics
+
+		textureLoaderClass.Update()
+
+		-- Omitted statistics and dynamic access
+		-- Omitted capturing frames
+
+		STATIC.IsRendering = true
+
+		if clear or clearZ then
+			-- render.Clear( color.r, color.g, color.b, color.a, clearZ, true )
+		end
+
+		return wW3dErrorTypeEnum.WW3D_ERROR_OK
 	end
 
 	function STATIC.Render()
@@ -385,8 +407,20 @@ end
 		typecheck.NotImplementedError()
 	end
 
+	--- "Mark the completion of a frame"
+	--- @return WW3dErrorType
 	function STATIC.EndRender()
-		typecheck.NotImplementedError()
+		if not STATIC._IsInitted then
+			return wW3dErrorTypeEnum.WW3D_ERROR_OK
+		end
+
+		STATIC.IsRendering = false
+
+		STATIC.FrameCount = STATIC.FrameCount + 1
+
+		STATIC.ActivateSnapshot( false )
+
+		return wW3dErrorTypeEnum.WW3D_ERROR_OK
 	end
 
 	function STATIC.FlipToPrimary()

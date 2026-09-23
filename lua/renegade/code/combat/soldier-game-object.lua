@@ -72,6 +72,15 @@ INSTANCE.IsSoldierGameObject = true
 
 	--- @type NetworkObjectClass
 	local networkObjectClass = CNC.Import( "code/wwnet/network-object.lua" )
+
+	--- @type WWMathClass
+	local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type ControlClass
+	local controlClass = CNC.Import( "code/combat/control.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -79,9 +88,9 @@ INSTANCE.IsSoldierGameObject = true
 	local specialDamageTypeEnum = armorWarheadManagerClass.SPECIAL_DAMAGE_TYPE
 	local soldierAiStateEnum = actionParamsStructClass.SOLDIER_AI_STATE
 	local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
-	local humanStateTypeEnum = humanAnimationControlClass.HUMAN_STATE_TYPE
-	local humanStateFlagsTypeEnum = humanAnimationControlClass.HUMAN_STATE_FLAGS_TYPE
-	local humanSubStateTypeEnum = humanAnimationControlClass.HUMAN_SUB_STATE_TYPE
+	local humanStateTypeEnum = humanStateClass.HUMAN_STATE_TYPE
+	local humanStateFlagsTypeEnum = humanStateClass.HUMAN_STATE_FLAGS_TYPE
+	local humanSubStateTypeEnum = humanStateClass.HUMAN_SUB_STATE_TYPE
 	local dirtyBitEnum = networkObjectClass.DIRTY_BIT
 --#endregion
 
@@ -103,6 +112,14 @@ INSTANCE.IsSoldierGameObject = true
 
 	STATIC.HeadBone = -1
 	STATIC.NeckBone = -1
+
+	STATIC.TILT_DOWN_SPEED = 4.0
+
+	STATIC.HEAD_TURN_RATE = math.rad( 360 ) / 2
+	STATIC.HEAD_TILT_RATE = math.rad( 180 ) / 2
+
+	STATIC.HEAD_TURN_LIMIT = 70
+	STATIC.HEAD_TILT_LIMIT = 20
 
     --- Creates a new SoldierGameObjectInstance
     --- @return SoldierGameObjectInstance
@@ -129,10 +146,12 @@ INSTANCE.IsSoldierGameObject = true
 		typecheck.NotImplementedError()
 	end
 
-	function STATIC.EnableGhostCollisionDebugDisplay()
-		typecheck.NotImplementedError()
+	--- @param onOff boolean
+	function STATIC.EnableGhostCollisionDebugDisplay( onOff )
+		STATIC.DisplayDebugBoxForGhostCollision = onOff
 	end
 
+	--- @return boolean
 	function STATIC.IsGhostCollisionDebugDisplayEnabled()
 		typecheck.NotImplementedError()
 	end
@@ -214,7 +233,7 @@ function INSTANCE:Renegade_SoldierGameObject()
 	self._IsVisible = true
 	self.CurrentSpeech = nil
 	self.AiState = soldierAiStateEnum.AI_STATE_IDLE
-	self.SpeechAnim = nil
+	self.SpeechAnimation = nil
 	self.HeadModel = nil
 	self.EmotIconModel = nil
 	self.EmotIconTimer = 0
@@ -316,7 +335,7 @@ function INSTANCE:ReInit( definition )
 
 	-- "Free some of the data we will be re-initializing"
 	self.HeadModel = nil
-	self.SpeechAnim = nil
+	self.SpeechAnimation = nil
 	self.CurrentSpeech = nil
 
 	self.HumanState:Reset()
@@ -412,7 +431,14 @@ function INSTANCE:Think()
 			-- Omitted C4 handling
 		end
 
-		-- Omitted a bunch of code here
+		if self:GetState() ~= humanStateTypeEnum.IN_VEHICLE then
+			-- Omitted weapon code here
+
+			self.HumanState:UpdateState()
+
+			-- Omitted C4 code here
+		end
+		
 	end
 end
 
@@ -422,45 +448,45 @@ function INSTANCE:PostThink()
 		return
 	end
 
-	-- --[[ Soldier PostThink ]] do
+	--[[ Soldier PostThink ]] do
 
-	-- 	self.HumanState:PostThink()
+		self.HumanState:PostThink()
 
-	-- 	local updateWeapon = false
-	-- 	if self.WeaponChanged then
-	-- 		self.WeaponChanged = false
-	-- 		self:UpdateBackGun()
-	-- 		updateWeapon = true
-	-- 	end
+		local updateWeapon = false
+		if self.WeaponChanged then
+			self.WeaponChanged = false
+			self:UpdateBackGun()
+			updateWeapon = true
+		end
 
-	-- 	if ( self:GetWeapon() ~= nil ) and ( self:GetWeapon():IsModelUpdateNeeded() ) then
-	-- 		updateWeapon = true
-	-- 		self:GetWeapon():ResetModelUpdate() -- "Reset model updated needed"
-	-- 	end
+		if ( self:GetWeapon() ~= nil ) and ( self:GetWeapon():IsModelUpdateNeeded() ) then
+			updateWeapon = true
+			self:GetWeapon():ResetModelUpdate() -- "Reset model updated needed"
+		end
 
-	-- 	if updateWeapon then
-	-- 		if self:GetWeapon() ~= nil then
-	-- 			self:SetWeaponModel( self:GetWeapon():GetModelName() )
-	-- 		else
-	-- 			self:SetWeaponModel( nil )
-	-- 		end
-	-- 	end
+		if updateWeapon then
+			if self:GetWeapon() ~= nil then
+				self:SetWeaponModel( self:GetWeapon():GetModelName() )
+			else
+				self:SetWeaponModel( nil )
+			end
+		end
 
-	-- 	if self.WeaponAnimationControl then
-	-- 		self.WeaponAnimationControl:Update( FrameTime() ) -- "Update the animation control"
-	-- 	end
+		if self.WeaponAnimationControl then
+			self.WeaponAnimationControl:Update( FrameTime() ) -- "Update the animation control"
+		end
 
-	-- 	self:HandleHeadLook()
+		self:HandleHeadLook()
 
-	-- 	if self:GetWeapon() ~= nil and self:GetState() == humanStateTypeEnum.ON_FIRE then
-	-- 		self:GetWeapon():SetPrimaryTriggered( false )
-	-- 		self:GetWeapon():SetSecondaryTriggered( false )
-	-- 	end
-	-- end
+		if self:GetWeapon() ~= nil and self:GetState() == humanStateTypeEnum.ON_FIRE then
+			self:GetWeapon():SetPrimaryTriggered( false )
+			self:GetWeapon():SetSecondaryTriggered( false )
+		end
+	end
 
 	smartGameObjectClass.Instance.PostThink( self )
 
-	-- self:UpdateHealingEffect()
+	self:UpdateHealingEffect()
 end
 
 --- @param controlOwner integer
@@ -498,16 +524,37 @@ function INSTANCE:CollisionOccurred()
 	typecheck.NotImplementedError()
 end
 
+--- @return Vector
 function INSTANCE:GetBullseyePosition()
-	typecheck.NotImplementedError()
+	if self:GetVehicle() ~= nil then
+		return self:GetVehicle():GetBullseyePosition()
+	end
+
+	local pos = self:GetPosition()
+	if self:IsCrouched() then
+		pos.z = pos.z + 0.5 * unitConversionLib.MetersToSource
+	else
+		pos.z = pos.z + self:GetBullseyeOffsetZ()
+	end
+	return pos
 end
 
 function INSTANCE:IsTurreted()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTargeting()
-	typecheck.NotImplementedError()
+--- @param targetPos Vector
+--- @param doTilt boolean
+--- @return boolean
+function INSTANCE:SetTargeting( targetPos, doTilt )
+	local returnValue = false
+
+	-- "Don't do the targetting if we are locked on an object"
+	if self.FacingObject == nil then
+		returnValue = self:InternalSetTargeting( targetPos, doTilt )
+	end
+
+	return returnValue
 end
 
 --- @return number
@@ -524,8 +571,26 @@ function INSTANCE:GetWeaponLength()
 	return 0.8 -- "Forward offset, move to weapon"
 end
 
-function INSTANCE:GetMuzzle()
-	typecheck.NotImplementedError()
+--- @param index integer
+--- @return Matrix3dInstance
+function INSTANCE:GetMuzzle( index )
+	local muzzle = matrix3dClass.New( true )
+	if self.WeaponRenderModel ~= nil then
+		local trueMuzzle = self.WeaponRenderModel:GetBoneTransform( "muzzlea0" )
+		local muzzlePos = trueMuzzle:GetTranslation()
+		muzzle:LookAt( muzzlePos, self:GetTargetingPos(), 0 )
+
+		if not self:IsHumanControlled() then
+			-- "If the bullet is not close to going down the muzzle, force it to be"
+			local toTarget = muzzle:GetXVector()
+			local downMuzzle = trueMuzzle:GetXVector()
+			local cos = toTarget:Dot( downMuzzle )
+			if cos < math.cos( math.rad( 20 ) ) then
+				muzzle = trueMuzzle
+			end
+		end
+	end
+	return muzzle
 end
 
 function INSTANCE:DetonateC4()
@@ -560,15 +625,37 @@ function INSTANCE:SetBlendedAnimation()
 end
 
 function INSTANCE:HandleLegs()
+	local doSteps = false
+
+	if self:IsOnLadder() then
+		doSteps = ( self.Control:GetAnalog( controlClass.ANALOG_CONTROL.ANALOG_MOVE_FORWARD ) ~= 0.0 )
+	else
+		doSteps = (
+			self.Control:GetAnalog( controlClass.ANALOG_CONTROL.ANALOG_MOVE_FORWARD ) ~= 0.0
+			or
+			self.Control:GetAnalog( controlClass.ANALOG_CONTROL.ANALOG_MOVE_LEFT ) ~= 0.0
+		)
+	end
+
+	-- "Footsteps"
 	typecheck.NotImplementedError()
 end
 
 function INSTANCE:ExitLadder()
-	typecheck.NotImplementedError()
+	self.HumanState:SetState( humanStateTypeEnum.UPRIGHT )
 end
 
-function INSTANCE:EnterLadder()
-	typecheck.NotImplementedError()
+--- @param top boolean
+function INSTANCE:EnterLadder( top )
+	self.HumanState:SetState( humanStateTypeEnum.LADDER )
+
+	if self:IsHumanControlled() then
+		if top then
+			self.LadderUpMask = true
+		else
+			self.LadderDownMask = true
+		end
+	end
 end
 
 function INSTANCE:ImportStateCs()
@@ -736,8 +823,9 @@ function INSTANCE:IsPermittedToEnterVehicle()
 	typecheck.NotImplementedError()
 end
 
+--- @return VehicleGameObjectInstance
 function INSTANCE:GetVehicle()
-	typecheck.NotImplementedError()
+	return self.Vehicle
 end
 
 function INSTANCE:GetProfileVehicle()
@@ -748,20 +836,26 @@ function INSTANCE:UseLadderView()
 	typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetAnimationName()
-	typecheck.NotImplementedError()
+	return self.AnimationName
 end
 
+--- @return string
 function INSTANCE:GetStateName()
-	typecheck.NotImplementedError()
+	return self.HumanState:GetStateName()
 end
 
+--- @return HumanStateInstance
 function INSTANCE:GetHumanState()
-	typecheck.NotImplementedError()
+	return self.HumanState
 end
 
-function INSTANCE:SetModel()
-	typecheck.NotImplementedError()
+--- @param modelName string
+function INSTANCE:SetModel( modelName )
+	self:PeekPhysicalObject():SetModelByName( modelName )
+	-- "Must set thje anim control after the phys object"
+	self.HumanState:SetAnimationControl( self:GetAnimationControl() --[[@as HumanAnimationControlInstance]] )
 end
 
 --- @return SoldierGameObjectInstance
@@ -830,8 +924,15 @@ end
 		self.HeadLookDuration = 0.001
 	end
 
-	function INSTANCE:LookRandom()
-		typecheck.NotImplementedError()
+	--- @param time number
+	function INSTANCE:LookRandom( time )
+		if time == 0 and self.HeadLookDuration ~= 0 then
+			self.HeadLookDuration = 0.0001 -- "Maybe done next time..."
+		else
+			self.HeadLookDuration = time
+		end
+		self.HeadLookAngleTimer = 0
+		self.HeadLookAngle = Vector( 1, 1, 1 )
 	end
 
 	--- @return boolean
@@ -839,8 +940,16 @@ end
 		return ( self.HeadLookDuration > 0 )
 	end
 
+	--- @return Matrix3dInstance
 	function INSTANCE:GetLookTransform()
-		typecheck.NotImplementedError()
+		if STATIC.HeadBone ~= -1 then
+			-- "Convert from CS head convention back to normal"
+			local transformationMatrix = self:PeekModel():GetBoneTransform( STATIC.HeadBone )
+			transformationMatrix:RotateZ( math.rad( 90 ) )
+			transformationMatrix:RotateX( math.rad( 90 ) )
+			return transformationMatrix
+		end
+		return self:GetTransform()
 	end
 end
 
@@ -954,9 +1063,9 @@ end
 	end
 end
 
-
+--- @return DynamicSpeechAnimationInstance
 function INSTANCE:GetFacialAnimation()
-	typecheck.NotImplementedError()
+	return self.SpeechAnimation
 end
 
 function INSTANCE:SetEmotIcon()
@@ -967,16 +1076,18 @@ function INSTANCE:GetInnateController()
 	typecheck.NotImplementedError()
 end
 
+--- @return SoldierAiState
 function INSTANCE:GetAiState()
-	typecheck.NotImplementedError()
+	return self.AiState
 end
 
 function INSTANCE:SetAiState()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetInnateObserver()
-	typecheck.NotImplementedError()
+--- @param observer SoldierObserverInstance
+function INSTANCE:SetInnateObserver( observer )
+	self.InnateObserver = observer
 end
 
 --- @return SoldierObserverInstance
@@ -988,44 +1099,55 @@ function INSTANCE:ClearInnateObserver()
 	self.InnateObserver = nil
 end
 
+--- @return string
 function INSTANCE:GetFirstPersonHandsModelName()
-	typecheck.NotImplementedError()
+	return self:GetDefinition().FirstPersonHands
 end
 
-function INSTANCE:PerturbPosition()
+--- @param maxPerturb number? [Default: 5]
+function INSTANCE:PerturbPosition( maxPerturb )
+	if maxPerturb == nil then maxPerturb = 5 end
+
 	typecheck.NotImplementedError()
 end
 
 function INSTANCE:GetKeyRing()
-	typecheck.NotImplementedError()
+	return self.KeyRing
 end
 
-function INSTANCE:GiveKey()
-	typecheck.NotImplementedError()
+--- @param keyNumber integer
+function INSTANCE:GiveKey( keyNumber )
+	self.KeyRing = bit.bor( self.KeyRing, bit.lshift( 1, keyNumber ) )
 end
 
-function INSTANCE:RemoveKey()
-	typecheck.NotImplementedError()
+--- @param keyNumber integer
+function INSTANCE:RemoveKey( keyNumber )
+	self.KeyRing = bit.band( self.KeyRing, bit.bnot( bit.lshift( 1, keyNumber ) ) )
 end
 
-function INSTANCE:HasKey()
-	typecheck.NotImplementedError()
+--- @param keyNumber integer
+--- @return boolean
+function INSTANCE:HasKey( keyNumber )
+	return bit.band( bit.lshift( 1, keyNumber ), self.KeyRing ) ~= 0
 end
 
 function INSTANCE:WantsPowerups()
-	return INSTANCE.IsHumanControlled( self )
+	return self:IsHumanControlled()
 end
 
+--- @return boolean
 function INSTANCE:AllowSpecialDamageStateLock()
-	typecheck.NotImplementedError()
+	return ( self:IsHumanControlled() == false )
 end
 
+--- @return boolean
 function INSTANCE:IsVisible()
-	typecheck.NotImplementedError()
+	return self._IsVisible
 end
 
-function INSTANCE:SetIsVisible()
-	typecheck.NotImplementedError()
+--- @param visible boolean
+function INSTANCE:SetIsVisible( visible )
+	self._IsVisible = visible
 end
 
 function INSTANCE:IsTargetable()
@@ -1079,8 +1201,11 @@ function INSTANCE:SetBackFlagModel()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetOuchType()
-	typecheck.NotImplementedError()
+--- @param direction Vector
+--- @param collisionBoxName string
+--- @return integer
+function INSTANCE:GetOuchType( direction, collisionBoxName )
+	return self.HumanState:GetOuchType( direction, collisionBoxName )
 end
 
 --- @param targetPos Vector
@@ -1089,7 +1214,7 @@ end
 function INSTANCE:InternalSetTargeting( targetPos, doTilt )
 	-- Omitted skeleton slider demo
 
-	smartGameObjectClass.Instance.SetTargeting( self, targetPos, doTilt )
+	smartGameObjectClass.Instance.SetTargeting( self, targetPos )
 
 	if (   self:GetState() == humanStateTypeEnum.DEATH
 		or self:GetState() == humanStateTypeEnum.DESTROY
@@ -1102,14 +1227,76 @@ function INSTANCE:InternalSetTargeting( targetPos, doTilt )
 	if self:GetState() == humanStateTypeEnum.IN_VEHICLE then
 		if self.Vehicle ~= nil then
 			if self.Vehicle:GetDriverIsGunner() then
-
+				if self.Vehicle:GetDriver() == self then
+					self.Vehicle:SetTargeting( targetPos )
+				end
 			else
-
+				if self.Vehicle:GetDriver() == self and self.Vehicle:GetGunner() == nil then
+					self.Vehicle:SetTargeting( targetPos )
+				elseif self.Vehicle:GetGunner() == self then
+					self.Vehicle:SetTargeting( targetPos )
+				end
 			end
 		end
 		return false
 	end
 
+	local muzzlePos = self:GetPosition()
+	muzzlePos.z = muzzlePos.z + self:GetWeaponHeight()
+	local relativeTargetPos = targetPos - muzzlePos
+
+	-- "Set Tilt"
+	local distance = relativeTargetPos:Length()
+	local tilt = 0
+	if tobool( distance ) and doTilt then
+		tilt = math.asin( relativeTargetPos.z / distance )
+	end
+
+	local isComplete = true
+
+	-- "Set Facing"
+	local currentFacing = self:PeekHumanPhysics():GetHeading()
+	local facing = wWMathClass.Atan2( relativeTargetPos.y, relativeTargetPos.x )
+	local facingDifference = facing - currentFacing
+	if math.abs( facingDifference ) > 0.01 then
+		facingDifference = wWMathClass.Wrap( facingDifference, math.rad( -180.0 ), math.rad( 180.0 ) )
+
+		local change = facingDifference
+		if not self:IsHumanControlled() then
+			typecheck.NotImplementedError()
+		end
+
+		-- "Human players don't use turn anims"
+		if not self:IsHumanControlled() then
+			-- "Play the leg turning anim"
+			self.HumanState:SetTurnVelocity( change )
+		end
+
+		-- "Are we facing?"
+		isComplete = ( change == facingDifference )
+
+		facing = currentFacing + change
+		facing = wWMathClass.Wrap( facing, math.rad( -180 ), math.rad( 180 ) )
+		self:PeekHumanPhysics():SetHeading( facing )
+	end
+
+	if self:IsHumanControlled() and self:GetState() ~= humanStateTypeEnum.IN_VEHICLE then
+		local direction = -1
+		if self:GetWeapon() and self:GetWeapon():IsReloading() then
+			direction = 1
+		end
+
+		self.ReloadingTilt = self.ReloadingTilt + direction * FrameTime() * STATIC.TILT_DOWN_SPEED
+		self.ReloadingTilt = math.Clamp( self.ReloadingTilt, 0, 1 )
+
+		if self.ReloadingTilt > 0 then
+			tilt = Lerp( tilt, math.rad( -90 ), self.ReloadingTilt )
+		end
+	end
+
+	self.HumanState:UpdateAiming( tilt, 0 ) -- "No turn"
+
+	return isComplete
 end
 
 function INSTANCE:SetSpecialDamageMode()
@@ -1117,23 +1304,153 @@ function INSTANCE:SetSpecialDamageMode()
 end
 
 function INSTANCE:HandleHeadLook()
-	typecheck.NotImplementedError()
+	if self:PeekModel():GetHTree() == nil then
+		return
+	end
+
+	-- "Get the head bone"
+	if STATIC.HeadBone == -1 or STATIC.NeckBone == -1 then
+		STATIC.HeadBone = self:PeekModel():GetBoneIndex( "C HEAD" )
+		STATIC.NeckBone = self:PeekModel():GetBoneIndex( "C NECK" )
+		assert( STATIC.HeadBone ~= -1 )
+		assert( STATIC.NeckBone ~= -1 )
+	end
+
+	if self.HeadLookDuration > 0 then
+		local frameTime = FrameTime()
+		self.HeadLookDuration = self.HeadLookDuration - frameTime
+
+		-- "Should we be returning to look ahead?"
+		local returning = self.HeadLookDuration < 0
+
+		local desiredHeadRotation = Vector( 0, 0, 0 )
+		if not returning then
+			if self.HeadLookAngle:Length() > 0.001 then
+				self.HeadLookAngleTimer = self.HeadLookAngleTimer - frameTime
+				if self.HeadLookAngleTimer < 0 then
+					self.HeadLookAngle = Vector(
+						math.Rand( -STATIC.HEAD_TURN_LIMIT, STATIC.HEAD_TURN_LIMIT ),
+						math.Rand( -STATIC.HEAD_TILT_LIMIT, STATIC.HEAD_TILT_LIMIT ),
+						0
+					)
+				end
+				self.HeadLookAngleTimer = math.Rand( 2, 5 )
+			else
+				-- "Get the transform that has been used to modify the head bone..."
+				local hTree = self:PeekModel():GetHTree()
+				assert( hTree ~= nil )
+
+				local boneControlTransformationMatrix = hTree:GetBoneControl( STATIC.HeadBone )
+
+				-- "Get the inverse of the head-bone transform"
+				local inverseBoneControlTransformationMatrix = boneControlTransformationMatrix:GetOrthogonalInverse()
+
+				-- "Get the head to world and neck to world transforms"
+				local currentHead = self:PeekModel():GetBoneTransform( STATIC.HeadBone )
+				local currentNeck = self:PeekModel():GetBoneTransform( STATIC.NeckBone )
+
+				-- "Strip off the control transform from last frame"
+				currentHead = currentHead * inverseBoneControlTransformationMatrix
+
+				-- "Get the world to neck transform"
+				local worldToNeckTransformationMatrix = currentNeck:GetOrthogonalInverse()
+
+				-- "Build a head to neck transform"
+				local headToNeckTransformationMatrix = worldToNeckTransformationMatrix * currentHead
+
+				-- "Get the target relative to the head"
+				local relativeHeadTarget = matrix3dClass.InverseTransformVector( currentHead, self.HeadLookTarget )
+
+				-- "
+				-- Determine the 'twist' and lookup/down angles.
+				-- Note: Currently in the head bone coordinate system, the X axis is the same
+				-- as the Z axis in object space, the Y axis is the same as the X axis in object space,
+				-- and the Z axis is the same as the Y axis in object space.
+				-- "
+				desiredHeadRotation.x = wWMathClass.Atan2( relativeHeadTarget.z, relativeHeadTarget.y )
+				desiredHeadRotation.z = -math.asin( relativeHeadTarget.x / relativeHeadTarget:Length() )
+				desiredHeadRotation.y = 0
+
+				-- "
+				-- Determine how far to allow the character to turn and tilt his/her head.
+				-- These boundaries are based on the "absolute" amount the person can turn
+				-- their head, this has to take into consideration the amount that the current
+				-- animation is turning the head and the amount we need to turn to look at the target.
+				-- "
+				local tempVector = headToNeckTransformationMatrix:GetYVector()
+				local currentRotationX = math.atan2( tempVector.z, tempVector.y )
+				local currentRotationZ = math.atan2( tempVector.x, tempVector.y )
+
+				local minTwist = -STATIC.HEAD_TURN_LIMIT - currentRotationX
+				local maxTwist =  STATIC.HEAD_TURN_LIMIT - currentRotationX
+
+				local minTilt = -STATIC.HEAD_TILT_LIMIT - currentRotationZ
+				local maxTilt =  STATIC.HEAD_TILT_LIMIT - currentRotationZ
+
+				-- "Clamp the rotations"
+				desiredHeadRotation.x = math.Clamp( desiredHeadRotation.x, minTwist, maxTwist )
+				desiredHeadRotation.z = math.Clamp( desiredHeadRotation.z, minTilt, maxTilt )
+			end
+		end
+
+		local maxTurn = STATIC.HEAD_TURN_RATE * frameTime
+		local maxTilt = STATIC.HEAD_TILT_RATE * frameTime
+		self.HeadRotation.x = self.HeadRotation.x + math.Clamp( desiredHeadRotation.x - self.HeadRotation.x, -maxTurn, maxTurn )
+		self.HeadRotation.z = self.HeadRotation.z + math.Clamp( desiredHeadRotation.z - self.HeadRotation.z, -maxTilt, maxTilt )
+
+		local head = matrix3dClass.New( true )
+		head:RotateX( self.HeadRotation.x )
+		head:RotateZ( self.HeadRotation.z )
+		if not self:PeekModel():IsBoneCaptured( STATIC.HeadBone ) then
+			self:PeekModel():CaptureBone( STATIC.HeadBone )
+		end
+		assert( self:PeekModel():IsBoneCaptured( STATIC.HeadBone ) )
+		if self:PeekModel():IsBoneCaptured( STATIC.HeadBone ) then
+			self:PeekModel():ControlBone( STATIC.HeadBone, head )
+		end
+
+		self.HeadRotation.z = 0
+		if returning and self.HeadRotation:Length() > 0.001 then
+			self.HeadLookDuration = 0.0001 -- "Maybe done next time..."
+		end
+	end
 end
 
-function INSTANCE:AddRenderObject()
-	typecheck.NotImplementedError()
+--- @param obj RenderObjectInstance
+function INSTANCE:AddRenderObject( obj )
+	table.insert( self.RenderObjectList, obj )
 end
 
-function INSTANCE:FindRenderObject()
-	typecheck.NotImplementedError()
+--- @param name string
+--- @return RenderObjectInstance?
+function INSTANCE:FindRenderObject( name )
+	for _, v in pairs( self.RenderObjectList ) do
+		if v:GetName() == name then
+			return v
+		end
+	end
 end
 
-function INSTANCE:ResetRenderObjs()
-	typecheck.NotImplementedError()
+function INSTANCE:ResetRenderObjects()
+	self.RenderObjectList = {}
 end
 
 function INSTANCE:UpdateHealingEffect()
-	typecheck.NotImplementedError()
+	if self.HealingEffect ~= nil then
+		if
+			self.HealingEffect:GetTargetParameter() >= 0.49 and
+			self.HealingEffect:GetParameter() >= 0.49
+		then
+			self.HealingEffect:SetTargetParameter( 0 )
+		end
+
+		if
+			self.HealingEffect:GetTargetParameter() == 0 and
+			self.HealingEffect:GetParameter() == 0
+		then
+			self:PeekHumanPhysics():RemoveEffectFromMe( self.HealingEffect )
+		end
+	end
 end
 
 function INSTANCE:Check()

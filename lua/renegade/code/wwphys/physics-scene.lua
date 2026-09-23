@@ -52,8 +52,9 @@ INSTANCE.IsPhysicsScene = true
 
     typecheck.RegisterType( "PhysicsSceneInstance", STATIC.IsPhysicsScene )
 
+	--- @return PhysicsSceneInstance
 	function STATIC.GetInstance()
-		typecheck.NotImplementedError()
+		return STATIC.TheScene
 	end
 end
 
@@ -131,10 +132,17 @@ end
 --- @field StaticAnimationList RefPhysicsListInstance
 --- @field CollisionRegionList NonRefPhysicsListInstance
 --- @field UpdateOnlyVisibleObjects boolean
---- @field CurrentFrameNumber UnsignedInstance
+--- @field CurrentFrameNumber integer
 
 function INSTANCE:Renegade_PhysicsScene()
-	typecheck.NotImplementedError()
+
+	-- Omitted a lot of variable setup here
+
+	self.ObjectList = {}
+	self.StaticObjectList = {}
+	self.StaticLightList = {}
+
+	STATIC.TheScene = self
 end
 
 function INSTANCE:_Renegade_PhysicsScene()
@@ -185,8 +193,14 @@ function INSTANCE:ProcessReleaseList()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Contains()
-	typecheck.NotImplementedError()
+--- "Tests if the scene contains the given object"
+--- @param obj PhysicsInstance
+--- @return boolean
+function INSTANCE:Contains( obj )
+	if table.HasValue( self.ObjectList, obj ) then return true end
+	if table.HasValue( self.StaticObjectList, obj ) then return true end
+	if table.HasValue( self.StaticLightList, obj ) then return true end
+	return false
 end
 
 function INSTANCE:GetDynamicObjectIterator()
@@ -237,8 +251,9 @@ function INSTANCE:SetLightingMode()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetAmbientLight()
-	typecheck.NotImplementedError()
+--- @param color Color
+function INSTANCE:SetAmbientLight( color )
+	self.AmbientLight = color
 end
 
 function INSTANCE:GetAmbientLight()

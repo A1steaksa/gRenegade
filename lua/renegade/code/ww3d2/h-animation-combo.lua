@@ -95,8 +95,8 @@ function INSTANCE:NormalizeWeights()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetNumAnims()
-	typecheck.NotImplementedError()
+function INSTANCE:GetNumAnimations()
+	return table.Count( self.HAnimationComboData )
 end
 
 --- @param index integer

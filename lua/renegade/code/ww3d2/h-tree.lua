@@ -334,7 +334,6 @@ function INSTANCE:BaseUpdate( root )
 	local pivot = self.Pivot[1]
 	pivot.Transform = root
 	pivot.IsVisible = true
-
 	self.SourceBones[1]:SetMatrix3d( pivot.Transform )
 
 	for pivotIndex = 2, self._NumPivots do
@@ -344,24 +343,192 @@ function INSTANCE:BaseUpdate( root )
 		pivot.Transform = pivot.Parent.Transform * pivot.BaseTransform
 		pivot.IsVisible = true
 
-		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
-
 		if pivot.IsCaptured then
 			pivot:CaptureUpdate()
 		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
 	end
 end
 
-function INSTANCE:AnimationUpdate()
-	typecheck.NotImplementedError()
+--- "Computes the transform for each pivot with motion"
+--- @param root Matrix3dInstance
+--- @param motion HAnimationInstance
+--- @param frame number
+function INSTANCE:AnimationUpdate( root, motion, frame )
+
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = motion:GetNumPivots()
+
+	local pivot
+	for pivotIndex = 2, self._NumPivots do
+		pivot = self.Pivot[pivotIndex]
+
+		-- "Base pose"
+		assert( pivot.Parent ~= nil )
+		pivot.Transform = pivot.Parent.Transform * pivot.BaseTransform
+
+		-- "Don't update this pivot if the HTree doesn't have animation data for it..."
+		if pivotIndex <= numAnimationPivots then
+
+			-- "Animation"
+			local translation = Vector( 0, 0, 0 )
+			motion:GetTranslation( translation, pivotIndex, frame )
+			pivot.Transform:Translate( translation * self.ScaleFactor * unitConversionLib.MetersToSource )
+
+			local q = motion:GetOrientation( pivotIndex, frame )
+
+			-- local temp = q.Data.x
+			-- q.Data.x = q.Data.y
+			-- q.Data.y = temp
+
+			local matrix = quaternionClass.BuildMatrix3d( q )
+			pivot.Transform = pivot.Transform * matrix
+
+			-- "Visibility"
+			pivot.IsVisible = motion:GetVisibility( pivotIndex, frame )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+	end
 end
 
-function INSTANCE:BlendUpdate()
-	typecheck.NotImplementedError()
+--- "Computes each pivot as a blend of two anims"
+--- @param root Matrix3dInstance
+--- @param motion0 HAnimationInstance
+--- @param frame0 number
+--- @param motion1 HAnimationInstance
+--- @param frame1 number
+--- @param percentage number
+function INSTANCE:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = math.min( motion0:GetNumPivots(), motion1:GetNumPivots() )
+
+	local translation0 = Vector()
+	local translation1 = Vector()
+
+	for pivotIndex = 2, self._NumPivots do
+		local pivot = self.Pivot[pivotIndex]
+
+		pivot.Transform = matrix3dClass.Multiply( pivot.Parent.Transform, pivot.BaseTransform )
+
+		if pivotIndex <= numAnimationPivots then
+			-- "Interpolated translation"
+			motion0:GetTranslation( translation0, pivotIndex, frame0 )
+			motion1:GetTranslation( translation1, pivotIndex, frame1 )
+			local lerped = ( 1.0 - percentage ) * translation0 + percentage * translation1
+			pivot.Transform:Translate( lerped * self.ScaleFactor )
+
+			-- "Interpolated rotation"
+			local q0 = motion0:GetOrientation( pivotIndex, frame0 )
+			local q1 = motion0:GetOrientation( pivotIndex, frame1 )
+			local q = quaternionClass.FastSlerp( q0, q1, percentage )
+			pivot.Transform = pivot.Transform * quaternionClass.BuildMatrix3d( q )
+
+			pivot.IsVisible = motion0:GetVisibility( pivotIndex, frame0 ) or motion1:GetVisibility( pivotIndex, frame1 )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+	end
 end
 
-function INSTANCE:ComboUpdate()
-	typecheck.NotImplementedError()
+--- @param root Matrix3dInstance
+--- @param animation HAnimationComboInstance
+function INSTANCE:ComboUpdate( root, animation )
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = 100000
+	for animationNumber = 1, animation:GetNumAnimations() do
+		numAnimationPivots = math.min( numAnimationPivots, animation:PeekMotion( animationNumber ):GetNumPivots() )
+	end
+
+	if numAnimationPivots == 100000 then
+		numAnimationPivots = 0
+	end
+
+	local temporaryTranslation = Vector()
+	local translation = Vector()
+
+	for pivotIndex = 2, self._NumPivots do
+		local pivot = self.Pivot[pivotIndex]
+		matrix3dClass.Multiply( pivot.Parent.Transform, pivot.BaseTransform, pivot.Transform )
+
+		if pivotIndex <= numAnimationPivots then
+			local q0
+			local q1
+
+			local weightTotal = 0
+			local wCount = 0
+
+			for animationNumber = 1, animation:GetNumAnimations() do
+				local motion = animation:GetMotion( animationNumber )
+
+
+				if motion ~= nil then
+					local frameNumber = animation:GetFrame( animationNumber )
+
+					local weight = animation:GetWeight( animationNumber )
+
+					-- Omitted pivotmap
+
+					if weight ~= 0.0 then
+						wCount = wCount + 1
+						motion:GetTranslation( temporaryTranslation, pivotIndex, frameNumber )
+						translation = translation + weight * self.ScaleFactor * temporaryTranslation
+						weightTotal = weightTotal + weight
+					end
+
+					q1 = motion:GetOrientation( pivotIndex, frameNumber )
+					if wCount == 1 then
+						q0 = q1
+					else
+						q0 = quaternionClass.Slerp( q0, q1, weight / weightTotal )
+					end
+				end
+			end
+
+			if weightTotal ~= 0.0 then
+				pivot.Transform:Translate( translation )
+			end
+
+			pivot.IsVisible = false
+
+			local animationNumber = 1
+			while ( animationNumber <= animation:GetNumAnimations() and not pivot.IsVisible ) do
+				local motion = animation:GetMotion( animationNumber )
+				if motion ~= nil then
+					local frameNumber = animation:GetFrame( animationNumber )
+					pivot.IsVisible = pivot.IsVisible or motion:GetVisibility( pivotIndex, frameNumber )
+				end
+				animationNumber = animationNumber + 1
+			end
+
+			self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+	end
 end
 
 --- "Returns the transformation for the desired pivot"

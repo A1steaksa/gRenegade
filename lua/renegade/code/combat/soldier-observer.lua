@@ -200,7 +200,7 @@ function INSTANCE:TimerExpired()
 end
 
 function INSTANCE:AnimationComplete()
-	typecheck.NotImplementedError()
+	-- Empty in the original code
 end
 
 function INSTANCE:Poked()

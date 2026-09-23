@@ -142,7 +142,7 @@ end
 function INSTANCE:Renegade_SmartGameObject()
     armedGameObjectClass.Instance.Renegade_ArmedGameObject( self )
 
-    self.Control = controlClass.New()
+    self.Control = controlClass.New( self )
 
     self.Action = actionClass.New( self )
     self.ControlOwner = STATIC.SERVER_CONTROL_OWNER

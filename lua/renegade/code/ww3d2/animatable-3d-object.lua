@@ -572,16 +572,44 @@ function INSTANCE:BaseUpdate( root )
 	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:AnimationUpdate()
-	typecheck.NotImplementedError()
+--- "Update function for a single animation"
+--- @param root Matrix3dInstance
+--- @param motion HAnimationInstance
+--- @param frame number
+function INSTANCE:AnimationUpdate( root, motion, frame )
+	-- "Apply motion to the base pose"
+	if tobool( motion ) and tobool( self.HTree ) then
+		self.HTree:AnimationUpdate( root, motion, frame )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:BlendUpdate()
-	typecheck.NotImplementedError()
+--- "Update function for a blend of two animations"
+--- @param root Matrix3dInstance
+--- @param motion0 HAnimationInstance
+--- @param frame0 number
+--- @param motion1 HAnimationInstance
+--- @param frame1 number
+--- @param percentage number
+function INSTANCE:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	-- "Apply motion to the base pose"
+	if tobool( self.HTree ) then
+		self.HTree:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:ComboUpdate()
-	typecheck.NotImplementedError()
+--- "Animation update for a combination of anims"
+--- @param root Matrix3dInstance
+--- @param animation HAnimationComboInstance
+function INSTANCE:ComboUpdate( root, animation )
+	if tobool( self.HTree ) then
+		self.HTree:ComboUpdate( root, animation )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
 --- @return boolean

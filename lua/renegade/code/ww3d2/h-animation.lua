@@ -95,8 +95,11 @@ function INSTANCE:GetTranslation()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetOrientation()
-	typecheck.NotImplementedError()
+--- @param pivotIndex integer
+--- @param frame number
+--- @return QuaternionInstance
+function INSTANCE:GetOrientation( pivotIndex, frame )
+	CNC.VirtualFunction()
 end
 
 --- @param pivotIndex integer
@@ -106,8 +109,11 @@ function INSTANCE:GetTransform( pivotIndex, frame )
 	CNC.VirtualFunction()
 end
 
-function INSTANCE:GetVisibility()
-	typecheck.NotImplementedError()
+--- @param pivotIndex integer
+--- @param frame number
+--- @return boolean
+function INSTANCE:GetVisibility( pivotIndex, frame )
+	CNC.VirtualFunction()
 end
 
 function INSTANCE:GetNumPivots()

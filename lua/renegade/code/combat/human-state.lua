@@ -214,7 +214,51 @@ end
 function INSTANCE:SetState( state, subState )
 	if subState == nil then subState = 0 end
 
-	typecheck.NotImplementedError()
+	-- "Special case for death"
+	if ( self.State == humanStateTypeEnum.DEATH ) or ( self.State == humanStateTypeEnum.DESTROY ) then
+		if state ~= humanStateTypeEnum.DESTROY then
+			return
+		end
+	end
+
+	if self.State ~= humanStateTypeEnum.DEATH and state == humanStateTypeEnum.DEATH then
+		self.StateLocked = false
+	end
+
+	-- Omitted E3 hack
+
+	if self.State == state and self.SubState == subState then
+		return
+	end
+
+	self.State = state
+	self.SubState = subState
+	self.StateTimer = 0
+
+	if (
+		state == humanStateTypeEnum.LADDER or
+		state == humanStateTypeEnum.IN_VEHICLE or
+		state == humanStateTypeEnum.TRANSITION or
+		state == humanStateTypeEnum.TRANSITION_COMPLETE or
+		state == humanStateTypeEnum.DEBUG_FLY
+	) then
+		self.HumanPhysics:EnableUserControl( true )
+	else
+		self.HumanPhysics:EnableUserControl( false )
+	end
+
+	if state == humanStateTypeEnum.IN_VEHICLE or state == humanStateTypeEnum.TRANSITION or state == humanStateTypeEnum.TRANSITION_COMPLETE then
+		self.HumanPhysics:SetCollisionGroup( collisionGroupTypeEnum.BULLET_ONLY_COLLISION_GROUP )
+		self.HumanPhysics:SetImmovable( true )
+	elseif state == humanStateTypeEnum.DESTROY or state == humanStateTypeEnum.DEATH then
+		self.HumanPhysics:SetCollisionGroup( collisionGroupTypeEnum.TERRAIN_ONLY_COLLISION_GROUP )
+		self.HumanPhysics:SetImmovable( true )
+	else
+		self.HumanPhysics:SetCollisionGroup( collisionGroupTypeEnum.SOLDIER_COLLISION_GROUP )
+		self.HumanPhysics:SetImmovable( false )
+	end
+
+	self:UpdateAnimation()
 end
 
 --- @return HumanStateType
@@ -316,12 +360,44 @@ function INSTANCE:UpdateWeapon()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:UpdateAiming()
-	typecheck.NotImplementedError()
+--- @param tilt number
+--- @param turn number
+function INSTANCE:UpdateAiming( tilt, turn )
+	if self.AimingTilt == tilt and self.AimingTurn == turn then
+		return
+	end
+
+	self.AimingTilt = tilt
+	self.AimingTurn = turn
+
+	if not self.StateLocked then
+		self:UpdateAnimation()
+	end
 end
 
 function INSTANCE:UpdateState()
-	typecheck.NotImplementedError()
+	local frameTime = FrameTime()
+
+	self.StateTimer = self.StateTimer + frameTime
+
+	if self.AnimationControl and self.AnimationControl:GetSkeleton() == "V" then
+		self.LoitersAllowed = false
+	end
+
+	if self.State == humanStateTypeEnum.UPRIGHT and self.LoitersAllowed then
+
+		-- "Don't loiter when crouched or moving"
+		if self.SubState ~= 0 then
+			self:ResetLoiterDelay()
+		end
+
+		self.LoiterDelay = self.LoiterDelay + frameTime
+
+		-- Omitted loitering code here
+	else
+		self:ResetLoiterDelay()
+	end
+
 end
 
 function INSTANCE:PostThink()
@@ -469,45 +545,196 @@ function INSTANCE:UpdateAnimation()
 
 	-- "Setup animation for state, substate, weapon, tilt, etc."
 	if self.State == humanStateTypeEnum.UPRIGHT or self.State == humanStateTypeEnum.AIRBORNE then
+		local subState = self.SubState
+		-- "Determine leg style"
+		local legStyle = humanAnimationLegStyle.LEG_STYLE_STAND
+		if self.State == humanStateTypeEnum.AIRBORNE then
+			legStyle = humanAnimationLegStyle.LEG_STYLE_JUMP_UP
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_LEFT ) ) 	then legStyle = humanAnimationLegStyle.LEG_STYLE_JUMP_LEFT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_RIGHT ) ) 	then legStyle = humanAnimationLegStyle.LEG_STYLE_JUMP_RIGHT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_FORWARD ) ) 	then legStyle = humanAnimationLegStyle.LEG_STYLE_JUMP_FORWARD end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_BACKWARD ) ) then legStyle = humanAnimationLegStyle.LEG_STYLE_JUMP_BACKWARD end
+		else
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_TURN_LEFT ) )  then legStyle = humanAnimationLegStyle.LEG_STYLE_TURN_LEFT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_TURN_RIGHT ) ) then legStyle = humanAnimationLegStyle.LEG_STYLE_TURN_RIGHT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_LEFT ) )       then legStyle = humanAnimationLegStyle.LEG_STYLE_RUN_LEFT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_RIGHT ) )      then legStyle = humanAnimationLegStyle.LEG_STYLE_RUN_RIGHT end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_FORWARD ) )    then legStyle = humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD end
+			if tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_BACKWARD ) )   then legStyle = humanAnimationLegStyle.LEG_STYLE_RUN_BACKWARD end
 
+			if self:GetStateFlag( humanStateFlagsType.CROUCHED_FLAG ) then
+				-- "Tend to hold at chest when crouched"
+				if (   ( holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_HANDS_DOWN )
+					or ( holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_C4 )
+					or ( holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_BEACON )
+				) then
+					holdStyle = weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_AT_CHEST
+				end
+
+				legStyle = legStyle + ( humanAnimationLegStyle.LEG_STYLE_CROUCH - humanAnimationLegStyle.LEG_STYLE_STAND )
+			elseif tobool( bit.band( subState, humanSubStateTypeEnum.SUB_STATE_SLOW ) ) then
+				if (    ( legStyle >= humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD )
+					and ( legStyle <= humanAnimationLegStyle.LEG_STYLE_RUN_RIGHT )
+				) then
+					legStyle = legStyle + ( humanAnimationLegStyle.LEG_STYLE_WALK_FORWARD - humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD )
+				end
+			end
+		end
+
+		local legAnimationName = STATIC.LegAnimationNames[legStyle]
+		local torsoAnimationName = STATIC.WeaponStyleNames[holdStyle]
+
+		local singleAnimation = true
+
+		local blendTime = 0.2
+		if self.NoAnimationBlend then
+			blendTime = 0
+			self.NoAnimationBlend = false
+		end
+
+		if torsoAnimationName:sub( 2, 2 ) == "2" then
+			-- "Let's try aiming"
+			local animation1Name = Format( "S_A_HUMAN.H_A_%c1%s", "A" .. holdStyle, legAnimationName )
+			local animation2Name = Format( "S_A_HUMAN.H_A_%c2%s", "A" .. holdStyle, legAnimationName )
+			local animation3Name = Format( "S_A_HUMAN.H_A_%c3%s", "A" .. holdStyle, legAnimationName )
+
+			-- "See if we have the tilting data"
+			local animation = ww3dAssetManagerClass.GetInstance():GetHAnimation( animation3Name )
+			if animation ~= nil then
+				singleAnimation = false
+
+				local tiltBlend = math.Clamp( ( self.AimingTilt / math.rad( 65 ) ), -1, 1 )
+				local frame = self.AnimationControl:GetFrame() -- "Maintain the frame number for moving"
+				if tiltBlend < 0 then
+					self.AnimationControl:SetAnimation( animation1Name, animation2Name, 1 + tiltBlend, blendTime )
+				else
+					self.AnimationControl:SetAnimation( animation3Name, animation2Name, 1 - tiltBlend, blendTime )
+				end
+
+				self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP, frame )
+			end
+		end
+
+		if singleAnimation then
+			local animationName = Format( "S_A_HUMAN.H_A_%s%s", torsoAnimationName, legAnimationName )
+
+			-- "Human Anim Override"
+			if self.HumanAnimationOverride ~= nil then
+				if holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_EMPTY_HANDS then
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD then
+						animationName = self.HumanAnimationOverride.RunEmptyHands
+					end
+
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_WALK_FORWARD then
+						animationName = self.HumanAnimationOverride.WalkEmptyHands
+					end
+				end
+
+				if holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_AT_CHEST then
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD then
+						animationName = self.HumanAnimationOverride.RunAtChest
+					end
+
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_WALK_FORWARD then
+						animationName = self.HumanAnimationOverride.WalkAtChest
+					end
+				end
+
+				if holdStyle == weaponHoldStyleTypeEnum.WEAPON_HOLD_STYLE_AT_HIP then
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_RUN_FORWARD then
+						animationName = self.HumanAnimationOverride.RunAtHip
+					end
+
+					if legStyle == humanAnimationLegStyle.LEG_STYLE_WALK_FORWARD then
+						animationName = self.HumanAnimationOverride.WalkAtHip
+					end
+				end
+			end
+
+			self.AnimationControl:SetAnimation( animationName, blendTime )
+			self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
+		end
 	elseif self.State == humanStateTypeEnum.DIVE then
+		local offset = math.floor( math.Rand( 0, 3 ) )
+		if not gameTypeClass.IsSoloplay() then
+			offset = 0
+		end
+
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_FORWARD  ) ) then offset = offset + 0 end
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_BACKWARD ) ) then offset = offset + 2 end
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_LEFT     ) ) then offset = offset + 4 end
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_RIGHT    ) ) then offset = offset + 8 end
+
+		local animationName = STATIC.DiveAnimations[offset + 1]
+		self.AnimationControl:SetAnimation( animationName, 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_ONCE )
+		self.StateLocked = true
 
 	elseif self.State == humanStateTypeEnum.LAND then
+		local direction = 0
+
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_LEFT ) ) then
+			direction = 3
+		end
+
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_RIGHT ) ) then
+			direction = 4
+		end
+
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_FORWARD ) ) then
+			direction = 1
+		end
+
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_BACKWARD ) ) then
+			direction = 2
+		end
+
+		local animationName = Format( "S_A_HUMAN.H_A_A0L%d", direction )
+		self.AnimationControl:SetAnimation( animationName, 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_ONCE )
 
 	elseif self.State == humanStateTypeEnum.WOUNDED then
-
+		self.AnimationControl:SetAnimation( STATIC.GetWoundAnimation( self.SubState ), 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_ONCE )
 	elseif self.State == humanStateTypeEnum.DEATH then
-
+		self.AnimationControl:SetAnimation( STATIC.GetDeathAnimation( self.SubState ), 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_ONCE )
 	elseif self.State == humanStateTypeEnum.LADDER then
+		local animationName = "S_A_HUMAN.H_A_412A"
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_UP ) ) then
+			animationName = "S_A_HUMAN.H_A_422A"
+		end
+		if tobool( bit.band( self.SubState, humanSubStateTypeEnum.SUB_STATE_DOWN ) ) then
+			animationName = "S_A_HUMAN.H_A_432A"
+		end
 
+		self.AnimationControl:SetAnimation( animationName, 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.ANIMATION then
-
 	elseif self.State == humanStateTypeEnum.LOITER then
-
 	elseif self.State == humanStateTypeEnum.DESTROY then
-
 	elseif self.State == humanStateTypeEnum.TRANSITION then
-
 	elseif self.State == humanStateTypeEnum.TRANSITION_COMPLETE then
-
 	elseif self.State == humanStateTypeEnum.ON_FIRE then
-
+		self.AnimationControl:SetAnimation( "S_A_HUMAN.H_A_FLMA", 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.ON_CHEM then
-
+		self.AnimationControl:SetAnimation( "S_A_HUMAN.h_a_6x01", 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.ON_CNC_FIRE then
-
+		self.AnimationControl:SetAnimation( "S_A_HUMAN.H_A_FLMA", 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.ON_CNC_CHEM then
-
+		self.AnimationControl:SetAnimation( "S_A_HUMAN.h_a_6x01", 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.ON_ELECTRIC then
-
+		self.AnimationControl:SetAnimation( "S_A_HUMAN.h_a_6x05", 0.2 )
+		self.AnimationControl:SetMode( animationControlAnimationModeEnum.ANIM_MODE_LOOP )
 	elseif self.State == humanStateTypeEnum.DEBUG_FLY then
-
 	else
 		section.Warn( "Uncoded human state: '", self.State, "'" )
 		self.AnimationControl:SetAnimation( nil )
 	end
-
-	typecheck.NotImplementedError()
 end
 
 --- @return boolean

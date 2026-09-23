@@ -576,12 +576,19 @@ function INSTANCE:ReleaseBone( boneIndex )
     -- Empty in the original code
 end
 
-function INSTANCE:IsBoneCaptured()
-    typecheck.NotImplementedError()
+--- @param boneIndex integer
+--- @return boolean
+function INSTANCE:IsBoneCaptured( boneIndex )
+    return false
 end
 
-function INSTANCE:ControlBone()
-    typecheck.NotImplementedError()
+--- @param boneIndex integer
+--- @param objectTransformationMAtrix Matrix3dInstance
+--- @param worldSpaceTranslation boolean? [Default: `false`]
+function INSTANCE:ControlBone( boneIndex, objectTransformationMAtrix, worldSpaceTranslation )
+    if worldSpaceTranslation == nil then worldSpaceTranslation = false end
+
+    -- Empty in the original code
 end
 
 --- @return HTreeInstance

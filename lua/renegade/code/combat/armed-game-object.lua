@@ -235,8 +235,9 @@ function INSTANCE:GetWeaponError()
 	typecheck.NotImplementedError()
 end
 
+--- @return Vector
 function INSTANCE:GetTargetingPos()
-	typecheck.NotImplementedError()
+	return self.TargetingPos
 end
 
 --- @param pos Vector
