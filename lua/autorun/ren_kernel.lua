@@ -45,6 +45,15 @@ local CNC = CNC_RENEGADE
 --#endregion
 
 
+--[[ Exit Server on Error ]] do
+
+    -- hook.Add( "OnLuaError", "A1_Renegade_ShutdownServerOnError", function( err, realm, stack, name, id )
+    --     section.Warn( "\nExiting server due to the Lua error above" )
+    --     engine.CloseServer()
+    -- end )
+end
+
+
 --[[ Load Shared Foundational Libraries ]] do
     -- For libraries that support the Renegade code but are not themselves from Renegade.
     -- (Class, file loading, debugging, etc.)
@@ -67,9 +76,11 @@ local CNC = CNC_RENEGADE
     -- Manually run some files that add to existing metatables
     include( "renegade/code/wwmath/vector3.lua" )
 
-
     -- Debug Files
     include( "renegade/sh_players.lua" )
+    CNC.Import( "sh_tools.lua" )
+
+    CNC.IterateFiles( "renegade/tools/", "LUA", include )
 end
 
 -- Server-Side Garry's Mod Init
@@ -78,11 +89,11 @@ if SERVER then
     SetGlobal2Bool( "A1_Renegade_ServerRunning", true )
 
     --[[ Send Files to Clients ]] do
-
-        -- Shared scripts
+         -- Shared scripts
         CNC.IterateFiles( "renegade/", "LUA", AddCSLuaFile )
         CNC.IterateFiles( "renegade/bridges", "LUA", AddCSLuaFile )
         CNC.IterateFilesRecursively( "renegade/code", "LUA", AddCSLuaFile )
+        CNC.IterateFiles( "renegade/tools/", "LUA", AddCSLuaFile )
 
         -- Client-only scripts
         CNC.IterateFiles( "renegade/client/", "LUA", AddCSLuaFile )
@@ -114,3 +125,13 @@ end
 --- @type MainLoopClass
 local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
 mainLoopClass.GameMainLoop()
+
+if SERVER then
+    hook.Add( "InitPostEntity", "Addbot", function()
+        timer.Simple( 0, function()
+            player.CreateNextBot( "Bot01" )
+            -- local ent = ents.Create( "p_health1" )
+            -- ent:Spawn()
+        end )
+    end)
+end

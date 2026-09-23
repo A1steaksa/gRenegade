@@ -27,7 +27,7 @@ function STATIC.StaticConstructor()
     STATIC.OpenFrames = {}
 
     --- @class HotloadableDFrame : DFrame
-    --- @field ExportState fun( self: HotloadableDFrame ): any?
+    --- @field ExportState fun( self: HotloadableDFrame ): any
     local PANEL = vgui.Register( "HotloadableDFrame", {}, "DFrame" )
     function PANEL:ExportState()
     end
@@ -36,7 +36,8 @@ end
 --- @param consoleCommand string
 --- @return boolean
 function STATIC.IsToolOpen( consoleCommand )
-    return STATIC.OpenFrames[consoleCommand] ~= nil
+    local openFrame = STATIC.OpenFrames[consoleCommand]
+    return openFrame ~= nil and openFrame ~= NULL
 end
 
 --- @param consoleCommand string
@@ -58,6 +59,12 @@ function STATIC.RegisterTool( consoleCommand, openFunc )
     if isHotload then
         STATIC.OpenTool( consoleCommand, previousState )
     end
+end
+
+--- @param consoleCommand string
+--- @return HotloadableDFrame
+function STATIC.GetToolFrame( consoleCommand )
+    return STATIC.OpenFrames[consoleCommand]
 end
 
 --- @param consoleCommand string
