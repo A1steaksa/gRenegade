@@ -342,8 +342,7 @@ function INSTANCE:GetAnimationData( weight )
 	local list = {} --[[@as AnimationDataRecordStruct[] ]]
 
 	if self.Animation ~= nil and weight > 0 then
-		--- @type AnimationDataRecordStruct
-		list[#list+1] = {
+		list[#list + 1] = {
 			Animation = self.Animation,
 			Frame = self.Frame,
 			Weight = weight

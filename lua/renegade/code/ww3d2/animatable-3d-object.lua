@@ -525,12 +525,14 @@ function INSTANCE:UpdateSubObjectTransforms()
 
 	-- "Update the transforms"
 	if self.CurrentMotionMode == motionModeEnum.BASE_POSE then
+
 		self:BaseUpdate( self.Transform )
 
 	elseif self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
 		if self.ModeAnimation.AnimationMode ~= renderObjectAnimationModeEnum.ANIM_MODE_MANUAL then
 			self:SingleAnimationProgress()
 		end
+
 		self:AnimationUpdate( self.Transform, self.ModeAnimation.Motion, self.ModeAnimation.Frame )
 
 		-- "Play any sounds that are triggered by this frame of animation"
@@ -558,7 +560,6 @@ function INSTANCE:UpdateSubObjectTransforms()
 	end
 
 	self:SetHierarchyValid( true )
-
 end
 
 --- "Animation update function for the base pose"

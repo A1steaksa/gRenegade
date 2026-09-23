@@ -63,7 +63,7 @@ INSTANCE.IsQuaternion = true
 
     typecheck.RegisterType( "QuaternionInstance", STATIC.IsQuaternion )
 
-    --#region  Local Functions ]]
+    --#region Local Functions
 
         --- @param r number
         --- @param x number
@@ -366,15 +366,15 @@ INSTANCE.IsQuaternion = true
 
         -- "initialize the rotation sub-matrix"
         row[1][1] = ( 1.0 - 2.0 * ( q[2] * q[2] + q[3] * q[3] ) )
-        row[1][2] = ( 2.0 * ( q[1] * q[2] - q[3] * q[4] ) )
-        row[1][3] = ( 2.0 * ( q[3] * q[1] + q[2] * q[4] ) )
+        row[1][2] = (       2.0 * ( q[1] * q[2] - q[3] * q[4] ) )
+        row[1][3] = (       2.0 * ( q[3] * q[1] + q[2] * q[4] ) )
 
-        row[2][1] = ( 2.0 * ( q[1] * q[2] + q[3] * q[4] ) )
+        row[2][1] = (       2.0 * ( q[1] * q[2] + q[3] * q[4] ) )
         row[2][2] = ( 1.0 - 2.0 * ( q[3] * q[3] + q[1] * q[1] ) )
-        row[2][3] = ( 2.0 * ( q[2] * q[3] - q[1] * q[4] ) )
+        row[2][3] = (       2.0 * ( q[2] * q[3] - q[1] * q[4] ) )
 
-        row[3][1] = ( 2.0 * ( q[3] * q[1] - q[2] * q[4] ) )
-        row[3][2] = ( 2.0 * ( q[2] * q[3] + q[1] * q[4] ) )
+        row[3][1] = (       2.0 * ( q[3] * q[1] - q[2] * q[4] ) )
+        row[3][2] = (       2.0 * ( q[2] * q[3] + q[1] * q[4] ) )
         row[3][3] = ( 1.0 - 2.0 * ( q[2] * q[2] + q[1] * q[1] ) )
 
         -- "No translation"

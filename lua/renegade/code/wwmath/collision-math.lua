@@ -8,12 +8,10 @@ local STATIC = CNC.CreateExport()
 STATIC.Class = "CollisionMathClass"
 local isHotload = not table.IsEmpty( STATIC )
 
---#region Enums
-    --- Overlap Functions.
-    --- Classify the second operand with respect to the first operand.
-    --- For example Overlap_Test(plane,point) tests whether 'point' is in front of or
-    --- Behind 'plane'.
-    --- OverlapType: This enumeration is the result of an overlap test.
+
+--#region Exported Enums
+
+    --- This enumeration is the result of an overlap test.
     --- It indicates whether the the object is in the positive (front/outside) space
     --- Of the volume, the negative (back/inside) space of the volume, or both (overlapping)
     --- @enum OverlapType
@@ -30,6 +28,12 @@ local isHotload = not table.IsEmpty( STATIC )
     }
     local overlapType = STATIC.OVERLAP_TYPE
 --#endregion
+
+--#region Imports
+--#endregion
+
+-- #regions Imported Enums
+-- #endregion
 
 
 --[[ Static Functions and Variables ]] do
