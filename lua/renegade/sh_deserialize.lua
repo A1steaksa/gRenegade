@@ -331,7 +331,13 @@ end
             return
         end
 
-        local result = {}
+        local result
+        if robustclass.IsClassRegistered( dataType ) then
+            result = robustclass.Create( dataType )
+        else
+            result = {}
+        end
+
         local schema = registeryEntry.Schema
         for schemaFieldIndex, schemaField in ipairs( schema ) do
 

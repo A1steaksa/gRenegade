@@ -42,13 +42,16 @@ local next = pairs( {} )
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	RobustClass
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+
+--- @class RobustClass
 robustclass = robustclass or {
-
 	VERSION = 250217 -- yy/mm/dd
-
 }
 
+--- @class RobustClass
 local robustclass = robustclass
+
+--- @class RobustClass
 local _ALIAS = {}
 
 setmetatable( robustclass, {
@@ -400,15 +403,20 @@ end
 
 _ALIAS.Class = robustclass.Register
 
---[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	Purpose: Creates a new specific object
-–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+--- @param classname string
+--- @return boolean
+function robustclass.IsClassRegistered( classname )
+	return ( FindMetaTable( classname ) ~= nil )
+end
+
+--- Creates a new specific object
+--- @param classname string
+--- @return any
 function robustclass.Create( classname, ... )
 
 	if ( not isstring( classname ) ) then
 		assert( false, '\'classname\' (#1) to \'Create\' should be a string' )
 	end
-
 
 	--
 	-- Retrieve the class
