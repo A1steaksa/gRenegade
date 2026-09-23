@@ -48,8 +48,8 @@ function STATIC.OpenTool( previousState )
     frame:Center()
     frame:MakePopup()
 
-    local renderTarget = GetRenderTarget( "ren_texture_tool_rt", 256, 256 )
-    local rtMaterial = CreateMaterial( "ren_texture_tool_mat", "UnlitGeneric", {
+    local renderTarget = GetRenderTarget( "renegade_texture_tool_rt", 256, 256 )
+    local rtMaterial = CreateMaterial( "renegade_texture_tool_mat", "UnlitGeneric", {
         ["$basetexture"] = renderTarget:GetName(),
         ["$translucent"] = 1
     } )

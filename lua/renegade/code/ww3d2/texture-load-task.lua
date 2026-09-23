@@ -365,7 +365,7 @@ function INSTANCE:BeginCompressedLoad()
 
 	if CLIENT then
 		self.RenderTarget = GetRenderTargetEx(
-			"ren_" .. self.Texture:GetTextureName(),
+			"renegade_" .. self.Texture:GetTextureName(),
 			self.Width,
 			self.Height,
 			RT_SIZE_NO_CHANGE,
