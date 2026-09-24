@@ -148,11 +148,7 @@ function INSTANCE:LoadW3d( cload )
 	self.NumFrames = animationHeader.NumFrames
 	self.FrameRate = animationHeader.FrameRate
 
-	self.NodeMotion = {}
-	if self.NodeMotion == nil then
-		self:Free()
-		return hRawAnimationLoadResultEnum.LOAD_ERROR
-	end
+	self.NodeMotion = classUtils.InitializeTypeArray( "NodeMotionStruct", self.NumNodes )
 
 	-- "Now, read in all of the other chunks (motion channels)."
 	--- @type MotionChannelInstance
