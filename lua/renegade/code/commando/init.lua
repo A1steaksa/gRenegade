@@ -273,8 +273,10 @@ function STATIC.GameInit()
     --      - RenegadeDialogMgrClass
     -- "
 
-    -- combatManagerClass.SceneInit()
-
+    combatManagerClass.SceneInit()
+    if not SERVER then
+        -- systemSettingsClass.Init()
+    end
     renegadeDialogManagerClass.Initialize()
 
     -- networkClass.OnetimeInit()
