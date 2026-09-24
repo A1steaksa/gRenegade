@@ -69,6 +69,9 @@ STATIC.Class = "CombatManagerClass"
 
 	--- @type UnitCoordinationZoneManagerClass
 	local unitCoordinationZoneManagerClass = CNC.Import( "code/combat/unit-coordination-zone-manager.lua" )
+
+	--- @type PhysicsSceneClass
+	local physicsSceneClass = CNC.Import( "code/wwphys/physics-scene.lua" )
 -- #endregion
 
 
@@ -83,7 +86,7 @@ STATIC.Class = "CombatManagerClass"
     --- [[ Public ]]
 
     --- @class CombatManagerClass
-    --- @field GameScene GameSceneInstance
+    --- @field GameScene PhysicsSceneInstance
     --- @field private _IAmServer boolean
     --- @field private _IAmClient boolean
     --- @field private MyId integer
