@@ -1,4 +1,4 @@
--- Based on MotionChannelClass within var/home/JSchneider/Projects/LuaRenegadePort/C&amp;C Renegade/Code/ww3d2/motchan.h
+-- Based on MotionChannelClass within Code/ww3d2/motchan.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
