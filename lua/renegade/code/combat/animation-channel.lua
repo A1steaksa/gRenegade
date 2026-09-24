@@ -334,12 +334,10 @@ function INSTANCE:Update( deltaTime )
 	end
 end
 
+--- @param list AnimationDataRecordStruct[]
 --- @param weight number? [Default: 1.0]
---- @return AnimationDataRecordStruct[]
-function INSTANCE:GetAnimationData( weight )
+function INSTANCE:GetAnimationData( list, weight )
 	if weight == nil then weight = 1.0 end
-
-	local list = {} --[[@as AnimationDataRecordStruct[] ]]
 
 	if self.Animation ~= nil and weight > 0 then
 		list[#list + 1] = {
@@ -348,8 +346,6 @@ function INSTANCE:GetAnimationData( weight )
 			Weight = weight
 		}
 	end
-
-	return list
 end
 
 --- @param animationModel RenderObjectInstance
