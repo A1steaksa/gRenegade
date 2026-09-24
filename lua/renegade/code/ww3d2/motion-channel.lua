@@ -118,9 +118,10 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:LoadW3d( cload )
-    local size = cload:CurChunkLength()
+    local chunkSize = cload:CurChunkLength()
+    local structSize = deserializeLib.GetComplexDataTypeSize( "W3dAnimChannelStruct" )
     -- "There was a bug in the exporter which saved too much data, so let's try and not load everything."
-    local savedDataSize = size - deserializeLib.GetComplexDataTypeSize( "W3dAnimChannelStruct" )
+    local savedDataSize = chunkSize - structSize
 
     local channel = cload:ReadStruct( "W3dAnimChannelStruct" )
     if channel == nil then
@@ -131,27 +132,30 @@ function INSTANCE:LoadW3d( cload )
     self.LastFrame    = channel.LastFrame
     self.VectorLength = channel.VectorLength or 0
     self.Type         = channel.Flags
-    self.PivotIndex   = channel.Pivot
+    self.PivotIndex   = channel.Pivot + 1
 
-    local numFloats = math.floor( self.LastFrame - self.FirstFrame + 1 )
-    numFloats = math.floor( numFloats * self.VectorLength )
-    local dataSize = numFloats - 1 * 4 -- 4 is sizeof(float)
+    local numFloats = self.LastFrame - self.FirstFrame + 1
+    numFloats = numFloats * self.VectorLength
+    local dataSize = ( numFloats - 1 ) * 4 -- 4 is sizeof(float)
 
     self.Data = {}
     self.Data[1] = channel.Data[1]
+
     local readByteCount, readBytes = cload:Read( dataSize )
     if readByteCount ~= dataSize then
         self:Free()
+
         return false
     end
-    self.Data[2] = deserializeLib.DeserializeFloat( readBytes --[[@as string]] )
+    table.Add( self.Data, deserializeLib.DeserializeArray( fundamentalDataTypeEnum.Float32, readBytes --[[@as string]] ) )
 
     -- "Skip over the extra data at the end of the chunk (saved by an error in the exporter)"
-    if savedDataSize - dataSize > 0 then
-        cload:Seek( savedDataSize - dataSize )
+    local bytesToSkip = savedDataSize - dataSize
+    if bytesToSkip > 0 then
+        cload:Seek( bytesToSkip )
     end
 
-    self:DoDataCompression( dataSize )
+    -- Omitted data compression as it had to effect
     return true
 end
 
