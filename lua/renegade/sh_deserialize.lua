@@ -67,7 +67,7 @@ STATIC.Class = "DeserializeLib"
 --- @field ConversionFunction fun( bytes: string ): any
 
 --- @type table<FundamentalDataType, FundamentalDataTypeInfo>
-STATIC.FundamentalDataTypeRegistry = {}
+STATIC.FundamentalDataTypeRegistry = STATIC.FundamentalDataTypeRegistry or {}
 
 
 --- @class ComplexDataTypeInfo
@@ -76,7 +76,7 @@ STATIC.FundamentalDataTypeRegistry = {}
 --- @field Size integer The size, in bytes, of this data type
 
 --- @type table<string, ComplexDataTypeInfo>
-STATIC.ComplexDataTypeRegistry = {}
+STATIC.ComplexDataTypeRegistry = STATIC.ComplexDataTypeRegistry or {}
 
 
 function STATIC.StaticConstructor()
@@ -420,35 +420,7 @@ end
     end
 
     --- @param bytes string
-    --- @return integer
-    function STATIC.DeserializeUInt64( bytes )
-        local b1, b2, b3, b4, b5, b6, b7, b8 = bytes:byte( 1, 8 )
-        return (
-            b8 * 0x100000000000000 +
-            b7 * 0x1000000000000 +
-            b6 * 0x10000000000 +
-            b5 * 0x100000000 +
-            b4 * 0x1000000 +
-			b3 * 0x10000 +
-			b2 * 0x100 +
-			b1
-        )
-    end
-
-    --- @param bytes string
-    --- @return integer
-    function STATIC.DeserializeInt64( bytes )
-        local unsignedInt = STATIC.DeserializeUInt64( bytes )
-
-        if unsignedInt > 0x7FFFFFFFFFFFFFFF then
-            return ( unsignedInt - 0x10000000000000000 )
-        end
-
-        return unsignedInt
-    end
-
-    --- @param bytes string
-    --- @return integer
+    --- @return boolean
     function STATIC.DeserializeUInt32( bytes )
         local b1, b2, b3, b4 = bytes:byte( 1, 4 )
         return (
@@ -475,10 +447,13 @@ end
     --- @return integer
     function STATIC.DeserializeUInt16( bytes )
         local b1, b2 = bytes:byte( 1, 2 )
-        return (
+
+        local value = (
 			b2 * 0x100 +
 			b1
         )
+
+        return value
     end
 
     --- @param bytes string
