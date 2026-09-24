@@ -290,21 +290,39 @@ end
             end
         end
 
-		-- local material = self.CurrentMaterialDescription:GetSourceMaterial( 1, 1 )
-		-- render.SetMaterial( material )
-		render.SetColorMaterial()
+		local texture = self.MaterialInfo:GetTexture( 1 )
+		if texture ~= nil then
+			local sourceMaterial = texture.SourceMaterial
+			if sourceMaterial ~= nil then
+				render.SetMaterial( sourceMaterial )
+			else
+				render.SetColorMaterial()
+			end
+		else
+			render.SetColorMaterial()
+		end
 
         render.OverrideDepthEnable( true, true )
+		render.OverrideAlphaWriteEnable( true, true )
 		render.CullMode( MATERIAL_CULLMODE_CW )
 
 		if bones ~= nil then
+
+			-- A janky way to get lighting to work on the IMesh.
+			-- Not sure why normal lighting doesn't work.
+			local lightingPos = bones[1]:GetTranslation()
+			lightingPos.z = lightingPos.z + 5
+			local lightColor = render.GetLightColor( lightingPos )
+			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
+
 			mesh:DrawSkinned( bones, false )
 		else
 			mesh:Draw()
 		end
 
 		render.CullMode( MATERIAL_CULLMODE_CCW )
-		render.OverrideDepthEnable( false, false )
+		render.OverrideAlphaWriteEnable( false )
+		render.OverrideDepthEnable( false )
     end
 end
 
