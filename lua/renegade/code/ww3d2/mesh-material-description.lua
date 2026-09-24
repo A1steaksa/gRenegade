@@ -295,7 +295,7 @@ end
 	--- @param stage integer
 	--- @return IMaterial
 	function INSTANCE:GetSourceMaterial( pass, stage )
-		return self.SourceMaterials[pass][stage]
+		return self:GetTextureArray( pass, stage, true )[1].SourceMaterial
 	end
 end
 
