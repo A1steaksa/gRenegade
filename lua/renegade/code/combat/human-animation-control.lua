@@ -259,14 +259,16 @@ end
 
 --- @param deltaTime number
 function INSTANCE:Update( deltaTime )
+
     -- "Update channels"
     self.Channel1:Update( deltaTime * self.AnimationSpeedScale )
     self.Channel2:Update( deltaTime * self.AnimationSpeedScale )
 
     if self.Model ~= nil then
         -- "Get Animation data"
-        table.Add( self.DataList, self.Channel1:GetAnimationData( 1 - self.Channel2Ratio ) )
-        table.Add( self.DataList, self.Channel2:GetAnimationData( self.Channel2Ratio ) )
+        self.DataList = {}
+        self.Channel1:GetAnimationData( self.DataList, 1 - self.Channel2Ratio )
+        self.Channel2:GetAnimationData( self.DataList, self.Channel2Ratio )
 
         -- "Use the cheapest anim method possible"
         local totalAnimations = #self.DataList
