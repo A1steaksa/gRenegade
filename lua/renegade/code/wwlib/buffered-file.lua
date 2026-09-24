@@ -166,22 +166,29 @@ end
 --- @param direction SeekDirection "The relative position to relate the seek to.  This can be either `SEEK_SET` for the beginning of the file, `SEEK_CUR` for the current position, or `SEEK_END` for the end of the file."
 --- @return integer # "...the position that the seek ended up at."
 function INSTANCE:Seek( pos, direction )
-    if ( direction ~= seekDirectionEnum.SEEK_CUR ) or ( pos < 1 ) then
+    if direction == nil then direction = seekDirectionEnum.SEEK_CUR end
+
+    if ( direction ~= seekDirectionEnum.SEEK_CUR ) or ( pos < 0 ) then
         self:ResetBuffer()
     end
 
     -- "If not buffered, pass through"
     if self.BufferAvailable == 0 then
-        return rawFileClass.Instance.Seek( self, pos, direction )
+        local seekResult = rawFileClass.Instance.Seek( self, pos, direction )
+        return seekResult
     end
 
     -- "Use up what we can of the buffer"
     local amount = math.min( pos, self.BufferAvailable )
     pos = pos - amount
+
     self.BufferAvailable = self.BufferAvailable - amount
+
     self.BufferOffset = self.BufferOffset + amount
 
-    return rawFileClass.Instance.Seek( self, pos, direction ) - self.BufferAvailable
+    local seekResult = rawFileClass.Instance.Seek( self, pos, direction )
+
+    return seekResult - self.BufferAvailable
 end
 
 function INSTANCE:Write()
