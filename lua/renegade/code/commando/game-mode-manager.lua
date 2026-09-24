@@ -15,23 +15,26 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
-    --- @type DialogManagerClass
-    local dialogManagerClass = CNC.Import( "code/wwui/dialog-manager.lua" )
+	--- @type DialogManagerClass
+	local dialogManagerClass = CNC.Import( "code/wwui/dialog-manager.lua" )
 
-    --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
+	--- @type ObjectiveManagerClass
+	local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    ---@type GameModeClass
-    local gameModeClass = CNC.Import( "code/commando/game-mode.lua" )
+	--- @type GameModeClass
+	local gameModeClass = CNC.Import( "code/commando/game-mode.lua" )
+
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local gameModeStateEnum = gameModeClass.GAME_MODE_STATE
+	local gameModeStateEnum = gameModeClass.GAME_MODE_STATE
 --#endregion
 
 --- "An object to maintain a list of all GameModes"
@@ -123,7 +126,7 @@ function STATIC.Render()
 
     -- Omitting pre-processing combat scene
 
-    -- Omitting begin render
+    wW3dClass.BeginRender( false, false, Color( 255, 0, 255, 255 ) )
 
     -- Omitting focus checking
     for _, gameMode in ipairs( STATIC.GameModeList ) do
@@ -145,7 +148,7 @@ function STATIC.Render()
 
     -- Omitted BINKMovie render
 
-    -- Omitted end render
+    wW3dClass.EndRender()
 
     -- Omitted post-processing combat scene
 
