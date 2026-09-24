@@ -91,6 +91,9 @@ end
 
 	--- @type WW3dErrorTypes
 	local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
+
+	--- @type FormatConverterLib
+	local formatConverterLib = CNC.Import( "code/ww3d2/format-converter.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -134,6 +137,9 @@ function STATIC.GameInit()
     end
 
     section.Start( "Running Renegade GameInit" )
+
+    -- Adding D3D init from WINMAIN.CPP
+    formatConverterLib.InitD3dToWw3Conversion()
 
     -- "Set registry key to 1 for the duration of the init.  This way we know if the program crashed while the init."
 
