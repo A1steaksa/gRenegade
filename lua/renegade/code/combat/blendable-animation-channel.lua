@@ -188,9 +188,9 @@ function INSTANCE:Update( deltaTime )
 	self.OldChannel:Update( deltaTime )
 end
 
+--- @param list AnimationDataRecordStruct[]
 --- @param weight number? [Default: `1.0`]
---- @return AnimationDataRecordStruct[]
-function INSTANCE:GetAnimationData( weight )
+function INSTANCE:GetAnimationData( list, weight )
 	if weight == nil then weight = 1.0 end
 
 	local blendRatio = 1.0 --"Assume no blending"
@@ -200,10 +200,8 @@ function INSTANCE:GetAnimationData( weight )
 		blendRatio = math.Clamp( self.BlendTimer / self.BlendTotal, 0, 1 )
 	end
 
-	local list = {} --[[@as AnimationDataRecordStruct[] ]]
-	table.Add( list, self.NewChannel:GetAnimationData( weight * blendRatio ) )
-	table.Add( list, self.OldChannel:GetAnimationData( weight * ( 1 - blendRatio ) ) )
-	return list
+	self.NewChannel:GetAnimationData( list, weight * blendRatio )
+	self.OldChannel:GetAnimationData( list, weight * ( 1 - blendRatio ) )
 end
 
 --- @param animationModel RenderObjectInstance
