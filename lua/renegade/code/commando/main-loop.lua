@@ -15,17 +15,17 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
-    --- @type DialogManagerClass
-    local dialogManagerClass = CNC.Import( "code/wwui/dialog-manager.lua" )
+	--- @type DialogManagerClass
+	local dialogManagerClass = CNC.Import( "code/wwui/dialog-manager.lua" )
 
-    --- @type GameModeManagerClass
-    local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
+	--- @type GameModeManagerClass
+	local gameModeManagerClass = CNC.Import( "code/commando/game-mode-manager.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type InitClass
-    local initClass = CNC.Import( "code/commando/init.lua" )
+	--- @type InitClass
+	local initClass = CNC.Import( "code/commando/init.lua" )
 --#endregion
 
 
@@ -37,7 +37,6 @@ local isHotload = not table.IsEmpty( STATIC )
 
 
 function STATIC.GameMainLoopLoop()
-
     -- Omitting time manager update
 
     -- inputClass.Update()
