@@ -72,6 +72,7 @@ INSTANCE.IsTexture = true
 		MIP_LEVELS_10  = enumBuilder:Next(),
 		MIP_LEVELS_11  = enumBuilder:Next(),
 		MIP_LEVELS_12  = enumBuilder:Next(),
+		MIP_LEVELS_MAX = enumBuilder:Next(),
 	}
 	local mipCountTypeEnum = STATIC.MIP_COUNT_TYPE
 --#endregion
@@ -92,11 +93,18 @@ INSTANCE.IsTexture = true
 
 	--- @type TextUtils
 	local textUtils = CNC.Import( "sh_text-utils.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type TextureLoaderClass
+	local textureLoaderClass = CNC.Import( "code/ww3d2/texture-loader.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local wW3dFormatEnum = wW3dFileFormatIds.WW3D_FORMAT
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -201,8 +209,11 @@ INSTANCE.IsTexture = true
 
 				if chunkId == ids.W3D_CHUNK_TEXTURE_NAME then
 					local _, readBytes = cload:Read( cload:CurChunkLength() )
-					name = readBytes --[[@as string]]
-					section.Print( "Texture name: ", name )
+					if readBytes == nil then
+						section.Error( "Failed to read texture name" )
+						return
+					end
+					name = deserializeLib.Deserialize( fundamentalDataTypeEnum.String, readBytes )
 
 				elseif chunkId == ids.W3D_CHUNK_TEXTURE_INFO then
 					textureInfo = cload:ReadStruct( "W3dTextureInfoStruct" )
@@ -236,14 +247,14 @@ local DEFAULT_INACTIVATION_TIME = 20000
 --- @field MipMapFilter FilterType
 --- @field UAddressMode TextureAddressMode
 --- @field VAddressMode TextureAddressMode
---- @field D3dTexture ITexture
+--- @field SourceMaterial IMaterial
 --- @field Initialized boolean
 --- @field Name string
 --- @field FullPath string?
 --- @field TextureId any
 --- @field _IsLightmap boolean
 --- @field _IsProcedural boolean
---- @field IsCompressionAllowed boolean
+--- @field _IsCompressionAllowed boolean
 --- @field InactivationTime number "In miliseconds"
 --- @field ExtendedInactivationTime number "This is set by the engine, if needed"
 --- @field LastInactivationSyncTime number
@@ -254,8 +265,8 @@ local DEFAULT_INACTIVATION_TIME = 20000
 --- @field Pool PoolType
 --- @field Dirty boolean
 --- @field MipLevelCount MipCountType
---- @field private TextureLoadTask TextureLoadTaskInstance
---- @field private ThumbnailLoadTask TextureLoadTaskInstance
+--- @field TextureLoadTask TextureLoadTaskInstance
+--- @field ThumbnailLoadTask TextureLoadTaskInstance
 
 --- @overload fun( self: TextureInstance, width: integer, height: integer, format: WW3dFormat, mipLevelCount: MipCountType?, pool: PoolType?, renderTarget: boolean? )
 --- @overload fun( self: TextureInstance, name: string, fullPath: string?, mipLevelCount: MipCountType?, textureFormat: WW3dFormat?, allowCompression: boolean? )
@@ -279,7 +290,6 @@ function INSTANCE:Renegade_Texture( ... )
 		local textureFormat    = args[4] --[[@as WW3dFormat?]] or wW3dFormatEnum.WW3D_FORMAT_UNKNOWN
 		local allowCompression = args[5] --[[@as boolean]] or true
 
-		self.D3dTexture = nil
 		STATIC.UnusedTextureId = STATIC.UnusedTextureId + 1
 		self.TextureId = STATIC.UnusedTextureId
 		self.Initialized = false
@@ -291,10 +301,10 @@ function INSTANCE:Renegade_Texture( ... )
 		self.MipLevelCount = mipLevelCount
 		self.Pool = poolTypeEnum.POOL_MANAGED
 		self.Dirty = false
-		self.IsLightmap = false
-		self.IsProcedural = false
+		self._IsLightmap = false
+		self._IsProcedural = false
 		self.TextureFormat = textureFormat
-		self.IsCompressionAllowed = allowCompression
+		self._IsCompressionAllowed = allowCompression
 		self.TextureLoadTask = nil
 		self.ThumbnailLoadTask = nil
 		self.Width = 0
@@ -352,7 +362,6 @@ function INSTANCE:Renegade_Texture( ... )
 		self:SetFullPath( fullPath )
 		if not wW3dClass.IsTexturingEnabled() then
 			self.Initialized = true
-			self.D3dTexture = nil
 		end
 
 		-- "Find original size from the thumbnail (but don't create thumbnail texture yet!)"
@@ -364,7 +373,9 @@ function INSTANCE:Renegade_Texture( ... )
 		-- "If the thumbnails are not enabled, init the texture at this point to avoid stalling when the mesh is rendered."
 		if not wW3dClass.GetThumbnailEnabled() then
 			-- Omitted checking for DX8 thread
-			self:Init()
+			if CLIENT then
+				self:Init()
+			end
 		end
 	end
 end
