@@ -84,7 +84,7 @@ function INSTANCE:Renegade_BufferedFile( fileName )
     self.Buffer = ""
     self.BufferSize = 0
     self.BufferAvailable = 0
-    self.BufferOffset = 0
+    self.BufferOffset = 1
 end
 
 --- "Default deconstructor for a file object."
@@ -200,6 +200,6 @@ function INSTANCE:ResetBuffer()
         self.Buffer = nil
         self.BufferSize = 0
         self.BufferAvailable = 0
-        self.BufferOffset = 0
+        self.BufferOffset = 1
     end
 end
