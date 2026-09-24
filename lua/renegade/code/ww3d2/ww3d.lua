@@ -62,8 +62,9 @@ STATIC.Class = "WW3DClass"
 	--- @type ShaderClass
 	local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
 
-	--- @type WW3dClass
-	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+	--- @type TextureLoaderClass
+	local textureLoaderClass = CNC.Import( "code/ww3d2/texture-loader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -207,7 +208,21 @@ STATIC.PrelitMode = prelitModeEnum.PRELIT_MODE_LIGHTMAP_MULTI_PASS
 STATIC._ExposePrelit = false
 
 STATIC.SnapshotActivated = false
-STATIC.ThumbnailEnabled = true
+
+
+
+
+-- DEBUG DEBUG
+-- Setting to false to work on texture loading without thumbnails being created first
+-- STATIC.ThumbnailEnabled = true
+STATIC.ThumbnailEnabled = false
+
+
+
+
+
+
+
 
 STATIC.MeshDrawMode = meshDrawModeEnum.MESH_DRAW_MODE_OLD
 STATIC.NPatchesGapFillingMode = nPatchesGapFillingModeEnum.NPATCHES_GAP_FILLING_ENABLED

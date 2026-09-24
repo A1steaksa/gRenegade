@@ -30,6 +30,9 @@ INSTANCE.IsMixFileFactory = true
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type CrcClass
+	local crcClass = CNC.Import( "code/wwlib/real-crc.lua" )
 --#endregion
 
 --#region Imported Enums
