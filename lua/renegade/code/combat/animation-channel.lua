@@ -170,10 +170,9 @@ end
 --- @param animation HAnimationInstance?
 --- @overload fun( self, name: string )
 function INSTANCE:SetAnimation( animation )
-	typecheck.AssertArgType( INSTANCE.Class, 1, animation, { "string", "HAnimationInstance" } )
 
 	-- ( animation: HAnimationInstance )
-	if typecheck.IsOfType( animation, "HAnimationInstance" ) then
+	if animation == nil or typecheck.IsOfType( animation, "HAnimationInstance" ) then
 		-- "If this is our current anim, bail"
 		if self.Animation == animation then
 			return
