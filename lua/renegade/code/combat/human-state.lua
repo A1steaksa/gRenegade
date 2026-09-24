@@ -19,6 +19,114 @@ INSTANCE.Static = STATIC
 INSTANCE.IsHumanState = true
 
 --#region Exported Enums
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	local enumBuilder = enumBuilderClass.New()
+
+		--- @enum HumanStateType
+	STATIC.HUMAN_STATE_TYPE = {
+		-- "Interruptable states"
+		UPRIGHT	  = enumBuilder:Set( 0 ),
+		LAND	  = enumBuilder:Next(),
+		ANIMATION = enumBuilder:Next(),
+		WOUNDED	  = enumBuilder:Next(),
+		LOITER	  = enumBuilder:Next(),
+
+		-- "Uninterruptable states"
+		AIRBORNE            = enumBuilder:Next(),
+		DIVE                = enumBuilder:Next(),
+		DEATH               = enumBuilder:Next(),
+		LADDER              = enumBuilder:Next(),
+		IN_VEHICLE          = enumBuilder:Next(),
+		TRANSITION          = enumBuilder:Next(),
+		TRANSITION_COMPLETE = enumBuilder:Next(),
+		DESTROY             = enumBuilder:Next(),
+		DEBUG_FLY           = enumBuilder:Next(),
+		ON_FIRE             = enumBuilder:Next(),
+		ON_CHEM             = enumBuilder:Next(),
+		ON_ELECTRIC         = enumBuilder:Next(),
+		ON_CNC_FIRE         = enumBuilder:Next(),
+		ON_CNC_CHEM         = enumBuilder:Next(),
+		LOCKED_ANIMATION    = enumBuilder:Next(),
+
+		HIGHEST_HUMAN_STATE = enumBuilder:Repeat(),
+	}
+	local humanStateTypeEnum = STATIC.HUMAN_STATE_TYPE
+
+	--- @enum HumanStateFlagsType
+	STATIC.HUMAN_STATE_FLAGS_TYPE = {
+        CROUCHED_FLAG = bit.lshift( 1, 0 ),
+        SNIPING_FLAG  = bit.lshift( 1, 1 ),
+        HIGHEST_HUMAN_STATE_FLAGS = bit.lshift( 1, 2 ) - 1,
+	}
+    local humanStateFlagsType = STATIC.HUMAN_STATE_FLAGS_TYPE
+
+	--- @enum HumanSubStateType
+	STATIC.HUMAN_SUB_STATE_TYPE = {
+        SUB_STATE_FORWARD       = bit.lshift( 1, 0 ),
+        SUB_STATE_BACKWARD      = bit.lshift( 1, 1 ),
+        SUB_STATE_UP            = bit.lshift( 1, 2 ),
+        SUB_STATE_DOWN          = bit.lshift( 1, 3 ),
+        SUB_STATE_LEFT          = bit.lshift( 1, 4 ),
+        SUB_STATE_RIGHT         = bit.lshift( 1, 5 ),
+        SUB_STATE_TURN_LEFT     = bit.lshift( 1, 6 ),
+        SUB_STATE_TURN_RIGHT    = bit.lshift( 1, 7 ),
+        SUB_STATE_SLOW          = bit.lshift( 1, 8 ),
+        HIGHEST_HUMAN_SUB_STATE = bit.lshift( 1, 9 ) - 1
+	}
+    local humanSubStateType = STATIC.HUMAN_SUB_STATE_TYPE
+
+	--- @enum HumanOuchType
+	STATIC.HUMAN_OUCH_TYPE = {
+        HEAD_FROM_BEHIND      = enumBuilder:Set( 0 ),
+        HEAD_FROM_FRONT       = enumBuilder:Next(),
+        TORSO_FROM_BEHIND     = enumBuilder:Next(),
+        TORSO_FROM_FRONT      = enumBuilder:Next(),
+        LEFT_ARM_FROM_BEHIND  = enumBuilder:Next(),
+        LEFT_ARM_FROM_FRONT   = enumBuilder:Next(),
+        RIGHT_ARM_FROM_BEHIND = enumBuilder:Next(),
+        RIGHT_ARM_FROM_FRONT  = enumBuilder:Next(),
+        LEFT_LEG_FROM_BEHIND  = enumBuilder:Next(),
+        LEFT_LEG_FROM_FRONT   = enumBuilder:Next(),
+        RIGHT_LEG_FROM_BEHIND = enumBuilder:Next(),
+        RIGHT_LEG_FROM_FRONT  = enumBuilder:Next(),
+        GROIN                 = enumBuilder:Next(),
+        OUCH_FIRE             = enumBuilder:Next(),
+        OUCH_CHEM             = enumBuilder:Next(),
+        OUCH_ELECTRIC         = enumBuilder:Next(),
+        OUCH_SUPER_FIRE       = enumBuilder:Next(),
+	}
+    local humanOuchType = STATIC.HUMAN_OUCH_TYPE
+
+	--- @enum HumanAnimationLegStyle
+    STATIC.HUMAN_ANIM_LEG_STYLE = {
+        LEG_STYLE_STAND                = enumBuilder:Set( 0 ), -- "A0"
+        LEG_STYLE_RUN_FORWARD          = enumBuilder:Next(), -- "A1"
+        LEG_STYLE_RUN_BACKWARD         = enumBuilder:Next(), -- "A2"
+        LEG_STYLE_RUN_LEFT             = enumBuilder:Next(), -- "A3"
+        LEG_STYLE_RUN_RIGHT            = enumBuilder:Next(), -- "A4"
+        LEG_STYLE_TURN_LEFT            = enumBuilder:Next(), -- "A5"
+        LEG_STYLE_TURN_RIGHT           = enumBuilder:Next(), -- "A6"
+        LEG_STYLE_WALK_FORWARD         = enumBuilder:Next(), -- "B1"
+        LEG_STYLE_WALK_BACKWARD        = enumBuilder:Next(), -- "B2"
+        LEG_STYLE_WALK_LEFT            = enumBuilder:Next(), -- "B3"
+        LEG_STYLE_WALK_RIGHT           = enumBuilder:Next(), -- "B4"
+        LEG_STYLE_CROUCH               = enumBuilder:Next(), -- "C0"
+        LEG_STYLE_CROUCH_MOVE_FORWARD  = enumBuilder:Next(), -- "C1"
+        LEG_STYLE_CROUCH_MOVE_BACKWARD = enumBuilder:Next(), -- "C2"
+        LEG_STYLE_CROUCH_MOVE_LEFT     = enumBuilder:Next(), -- "C3"
+        LEG_STYLE_CROUCH_MOVE_RIGHT    = enumBuilder:Next(), -- "C4"
+        LEG_STYLE_CROUCH_TURN_LEFT     = enumBuilder:Next(), -- "C3"
+        LEG_STYLE_CROUCH_TURN_RIGHT    = enumBuilder:Next(), -- "C4"
+        LEG_STYLE_JUMP_UP              = enumBuilder:Next(), -- "D0"
+        LEG_STYLE_JUMP_FORWARD         = enumBuilder:Next(), -- "D1"
+        LEG_STYLE_JUMP_BACKWARD        = enumBuilder:Next(), -- "D2"
+        LEG_STYLE_JUMP_LEFT            = enumBuilder:Next(), -- "D3"
+        LEG_STYLE_JUMP_RIGHT           = enumBuilder:Next(), -- "D4"
+    }
+    local humanAnimationLegStyle = STATIC.HUMAN_ANIM_LEG_STYLE
 --#endregion
 
 --#region Imports
@@ -82,6 +190,100 @@ end
 
 	STATIC.MOVING_THRESHOLD = 0.2
 	STATIC.WALKING_THRESHOLD = 3.21
+
+	STATIC.LegAnimationNames = {
+        "A0", --- "LEG_STYLE_STAND"
+        "A1", --- "LEG_STYLE_RUN_FORWARD"
+        "A2", --- "LEG_STYLE_RUN_BACKWARD"
+        "A3", --- "LEG_STYLE_RUN_LEFT"
+        "A4", --- "LEG_STYLE_RUN_RIGHT"
+        "A5", --- "LEG_STYLE_TURN_LEFT"
+        "A6", --- "LEG_STYLE_TURN_RIGHT"
+        "B1", --- "LEG_STYLE_WALK_FORWARD"
+        "B2", --- "LEG_STYLE_WALK_BACKWARD"
+        "B3", --- "LEG_STYLE_WALK_LEFT"
+        "B4", --- "LEG_STYLE_WALK_RIGHT"
+        "C0", --- "LEG_STYLE_CROUCH"
+        "C1", --- "LEG_STYLE_CROUCH_MOVE_FORWARD"
+        "C2", --- "LEG_STYLE_CROUCH_MOVE_BACKWARD"
+        "C3", --- "LEG_STYLE_CROUCH_MOVE_LEFT"
+        "C4", --- "LEG_STYLE_CROUCH_MOVE_RIGHT"
+        "C5", --- "LEG_STYLE_CROUCH_TURN_LEFT"
+        "C6", --- "LEG_STYLE_CROUCH_TURN_RIGHT"
+        "J0", --- "LEG_STYLE_JUMP_UP"
+        "J1", --- "LEG_STYLE_JUMP_FORWARD"
+        "J2", --- "LEG_STYLE_JUMP_BACKWARD"
+        "J3", --- "LEG_STYLE_JUMP_LEFT"
+        "J4", --- "LEG_STYLE_JUMP_RIGHT"
+    }
+
+    STATIC.WeaponStyleNames = {
+        "A0", --- "WEAPON_HOLD_STYLE_C4"
+        "A0", --- "WEAPON_HOLD_STYLE_NOT_USED"
+        "C2", --- "WEAPON_HOLD_STYLE_AT_SHOULDER"
+        "D2", --- "WEAPON_HOLD_STYLE_AT_HIP"
+        "E2", --- "WEAPON_HOLD_STYLE_LAUNCHER"
+        "F2", --- "WEAPON_HOLD_STYLE_HANDGUN"
+        "A0", --- "WEAPON_HOLD_STYLE_BEACO"
+        "A0", --- "WEAPON_HOLD_STYLE_EMPTY_HANDS"
+        "B0", --- "WEAPON_HOLD_STYLE_AT_CHEST"
+        "A0", --- "WEAPON_HOLD_STYLE_HANDS_DOWN"
+    }
+
+    STATIC.DiveAnimations = {
+        -- "Forwrd Anims"
+		"S_A_HUMAN.H_A_SLD1_01",
+		"S_A_HUMAN.H_A_SLD1_02",
+
+        -- "Backward anims"
+        "S_A_HUMAN.H_A_SLD2_01",
+        "S_A_HUMAN.H_A_SLD2_02",
+
+        -- "Left anims"
+        "S_A_HUMAN.H_A_SLD3_01",
+        "S_A_HUMAN.H_A_SLD3_02",
+
+        -- "Right Anims"
+        "S_A_HUMAN.H_A_SLD4_01",
+        "S_A_HUMAN.H_A_SLD4_02",
+    }
+
+    STATIC.WoundAnimations = {
+        "S_A_HUMAN.H_A_811A",	-- "HEAD_FROM_BEHIND"       
+        "S_A_HUMAN.H_A_812A",	-- "HEAD_FROM_FRONT"        
+        "S_A_HUMAN.H_A_821A",	-- "TORSO_FROM_BEHIND"      
+        "S_A_HUMAN.H_A_822A",	-- "TORSO_FROM_FRONT"       
+        "S_A_HUMAN.H_A_831A",	-- "LEFT_ARM_FROM_BEHIND"   
+        "S_A_HUMAN.H_A_832A",	-- "LEFT_ARM_FROM_FRONT"    
+        "S_A_HUMAN.H_A_841A",	-- "RIGHT_ARM_FROM_BEHIND"  
+        "S_A_HUMAN.H_A_842A",	-- "RIGHT_ARM_FROM_FRONT"   
+        "S_A_HUMAN.H_A_851A",	-- "LEFT_LEG_FROM_BEHIND"   
+        "S_A_HUMAN.H_A_852A",	-- "LEFT_LEG_FROM_FRONT"    
+        "S_A_HUMAN.H_A_861A",	-- "RIGHT_LEG_FROM_BEHIND"  
+        "S_A_HUMAN.H_A_862A",	-- "RIGHT_LEG_FROM_FRONT"   
+        "S_A_HUMAN.H_A_871A",	-- "GROIN"                  
+    }
+
+    STATIC.DeathAnimations = {
+        "S_A_HUMAN.H_A_622A",	-- "HEAD_FROM_BEHIND"
+        "S_A_HUMAN.H_A_635A",	-- "HEAD_FROM_FRONT"
+        "S_A_HUMAN.H_A_622A",	-- "TORSO_FROM_BEHIND"
+        "S_A_HUMAN.H_A_632A",	-- "TORSO_FROM_FRONT"
+        "S_A_HUMAN.H_A_623A",	-- "LEFT_ARM_FROM_BEHIND"
+        "S_A_HUMAN.H_A_634A",	-- "LEFT_ARM_FROM_FRONT"
+        "S_A_HUMAN.H_A_624A",	-- "RIGHT_ARM_FROM_BEHIND"
+        "S_A_HUMAN.H_A_633A",	-- "RIGHT_ARM_FROM_FRONT"
+        "S_A_HUMAN.H_A_623A",	-- "LEFT_LEG_FROM_BEHIND"
+        "S_A_HUMAN.H_A_634A",	-- "LEFT_LEG_FROM_FRONT"
+        "S_A_HUMAN.H_A_624A",	-- "RIGHT_LEG_FROM_BEHIND"
+        "S_A_HUMAN.H_A_633A",	-- "RIGHT_LEG_FROM_FRONT"
+        "S_A_HUMAN.H_A_612A",	-- "GROIN"
+        "S_A_HUMAN.H_A_FLMB",	-- "ON_FIRE"
+        "S_A_HUMAN.H_A_FLMB",	-- "ON_CHEM"
+        "S_A_HUMAN.H_A_FLMB",	-- "ON_ELECTRIC"
+        "S_A_HUMAN.H_A_FLMB",	-- "ON_CNC_FIRE"
+        "S_A_HUMAN.H_A_FLMB",	-- "ON_CNC_CHEM"
+    }
 
     --- Creates a new HumanStateInstance
     --- @return HumanStateInstance
