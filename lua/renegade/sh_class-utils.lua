@@ -31,8 +31,16 @@ function LIB.InitializeTypeArray( dataType, count )
 
     -- Classes
     if isstring( dataType ) then
-        for index = 1, count do
-            result[index] = robustclass.Create( dataType )
+        --- @cast dataType string
+
+        if robustclass.IsClassRegistered( dataType ) then
+            for index = 1, count do
+                result[index] = robustclass.Create( dataType )
+            end
+        else
+            for index = 1, count do
+                result[index] = {}
+            end
         end
 
     -- Fundamental data types
