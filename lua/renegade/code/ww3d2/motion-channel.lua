@@ -33,6 +33,7 @@ INSTANCE.IsMotionChannel = true
 --#region Imported Enums
 
 	local animationChannelEnum = w3dFileIds.ANIMATION_CHANNEL
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -55,6 +56,22 @@ INSTANCE.IsMotionChannel = true
     end
 
     typecheck.RegisterType( "MotionChannelInstance", STATIC.IsMotionChannel )
+
+    function STATIC.StaticConstructor()
+        deserializeLib.RegisterComplexDataType( "MotionChannelInstance", {
+			{ Name = "PivotIndex",     DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "Type",           DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "VectorLength",   DataType = fundamentalDataTypeEnum.Int },
+
+            { Name = "ValueOffset",    DataType = fundamentalDataTypeEnum.Float },
+            { Name = "ValueScale",     DataType = fundamentalDataTypeEnum.Float },
+            { Name = "CompressedData", DataType = fundamentalDataTypeEnum.Pointer },
+
+            { Name = "Data",           DataType = fundamentalDataTypeEnum.Pointer },
+            { Name = "FirstFrame",     DataType = fundamentalDataTypeEnum.Int },
+            { Name = "LastFrame",      DataType = fundamentalDataTypeEnum.Int },
+		} )
+    end
 end
 
 
