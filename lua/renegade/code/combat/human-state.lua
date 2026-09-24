@@ -139,23 +139,32 @@ INSTANCE.IsHumanState = true
 
 	--- @type WeaponClass
 	local weaponClass = CNC.Import( "code/combat/weapon.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type PhysicalGameObjectClass
+	local physicalGameObjectClass = CNC.Import( "code/combat/physical-game-object.lua" )
+
+	--- @type HumanStateClass
+	local humanStateClass = CNC.Import( "code/combat/human-state.lua" )
+
+	--- @type GameTypeClass
+	local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
 --#endregion
 
 --#region Imported Enums
 
-	local humanStateTypeEnum = humanAnimationControlClass.HUMAN_STATE_TYPE
+	local humanStateTypeEnum = humanStateClass.HUMAN_STATE_TYPE
 	local weaponHoldStyleTypeEnum = weaponClass.WEAPON_HOLD_STYLE_TYPE
-	local humanStateFlagsTypeEnum = humanAnimationControlClass.HUMAN_STATE_FLAGS_TYPE
-	local humanSubStateTypeEnum = humanAnimationControlClass.HUMAN_SUB_STATE_TYPE
+	local humanStateFlagsTypeEnum = humanStateClass.HUMAN_STATE_FLAGS_TYPE
+	local humanSubStateTypeEnum = humanStateClass.HUMAN_SUB_STATE_TYPE
+	local animationControlAnimationModeEnum = humanAnimationControlClass.ANIMATION_CONTROL_ANIMATION_MODE
+	local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
 --#endregion
 
 
 --[[ Chunk IDs ]] do
-
-	--- @type EnumBuilderClass
-	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
-
-    local enumBuilder = enumBuilderClass.New()
 
     STATIC.ChunkIds = {
         CHUNKID_VARIABLES   	 = enumBuilder:Set( 915991207 ),
@@ -321,8 +330,8 @@ end
 --- @field State HumanStateType
 --- @field StateTimer number
 --- @field StateFlags integer
---- @field SubState integer
---- @field WeaponHoldStyle integer "How is he holding his weapon?"
+--- @field SubState integer|HumanSubStateType
+--- @field WeaponHoldStyle WeaponHoldStyleType "How is he holding his weapon?"
 --- @field WeaponHoldTimer number "How long until we lower the weapon?"
 --- @field LoitersAllowed boolean
 --- @field LoiterDelay number
@@ -603,6 +612,7 @@ function INSTANCE:UpdateState()
 end
 
 function INSTANCE:PostThink()
+
 	-- "  
 	-- Update [SubState] per movement
 	-- do it for upright, land, ladder, airborne,
