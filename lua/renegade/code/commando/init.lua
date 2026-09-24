@@ -59,9 +59,6 @@ end
 	--- @type CombatManagerClass
 	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-	--- @type MainLoopClass
-	local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
-
 	--- @type FileFactoryClass
 	local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 
@@ -73,15 +70,6 @@ end
 
 	--- @type FileFactoryListClass
 	local fileFactoryListClass = CNC.Import( "code/combat/file-factory-list.lua" )
-
-	--- @type ChunkLoadClass
-	local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
-
-	--- @type FileClass
-	local fileClass = CNC.Import( "code/wwlib/file.lua" )
-
-	--- @type SaveLoadSystemClass
-	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
 	--- @type Ww3dAssetManagerClass
 	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
@@ -98,7 +86,6 @@ end
 
 --#region Imported Enums
 
-	local fileRightsEnum = fileClass.FILE_RIGHTS
 	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 --#endregion
 
