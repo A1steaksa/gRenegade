@@ -36,12 +36,34 @@ INSTANCE.IsHRawAnimation = true
 
 	--- @type MotionChannelClass
 	local motionChannelClass = CNC.Import( "code/ww3d2/motion-channel.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type QuaternionClass
+	local quaternionClass = CNC.Import( "code/wwmath/quaternion.lua" )
+
+	--- @type BitChannelClass
+	local bitChannelClass = CNC.Import( "code/ww3d2/bit-channel.lua" )
+
+	--- @type ClassUtils
+	local classUtils = CNC.Import( "sh_class-utils.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type WWMathClass
+	local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local hRawAnimationLoadResultEnum = hAnimationManagerClass.H_RAW_ANIMATION_LOAD_RESULT
 	local w3dChunkTypeEnum = w3dFileIds.W3D_CHUNK_TYPE
+	local animationChannelEnum = w3dFileIds.ANIMATION_CHANNEL
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -64,17 +86,32 @@ INSTANCE.IsHRawAnimation = true
     end
 
     typecheck.RegisterType( "HRawAnimationInstance", STATIC.IsHRawAnimation )
+
+	function STATIC.StaticConstructor()
+
+		--- @class NodeMotionStruct
+		--- @field X MotionChannelInstance
+		--- @field Y MotionChannelInstance
+		--- @field Z MotionChannelInstance
+		--- @field XR MotionChannelInstance
+		--- @field YR MotionChannelInstance
+		--- @field ZR MotionChannelInstance
+		--- @field Q MotionChannelInstance
+		--- @field Visibility BitChannelInstance
+		deserializeLib.RegisterComplexDataType( "NodeMotionStruct", {
+			{ Name = "X",  DataType = "MotionChannelInstance" },
+			{ Name = "Y",  DataType = "MotionChannelInstance" },
+			{ Name = "Z",  DataType = "MotionChannelInstance" },
+			{ Name = "XR", DataType = "MotionChannelInstance" },
+			{ Name = "YR", DataType = "MotionChannelInstance" },
+			{ Name = "ZR", DataType = "MotionChannelInstance" },
+			{ Name = "Q",  DataType = "MotionChannelInstance" },
+			{ Name = "Visibility", DataType = "BitChannelInstance" },
+		} )
+
+	end
 end
 
---- @class NodeMotionStruct
---- @field X MotionChannelInstance
---- @field Y MotionChannelInstance
---- @field Z MotionChannelInstance
---- @field XR MotionChannelInstance
---- @field YR MotionChannelInstance
---- @field ZR MotionChannelInstance
---- @field Q MotionChannelInstance
---- @field Visibility BitChannelInstance
 
 --- @class HRawAnimationInstance
 --- @field Name string
