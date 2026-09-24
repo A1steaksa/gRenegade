@@ -132,52 +132,34 @@ function INSTANCE:SetAnimation( ... )
     local args = {...}
     local argCount = select( "#", ... )
 
-    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 3, 4 } )
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2, 3, 4 } )
 
     local arg1 = args[1]
 
-    if argCount == 3 then
+    -- ( animation: HAnimationInstance, blendTime: number?, startFrame: number? )
+    if typecheck.IsOfType( arg1, "HAnimationInstance" ) then
+        local animation  = arg1    --[[@as HAnimationInstance]]
+        local blendTime  = args[2] --[[@as number]] or 0.0
+        local startFrame = args[3] --[[@as number]] or 0.0
 
-        -- ( name: string, blendTime: number?, startFrame: number? )
-        if typecheck.IsOfType( arg1, "string" ) then
-            local name       = arg1    --[[@as string]]
-            local blendTime  = args[2] --[[@as number]] or 0.0
-            local startFrame = args[3] --[[@as number]] or 0.0
+        typecheck.AssertArgType( INSTANCE.Class, 1, animation,  "HAnimationInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, blendTime,  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, startFrame, "number" )
 
-            typecheck.AssertArgType( INSTANCE.Class, 1, name,       "string" )
-            typecheck.AssertArgType( INSTANCE.Class, 2, blendTime,  "number" )
-            typecheck.AssertArgType( INSTANCE.Class, 3, startFrame, "number" )
-
-            local newName = self:BuildSkeletonAnimationName( name )
-
-            self.Channel1:SetAnimation( newName, blendTime, startFrame )
-            self.Channel2:SetAnimation( nil )
-            self.Channel2Ratio = 0
-            return
-
-        -- ( animation: HAnimationInstance, blendTime: number?, startFrame: number? )
+        if animation ~= nil then
+            self:SetAnimation( animation:GetName(), blendTime, startFrame )
         else
-            local animation  = arg1    --[[@as HAnimationInstance]]
-            local blendTime  = args[2] --[[@as number]] or 0.0
-            local startFrame = args[3] --[[@as number]] or 0.0
-
-            typecheck.AssertArgType( INSTANCE.Class, 1, animation,  "HAnimationInstance" )
-            typecheck.AssertArgType( INSTANCE.Class, 2, blendTime,  "number" )
-            typecheck.AssertArgType( INSTANCE.Class, 3, startFrame, "number" )
-
-            if animation ~= nil then
-                self:SetAnimation( animation:GetName(), blendTime, startFrame )
-            else
-                self:SetAnimation( nil, blendTime, startFrame )
-            end
-            return
+            self:SetAnimation( nil, blendTime, startFrame )
         end
+        return
     end
 
+    local arg2 = args[2]
+
     -- ( name1: string, name2: string, ratio: number, blendTime: number? )
-    if argCount == 4 then
+    if typecheck.IsOfType( arg2, "string" ) then
         local name1     = arg1    --[[@as string]]
-        local name2     = args[2] --[[@as string]]
+        local name2     = arg2    --[[@as string]]
         local ratio     = args[3] --[[@as number]]
         local blendTime = args[4] --[[@as number]] or 0.0
 
@@ -204,6 +186,21 @@ function INSTANCE:SetAnimation( ... )
         self.Channel2Ratio = ratio
         return
     end
+
+    -- ( name: string, blendTime: number?, startFrame: number? )
+    local name       = arg1    --[[@as string]]
+    local blendTime  = arg2    --[[@as number]] or 0.0
+    local startFrame = args[3] --[[@as number]] or 0.0
+
+    typecheck.AssertArgType( INSTANCE.Class, 1, name,       "string" )
+    typecheck.AssertArgType( INSTANCE.Class, 2, blendTime,  "number" )
+    typecheck.AssertArgType( INSTANCE.Class, 3, startFrame, "number" )
+
+    local newName = self:BuildSkeletonAnimationName( name )
+
+    self.Channel1:SetAnimation( newName, blendTime, startFrame )
+    self.Channel2:SetAnimation( nil )
+    self.Channel2Ratio = 0
 end
 
 --- @param mode AnimationControlAnimationMode
