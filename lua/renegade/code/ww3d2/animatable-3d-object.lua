@@ -288,7 +288,7 @@ function INSTANCE:SetAnimation( ... )
 	if argCount == 2 or argCount == 3 then
 		local motion = args[1] --[[@as HAnimationInstance]]
 		local frame  = args[2] --[[@as number]]
-		local mode 	 = args[3] and args[3] or renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
+		local mode 	 = args[3] ~= nil and args[3] or renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
 
 		if motion then
 			self:Release()
