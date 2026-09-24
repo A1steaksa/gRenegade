@@ -33,6 +33,9 @@ INSTANCE.IsPhysics = true
 
 	--- @type Ww3dAssetManagerClass
 	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type PhysicsSceneClass
+	local physicsSceneClass = CNC.Import( "code/wwphys/physics-scene.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -360,29 +363,26 @@ end
 
     --- @param model RenderObjectInstance
     function INSTANCE:SetModel( model )
-
-        -- Omitted the majority of the function
-
-        -- local theScene = physicsSceneClass.GetInstance()
-        -- local inScene = theScene:Contains( self )
+        local theScene = physicsSceneClass.GetInstance()
+        local inScene = theScene:Contains( self )
 
         if self.Model then
             -- "If we had an old model, copy the transform"
             if model then
                 model:SetTransform( self.Model:GetTransform() )
             end
-            -- if inScene then
-            --     self.Model:NotifyRemoved( theScene )
-            -- end
+            if inScene then
+                self.Model:NotifyRemoved( theScene )
+            end
         end
 
         self.Model = model
 
-        -- if self.Model then
-        --     if inScene then
-        --         self.Model:NotifyAdded( theScene )
-        --     end
-        -- end
+        if self.Model then
+            if inScene then
+                self.Model:NotifyAdded( theScene )
+            end
+        end
 
         if self.Definition ~= nil and self.Definition.IsPreLit then
             self:EnableIsPreLit( true )
