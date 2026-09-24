@@ -86,14 +86,41 @@ function INSTANCE:GetVector( frame, setVector, vectorIndex )
         local vFrame = frame - self.FirstFrame
 
         if self.Data then
-            for i = 1, self.VectorLength do
-                setVector[i] = self.Data[vFrame * self.VectorLength + i]
+
+            -- Load a Vector
+            if self.VectorLength == 1 then
+                --- @cast setVector Vector
+
+                if vectorIndex == nil then
+                    section.Error( "Cannot retrieve vector axis without a vector index value!" )
+                    return
+                end
+
+                local index = vFrame + 1
+                if self.Data[index] ~= nil then
+                    setVector[vectorIndex] = self.Data[index]
+                end
+
+            -- Load a Quaternion
+            elseif self.VectorLength == 4 then
+                --- @cast setVector QuaternionInstance
+
+                local baseIndex = vFrame * 4 + 1
+                setVector[1] = self.Data[baseIndex + 0]
+                setVector[2] = self.Data[baseIndex + 1]
+                setVector[3] = self.Data[baseIndex + 2]
+                setVector[4] = self.Data[baseIndex + 3]
+            else
+                section.Error( "Unsupported Vector Length: ", self.VectorLength )
+                return
             end
         else
             local scale = self.ValueScale / 65535.0
             for i = 1, self.VectorLength do
                 local value = self.CompressedData[vFrame * self.VectorLength + i]
-                setVector[i] = value * scale + self.ValueOffset
+                if value ~= nil then
+                    setVector[i] = value * scale + self.ValueOffset
+                end
             end
         end
     end
