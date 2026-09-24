@@ -186,7 +186,7 @@ STATIC.Class = "CombatManagerClass"
 
         -- surfaceEffectsManagerClass.Init()
 
-        -- objectiveManagerClass.Init()
+        objectiveManagerClass.Init()
 
         -- combatSoundManagerClass.Init()
 
