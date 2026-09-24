@@ -162,10 +162,35 @@ function INSTANCE:LoadW3d( cload )
 
 		if id == w3dChunkTypeEnum.W3D_CHUNK_ANIMATION_CHANNEL then
 			didSucceed, newChannel = self:ReadChannel( cload, pre30 )
+			if not didSucceed then
+				return hRawAnimationLoadResultEnum.LOAD_ERROR
+			end
 
+			-- "
+			-- (gth) if the channel is referring to a node which is outside the range, just throw away the channel.  
+			-- This probably means the animation must be re-exported  
+			-- "
+			if newChannel:GetPivot() <= self.NumNodes then
+				self:AddChannel( newChannel )
+			else
+				section.Warn( "Animation ", self.Name, " referring to missing Bone!  Please re-export." )
+			end
 
 		elseif id == w3dChunkTypeEnum.W3D_CHUNK_BIT_CHANNEL then
+			didSucceed, newBitChannel = self:ReadBitChannel( cload, pre30 )
+			if not didSucceed then
+				return hRawAnimationLoadResultEnum.LOAD_ERROR
+			end
 
+			-- "
+			-- (gth) if the channel is referring to a node which is outside the range, just throw away the channel.  
+			-- This probably means the animation must be re-exported  
+			-- "
+			if newBitChannel:GetPivot() < self.NumNodes then
+				self:AddBitChannel( newBitChannel )
+			else
+				section.Warn( "Animation ", self.Name, " referring to missing Bone!  Please re-export." )
+			end
 		end
 
 		cload:CloseChunk()
