@@ -79,7 +79,7 @@ function INSTANCE:_Renegade_FileFactory()
 end
 
 --- @param fileName string
---- @return FileInstance?
+--- @return FileInstance
 function INSTANCE:GetFile( fileName )
     return CNC.VirtualFunction() --[[@as FileInstance]]
 end

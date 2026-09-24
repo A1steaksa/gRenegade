@@ -241,9 +241,11 @@ function INSTANCE:GetTargetingPos()
 end
 
 --- @param pos Vector
---- @param doTilt boolean
+--- @param doTilt boolean? [Default: `true`]
 --- @return boolean
 function INSTANCE:SetTargeting( pos, doTilt )
+	if doTilt == nil then doTilt = true end
+
 	self.TargetingPos = pos
 	-- "Move the turret to match the target"
 	return true

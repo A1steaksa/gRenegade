@@ -75,7 +75,7 @@ function INSTANCE:Renegade_HAnimationComboData( shared )
 
 		self.Shared = shared
 		self.HAnimation = hAnimationClass.New()
-		self.PivotMap = {}
+		self.PivotMap = nil
 		self.Frame = 0
 		self.PreviousFrame = 0
 		self.Weight = 1

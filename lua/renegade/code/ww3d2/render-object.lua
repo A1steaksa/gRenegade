@@ -567,7 +567,8 @@ function INSTANCE:GetBoneTransform( bone )
     return ( INSTANCE.GetTransform( self ) )
 end
 
-function INSTANCE:CaptureBone()
+--- @param boneIndex integer
+function INSTANCE:CaptureBone( boneIndex )
     -- Empty in the original code
 end
 

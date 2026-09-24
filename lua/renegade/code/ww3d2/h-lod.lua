@@ -550,7 +550,7 @@ end
 
 --- @overload fun( self )
 --- @overload fun( self, animationCombo: HAnimationComboInstance )
---- @overload fun( self, motion: HAnimationInstance, frame: number, mode: integer )
+--- @overload fun( self, motion: HAnimationInstance, frame: number, mode: integer? )
 --- @overload fun( self, motion0: HAnimationInstance, fram0: number, motion1: HAnimationInstance, frame1: number, percentage: number )
 function INSTANCE:SetAnimation( ... )
 	animatable3dObjectClass.Instance.SetAnimation( self, ... )

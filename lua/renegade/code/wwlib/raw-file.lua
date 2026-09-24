@@ -131,6 +131,8 @@ end
 --- @param isForced boolean
 --- @return boolean
 function INSTANCE:IsAvailable( isForced )
+    if isForced == nil then isForced = false end
+
     if self.Filename:len() == 0 then
         return false
     end
@@ -284,7 +286,7 @@ end
 --- @param direction SeekDirection? [Default: `SEEK_CUR`] "The relative position to relate the seek to. This can be either `SEEK_SET` for the beginning of the file, `SEEK_CUR` for the current position, or `SEEK_END` for the end of the file.
 --- @return integer "...the position that the seek ended up at."
 function INSTANCE:Seek( pos, direction )
-    direction = direction or seekDirectionEnum.SEEK_CUR
+    if direction == nil then direction = seekDirectionEnum.SEEK_CUR end
 
     --- "
     --- A file that is biased will have a seek operation modified so that the file appears to
@@ -442,7 +444,7 @@ end
 --- @param pos integer
 --- @param direction SeekDirection
 --- @return integer # "...the new position of the seek operation."
-function INSTANCE:RawSeek( pos, direction )
+function INSTANCE:RawSeek( pos, direction ) 
     -- "If the file isn't opened, then this is a fatal error condition"
     if not self:IsOpen() then
         section.Error( "Cannot seek in closed file: ", self.Filename )
@@ -454,6 +456,7 @@ function INSTANCE:RawSeek( pos, direction )
 
     elseif direction == seekDirectionEnum.SEEK_CUR then
         -- Move by the provided position relative to the current position
+
        self.Handle:Skip( pos )
 
     elseif direction == seekDirectionEnum.SEEK_END then

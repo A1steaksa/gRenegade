@@ -321,7 +321,7 @@ function INSTANCE:ToggleStateFlag( flag )
 	self.StateFlags = bit.bxor( self.StateFlags, flag )
 end
 
---- @param flag integer
+--- @param flag HumanStateFlagsType
 --- @return boolean
 function INSTANCE:GetStateFlag( flag )
 	return bit.band( self.StateFlags, flag ) ~= 0
@@ -747,7 +747,10 @@ function INSTANCE:GetLegMode()
 	return self.AnimationControl:GetProgress() > 0.5
 end
 
-function INSTANCE:GetOuchType()
+--- @param direction Vector
+--- @param collisionBoxName string
+--- @return HumanOuchType
+function INSTANCE:GetOuchType( direction, collisionBoxName )
 	typecheck.NotImplementedError()
 end
 

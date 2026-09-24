@@ -64,7 +64,7 @@ end
 --- @field VectorLength integer "Size of each individual vector"
 --- @field ValueOffset number
 --- @field ValueScale number
---- @field CompressedData integer
+--- @field CompressedData integer[]
 --- @field Data number[] "Pointer to the raw floating point data"
 --- @field FirstFrame integer "First frame which was non-identity"
 --- @field LastFrame integer "Last frame which was non-identity"
@@ -76,8 +76,9 @@ function INSTANCE:DoDataCompression( dataSize )
 end
 
 --- @param frame integer
---- @param setVector number[] The vector table that values will be set into
-function INSTANCE:GetVector( frame, setVector )
+--- @param setVector Vector|number[] The vector that values will be set into
+--- @param vectorIndex integer? [Optional] The index, starting at 1, within the setVector to populate
+function INSTANCE:GetVector( frame, setVector, vectorIndex )
     if frame < self.FirstFrame or frame > self.LastFrame then
         self:SetIdentity( setVector )
         return

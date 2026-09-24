@@ -115,7 +115,7 @@ end
 --- @field DynamicProjectorCullingSystem TypedGridCullSystemClassTexProjectInstance
 --- @field VisibilityTableManager VisibilityTableManagerInstance
 --- @field LightingMode integer
---- @field SceneAmbientLight Vector
+--- @field SceneAmbientLight Color
 --- @field UseSun boolean
 --- @field SunPitch number
 --- @field SunYaw number

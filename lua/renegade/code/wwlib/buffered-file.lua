@@ -41,9 +41,10 @@ INSTANCE.IsBufferedFile = true
     --- @field DesiredBufferSize integer
 
     --- Creates a new BufferedFileInstance
+    --- @param fileName string? (Optional) "The filename to assign to this file object."
     --- @return BufferedFileInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_BufferedFile" )
+    function STATIC.New( fileName )
+        return robustclass.New( "Renegade_BufferedFile", fileName )
     end
 
     --- @param arg any

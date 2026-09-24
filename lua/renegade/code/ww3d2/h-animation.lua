@@ -91,7 +91,10 @@ function INSTANCE:GetTotalTime()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetTranslation()
+--- @param translation Vector The Vector where the translation will be put
+--- @param pivotIndex integer
+--- @param frame number
+function INSTANCE:GetTranslation( translation, pivotIndex, frame )
 	typecheck.NotImplementedError()
 end
 

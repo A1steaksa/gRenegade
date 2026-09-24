@@ -254,10 +254,10 @@ function INSTANCE:GetFlavor()
 	return self.Flavor
 end
 
+--- @param translation Vector The Vector where the translation will be put
 --- @param pivotIndex integer
 --- @param frame number
---- @return Vector
-function INSTANCE:GetTranslation( pivotIndex, frame )
+function INSTANCE:GetTranslation( translation, pivotIndex, frame )
 	typecheck.NotImplementedError()
 end
 
@@ -275,6 +275,8 @@ function INSTANCE:GetTransform( pivotIndex, frame )
 	typecheck.NotImplementedError()
 end
 
+--- @param pivotIndex integer
+--- @param frame number
 --- @return boolean
 function INSTANCE:GetVisibility( pivotIndex, frame )
 	typecheck.NotImplementedError()

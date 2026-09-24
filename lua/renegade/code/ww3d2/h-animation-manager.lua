@@ -104,7 +104,7 @@ function INSTANCE:LoadAnimation( cload )
         return self:LoadCompressedAnimation( cload )
 
     elseif id == w3dChunkTypeEnum.W3D_CHUNK_MORPH_ANIMATION then
-        return self:LoadMorphAnimation()
+        return self:LoadMorphAnimation( cload )
     end
 
     return 0
@@ -202,27 +202,29 @@ end
 
 --- "Load a raw anim"
 --- @param cload ChunkLoadInstance
---- @return integer
+--- @return boolean hasError
 function INSTANCE:LoadRawAnimation( cload )
     local newAnimation = hRawAnimationClass.New()
 
     if newAnimation == nil then
-        return 1
+        return true
     end
 
     if newAnimation:LoadW3d( cload ) ~= hRawAnimationLoadResultEnum.OK then
         -- "Load failed!"
-        return 1
+        return true
     elseif self:PeekAnimation( newAnimation:GetName() ) ~= nil then
         -- "Duplicate exists"
-        return 1
+        return true
     else
         self:AddAnimation( newAnimation )
     end
 
-    return 0
+    return false
 end
 
-function INSTANCE:LoadMorphAnimation()
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:LoadMorphAnimation( cload )
 	typecheck.NotImplementedError()
 end

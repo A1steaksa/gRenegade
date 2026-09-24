@@ -101,14 +101,17 @@ function INSTANCE:IsComplete()
 	typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetAnimationName()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTargetFrame()
+--- @param frame number
+function INSTANCE:SetTargetFrame( frame )
 	typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetTargetFrame()
 	typecheck.NotImplementedError()
 end

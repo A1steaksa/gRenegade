@@ -55,7 +55,7 @@ end
 --- @field PolyRenderMode PolyRenderTypeInstance
 --- @field ExtraPassPolyRenderMode ExtraPassPolyRenderTypeInstance
 --- @field FogEnabled boolean
---- @field FogColor Vector
+--- @field FogColor Color
 --- @field FogStart number
 --- @field FogEnd number
 

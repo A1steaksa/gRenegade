@@ -1056,7 +1056,7 @@ function INSTANCE:ReadTextureIds( cload, context )
 		materialDscription:SetSingleTexture( context:PeekTexture( textureId ), pass, stage )
 	else
 		for i = 1, self:GetPolygonCount() do
-			local textureId = cload:Read( fundamentalDataTypeEnum.UInt32 )
+			textureId = cload:Read( fundamentalDataTypeEnum.UInt32 )
 			if textureId ~= 0xffffffff then
 				materialDscription:SetTexture( i, context:PeekTexture( textureId ), pass, stage )
 			end

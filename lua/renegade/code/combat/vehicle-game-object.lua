@@ -160,7 +160,11 @@ function INSTANCE:GetWeaponControlOwner()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTargeting()
+--- @param targetPos Vector
+--- @param doTilt boolean? [Default: `true`]
+function INSTANCE:SetTargeting( targetPos, doTilt )
+	if doTilt == nil then doTilt = true end
+
 	typecheck.NotImplementedError()
 end
 
