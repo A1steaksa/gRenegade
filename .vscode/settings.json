@@ -1,6 +1,5 @@
 {
     "Lua.workspace.library": [
-        "SNIP",
         "${addons}/garrysmod/module/library"
     ],
     "Lua.runtime.version": "LuaJIT",

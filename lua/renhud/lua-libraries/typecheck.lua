@@ -93,13 +93,15 @@ end
         --- @param arg any
         --- @param expectedArgTypes string|string[]
         function LIB.AssertArgType( className, argNumber, arg, expectedArgTypes )
-            local functionName = LIB.GetCallerFunctionName()
+            if isstring( expectedArgTypes ) then expectedArgTypes = { expectedArgTypes --[[@as string]] } end
 
-            local expectedTypes = LIB.EnsureStringTable( expectedArgTypes )
-            expectedTypes = LIB.CleanStrings( expectedTypes )
+            for index = 1, #expectedArgTypes do
+                expectedArgTypes[index] = expectedArgTypes[index]:lower():Trim()
+            end
 
-            if not LIB.IsOfType( arg, expectedTypes ) then
-                LIB.ArgumentTypeError( className, functionName, argNumber, LIB.GetType( arg ), expectedTypes  )
+            if not LIB.IsOfType( arg, expectedArgTypes ) then
+                local functionName = LIB.GetCallerFunctionName()
+                LIB.ArgumentTypeError( className, functionName, argNumber, LIB.GetType( arg ), expectedArgTypes  )
             end
         end
 
@@ -245,19 +247,6 @@ end
 
             -- If none of the custom types matched, it's just a normal table
             return "table"
-        end
-
-        --- Trims and lowercases an array of strings
-        --- @param strings string[]
-        --- @return string[]
-        --- @private
-        function LIB.CleanStrings( strings )
-            local results = {}
-            for index = 1, #strings do
-                results[index] = LIB.CleanString( strings[index] )
-            end
-
-            return results
         end
 
         --- Trims and lowercases a given string
