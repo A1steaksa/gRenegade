@@ -112,6 +112,11 @@ function STATIC.RenderPlayerSoldiers()
 	local renderInfo = renderInfoClass.New( combatManagerClass.GetCamera() )
 
 	for ply, soldier in pairs( STATIC.PlayerSoldiers ) do
+
+		if ply == LocalPlayer() and not ply:ShouldDrawLocalPlayer() then
+			continue
+		end
+
 		local physicsObject = soldier.PhysicsObject
 		if physicsObject == nil then return end
 
