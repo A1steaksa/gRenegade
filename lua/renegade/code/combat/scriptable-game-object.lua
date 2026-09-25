@@ -318,7 +318,7 @@ end
 
     function INSTANCE:RemoveAllObservers()
         while #self.Observers ~= 0 do
-            INSTANCE.RemoveObserver( self, self.Observers[0] )
+            INSTANCE.RemoveObserver( self, self.Observers[1] )
         end
     end
 
@@ -351,9 +351,9 @@ end
 
 --[[ Timers ]] do
 
-    --- @param observerId integer
+    --- @param observerId boolean
     --- @param duration number
-    --- @param timerId integer
+    --- @param timerId boolean
     function INSTANCE:StartObserverTimer( observerId, duration, timerId )
         self.ObserverTimerList[#self.ObserverTimerList + 1] = gameObjectObserverTimerClass.New(
             observerId,
@@ -364,8 +364,8 @@ end
 
     --- @param from ScriptableGameObjectInstance
     --- @param delay number
-    --- @param type integer
-    --- @param param integer
+    --- @param type boolean
+    --- @param param boolean
     function INSTANCE:StartCustomTimer( from, delay, type, param )
         self.CustomTimerList[#self.CustomTimerList+1] = gameObjectCustomTimerClass.New(
             from, delay, type, param

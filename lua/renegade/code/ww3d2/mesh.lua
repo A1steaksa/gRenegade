@@ -45,12 +45,25 @@ INSTANCE.IsMesh = true
 
 	--- @type AABoxClass
 	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
+
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+	--- @type W3dFileIds
+	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
+
+	--- @type CollisionMathClass
+	local collisionMathClass = CNC.Import( "code/wwmath/collision-math.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --#region Imported Enums
 
-	local flagsTypeEnum = vertexMaterialClass.FLAGS_TYPE
 	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
+	local meshGeometryFlagsTypeEnum = meshGeometryClass.MESH_GEOMETRY_FLAGS_TYPE
+	local overlapTypeEnum = collisionMathClass.OVERLAP_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -88,6 +101,7 @@ end
 --- @field UserLighting table
 --- @field PolygonRendererList any
 
+
 --- @param src MeshInstance?
 function INSTANCE:Renegade_Mesh( src )
     --- ()
@@ -107,6 +121,7 @@ function INSTANCE:Renegade_Mesh( src )
         typecheck.AssertArgType( self.Class, 2, src, "MeshInstance" )
 
         renderObjectClass.Instance.Renegade_RenderObject( self, src )
+
 
         self.Model = src.Model
         self.DecalMesh = nil
@@ -131,7 +146,7 @@ function INSTANCE:ClassId()
     typecheck.NotImplementedError()
 end
 
---- @return string
+--- @return string?
 function INSTANCE:GetName()
     return self.Model:GetName()
 end
@@ -153,8 +168,44 @@ function INSTANCE:GetNumPolys()
     end
 end
 
-function INSTANCE:Render()
-    typecheck.NotImplementedError()
+--- "Renders this mesh"
+--- @param renderInfo RenderInfoInstance
+--- @param bones VMatrix[]
+function INSTANCE:Render( renderInfo, bones)
+    if self:IsNotHiddenAtAll() == false then
+        return
+    end
+
+    self.Model:RenderSourceMesh( bones )
+
+    -- this is a debug thing to stop wrrors from later in the file while I try to fix soldier models not working
+    do return end
+
+    -- "If static sort lists are enabled and this mesh has a sort level, put it on the list instead of rendering it."
+    local sortLevel = self.Model:GetSortLevel()
+
+    if wW3dClass.AreStaticSortListsEnabled() and sortLevel ~= w3dFileIds.SORT_LEVEL_NONE then
+        wW3dClass.AddToStaticSortList( self, sortLevel )
+
+        -- "Plug in lighting so that when this mesh gets later"
+        self:SetLightingEnvironment( renderInfo.LightEnvironment )
+    else
+
+        -- "Plug in the lighting environment unless we arrived here as part of the static sorting system being flushed"
+        if wW3dClass.AreStaticSortListsEnabled() then
+            self:SetLightingEnvironment( renderInfo.LightEnvironment )
+        end
+
+        local frustum = renderInfo.Camera:GetFrustum()
+
+        if(
+            tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
+            or collisionMathClass.OverlapTest( frustum, self:GetBoundingBox() ) ~= overlapTypeEnum.OUTSIDE
+        ) then
+            -- "If this mesh model has never been rendered, we need to generate the DX8 datastructures"
+            typecheck.NotImplementedError()
+        end
+    end
 end
 
 function INSTANCE:RenderMaterialPass()
@@ -210,8 +261,15 @@ function INSTANCE:Scale()
     typecheck.NotImplementedError()
 end
 
+--- "Returns a pointer to the material info"
+--- @return MaterialInfoInstance?
 function INSTANCE:GetMaterialInfo()
-    typecheck.NotImplementedError()
+    if self.Model then
+        if self.Model.MaterialInfo then
+            return self.Model.MaterialInfo
+        end
+    end
+    return nil
 end
 
 function INSTANCE:GetSortLevel()
@@ -266,8 +324,10 @@ function INSTANCE:GenerateCullingTree()
     typecheck.NotImplementedError()
 end
 
+--- "User access to the mesh model"
+--- @return MeshModelInstance
 function INSTANCE:GetModel()
-    typecheck.NotImplementedError()
+    return self.Model
 end
 
 function INSTANCE:PeekModel()
@@ -294,8 +354,9 @@ function INSTANCE:GetDeformedVertices()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetLightingEnvironment()
-    typecheck.NotImplementedError()
+--- @param lightEnvironment LightEnvironmentInstance
+function INSTANCE:SetLightingEnvironment( lightEnvironment )
+    self.LightEnvironment = lightEnvironment
 end
 
 function INSTANCE:GetLightingEnvironment()
@@ -377,7 +438,7 @@ function INSTANCE:UpdateCachedBoundingVolumes()
     -- If we are camera-aligned or -oriented, we don't know which way we are facing at this point,
     -- so the box we return needs to contain the sphere.  Otherwise do the normal computation.
     -- "
-    if self.Model:GetFlag( flagsTypeEnum.ALIGNED ) or self.Model:GetFlag( flagsTypeEnum.ORIENTED ) then
+    if self.Model:GetFlag( meshGeometryFlagsTypeEnum.ALIGNED ) or self.Model:GetFlag( meshGeometryFlagsTypeEnum.ORIENTED ) then
         self.CachedBoundingBox.Center = self.CachedBoundingSphere.Center
         self.CachedBoundingBox.Extent:SetUnpacked( self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius )
     else

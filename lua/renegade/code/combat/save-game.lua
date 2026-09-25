@@ -341,10 +341,6 @@ end
     --- @param fileName string
     --- @param autoPostLoad boolean
     function STATIC.LoadSaveLoadSystem( fileName, autoPostLoad )
-
-
-        section.Print( Color( 20, 255, 0 ), fileName )
-
         local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
         if file ~= nil then
             file:Open( fileRightsEnum.READ )

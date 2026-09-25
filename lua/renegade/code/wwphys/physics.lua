@@ -3,18 +3,21 @@
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
+--- @type CullableClass
+local cullableClass = CNC.Import( "code/wwmath/cullable.lua" )
+
 --- @type PersistClass
 local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
---- @class PhysicsClass : PersistClass
+--- @class PhysicsClass : CullableClass, PersistClass
 --- @field Instance PhysicsInstance The metatable used by PhysicsInstance
 local STATIC = CNC.CreateExport( persistClass )
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "PhysicsClass"
 
---- @class PhysicsInstance : PersistInstance
+--- @class PhysicsInstance : CullableInstance, PersistInstance
 --- @field Static PhysicsClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_Physics" )
+local INSTANCE = robustclass.Register( "Renegade_Physics : Renegade_Cullable Renegade_Persist" )
 INSTANCE.Class = "PhysicsInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -29,7 +32,10 @@ INSTANCE.IsPhysics = true
 	local textUtils = CNC.Import( "sh_text-utils.lua" )
 
 	--- @type Ww3dAssetManagerClass
-	local wW3DAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type PhysicsSceneClass
+	local physicsSceneClass = CNC.Import( "code/wwphys/physics-scene.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -63,29 +69,22 @@ INSTANCE.IsPhysics = true
         -- Extract the file name without extension from the path
         local lastSlashIndex = textUtils.LastIndexOf( filePath, "\\" )
         local lastDotIndex = textUtils.LastIndexOf( filePath, "." )
-        local renderObjectName = filePath:sub( lastSlashIndex + 1, lastDotIndex - 1 ):lower():TrimRight( "\0" )
+        local renderObjectName = filePath:sub( lastSlashIndex + 1, lastDotIndex - 1 ):lower()
 
-        local sourceModelPath = "models/cnc_renegade/" .. filePath
-        sourceModelPath = sourceModelPath:Replace( "\\", "/" )
-        sourceModelPath = sourceModelPath:Replace( ".w3d", ".mdl" )
-
-        local renderObject = wW3DAssetManagerClass.GetInstance():CreateRenderObject( renderObjectName )
+        local renderObject = ww3dAssetManagerClass.GetInstance():CreateRenderObject( renderObjectName )
         if renderObject == nil then
             section.Error( "Failed to create '", renderObjectName, "' from '", filePath, "'" )
             error() -- To make LuaLS happy
         end
 
         renderObject:SetConnectedEntity( connectedEntity )
-        renderObject:SetSourceModelPath( sourceModelPath )
 
         return renderObject
     end
 
 end
 
-
 --- @class PhysicsInstance
---- @field private ConnectedEntity Entity The Garry's Mod Entity that this object represents
 --- @field Flags integer "Flags for things like whether this object is currently being considered immovable"
 --- @field Model RenderObjectInstance "Render model"
 --- @field Name string? "Optional instance name"
@@ -176,14 +175,13 @@ function INSTANCE:Init( definition, connectedEntity )
     self.Definition = definition
     self.Flags = STATIC.DEFAULT_FLAGS
     if definition.ModelName:len() ~= 0 then
-        --- @type RenderObjectInstance
+        --- @type RenderObjectInstance?
         local model
 
         if definition.ModelName:find( ".", nil, true ) then
             model = STATIC.CreateRenderObjectFromFileName( connectedEntity, definition.ModelName )
         else
-            typecheck.NotImplementedError()
-            -- model = wW3DAssetManagerClass.GetInstance():CreateRenderObject( connectedEntity, definition.ModelName )
+            model = ww3dAssetManagerClass.GetInstance():CreateRenderObject( definition.ModelName )
         end
 
         if model == nil then
@@ -239,7 +237,7 @@ end
 
     --- @return Matrix3dInstance
     function INSTANCE:GetTransform()
-        typecheck.NotImplementedError()
+        CNC.VirtualFunction()
     end
 
     --- @param transformationMatrix Matrix3dInstance
@@ -354,7 +352,8 @@ end
     --- "  
     function INSTANCE:UpdateCullBox()
         if self.Model then
-            self:SetCullBox( self.Model:GetBoundingBox() )
+            local boundingBox = self.Model:GetBoundingBox()
+            self:SetCullBox( boundingBox )
         end
     end
 end
@@ -364,33 +363,26 @@ end
 
     --- @param model RenderObjectInstance
     function INSTANCE:SetModel( model )
-        local connectedEntity = self:GetConnectedEntity()
-        local sourceModel = model:GetSourceModelPath()
-        section.Warn( self.Class, ": '", connectedEntity, "': Setting model '", model, "' using debug code" )
-        connectedEntity:SetModel( sourceModel )
-
-        -- Omitted the majority of the function
-
-        -- local theScene = physicsSceneClass.GetInstance()
-        -- local inScene = theScene:Contains( self )
+        local theScene = physicsSceneClass.GetInstance()
+        local inScene = theScene:Contains( self )
 
         if self.Model then
             -- "If we had an old model, copy the transform"
             if model then
                 model:SetTransform( self.Model:GetTransform() )
             end
-            -- if inScene then
-            --     self.Model:NotifyRemoved( theScene )
-            -- end
+            if inScene then
+                self.Model:NotifyRemoved( theScene )
+            end
         end
 
         self.Model = model
 
-        -- if self.Model then
-        --     if inScene then
-        --         self.Model:NotifyAdded( theScene )
-        --     end
-        -- end
+        if self.Model then
+            if inScene then
+                self.Model:NotifyAdded( theScene )
+            end
+        end
 
         if self.Definition ~= nil and self.Definition.IsPreLit then
             self:EnableIsPreLit( true )
@@ -404,17 +396,12 @@ end
         typecheck.NotImplementedError()
     end
 
-    --- @return string?
+    --- @return RenderObjectInstance?
     function INSTANCE:GetModel()
-        local connectedEntity = self:GetConnectedEntity()
-        if not IsValid( connectedEntity ) then
-            return nil
-        end
-
-        return connectedEntity:GetModel()
+        return self.Model
     end
 
-    --- @return RenderObjectInstance?
+    --- @return RenderObjectInstance
     function INSTANCE:PeekModel()
         return self.Model
     end
@@ -423,12 +410,14 @@ end
 
 --[[ Name ]] do
 
-    function INSTANCE:SetName()
-        typecheck.NotImplementedError()
+    --- @param name string
+    function INSTANCE:SetName( name )
+        self.Name = name
     end
 
+    --- @return string
     function INSTANCE:GetName()
-        typecheck.NotImplementedError()
+        return self.Name
     end
 end
 
@@ -484,12 +473,15 @@ end
 
 --[[ Material Effects ]] do
 
-    function INSTANCE:AddEffectToMe()
-        typecheck.NotImplementedError()
+    --- @param effect MaterialEffectInstance
+    function INSTANCE:AddEffectToMe( effect )
+        table.insert( self.MaterialEffectsOnMe, effect )
     end
 
-    function INSTANCE:RemoveEffectFromMe()
-        typecheck.NotImplementedError()
+    --- @param effect MaterialEffectInstance
+    function INSTANCE:RemoveEffectFromMe( effect )
+        assert( effect ~= nil )
+        table.RemoveByValue( self.MaterialEffectsOnMe, effect )
     end
 
     function INSTANCE:DoAnyEffectsSuppressShadows()
@@ -513,8 +505,9 @@ end
         self.Flags = bit.bor( self.Flags, group )
     end
 
+    --- @return integer
     function INSTANCE:GetCollisionGroup()
-        typecheck.NotImplementedError()
+        return bit.band( self.Flags, STATIC.COLLISION_MASK )
     end
 end
 
@@ -537,12 +530,15 @@ end
 
 --[[ Immovable ]] do
 
-    function INSTANCE:SetImmovable()
-        typecheck.NotImplementedError()
+    --- "The IMMOVABLE state is used to turn off an object's simulation."
+    --- @param onOff boolean
+    function INSTANCE:SetImmovable( onOff )
+        self:SetFlag( STATIC.IMMOVABLE, onOff )
     end
 
+    --- @return boolean
     function INSTANCE:IsImmovable()
-        typecheck.NotImplementedError()
+        return self:GetFlag( STATIC.IMMOVABLE )
     end
 end
 
@@ -573,12 +569,16 @@ end
 
 --[[ User Control ]] do
 
-    function INSTANCE:EnableUserControl()
-        typecheck.NotImplementedError()
+    --- "Enabling this flag makes the physics object ingore all physics and just move according to its controller"  
+    --- @param onOff boolean
+    function INSTANCE:EnableUserControl( onOff )
+        self:SetFlag( STATIC.USERCONTROL, onOff )
+        self:SetFlag( STATIC.ASLEEP, false )
     end
 
+    --- @return boolean
     function INSTANCE:IsUserControlEnabled()
-        typecheck.NotImplementedError()
+        return self:GetFlag( STATIC.USERCONTROL )
     end
 end
 
@@ -647,8 +647,14 @@ end
 
 --[[ Pre-Lit ]] do
 
-    function INSTANCE:EnableIsPreLit()
-        typecheck.NotImplementedError()
+    --- "
+    --- Is Pre-Lit.  
+    --- This flag indicates that this \object has precomputed light maps
+    --- and does not need to have the static lights applied to it.
+    --- "
+    --- @param onOff boolean
+    function INSTANCE:EnableIsPreLit( onOff )
+        self:SetFlag( STATIC.IS_PRE_LIT, onOff )
     end
 
     function INSTANCE:IsPreLit()
@@ -745,94 +751,94 @@ end
 
     --- @return MoveablePhysicsInstance?
     function INSTANCE:AsMoveablePhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     --- @return Physics3Instance?
     function INSTANCE:AsPhysics3()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     --- @return HumanPhysicsInstance?
     function INSTANCE:AsHumanPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     --- @return RigidBodyInstance?
     function INSTANCE:AsRigidBody()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsVehiclePhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsMotorVehicle()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsWheeledVehicle()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsMotorcycle()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsTrackedVehicle()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsVtolVehicle()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsStaticPhyicss()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsStaticAnimationPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsElevatorPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsDamageableStaticPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsDoorPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsDecorationPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsTimedDecorationPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsDynamicAnimationPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsLightPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsRenderObjectPhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsProjectile()
-        typecheck.NotImplementedError()
+        return nil
     end
 
     function INSTANCE:AsAccessiblePhysics()
-        typecheck.NotImplementedError()
+        return nil
     end
 end
 

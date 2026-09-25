@@ -126,7 +126,7 @@ end
 --- @param direction SeekDirection? [Default: `SEEK_CUR`]
 --- @return integer
 function INSTANCE:Seek( pos, direction )
-    direction = direction or seekDirectionEnum.SEEK_CUR
+    if direction == nil then direction = seekDirectionEnum.SEEK_CUR end
 
     typecheck.NotImplementedError()
 end
@@ -137,7 +137,7 @@ function INSTANCE:Tell()
 end
 
 function INSTANCE:Size()
-    typecheck.NotImplementedError()
+    return 0
 end
 
 --- @param buffer string

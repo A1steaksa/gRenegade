@@ -91,12 +91,18 @@ function INSTANCE:GetTotalTime()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetTranslation()
+--- @param translation Vector The Vector where the translation will be put
+--- @param pivotIndex integer
+--- @param frame number
+function INSTANCE:GetTranslation( translation, pivotIndex, frame )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetOrientation()
-	typecheck.NotImplementedError()
+--- @param pivotIndex integer
+--- @param frame number
+--- @return QuaternionInstance
+function INSTANCE:GetOrientation( pivotIndex, frame )
+	CNC.VirtualFunction()
 end
 
 --- @param pivotIndex integer
@@ -106,15 +112,20 @@ function INSTANCE:GetTransform( pivotIndex, frame )
 	CNC.VirtualFunction()
 end
 
-function INSTANCE:GetVisibility()
-	typecheck.NotImplementedError()
+--- @param pivotIndex integer
+--- @param frame number
+--- @return boolean
+function INSTANCE:GetVisibility( pivotIndex, frame )
+	CNC.VirtualFunction()
 end
 
 function INSTANCE:GetNumPivots()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:IsNodeMotionPresent()
+--- @param index integer
+--- @return boolean
+function INSTANCE:IsNodeMotionPresent( index )
 	typecheck.NotImplementedError()
 end
 

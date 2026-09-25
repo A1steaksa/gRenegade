@@ -69,6 +69,12 @@ INSTANCE.IsMeshModel = true
 
 	--- @type TextUtils
 	local textUtils = CNC.Import( "sh_text-utils.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -108,12 +114,13 @@ end
 --- Its purpose is to allow separate instances of a mesh to share as much data as possible.  
 --- "  
 --- @class MeshModelInstance
---- @field DefinitionMataterialDescription MeshMaterialDescriptionInstance "The default material description, allocated in constructor, always present."
+--- @field DefinitionMaterialDescription MeshMaterialDescriptionInstance "The default material description, allocated in constructor, always present."
 --- @field AlternateMaterialDescription MeshMaterialDescriptionInstance "An optional alternate material description, allocated at load time if needed"
 --- @field CurrentMaterialDescription MeshMaterialDescriptionInstance "...the currently active material description"
 --- @field MaterialInfo MaterialInfoInstance "Collection of the unique materials in the mesh"
 --- @field GapFiller GapFillerInstance
 --- @field HasBeenInUse boolean "For debugging purposes!"
+
 
 --- @param that MeshModelInstance?
 function INSTANCE:Renegade_MeshModel( that )
@@ -126,16 +133,16 @@ function INSTANCE:Renegade_MeshModel( that )
 	else
 		meshGeometryClass.Instance.Renegade_MeshGeometry( self )
 
-		self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
+		self.DefinitionMaterialDescription = meshMaterialDescriptionClass.New()
 		self.AlternateMaterialDescription = meshMaterialDescriptionClass.New()
-		self.CurrentMaterialDescription = self.DefinitionMataterialDescription
+		self.CurrentMaterialDescription = self.DefinitionMaterialDescription
 		self.MaterialInfo = materialInfoClass.New()
 		self.GapFiller = nil
 
 		self:SetFlag( meshGeometryFlagsTypeEnum.DIRTY_BOUNDS, true )
 
-		self.DefinitionMataterialDescription = meshMaterialDescriptionClass.New()
-		self.CurrentMaterialDescription = self.DefinitionMataterialDescription
+		self.DefinitionMaterialDescription = meshMaterialDescriptionClass.New()
+		self.CurrentMaterialDescription = self.DefinitionMaterialDescription
 
 		self.MaterialInfo = materialInfoClass.New()
 	end
@@ -153,14 +160,172 @@ function INSTANCE:Reset( polyCount, vertCount, passCount )
 
 	-- "Release everything we have and reset to initial state"
 	self.MaterialInfo:Reset()
-	self.DefinitionMataterialDescription:Reset( polyCount, vertCount, passCount )
+	self.DefinitionMaterialDescription:Reset( polyCount, vertCount, passCount )
 	if self.AlternateMaterialDescription ~= nil then
 		self.AlternateMaterialDescription = nil
 	end
-	self.CurrentMaterialDescription = self.DefinitionMataterialDescription
+	self.CurrentMaterialDescription = self.DefinitionMaterialDescription
 
 	self.GapFiller = nil
 end
+
+
+--[[ Source Engine Integration ]] do
+
+	--- @class MeshModelInstance
+	--- @field SourceMesh IMesh? The Source engine IMesh that this Render Object uses for rendering
+
+    --- Creates, stores, and returns an `IMesh` for this MeshInstance  
+    --- Note: If there is already an IMesh, it will be re-used
+    function INSTANCE:CreateSourceMesh()
+        if self.SourceMatrix == nil then
+            self.SourceMatrix = Matrix()
+            self.SourceMatrix:Identity()
+        end
+
+        local vertices      = self:GetVertexArray()
+        local vertexWeights = self:GetVertexBoneLinks()
+        local triangles     = self:GetPolygonArray()
+        local normals       = self:GetVertexNormalArray()
+        local uvs 	        = self:GetUvArray()
+
+        local isSkeletalMesh = vertexWeights ~= nil and table.Count( vertexWeights ) ~= 0
+
+        local sourceMesh = self.SourceMesh
+        if sourceMesh == nil then
+            if isSkeletalMesh then
+                sourceMesh = Mesh( nil, 2 )
+            else
+                sourceMesh = Mesh( nil )
+            end
+
+            self.SourceMesh = sourceMesh
+        end
+
+		if vertices == nil or vertexWeights == nil or triangles == nil or normals == nil or uvs == nil then
+            return
+        end
+
+        mesh.Begin( sourceMesh, MATERIAL_TRIANGLES, #triangles )
+
+        for triangleIndex = 1, #triangles do
+            -- Each triangle is a Vector whose components are the triangle's three vertex indices
+            local triangleVertexIndices = triangles[triangleIndex]
+
+            -- Each of the triangle's vertex indices needs to be offset by 1 to correct for Lua arrays starting at 1
+            local vertex1Index = triangleVertexIndices[1] + 1
+            local vertex2Index = triangleVertexIndices[2] + 1
+            local vertex3Index = triangleVertexIndices[3] + 1
+
+            -- Each vertex needs to be converted to Source scale
+            local vertex1 = vertices[vertex1Index] * unitConversionLib.MetersToSource
+            local vertex2 = vertices[vertex2Index] * unitConversionLib.MetersToSource
+            local vertex3 = vertices[vertex3Index] * unitConversionLib.MetersToSource
+
+            --[[ Vertex 1 ]] do
+
+                mesh.Position( vertex1 )
+                mesh.Color( 255, 255, 255, 255 )
+                mesh.TexCoord( 0, uvs[vertex1Index].x, uvs[vertex1Index].y )
+                mesh.Normal( normals[vertex1Index] )
+
+                if isSkeletalMesh then
+                    local vertex1BoneIndex = vertexWeights[vertex1Index] + 1
+
+                    mesh.BoneData( 0, vertex1BoneIndex, 1 )
+                    mesh.BoneData( 1, vertex1BoneIndex, 0 )
+                end
+
+                mesh.AdvanceVertex()
+            end
+
+            --[[ Vertex 2 ]] do
+
+                mesh.Position( vertex2 )
+                mesh.Color( 255, 255, 255, 255 )
+                mesh.TexCoord( 0, uvs[vertex2Index].x, uvs[vertex2Index].y )
+                mesh.Normal( normals[vertex2Index] )
+
+                if isSkeletalMesh then
+                    local vertex2BoneIndex = vertexWeights[vertex2Index] + 1
+
+                    mesh.BoneData( 0, vertex2BoneIndex, 1 )
+                    mesh.BoneData( 1, vertex2BoneIndex, 0 )
+                end
+
+                mesh.AdvanceVertex()
+            end
+
+            --[[ Vertex 3 ]] do
+
+                mesh.Position( vertex3 )
+                mesh.Color( 255, 255, 255, 255 )
+                mesh.TexCoord( 0, uvs[vertex3Index].x, uvs[vertex3Index].y )
+                mesh.Normal( normals[vertex3Index] )
+
+                if isSkeletalMesh then
+                    local vertex3BoneIndex = vertexWeights[vertex3Index] + 1
+
+                    mesh.BoneData( 0, vertex3BoneIndex, 1 )
+                    mesh.BoneData( 1, vertex3BoneIndex, 0 )
+                end
+
+                mesh.AdvanceVertex()
+            end
+        end
+
+        mesh.End()
+    end
+
+
+	--- @param bones VMatrix[]? [Optional] The bone matrices to use for rendering if this is a skeletal mesh
+    function INSTANCE:RenderSourceMesh( bones )
+		-- Ensure we have a Source mesh to render
+		local mesh = self.SourceMesh
+        if mesh == nil then
+            self:CreateSourceMesh()
+            mesh = self.SourceMesh
+            if mesh == nil then
+                return
+            end
+        end
+
+		local texture = self.MaterialInfo:GetTexture( 1 )
+		if texture ~= nil then
+			local sourceMaterial = texture.SourceMaterial
+			if sourceMaterial ~= nil then
+				render.SetMaterial( sourceMaterial )
+			else
+				render.SetColorMaterial()
+			end
+		else
+			render.SetColorMaterial()
+		end
+
+        render.OverrideDepthEnable( true, true )
+		render.OverrideAlphaWriteEnable( true, true )
+		render.CullMode( MATERIAL_CULLMODE_CW )
+
+		if bones ~= nil then
+
+			-- A janky way to get lighting to work on the IMesh.
+			-- Not sure why normal lighting doesn't work.
+			local lightingPos = bones[1]:GetTranslation()
+			lightingPos.z = lightingPos.z + 5
+			local lightColor = render.GetLightColor( lightingPos )
+			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
+
+			mesh:DrawSkinned( bones, false )
+		else
+			mesh:Draw()
+		end
+
+		render.CullMode( MATERIAL_CULLMODE_CCW )
+		render.OverrideAlphaWriteEnable( false )
+		render.OverrideDepthEnable( false )
+    end
+end
+
 
 function INSTANCE:RegisterForRendering()
 	typecheck.NotImplementedError()
@@ -180,8 +345,13 @@ function INSTANCE:GetPassCount()
 	return self.CurrentMaterialDescription:GetPassCount()
 end
 
-function INSTANCE:GetUvArray()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: 1]
+--- @param stage integer? [Default: 1]
+function INSTANCE:GetUvArray( pass, stage )
+	pass = ( pass == nil and 1 or pass ) --[[@as integer]]
+	stage = ( stage == nil and 1 or stage ) --[[@as integer]]
+
+	return self.CurrentMaterialDescription:GetUvArray( pass, stage )
 end
 
 function INSTANCE:GetUvArrayCount()
@@ -324,15 +494,12 @@ function INSTANCE:LoadW3d( cload )
 	local context = meshLoadContextClass.New()
 
 	-- Load the header
-	local expectedHeaderByteCount = deserializeLib.GetComplexDataTypeSize( "W3dMeshHeader3Struct" )
-	local readByteCount, headerBytes = cload:Read( expectedHeaderByteCount )
-	if readByteCount ~= expectedHeaderByteCount then
-		section.Warn( self.Class, " - LoadW3d failed to read a header.  Expected ", expectedHeaderByteCount, " bytes but got ", readByteCount, " bytes" )
+	local header = cload:ReadStruct( "W3dMeshHeader3Struct" )
+	if header == nil then
+		section.Warn( INSTANCE.Class, " - LoadW3d failed to read a header." )
 		return wW3dErrorTypeEnum.WW3D_ERROR_LOAD_FAILED
 	end
 	cload:CloseChunk()
-	--- @cast headerBytes string
-	local header = deserializeLib.DeserializeComplexDataType( "W3dMeshHeader3Struct", headerBytes ) --[[@as W3dMeshHeader3Struct]]
 
 	-- "Process the header"
 	context.Header = header
@@ -353,17 +520,17 @@ function INSTANCE:LoadW3d( cload )
 	context.AlternateMaterialDescription:SetPolygonCount( self.PolygonCount )
 
 	-- "Set Bounding Info"
-	self.BoundBoxMax = header.Max
-	self.BoundBoxMin = header.Min
+	self.BoundBoxMax = Vector( header.Max.X, header.Max.Y, header.Max.Z )
+	self.BoundBoxMin = Vector( header.Min.X, header.Min.Y, header.Min.Z )
 
-	self.BoundSphereCenter = header.SphCenter
+	self.BoundSphereCenter = Vector( header.SphCenter.X, header.SphCenter.Y, header.SphCenter.Z )
 	self.BoundSphereRadius = header.SphRadius
 
 	-- "Flags"
-	section.Warn( self.Class, "LoadW3d - Skipping setting flags" )
+	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping setting flags" )
 
 	--"Configure the load sequence for prelighting."
-	section.Warn( self.Class, "LoadW3d - Skipping prelighting" )
+	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping prelighting" )
 
 	self:ReadChunks( cload, context )
 
@@ -371,10 +538,10 @@ function INSTANCE:LoadW3d( cload )
 	-- If this is a pre-3.0 mesh and it has vertex influences,
 	-- fixup the bone indices to account for the new root node
 	-- "
-	section.Warn( self.Class, "LoadW3d - Skipping pre-3.0 mesh checks" )
+	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping pre-3.0 mesh checks" )
 
 	-- "If this mesh is collideable and no AABTree was in the file, generate one now"
-	section.Warn( self.Class, "LoadW3d - Skipping generating culling tree" )
+	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping generating culling tree" )
 
 	--- "Transfer the materials into the MatInfo"
 	self:InstallMaterials( context )
@@ -465,23 +632,17 @@ function INSTANCE:ReadChunks( cload, context )
 
 		if chunkId == ids.W3D_CHUNK_VERTICES then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading Vertices" )
 			error = self:ReadVertices( cload )
-			section.End( "Read ", #self.Vertex, " Vertices" )
 
 		elseif (
 			   chunkId == oldIds.W3D_CHUNK_SURRENDER_NORMALS
 			or chunkId == ids.W3D_CHUNK_VERTEX_NORMALS
 		) then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading Vertex Normals" )
 			error = self:ReadVertexNormals( cload )
-			section.End( "Read ", #self.VertexNorm, " Vertex Normals" )
 
 		elseif chunkId == oldIds.W3D_CHUNK_TEXCOORDS then
-			section.Start( "Reading Texture Coordinates" )
 			error = self:ReadTexCoords( cload, context )
-			section.End()
 
 		elseif (
 			   chunkId == oldIds.O_W3D_CHUNK_MATERIALS
@@ -491,71 +652,47 @@ function INSTANCE:ReadChunks( cload, context )
 
 		elseif chunkId == oldIds.W3D_CHUNK_MATERIALS3 then
 			section.Warn( "Obsolete material chunk encountered in mesh: ", context.Header.ContainerName, ".", context.Header.MeshName )
-			section.Start( "Reading V3 Materials" )
 			error = self:ReadV3Materials( cload, context )
-			section.End()
 
 		elseif chunkId == oldIds.O_W3D_CHUNK_SURRENDER_TRIANGLES then
 			section.Error( "Obsolete Triangle Chunk Encountered!" )
 
 		elseif chunkId == ids.W3D_CHUNK_TRIANGLES then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading Triangles" )
 			error = self:ReadTriangles( cload )
-			section.End( "Read ", #self.Polygons, " Triangles" )
 
 		elseif chunkId == oldIds.W3D_CHUNK_PER_TRI_MATERIALS then
-			section.Start( "Reading Per-Triangle Materials" )
 			error = self:ReadPerTriMaterials( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_MESH_USER_TEXT then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading User Text" )
 			error = self:ReadUserText( cload )
-			section.End()
 
 		elseif chunkId == oldIds.W3D_CHUNK_VERTEX_COLORS then
-			section.Start( "Reading Vertex Colors" )
 			error = self:ReadVertexColors( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_VERTEX_INFLUENCES then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading Vertex Influences" )
 			error = self:ReadVertexInfluences( cload )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_VERTEX_SHADE_INDICES then
 			-- "Call up to [MeshGeometryInstance]"
-			section.Start( "Reading Vertex Shade Indices" )
 			error = self:ReadVertexShadeIndices( cload )
-			section.End( "Read ", #self.VertexShadeIdx, " Vertex shade Indices" )
 
 		elseif chunkId == ids.W3D_CHUNK_MATERIAL_INFO then
-			section.Start( "Reading Material Info" )
 			error = self:ReadMaterialInfo( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_SHADERS then
-			section.Start( "Reading Shaders" )
 			error = self:ReadShaders( cload, context )
-			section.End( "Read ", #context.Shaders, " Shaders" )
 
 		elseif chunkId == ids.W3D_CHUNK_VERTEX_MATERIALS then
-			section.Start( "Reading Vertex Materials" )
 			error = self:ReadVertexMaterials( cload, context )
-			section.End( "Read ", #context.VertexMaterials, " Vertex Materials" )
 
 		elseif chunkId == ids.W3D_CHUNK_TEXTURES then
-			section.Start( "Reading Textures" )
 			error = self:ReadTextures( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_MATERIAL_PASS then
-			section.Start( "Reading Material Passes" )
 			error = self:ReadMaterialPass( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_DEFORM then
 			section.Error( "Obsolete deform chunk encountered in mesh: ", context.Header.ContainerName, ".", context.Header.MeshName )
@@ -569,16 +706,12 @@ function INSTANCE:ReadChunks( cload, context )
 			or chunkId == ids.W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS
 			or chunkId == ids.W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE
 		) then
-			section.Start( "Reading Pre-Lit Material" )
 			self:ReadPrelitMaterial( cload, context )
-			section.End()
 
 		elseif chunkId == ids.W3D_CHUNK_AABTREE then
-			section.Start( "Reading AAB Tree" )
-			section.Warn( "Skipping Reading AAB Tree" )
+			-- section.Warn( INSTANCE.Class, ":ReadChunks - Skipping Reading AAB Tree" )
 			-- Omitted reading AAB tree
 			-- self:ReadAABTree( cload )
-			section.End()
 		end
 
 		cload:CloseChunk()
@@ -606,7 +739,7 @@ function INSTANCE:ReadTexCoords( cload, context )
 	-- NOTE: this is an obsolete function.  Texture coordinates are now
 	-- loaded in the pass chunks
 	-- "  
-	for i = 0, self.VertexCount do
+	for i = 1, self.VertexCount do
 
 		local readByteCount, readBytes = cload:Read( structSize )
 		if readByteCount ~= structSize then
@@ -618,7 +751,7 @@ function INSTANCE:ReadTexCoords( cload, context )
 		uvArray[i] = Vector( texCoord.U, 1.0 - texCoord.V )
 	end
 
-	self.DefinitionMataterialDescription:InstallUvArray( context.CurrentPass, context.CurrentTextureStage, uvArray, elementCount )
+	self.DefinitionMaterialDescription:InstallUvArray( context.CurrentPass, context.CurrentTextureStage, uvArray, elementCount )
 
 	return wW3dErrorTypeEnum.WW3D_ERROR_OK
 end
@@ -719,7 +852,7 @@ end
 --- @param context MeshLoadContextInstance
 --- @return WW3dErrorType
 function INSTANCE:ReadMaterialPass( cload, context )
-	context.CurrentTextureStage = 0
+	context.CurrentTextureStage = 1
 
 	local ids = w3dFileIds.W3D_CHUNK_TYPE
 
@@ -763,8 +896,8 @@ end
 --- @return WW3dErrorType
 function INSTANCE:ReadVertexMaterialIds( cload, context )
 	-- "Determine whether this chunk should be read into the default or alternate material description"
-	local materialDescription = self.DefinitionMataterialDescription
-	if self.DefinitionMataterialDescription:HasMaterialData( context.CurrentPass ) then
+	local materialDescription = self.DefinitionMaterialDescription
+	if self.DefinitionMaterialDescription:HasMaterialData( context.CurrentPass ) then
 		materialDescription = context.AlternateMaterialDescription
 	end
 
@@ -777,8 +910,8 @@ end
 --- @return WW3dErrorType
 function INSTANCE:ReadShaderIds( cload, context )
 	-- "Determine whether this chunk should be read into the default or alternate material description"
-	local materialDescription = self.DefinitionMataterialDescription
-	if self.DefinitionMataterialDescription:HasShaderData( context.CurrentPass ) then
+	local materialDescription = self.DefinitionMaterialDescription
+	if self.DefinitionMaterialDescription:HasShaderData( context.CurrentPass ) then
 		materialDescription = context.AlternateMaterialDescription
 	end
 
@@ -853,8 +986,8 @@ end
 --- @return WW3dErrorType
 function INSTANCE:ReadDcg( cload, context )
 	-- "Determine whether the chunk should be read into the default or alternate material description"
-	local materialDescription = self.DefinitionMataterialDescription
-	if self.DefinitionMataterialDescription:GetDcgSource( context.CurrentPass ) ~= colorSourceTypeEnum.MATERIAL then
+	local materialDescription = self.DefinitionMaterialDescription
+	if self.DefinitionMaterialDescription:GetDcgSource( context.CurrentPass ) ~= colorSourceTypeEnum.MATERIAL then
 		materialDescription = context.AlternateMaterialDescription
 	end
 
@@ -930,8 +1063,8 @@ function INSTANCE:ReadTextureIds( cload, context )
 	local stage = context.CurrentTextureStage
 
 	-- "Determine whether this chunk should be read into the default or alternate material description"
-	local materialDscription = self.DefinitionMataterialDescription
-	if self.DefinitionMataterialDescription:HasTextureData( pass, stage ) then
+	local materialDscription = self.DefinitionMaterialDescription
+	if self.DefinitionMaterialDescription:HasTextureData( pass, stage ) then
 		materialDscription = context.AlternateMaterialDescription
 	end
 
@@ -941,7 +1074,7 @@ function INSTANCE:ReadTextureIds( cload, context )
 		materialDscription:SetSingleTexture( context:PeekTexture( textureId ), pass, stage )
 	else
 		for i = 1, self:GetPolygonCount() do
-			local textureId = cload:Read( fundamentalDataTypeEnum.UInt32 )
+			textureId = cload:Read( fundamentalDataTypeEnum.UInt32 )
 			if textureId ~= 0xffffffff then
 				materialDscription:SetTexture( i, context:PeekTexture( textureId ), pass, stage )
 			end
@@ -957,8 +1090,8 @@ end
 --- @return WW3dErrorType
 function INSTANCE:ReadStageTextureCoordinates(cload, context)
 	-- "Determine whether this chunk should be read into the default or alternate material description"
-	local materialDescription = self.DefinitionMataterialDescription
-	if self.DefinitionMataterialDescription:HasUv( context.CurrentPass, context.CurrentTextureStage ) then
+	local materialDescription = self.DefinitionMaterialDescription
+	if self.DefinitionMaterialDescription:HasUv( context.CurrentPass, context.CurrentTextureStage ) then
 		materialDescription = context.AlternateMaterialDescription
 	end
 
@@ -1041,7 +1174,7 @@ end
 function INSTANCE:PostProcess()
 	-- "Turn off backface culling if the mesh is supposed to be two-sided"
 	if self:GetFlag( meshGeometryFlagsTypeEnum.TWO_SIDED ) then
-		self.DefinitionMataterialDescription:DisableBackfaceCulling()
+		self.DefinitionMaterialDescription:DisableBackfaceCulling()
 		if self.AlternateMaterialDescription ~= nil then
 			self.AlternateMaterialDescription:DisableBackfaceCulling()
 		end
@@ -1082,7 +1215,7 @@ function INSTANCE:InstallMaterials( context )
 	if self:GetFlag( meshGeometryFlagsTypeEnum.PRELIT_VERTEX ) then
 		lightingEnabled = false
 	end
-	self.DefinitionMataterialDescription:PostLoadProcess( lightingEnabled, self )
+	self.DefinitionMaterialDescription:PostLoadProcess( lightingEnabled, self )
 	if self.AlternateMaterialDescription ~= nil then
 		self.AlternateMaterialDescription:PostLoadProcess( lightingEnabled, self )
 	end
@@ -1106,6 +1239,6 @@ end
 function INSTANCE:InstallAlternateMaterialDesc( context )
 	if context.AlternateMaterialDescription:IsEmpty() == false then
 		self.AlternateMaterialDescription = meshMaterialDescriptionClass.New()
-		self.AlternateMaterialDescription:InitAlternate( self.DefinitionMataterialDescription, context.AlternateMaterialDescription )
+		self.AlternateMaterialDescription:InitAlternate( self.DefinitionMaterialDescription, context.AlternateMaterialDescription )
 	end
 end

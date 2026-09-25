@@ -71,14 +71,14 @@ end
 
 
 --- @class DynamicPhysicsInstance
---- @field DirtyVisObjectId any
+--- @field DirtyVisibilityObjectId any
 --- @field VisNodeId any
 --- @field VisStatusLastUpdated any
 
 function INSTANCE:Renegade_DynamicPhysics()
 	physicsClass.Instance.Renegade_Physics( self )
 
-	self.DirtyVisObjectId = true
+	self.DirtyVisibilityObjectId = true
 	self.VisNodeId = 0
 	self.VisStatusLastUpdated = 0
 end
@@ -103,12 +103,16 @@ function INSTANCE:SetModel( model )
 end
 
 function INSTANCE:UpdateVisibilityStatus()
-	typecheck.NotImplementedError()
+	-- "Invalidate our cached vis object ID"
+	self.DirtyVisibilityObjectId = true
+
+	-- "Invalidate the lighting cache.  Next time this object is rendered the cache will be updated."
+	self:InvalidateStaticLightingCache()
 end
 
 --- @return integer
-function INSTANCE:GetVisObjectId()
-	if self.DirtyVisObjectId then
+function INSTANCE:GetVisibilityObjectId()
+	if self.DirtyVisibilityObjectId then
 		self:InternalUpdateVisibilityStatus()
 	end
 	return self.VisObjectId

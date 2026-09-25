@@ -41,9 +41,10 @@ INSTANCE.IsBufferedFile = true
     --- @field DesiredBufferSize integer
 
     --- Creates a new BufferedFileInstance
+    --- @param fileName string? (Optional) "The filename to assign to this file object."
     --- @return BufferedFileInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_BufferedFile" )
+    function STATIC.New( fileName )
+        return robustclass.New( "Renegade_BufferedFile", fileName )
     end
 
     --- @param arg any
@@ -83,7 +84,7 @@ function INSTANCE:Renegade_BufferedFile( fileName )
     self.Buffer = ""
     self.BufferSize = 0
     self.BufferAvailable = 0
-    self.BufferOffset = 0
+    self.BufferOffset = 1
 end
 
 --- "Default deconstructor for a file object."
@@ -165,22 +166,29 @@ end
 --- @param direction SeekDirection "The relative position to relate the seek to.  This can be either `SEEK_SET` for the beginning of the file, `SEEK_CUR` for the current position, or `SEEK_END` for the end of the file."
 --- @return integer # "...the position that the seek ended up at."
 function INSTANCE:Seek( pos, direction )
-    if ( direction ~= seekDirectionEnum.SEEK_CUR ) or ( pos < 1 ) then
+    if direction == nil then direction = seekDirectionEnum.SEEK_CUR end
+
+    if ( direction ~= seekDirectionEnum.SEEK_CUR ) or ( pos < 0 ) then
         self:ResetBuffer()
     end
 
     -- "If not buffered, pass through"
     if self.BufferAvailable == 0 then
-        return rawFileClass.Instance.Seek( self, pos, direction )
+        local seekResult = rawFileClass.Instance.Seek( self, pos, direction )
+        return seekResult
     end
 
     -- "Use up what we can of the buffer"
     local amount = math.min( pos, self.BufferAvailable )
     pos = pos - amount
+
     self.BufferAvailable = self.BufferAvailable - amount
+
     self.BufferOffset = self.BufferOffset + amount
 
-    return rawFileClass.Instance.Seek( self, pos, direction ) - self.BufferAvailable
+    local seekResult = rawFileClass.Instance.Seek( self, pos, direction )
+
+    return seekResult - self.BufferAvailable
 end
 
 function INSTANCE:Write()
@@ -199,6 +207,6 @@ function INSTANCE:ResetBuffer()
         self.Buffer = nil
         self.BufferSize = 0
         self.BufferAvailable = 0
-        self.BufferOffset = 0
+        self.BufferOffset = 1
     end
 end

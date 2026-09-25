@@ -22,15 +22,6 @@ INSTANCE.IsWw3dAssetManager = true
 
 --#region Imports
 
-	--- @type RenderObjectClass
-	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
-
-	--- @type MeshClass
-	local meshClass = CNC.Import( "code/ww3d2/mesh.lua" )
-
-	--- @type MeshModelClass
-	local meshModelClass = CNC.Import( "code/ww3d2/mesh-model.lua" )
-
 	--- @type PrototypeClass
 	local prototypeClass = CNC.Import( "code/ww3d2/prototype.lua" )
 
@@ -63,6 +54,18 @@ INSTANCE.IsWw3dAssetManager = true
 
 	--- @type HLodLoaderClass
 	local hLodLoaderClass = CNC.Import( "code/ww3d2/h-lod-loader.lua" )
+
+	--- @type HTreeManagerClass
+	local hTreeManagerClass = CNC.Import( "code/ww3d2/h-tree-manager.lua" )
+
+	--- @type HAnimationManagerClass
+	local hAnimationManagerClass = CNC.Import( "code/ww3d2/h-animation-manager.lua" )
+
+	--- @type AggregateLoaderClass
+	local aggregateLoaderClass = CNC.Import( "code/ww3d2/aggregate-loader.lua" )
+
+	--- @type HModelLoaderClass
+	local hModelLoaderClass = CNC.Import( "code/ww3d2/h-model-loader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -81,8 +84,6 @@ Porting Notes:
     --- @class Ww3dAssetManagerClass
 	--- @field TheInstance WW3dAssetManagerInstance
 	--- @field NullPrototype NullPrototypeInstance
-	--- @field HTreeManager HTreeManagerInstance
-	--- @field HAnimManager HAnimManagerInstance
 
 	STATIC.PROTOLOADERS_VECTOR_SIZE = 32
 	STATIC.PROTOLOADERS_GROWTH_RATE = 16
@@ -135,8 +136,8 @@ end
 --- @class WW3dAssetManagerInstance
 --- @field PrototypeLoaders PrototypeLoaderInstance[] "These objects are responsible for importing certain W3D chunk types and turning them into prototypes"
 --- @field PrototypeHashTable table<string,PrototypeInstance>
---- @field HTreeManager any
---- @field HAnimationManager any
+--- @field HTreeManager HTreeManagerInstance
+--- @field HAnimationManager HAnimationManagerInstance
 --- @field TextureCache any
 --- @field Font3ddatas any
 --- @field FontCharsList any
@@ -150,6 +151,9 @@ function INSTANCE:Renegade_Ww3dAssetManager()
 	self.PrototypeLoaders = {}
 	self._TextureHash = {}
 
+	self.HTreeManager = hTreeManagerClass.New()
+	self.HAnimationManager = hAnimationManagerClass.New()
+
 	self.Ww3dLoadOnDemand = false
 	self.ActivateFogOnLoad = false
 	self.MetalManager = nil
@@ -161,12 +165,12 @@ function INSTANCE:Renegade_Ww3dAssetManager()
 
 	-- "Install the default loaders"
 	self:RegisterPrototypeLoader( prototypeClass.MeshLoader )
-	-- self:RegisterPrototypeLoader( prototypeClass.HModelLoader )
+	self:RegisterPrototypeLoader( prototypeClass.HModelLoader )
 	-- self:RegisterPrototypeLoader( collectionLoaderClass.CollectionLoader )
 	self:RegisterPrototypeLoader( boxRenderObjectClass.BoxLoader )
 	self:RegisterPrototypeLoader( hLodLoaderClass.HLodLoader )
 	-- self:RegisterPrototypeLoader( distantLodPrototypeClass.DistantLodLoader )
-	-- self:RegisterPrototypeLoader( aggregateDefinitionClass.AggregateLoader )
+	self:RegisterPrototypeLoader( aggregateLoaderClass.AggregateLoader )
 	self:RegisterPrototypeLoader( null3dObjectClass.NullLoader )
 	-- self:RegisterPrototypeLoader( dazzleRenderObjectClass.DazzleLoader )
 
@@ -202,7 +206,7 @@ function INSTANCE:Load3dAssets( fileName )
 		local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
 		if file then
 			if file:IsAvailable() then
-				result = self:Load3dAssets( file )
+				result = INSTANCE.Load3dAssets( self, file )
 			end
 			fileFactoryClass.TheFileFactory:ReturnFile( file )
 		end
@@ -223,24 +227,19 @@ function INSTANCE:Load3dAssets( fileName )
 			local chunkId = cload:CurChunkId()
 
 			if chunkId == w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_HIERARCHY then
-				section.Warn( "Skipping loading asset chunk for HTreeManager" )
-				-- STATIC.HTreeManager:LoadTree( cload )
-
+				self.HTreeManager:LoadTree( cload )
 			elseif (
 				   chunkId == w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_ANIMATION
 				or chunkId == w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_COMPRESSED_ANIMATION
 				or chunkId == w3dFileIds.W3D_CHUNK_TYPE.W3D_CHUNK_MORPH_ANIMATION
 			) then
-				section.Warn( "Skipping loading asset chunk for HAnimManager" )
-				-- STATIC.HAnimManager:LoadAnim( cload )
-
+				self.HAnimationManager:LoadAnimation( cload )
 			else
-				self:LoadPrototype( cload )
+				INSTANCE.LoadPrototype( self, cload )
 			end
 
 			cload:CloseChunk()
 		end
-
 		w3dFile:Close()
 
 		return true
@@ -256,17 +255,15 @@ function INSTANCE:ReleaseUnusedAssets()
 end
 
 --- "Create me an instance of one of the prototype render objects"
---- @param connectedEntity Entity
 --- @param name string
---- @param sourceModelPath string
 --- @return RenderObjectInstance?
-function INSTANCE:CreateRenderObject( connectedEntity, name, sourceModelPath )
+function INSTANCE:CreateRenderObject( name )
 	-- "Try to find a prototype"
 	local prototype = self:FindPrototype( name )
 
 	-- "If we didn't find one, try to load on demand"
 	if self.Ww3dLoadOnDemand and prototype == nil then
-		section.Start( "Loading Render Object Prototype on demand for: ", name )
+		section.Start( "Loading Render Object Prototype on demand for: '", name, "'" )
 
 		local fileName
 		local periodIndex = textUtils.IndexOf( name, "." )
@@ -289,6 +286,7 @@ function INSTANCE:CreateRenderObject( connectedEntity, name, sourceModelPath )
 	end
 
 	if prototype == nil then
+		section.Warn( "Failed to find or create prototype for '", name, "'" )
 		return -- "Failed to find a prototype"
 	end
 
@@ -489,7 +487,7 @@ function INSTANCE:AddPrototype( newPrototype )
 	assert( newPrototype ~= nil )
 
 	-- Omitted the majority of the code as it is not needed in Lua
-	local key = newPrototype:GetName():TrimRight( "\0" ):lower()
+	local key = newPrototype:GetName():lower()
 	self.PrototypeHashTable[key] = newPrototype
 end
 
@@ -512,7 +510,7 @@ function INSTANCE:RemovePrototype( prototype )
 		key = prototype --[[@as string]]
 	end
 
-	key = key:TrimRight( "\0" ):lower()
+	key = key:lower()
 	self.PrototypeHashTable[key] = nil
 end
 
@@ -520,7 +518,6 @@ end
 --- @param name string
 --- @return PrototypeInstance
 function INSTANCE:FindPrototype( name )
-
 	-- "Special case Null render object.  So we always have it..."
 	if name == nil then
 		return STATIC.NullPrototype
@@ -528,7 +525,7 @@ function INSTANCE:FindPrototype( name )
 
 	-- "Find the prototype"
 	-- Omitted a while loop looking at CRC hashes
-	name = name:TrimRight( "\0" ):lower()
+	name = name:lower()
 	local result = self.PrototypeHashTable[name]
 	return result
 end
@@ -611,28 +608,25 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:LoadPrototype( cload )
-
 	-- "Get the chunk id"
 	local chunkId = cload:CurChunkId()
-	local chunkIdName = table.KeyFromValue( w3dFileIds.W3D_CHUNK_TYPE, chunkId )
-	local chunkIdNameString = ( chunkIdName ~= nil and " (" .. chunkIdName .. ")" or nil )
 
 	-- "Find a loader that handles that type of chunk"
 	local loader = self:FindPrototypeLoader( chunkId )
 	local newPrototype
 
-	section.Start( "Loading Chunk ID ", chunkId, chunkIdNameString )
-
 	if loader ~= nil then
 		-- "Ask it to create a prototype from the contents of the chunk."
 		newPrototype = loader:LoadW3d( cload )
-
-		section.End()
 	else
+		local chunkIdName = table.KeyFromValue( w3dFileIds.W3D_CHUNK_TYPE, chunkId )
+		local chunkIdNameString = ( chunkIdName ~= nil and " (" .. chunkIdName .. ")" or nil )
+		local classNameString = ( loader ~= nil and " " .. loader.Class or nil )
 		section.Error(
 			"Failed to find prototype loader for Chunk ID ",
 			chunkId,
-			chunkIdNameString
+			chunkIdNameString,
+			classNameString
 		)
 		return false
 	end

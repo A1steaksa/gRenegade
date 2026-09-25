@@ -72,7 +72,7 @@ end
 --- @field PassCount integer
 --- @field VertexCount integer
 --- @field PolygonCount integer
---- @field Uv UvBufferInstance[]
+--- @field Uv Vector[][]
 --- @field UvSource integer[][]
 --- @field ColorArray any
 --- @field DcgSource ColorSourceType[]
@@ -104,6 +104,8 @@ function INSTANCE:Renegade_MeshMaterialDescription( that )
 
 	self.DcgSource = {}
 	self.DigSource = {}
+
+	self.SourceMaterials = {}
 
 	-- ()
 	if that == nil then
@@ -272,6 +274,31 @@ function INSTANCE:InitAlternate( defaultMaterials, alternateMaterials )
 	end
 end
 
+
+--[[ Source Engine Integration ]] do
+
+	--- @class MeshMaterialDescriptionInstance
+	--- @field SourceMaterials IMaterial[][]
+
+	--- @param material VertexMaterialInstance
+	function INSTANCE:CreateSourceMaterial( pass, stage, material )
+		local sourceMaterial = material.Material
+
+		if self.SourceMaterials[pass] == nil then
+			self.SourceMaterials[pass] = {}
+		end
+
+		self.SourceMaterials[pass][stage] = sourceMaterial
+	end
+
+	--- @param pass integer
+	--- @param stage integer
+	--- @return IMaterial
+	function INSTANCE:GetSourceMaterial( pass, stage )
+		return self:GetTextureArray( pass, stage, true )[1].SourceMaterial
+	end
+end
+
 --- @return boolean
 function INSTANCE:IsEmpty()
 	for array = 1, STATIC.MAX_COLOR_ARRAYS do
@@ -294,6 +321,7 @@ function INSTANCE:IsEmpty()
 
 	return true
 end
+
 
 --[[ Counts ]] do
 
@@ -328,9 +356,19 @@ end
 	end
 end
 
+--- @param pass integer
+--- @param stage integer
+--- @return Vector[]?
+function INSTANCE:GetUvArray( pass, stage )
+	local uvArrayIndex = self.UvSource[pass][stage]
 
-function INSTANCE:GetUvArray()
-	typecheck.NotImplementedError()
+	if uvArrayIndex == -1 then
+		return nil
+	end
+	if self.Uv[uvArrayIndex] ~= nil then
+		return self.Uv[uvArrayIndex]
+	end
+	return nil
 end
 
 --- @param pass integer
@@ -338,7 +376,6 @@ end
 --- @param uvs Vector[]?
 --- @param count integer
 function INSTANCE:InstallUvArray( pass, stage, uvs, count )
-
 	-- Omitting checking CRCs
 
 	local newIndex = #self.Uv+1
@@ -354,7 +391,10 @@ function INSTANCE:SetUvSource( pass, stage, sourceIndex )
 	self.UvSource[pass][stage] = sourceIndex
 end
 
-function INSTANCE:GetUvSource()
+--- @param pass integer
+--- @param stage integer
+--- @return integer
+function INSTANCE:GetUvSource( pass, stage )
 	typecheck.NotImplementedError()
 end
 

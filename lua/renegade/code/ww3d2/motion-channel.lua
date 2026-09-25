@@ -1,4 +1,4 @@
--- Based on MotionChannelClass within var/home/JSchneider/Projects/LuaRenegadePort/C&amp;C Renegade/Code/ww3d2/motchan.h
+-- Based on MotionChannelClass within Code/ww3d2/motchan.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -33,6 +33,7 @@ INSTANCE.IsMotionChannel = true
 --#region Imported Enums
 
 	local animationChannelEnum = w3dFileIds.ANIMATION_CHANNEL
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -55,6 +56,22 @@ INSTANCE.IsMotionChannel = true
     end
 
     typecheck.RegisterType( "MotionChannelInstance", STATIC.IsMotionChannel )
+
+    function STATIC.StaticConstructor()
+        deserializeLib.RegisterComplexDataType( "MotionChannelInstance", {
+			{ Name = "PivotIndex",     DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "Type",           DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "VectorLength",   DataType = fundamentalDataTypeEnum.Int },
+
+            { Name = "ValueOffset",    DataType = fundamentalDataTypeEnum.Float },
+            { Name = "ValueScale",     DataType = fundamentalDataTypeEnum.Float },
+            { Name = "CompressedData", DataType = fundamentalDataTypeEnum.Pointer },
+
+            { Name = "Data",           DataType = fundamentalDataTypeEnum.Pointer },
+            { Name = "FirstFrame",     DataType = fundamentalDataTypeEnum.Int },
+            { Name = "LastFrame",      DataType = fundamentalDataTypeEnum.Int },
+		} )
+    end
 end
 
 
@@ -64,7 +81,7 @@ end
 --- @field VectorLength integer "Size of each individual vector"
 --- @field ValueOffset number
 --- @field ValueScale number
---- @field CompressedData integer
+--- @field CompressedData integer[]
 --- @field Data number[] "Pointer to the raw floating point data"
 --- @field FirstFrame integer "First frame which was non-identity"
 --- @field LastFrame integer "Last frame which was non-identity"
@@ -76,12 +93,53 @@ function INSTANCE:DoDataCompression( dataSize )
 end
 
 --- @param frame integer
---- @param setVector number[] The vector table that values will be set into
-function INSTANCE:GetVector( frame, setVector )
+--- @param setVector Vector|number[] The vector that values will be set into
+--- @param vectorIndex integer? [Optional] The index, starting at 1, within the setVector to populate
+function INSTANCE:GetVector( frame, setVector, vectorIndex )
     if frame < self.FirstFrame or frame > self.LastFrame then
         self:SetIdentity( setVector )
+        return
     else
+        local vFrame = frame - self.FirstFrame
 
+        if self.Data then
+
+            -- Load a Vector
+            if self.VectorLength == 1 then
+                --- @cast setVector Vector
+
+                if vectorIndex == nil then
+                    section.Error( "Cannot retrieve vector axis without a vector index value!" )
+                    return
+                end
+
+                local index = vFrame + 1
+                if self.Data[index] ~= nil then
+                    setVector[vectorIndex] = self.Data[index]
+                end
+
+            -- Load a Quaternion
+            elseif self.VectorLength == 4 then
+                --- @cast setVector QuaternionInstance
+
+                local baseIndex = vFrame * 4 + 1
+                setVector[1] = self.Data[baseIndex + 0]
+                setVector[2] = self.Data[baseIndex + 1]
+                setVector[3] = self.Data[baseIndex + 2]
+                setVector[4] = self.Data[baseIndex + 3]
+            else
+                section.Error( "Unsupported Vector Length: ", self.VectorLength )
+                return
+            end
+        else
+            local scale = self.ValueScale / 65535.0
+            for i = 1, self.VectorLength do
+                local value = self.CompressedData[vFrame * self.VectorLength + i]
+                if value ~= nil then
+                    setVector[i] = value * scale + self.ValueOffset
+                end
+            end
+        end
     end
 end
 
@@ -104,9 +162,10 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:LoadW3d( cload )
-    local size = cload:CurChunkLength()
+    local chunkSize = cload:CurChunkLength()
+    local structSize = deserializeLib.GetComplexDataTypeSize( "W3dAnimChannelStruct" )
     -- "There was a bug in the exporter which saved too much data, so let's try and not load everything."
-    local savedDataSize = size - deserializeLib.GetComplexDataTypeSize( "W3dAnimChannelStruct" )
+    local savedDataSize = chunkSize - structSize
 
     local channel = cload:ReadStruct( "W3dAnimChannelStruct" )
     if channel == nil then
@@ -115,29 +174,32 @@ function INSTANCE:LoadW3d( cload )
 
     self.FirstFrame   = channel.FirstFrame
     self.LastFrame    = channel.LastFrame
-    self.VectorLength = channel.VectorLength
+    self.VectorLength = channel.VectorLength or 0
     self.Type         = channel.Flags
-    self.PivotIndex   = channel.Pivot
+    self.PivotIndex   = channel.Pivot + 1
 
-    local numFloats = math.floor( self.LastFrame - self.FirstFrame + 1 )
-    numFloats = math.floor( numFloats * self.VectorLength )
-    local dataSize = numFloats - 1 * 4 -- 4 is sizeof(float)
+    local numFloats = self.LastFrame - self.FirstFrame + 1
+    numFloats = numFloats * self.VectorLength
+    local dataSize = ( numFloats - 1 ) * 4 -- 4 is sizeof(float)
 
     self.Data = {}
     self.Data[1] = channel.Data[1]
+
     local readByteCount, readBytes = cload:Read( dataSize )
     if readByteCount ~= dataSize then
         self:Free()
+
         return false
     end
-    self.Data[2] = deserializeLib.DeserializeFloat( readBytes --[[@as string]] )
+    table.Add( self.Data, deserializeLib.DeserializeArray( fundamentalDataTypeEnum.Float32, readBytes --[[@as string]] ) )
 
     -- "Skip over the extra data at the end of the chunk (saved by an error in the exporter)"
-    if savedDataSize - dataSize > 0 then
-        cload:Seek( savedDataSize - dataSize )
+    local bytesToSkip = savedDataSize - dataSize
+    if bytesToSkip > 0 then
+        cload:Seek( bytesToSkip )
     end
 
-    self:DoDataCompression( dataSize )
+    -- Omitted data compression as it had to effect
     return true
 end
 

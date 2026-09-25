@@ -103,7 +103,7 @@ end
 --- @field Motion HAnimationInstance?
 --- @field Frame number
 --- @field PreviousFrame number
---- @field AnimationMode integer
+--- @field AnimationMode RenderObjectAnimationMode
 --- @field LastSyncTime number
 
 --- "CurMotionMode == DOUBLE_ANIM"
@@ -198,12 +198,44 @@ function INSTANCE:_Renegade_Animatable3dObject()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Render()
-	typecheck.NotImplementedError()
+--- "Update this object for rendering"
+--- @param renderInfo RenderInfoInstance
+function INSTANCE:Render( renderInfo )
+	if self.HTree == nil then
+		return
+	end
+
+	if self:IsNotHiddenAtAll() == false then
+		return
+	end
+
+	if self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+		if self.ModeAnimation.AnimationMode ~= renderObjectAnimationModeEnum.ANIM_MODE_MANUAL then
+			self:SingleAnimationProgress()
+		end
+	end
+
+	if not self:IsHierarchyValid() or self:AreSubObjectTransformsDirty() then
+		self:UpdateSubObjectTransforms()
+	end
 end
 
-function INSTANCE:SpecialRender()
-	typecheck.NotImplementedError()
+--- "'Special render' function for animatables"
+--- @param renderInfo SpecialRenderInfoInstance
+function INSTANCE:SpecialRender( renderInfo )
+	if self.HTree == nil then
+		return
+	end
+
+	if self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+		if self.ModeAnimation.AnimationMode ~= renderObjectAnimationModeEnum.ANIM_MODE_MANUAL then
+			self:SingleAnimationProgress()
+		end
+	end
+
+	if not self:IsHierarchyValid() then
+		self:UpdateSubObjectTransforms()
+	end
 end
 
 --- "Sets the transform and marks sub-objects as dirty"
@@ -213,8 +245,11 @@ function INSTANCE:SetTransform( matrix )
 	self:SetHierarchyValid( false )
 end
 
-function INSTANCE:SetPosition()
-	typecheck.NotImplementedError()
+--- "Sets the position and marks sub-objects as dirty"
+--- @param pos Vector
+function INSTANCE:SetPosition( pos )
+	compositeRenderObjectClass.Instance.SetPosition( self, pos )
+	self:SetHierarchyValid( false )
 end
 
 --- @overload fun( self )
@@ -253,7 +288,7 @@ function INSTANCE:SetAnimation( ... )
 	if argCount == 2 or argCount == 3 then
 		local motion = args[1] --[[@as HAnimationInstance]]
 		local frame  = args[2] --[[@as number]]
-		local mode 	 = args[3] and args[3] or renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
+		local mode 	 = args[3] ~= nil and args[3] or renderObjectAnimationModeEnum.ANIM_MODE_MANUAL
 
 		if motion then
 			self:Release()
@@ -296,44 +331,133 @@ function INSTANCE:SetAnimation( ... )
 	end
 end
 
+--- @return HAnimationInstance?
 function INSTANCE:PeekAnimation()
-	typecheck.NotImplementedError()
+	if self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+		return self.ModeAnimation.Motion
+	else
+		return nil
+	end
 end
 
+--- "is the current animation on the last frame?"
+--- "Note: Only works for Single, ONCE anims"
+--- @return boolean
 function INSTANCE:IsAnimationComplete()
-	typecheck.NotImplementedError()
+	if self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+		if self.ModeAnimation.AnimationMode == renderObjectAnimationModeEnum.ANIM_MODE_ONCE then
+			return self.ModeAnimation.Frame == self.ModeAnimation.Motion:GetNumFrames() -- Removed -1 to align with Lua's base 1 arrays
+		end
+	end
+
+	return false
 end
 
 function INSTANCE:GetNumBones()
-	typecheck.NotImplementedError()
+	if self.HTree then
+		return self.HTree:NumPivots()
+	else
+		return 1
+	end
 end
 
-function INSTANCE:GetBoneName()
-	typecheck.NotImplementedError()
+--- "returns the name of the given bone"
+--- @param boneIndex integer
+--- @return string
+function INSTANCE:GetBoneName( boneIndex )
+	if self.HTree then
+		return self.HTree:GetBoneName( boneIndex )
+	else
+		return "RootTransform"
+	end
 end
 
-function INSTANCE:GetBoneIndex()
-	typecheck.NotImplementedError()
+--- "Returns the index of the given bone"
+--- @param boneName string
+--- @return integer
+function INSTANCE:GetBoneIndex( boneName )
+	if self.HTree then
+		return self.HTree:GetBoneIndex( boneName )
+	else
+		return 0
+	end
 end
 
-function INSTANCE:GetBoneTransform()
-	typecheck.NotImplementedError()
+--- "Return the transform for the given bone"
+--- @param bone integer|string
+--- @return Matrix3dInstance
+function INSTANCE:GetBoneTransform( bone )
+	typecheck.AssertArgType( INSTANCE.Class, 1, bone, { "string", "number" } )
+
+	-- ( bone: string ): Matrix3dInstance
+	if typecheck.IsOfType( bone, "string" ) then
+		--- @cast bone string
+
+		if self.HTree then
+			assert( self.HTree ~= nil )
+			assert( bone ~= nil )
+
+			local boneIndex = self.HTree:GetBoneIndex( bone )
+			return self.HTree:GetTransform( boneIndex )
+		else
+			return ( self:GetTransform() )
+		end
+
+	-- ( bone: integer ): Matrix3dInstance
+	else
+		--- @cast bone integer
+
+		self:ValidateTransform()
+
+		if self.HTree then
+			-- "If our hierarchy isn't valid, we just need to evaluate our animation state."
+			if not self:IsHierarchyValid() then
+				self:UpdateSubObjectTransforms()
+			end
+
+			return self.HTree:GetTransform( bone )
+		else
+			return self.Transform
+		end
+	end
 end
 
-function INSTANCE:CaptureBone()
-	typecheck.NotImplementedError()
+--- "Capture the specified bone (override animation)"
+--- @param boneIndex integer
+function INSTANCE:CaptureBone( boneIndex )
+	if self.HTree then
+		self.HTree:CaptureBone( boneIndex )
+	end
 end
 
-function INSTANCE:ReleaseBone()
-	typecheck.NotImplementedError()
+--- "Release the specified bone (allow animation)"
+--- @param boneIndex integer
+function INSTANCE:ReleaseBone( boneIndex )
+	if self.HTree then
+		self.HTree:ReleaseBone( boneIndex )
+	end
 end
 
-function INSTANCE:IsBoneCaptured()
-	typecheck.NotImplementedError()
+--- "Returns whether the specified bone is captured"
+--- @param boneIndex integer
+--- @return boolean
+function INSTANCE:IsBoneCaptured( boneIndex )
+	if self.HTree then
+		return self.HTree:IsBoneCaptured( boneIndex )
+	else
+		return false
+	end
 end
 
-function INSTANCE:ControlBone()
-	typecheck.NotImplementedError()
+--- "Sets the transform for the bone"
+--- @param boneIndex integer
+--- @param objectTransformationMatrix Matrix3dInstance
+--- @param worldSpaceTranslation boolean
+function INSTANCE:ControlBone( boneIndex, objectTransformationMatrix, worldSpaceTranslation )
+	if self.HTree then
+		self.HTree:ControlBone( boneIndex, objectTransformationMatrix, worldSpaceTranslation )
+		self:SetHierarchyValid( false )
+	end
 end
 
 --- @return HTreeInstance
@@ -395,23 +519,97 @@ function INSTANCE:ComputeCurrentFrame()
 end
 
 function INSTANCE:UpdateSubObjectTransforms()
-	typecheck.NotImplementedError()
+
+	-- "The [RenderObject] implementation will cause our 'container' to update if we are not valid yet"
+	compositeRenderObjectClass.Instance.UpdateSubObjectTransforms( self )
+
+	-- "Update the transforms"
+	if self.CurrentMotionMode == motionModeEnum.BASE_POSE then
+
+		self:BaseUpdate( self.Transform )
+
+	elseif self.CurrentMotionMode == motionModeEnum.SINGLE_ANIM then
+		if self.ModeAnimation.AnimationMode ~= renderObjectAnimationModeEnum.ANIM_MODE_MANUAL then
+			self:SingleAnimationProgress()
+		end
+
+		self:AnimationUpdate( self.Transform, self.ModeAnimation.Motion, self.ModeAnimation.Frame )
+
+		-- "Play any sounds that are triggered by this frame of animation"
+		-- if self.ModeAnimation.Motion:SetHasEmbeddedSounds() then
+			-- Omitted embedded sounds
+		-- end
+
+	elseif self.CurrentMotionMode == motionModeEnum.DOUBLE_ANIM then
+		self:BlendUpdate(
+			self.Transform,
+			self.ModeInterpolation.Motion0,
+			self.ModeInterpolation.Frame0,
+			self.ModeInterpolation.Motion1,
+			self.ModeInterpolation.Frame1,
+			self.ModeInterpolation.Percentage
+		)
+		-- "Play any sounds that are triggered by this frame of animation"
+		-- Omitted embedded sounds
+
+	elseif self.CurrentMotionMode == motionModeEnum.MULTIPLE_ANIM then
+		self:ComboUpdate( self.Transform, self.ModeCombo.AnimationCombo )
+
+		-- "Play any sounds that are triggered by this frame of animation"
+		-- Omitted embedded sounds
+	end
+
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:BaseUpdate()
-	typecheck.NotImplementedError()
+--- "Animation update function for the base pose"
+--- @param root Matrix3dInstance
+function INSTANCE:BaseUpdate( root )
+	-- "This method simply puts the meshes in the base pose's configuration"
+	if self.HTree then
+		self.HTree:BaseUpdate( root )
+	end
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:AnimationUpdate()
-	typecheck.NotImplementedError()
+--- "Update function for a single animation"
+--- @param root Matrix3dInstance
+--- @param motion HAnimationInstance
+--- @param frame number
+function INSTANCE:AnimationUpdate( root, motion, frame )
+	-- "Apply motion to the base pose"
+	if tobool( motion ) and tobool( self.HTree ) then
+		self.HTree:AnimationUpdate( root, motion, frame )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:BlendUpdate()
-	typecheck.NotImplementedError()
+--- "Update function for a blend of two animations"
+--- @param root Matrix3dInstance
+--- @param motion0 HAnimationInstance
+--- @param frame0 number
+--- @param motion1 HAnimationInstance
+--- @param frame1 number
+--- @param percentage number
+function INSTANCE:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	-- "Apply motion to the base pose"
+	if tobool( self.HTree ) then
+		self.HTree:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
-function INSTANCE:ComboUpdate()
-	typecheck.NotImplementedError()
+--- "Animation update for a combination of anims"
+--- @param root Matrix3dInstance
+--- @param animation HAnimationComboInstance
+function INSTANCE:ComboUpdate( root, animation )
+	if tobool( self.HTree ) then
+		self.HTree:ComboUpdate( root, animation )
+	end
+
+	self:SetHierarchyValid( true )
 end
 
 --- @return boolean

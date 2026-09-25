@@ -92,8 +92,12 @@ function INSTANCE:IsActing()
 	typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsAnimating()
-	typecheck.NotImplementedError()
+	if self.ActionCode ~= nil then
+		return self.ActionCode:IsAnimating()
+	end
+	return false
 end
 
 function INSTANCE:BeginHibernation()

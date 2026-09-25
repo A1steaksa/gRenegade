@@ -262,7 +262,7 @@ function LIB.CreateFontAtlas( fontName, pointSize, isBold, interCharSpacing )
     local atlasHeight = maxCharHeight * LIB.FontAtlasGridSize.y
 
     local atlasRenderTarget = GetRenderTargetEx(
-        "RENEGADE_FONT-ATLAS-RT_" .. createdFontName,
+        "Renegade_FontAtlas-" .. createdFontName,
         atlasWidth, atlasHeight,
         RT_SIZE_LITERAL,
         MATERIAL_RT_DEPTH_NONE,

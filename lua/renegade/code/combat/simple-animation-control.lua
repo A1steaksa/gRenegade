@@ -105,8 +105,9 @@ function INSTANCE:IsComplete()
     return self.Channel:IsComplete()
 end
 
+--- @return string
 function INSTANCE:GetAnimationName()
-	typecheck.NotImplementedError()
+    return self.Channel:GetAnimationName()
 end
 
 function INSTANCE:SetTargetFrame()

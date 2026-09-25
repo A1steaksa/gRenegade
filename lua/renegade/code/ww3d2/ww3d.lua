@@ -62,8 +62,9 @@ STATIC.Class = "WW3DClass"
 	--- @type ShaderClass
 	local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
 
-	--- @type WW3dClass
-	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+	--- @type TextureLoaderClass
+	local textureLoaderClass = CNC.Import( "code/ww3d2/texture-loader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -125,8 +126,8 @@ local DAZZLE_INI_FILENAME = "DAZZLE.INI"
 --- @field _IsTexturingEnabled boolean
 --- @field Lite boolean
 --- @field DefaultNativeScreenSize number
---- @field DefaultStaticSortLists RenderObjectInstance[]
---- @field CurrentStaticSortLists RenderObjectInstance[]
+--- @field DefaultStaticSortLists RenderObjectInstance[][]
+--- @field CurrentStaticSortLists RenderObjectInstance[][]
 --- @field MinStaticSortLevel integer
 --- @field MaxStaticSortLevel integer
 --- @field LastFrameMemoryAllocations integer
@@ -207,7 +208,21 @@ STATIC.PrelitMode = prelitModeEnum.PRELIT_MODE_LIGHTMAP_MULTI_PASS
 STATIC._ExposePrelit = false
 
 STATIC.SnapshotActivated = false
-STATIC.ThumbnailEnabled = true
+
+
+
+
+-- DEBUG DEBUG
+-- Setting to false to work on texture loading without thumbnails being created first
+-- STATIC.ThumbnailEnabled = true
+STATIC.ThumbnailEnabled = false
+
+
+
+
+
+
+
 
 STATIC.MeshDrawMode = meshDrawModeEnum.MESH_DRAW_MODE_OLD
 STATIC.NPatchesGapFillingMode = nPatchesGapFillingModeEnum.NPATCHES_GAP_FILLING_ENABLED
@@ -373,8 +388,30 @@ end
     --- entire scene rendering overhead.  
     --- "  
 
-	function STATIC.BeginRender()
-		typecheck.NotImplementedError()
+	--- "Mark the start of rendering for a new frame"
+	--- @param clear boolean
+	--- @param clearZ boolean
+	--- @param color Color
+	--- @return WW3dErrorType
+	function STATIC.BeginRender( clear, clearZ, color )
+		if not STATIC._IsInitted then
+			return wW3dErrorTypeEnum.WW3D_ERROR_OK
+		end
+
+		-- Omitted memory allocation statistics
+
+		textureLoaderClass.Update()
+
+		-- Omitted statistics and dynamic access
+		-- Omitted capturing frames
+
+		STATIC.IsRendering = true
+
+		if clear or clearZ then
+			-- render.Clear( color.r, color.g, color.b, color.a, clearZ, true )
+		end
+
+		return wW3dErrorTypeEnum.WW3D_ERROR_OK
 	end
 
 	function STATIC.Render()
@@ -385,8 +422,20 @@ end
 		typecheck.NotImplementedError()
 	end
 
+	--- "Mark the completion of a frame"
+	--- @return WW3dErrorType
 	function STATIC.EndRender()
-		typecheck.NotImplementedError()
+		if not STATIC._IsInitted then
+			return wW3dErrorTypeEnum.WW3D_ERROR_OK
+		end
+
+		STATIC.IsRendering = false
+
+		STATIC.FrameCount = STATIC.FrameCount + 1
+
+		STATIC.ActivateSnapshot( false )
+
+		return wW3dErrorTypeEnum.WW3D_ERROR_OK
 	end
 
 	function STATIC.FlipToPrimary()
@@ -724,7 +773,13 @@ end
 	--- @param renderObject RenderObjectInstance
 	--- @param sortLevel integer
 	function STATIC.AddToStaticSortList( renderObject, sortLevel )
-		typecheck.NotImplementedError()
+		if sortLevel < 1 or sortLevel > w3dFileIds.MAX_SORT_LEVEL then
+			assert( false )
+			return
+		end
+
+		local sortList = STATIC.CurrentStaticSortLists[sortLevel]
+		sortList[#sortList + 1] = renderObject
 	end
 
 	--- @param renderInfo RenderInfoInstance
@@ -762,7 +817,7 @@ function STATIC.UpdatePixelCenter()
 end
 
 function STATIC.AllocateDebugResources()
-	-- Empty in original code
+	-- empty in the original code
 end
 
 function STATIC.ReleaseDebugResources()

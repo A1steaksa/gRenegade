@@ -99,7 +99,7 @@ end
 --- @field Cost number[] "Cost array (recalculated every frame)"
 --- @field Value number[] "Value array (recalculated every frame)"
 --- @field AdditionalModels ModelArrayInstance "Additional models, these models have been linked to one of the bones in this model.  They are all always rendered.  They can be HLODs themselves in order to implement switching on sub models.  Note:  This uses [ModelArrayInstance] for convenience, but MaxScreenSize, NonPixelCost, PixelCostPerArea, BenefitFactor are not used here."
---- @field SnapPoints SnapPointsInstance[] "Possible array of snap points."
+--- @field SnapPoints Vector[] "Possible array of snap points."
 --- @field ProxyArray ProxyArrayInstance[] "Possible array of proxy objects (names and bone indexes for application defined usage)"
 --- @field LodBias number "Current LOD Bias (affects recalculation of the Value array)"
 
@@ -169,13 +169,13 @@ function INSTANCE:Renegade_HLod( ... )
 			assert( self.LodCount >= 1 )
 
 			-- We need to initialize these arrays manually
-			self.Lod = classUtils.InitializeArray( "Renegade_ModelArray", self.LodCount )
-			self.Cost = classUtils.InitializeArray( fundamentalDataTypeEnum.Float, self.LodCount )
+			self.Lod = classUtils.InitializeTypeArray( "Renegade_ModelArray", self.LodCount )
+			self.Cost = classUtils.InitializeTypeArray( fundamentalDataTypeEnum.Float, self.LodCount )
 			-- "
 			-- Value has LodCount + 1 entries so PostIncrementValue can always use
 			-- Value[CurLod + 1] (the last entry will be AT_MAX_LOD).
 			-- "
-			self.Value = classUtils.InitializeArray( fundamentalDataTypeEnum.Float, self.LodCount + 1 )
+			self.Value = classUtils.InitializeTypeArray( fundamentalDataTypeEnum.Float, self.LodCount + 1 )
 
 			-- "Add Models to the ModelArrays"
 			for iLod = 1, definition.LodCount do
@@ -184,8 +184,8 @@ function INSTANCE:Renegade_HLod( ... )
 				self.Lod[iLod].MaxScreenSize = definition.Lod[iLod].MaxScreenSize
 				for iModel = 1, definition.Lod[iLod].ModelCount do
 					local renderObject = ww3dAssetManagerClass.GetInstance():CreateRenderObject( definition.Lod[iLod].ModelName[iModel] )
-					local boneIndex = definition.Lod[iLod].BoneIndex[iModel]
 
+					local boneIndex = definition.Lod[iLod].BoneIndex[iModel]
 					-- Convert from a 0 based to 1 based index
 					boneIndex = boneIndex + 1
 
@@ -203,6 +203,7 @@ function INSTANCE:Renegade_HLod( ... )
 					definition.Aggregates.ModelName[aggregateIndex]
 				)
 				local boneIndex = definition.Aggregates.BoneIndex[aggregateIndex]
+
 				if renderObject ~= nil then
 					INSTANCE.AddSubObjectToBone( self, renderObject, boneIndex )
 					renderObject = nil
@@ -341,8 +342,38 @@ function INSTANCE:GetProxy()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Render()
-	typecheck.NotImplementedError()
+--- "Render this HLod"
+--- @param renderInfo RenderInfoInstance
+function INSTANCE:Render( renderInfo )
+	if self:IsNotHiddenAtAll() == false then
+		return
+	end
+
+	animatable3dObjectClass.Instance.Render( self, renderInfo )
+
+	-- Render each object within the current LOD model
+	for i = 1, #self.Lod[self.CurrentLod] do
+		local lodNode = self.Lod[self.CurrentLod][i]
+		local lodModel = lodNode.Model
+
+		if typecheck.IsOfType( lodModel, "MeshInstance" ) then
+			--- @cast lodModel MeshInstance
+			lodModel:Render( renderInfo, self.HTree.SourceBones )
+		else
+			lodModel:Render( renderInfo )
+		end
+	end
+
+	if self:IsSubObjectsMatchLodEnabled() then
+		for i = 1, #self.AdditionalModels do
+			self.AdditionalModels[i].Model:SetLodLevel( self:GetLodLevel() )
+			self.AdditionalModels[i].Model:Render( renderInfo )
+		end
+	else
+		for i = 1, #self.AdditionalModels do
+			self.AdditionalModels[i].Model:Render( renderInfo )
+		end
+	end
 end
 
 function INSTANCE:SpecialRender()
@@ -355,8 +386,11 @@ function INSTANCE:SetTransform( matrix )
 	self:SetSubObjectTransformsDirty( true )
 end
 
-function INSTANCE:SetPosition()
-	typecheck.NotImplementedError()
+--- "Sets the position"
+--- @param pos Vector
+function INSTANCE:SetPosition( pos )
+	animatable3dObjectClass.Instance.SetPosition( self, pos )
+	self:SetSubObjectTransformsDirty( true )
 end
 
 function INSTANCE:NotifyAdded()
@@ -401,12 +435,53 @@ function INSTANCE:RemoveSubObject()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetNumSubObjectsOnBone()
-	typecheck.NotImplementedError()
+--- "Returns the number of objects on the given bone"
+--- @param boneIndex integer
+--- @return integer
+function INSTANCE:GetNumSubObjectsOnBone( boneIndex )
+	local count = 0
+	for lod = 1, self.LodCount do
+		for model = 1, #self.Lod[lod] do
+			if self.Lod[lod][model].BoneIndex == boneIndex then
+				count = count + 1
+			end
+		end
+	end
+
+	for model = 1, #self.AdditionalModels do
+		if self.AdditionalModels[model].BoneIndex == boneIndex then
+			count = count + 1
+		end
+	end
+
+	return count
 end
 
-function INSTANCE:GetSubObjectOnBone()
-	typecheck.NotImplementedError()
+--- "Returns obj on the given bone"
+--- @param index integer
+--- @param boneIndex integer
+--- @return RenderObjectInstance?
+function INSTANCE:GetSubObjectOnBone( index, boneIndex )
+	local count = 0
+	for lod = 1, self.LodCount do
+		for model = 1, #self.Lod[lod] do
+			if self.Lod[lod][model].BoneIndex == boneIndex then
+				if count == index then
+					return self.Lod[lod][model].Model
+				end
+				count = count + 1
+			end
+		end
+	end
+	for model = 1, #self.AdditionalModels do
+		if self.AdditionalModels[model].BoneIndex == boneIndex then
+			if count == index then
+				return self.AdditionalModels[model].Model
+			end
+			count = count + 1
+		end
+	end
+	return nil
 end
 
 --- "Returns bone index of given object"
@@ -430,11 +505,20 @@ end
 
 --- "Adds a sub-object to a bone"
 --- @param subObject RenderObjectInstance
---- @param boneIndex integer
+--- @param bone integer|string
 --- @return boolean wasSuccessful
-function INSTANCE:AddSubObjectToBone( subObject, boneIndex )
+function INSTANCE:AddSubObjectToBone( subObject, bone )
 
-	section.Print( self, " - BoneIndex: '", boneIndex, "', HTree NumPivots: '", self.HTree._NumPivots, "'" )
+	-- HLod only overrides one of this function's overloads
+	-- So we're passing the un-overridden call to the parent class's overload
+	-- ( subObject: RenderObjectInstance, boneIndex: string )
+    if typecheck.IsOfType( bone, "string" ) then
+        local boneName = bone --[[@as string]]
+
+		return animatable3dObjectClass.Instance.AddSubObjectToBone( self, subObject, boneName )
+    end
+
+	local boneIndex = bone --[[@as integer]]
 
 	if boneIndex < 0 or boneIndex > self.HTree:NumPivots() then
 		return false
@@ -450,7 +534,7 @@ function INSTANCE:AddSubObjectToBone( subObject, boneIndex )
 
 	local result = true
 
-	self.AdditionalModels[#self.AdditionalModels] = newNode
+	self.AdditionalModels[#self.AdditionalModels + 1] = newNode
 
 	INSTANCE.UpdateSubObjectBits( self )
 	INSTANCE.UpdateObjectSpaceBoundingVolumes( self )
@@ -466,7 +550,7 @@ end
 
 --- @overload fun( self )
 --- @overload fun( self, animationCombo: HAnimationComboInstance )
---- @overload fun( self, motion: HAnimationInstance, frame: number, mode: integer )
+--- @overload fun( self, motion: HAnimationInstance, frame: number, mode: integer? )
 --- @overload fun( self, motion0: HAnimationInstance, fram0: number, motion1: HAnimationInstance, frame1: number, percentage: number )
 function INSTANCE:SetAnimation( ... )
 	animatable3dObjectClass.Instance.SetAnimation( self, ... )
@@ -536,16 +620,23 @@ function INSTANCE:DecrementLod()
 	typecheck.NotImplementedError()
 end
 
+--- "Returns the cost of this LOD"
+--- @return number
 function INSTANCE:GetCost()
-	typecheck.NotImplementedError()
+	return self.Cost[self.CurrentLod]
 end
 
+--- "Returns the value of this LOD"
+--- @return number
 function INSTANCE:GetValue()
-	typecheck.NotImplementedError()
+	return self.Value[self.CurrentLod]
 end
 
+--- "Returns the post increment value"
+--- @return number
 function INSTANCE:GetPostIncrementValue()
-	typecheck.NotImplementedError()
+	return self.Value[self.CurrentLod + 1]
+
 end
 
 --- "Set the current lod level"
@@ -576,12 +667,16 @@ function INSTANCE:SetLodLevel( lod )
 	end
 end
 
+--- "Returns the current LOD level"
+--- @return integer
 function INSTANCE:GetLodLevel()
-	typecheck.NotImplementedError()
+	return self.CurrentLod
 end
 
+--- "Returns the number of levels of detail"
+--- @return integer
 function INSTANCE:GetLodCount()
-	typecheck.NotImplementedError()
+	return self.LodCount
 end
 
 --- @param bias number
@@ -620,6 +715,7 @@ function INSTANCE:GetBoundingBox()
 	if self.BoundingBoxIndex >= 1 then
 		-- "Get the bounding box in local coordinates"
 		local box = self:GetObjectSpaceBoundingBox()
+		assert( box ~= nil, INSTANCE.Class .. " - GetBoundingBox - Failed to get ObjectSpaceBoundingBox for: " .. tostring( self ) )
 
 		-- "Transform the bounding box to world coordinates"
 		self:GetTransform():TransformCenterExtentAABox( box.Center, box.Extent )
@@ -688,30 +784,74 @@ function INSTANCE:Scale()
 	typecheck.NotImplementedError()
 end
 
+--- "Returns the number of snap points in this model"
+--- @return integer
 function INSTANCE:GetNumSnapPoints()
+	if self.SnapPoints then
+		return #self.SnapPoints
+	else
+		return 0
+	end
+end
+
+--- "Returns specified snap-point"
+--- @param index integer
+--- @return Vector
+function INSTANCE:GetSnapPoint( index )
+	if self.SnapPoints then
+		return self.SnapPoints[index]
+	else
+		return Vector( 0, 0, 0 )
+	end
+end
+
+--- "Propogates the hidden bit to particle emitters"
+--- @param onOff boolean
+function INSTANCE:SetHidden( onOff )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetSnapPoint()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetHidden()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetHTree()
-	typecheck.NotImplementedError()
+--- "Replace the hierarchy tree"
+--- @param htree HTreeInstance
+function INSTANCE:SetHTree( htree )
+	animatable3dObjectClass.Instance.SetHTree( self, htree )
 end
 
 function INSTANCE:Free()
 	typecheck.NotImplementedError()
 end
 
+--- "Updates transforms of all sub-objects"
 function INSTANCE:UpdateSubObjectTransforms()
-	typecheck.NotImplementedError()
+
+	-- "Update the animation transforms, recurse up to the top of the tree..."
+	animatable3dObjectClass.Instance.UpdateSubObjectTransforms( self )
+
+	-- "Put the computed transforms into our sub objects."
+	for lod = 1, self.LodCount do
+		for model = 1, #self.Lod[lod] do
+			local renderObject = self.Lod[lod][model].Model
+			local bone = self.Lod[lod][model].BoneIndex
+
+			renderObject:SetTransform( self.HTree:GetTransform( bone ) )
+			renderObject:SetAnimationHidden( not self.HTree:GetVisibility( bone ) )
+			renderObject:UpdateSubObjectTransforms()
+		end
+	end
+
+	for model = 1, #self.AdditionalModels do
+		local renderObject = self.AdditionalModels[model].Model
+		local bone = self.AdditionalModels[model].BoneIndex
+
+		renderObject:SetTransform( self.HTree:GetTransform( bone ) )
+		renderObject:SetAnimationHidden( not self.HTree:GetVisibility( bone ) )
+		renderObject:UpdateSubObjectTransforms()
+	end
+
+	self:SetSubObjectTransformsDirty( false )
 end
 
+--- "Update object-space bounding volumes"
 function INSTANCE:UpdateObjectSpaceBoundingVolumes()
 	-- "Do we still have a valid bounding box index?"
 	local highLod = self.Lod[self.LodCount]
@@ -790,7 +930,7 @@ function INSTANCE:UpdateObjectSpaceBoundingVolumes()
 	end
 
 	self.ObjectSphere = sphere
-	self.ObjectBox = box
+	self.ObjectBox = aABoxClass.New( box )
 
 	self:InvalidateCachedBoundingVolumes()
 	self:SetHierarchyValid( false )

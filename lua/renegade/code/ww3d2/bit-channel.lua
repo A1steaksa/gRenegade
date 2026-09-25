@@ -22,9 +22,14 @@ INSTANCE.IsBitChannel = true
 --#endregion
 
 --#region Imports
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -47,41 +52,88 @@ INSTANCE.IsBitChannel = true
     end
 
     typecheck.RegisterType( "BitChannelInstance", STATIC.IsBitChannel )
+
+    function STATIC.StaticConstructor()
+
+        deserializeLib.RegisterComplexDataType( "BitChannelInstance", {
+			{ Name = "PivotIndex",     DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "Type",           DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "VectorLength",   DataType = fundamentalDataTypeEnum.Int },
+
+            { Name = "ValueOffset",    DataType = fundamentalDataTypeEnum.Float },
+            { Name = "ValueScale",     DataType = fundamentalDataTypeEnum.Float },
+            { Name = "CompressedData", DataType = fundamentalDataTypeEnum.Pointer },
+
+            { Name = "Data",           DataType = fundamentalDataTypeEnum.Pointer },
+            { Name = "FirstFrame",     DataType = fundamentalDataTypeEnum.Int },
+            { Name = "LastFrame",      DataType = fundamentalDataTypeEnum.Int },
+		} )
+    end
 end
 
 
 --- @class BitChannelInstance
---- @field PivotIdx any
---- @field Type any
---- @field DefaultVal any
---- @field FirstFrame any
---- @field LastFrame any
---- @field Bits any
+--- @field PivotIndex integer
+--- @field Type integer
+--- @field DefaultValue boolean
+--- @field FirstFrame integer
+--- @field LastFrame integer
+--- @field Bits integer[]
 
 function INSTANCE:Renegade_BitChannel()
-	typecheck.NotImplementedError()
+    self.PivotIndex = 1
+    self.Type = 0
+    self.DefaultValue = false
+    self.FirstFrame = -1
+    self.LastFrame = -1
+    self.Bits = nil
 end
 
 function INSTANCE:_Renegade_BitChannel()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:LoadW3d()
+--- "Read a bit channel from a w3d chunk"
+--- @param cload ChunkLoadInstance
+function INSTANCE:LoadW3d( cload )
+    self:Free()
+
+    local chunkSize = cload:CurChunkLength()
+
+    local channel = cload:ReadStruct( "W3dBitChannelStruct" )
+    if channel == nil then
+        return false
+    end
+
+    self.FirstFrame = channel.FirstFrame
+    self.LastFrame = channel.LastFrame
+
 	typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:GetType()
-	typecheck.NotImplementedError()
+    return self.Type
 end
 
+--- @return integer
 function INSTANCE:GetPivot()
-	typecheck.NotImplementedError()
+    return self.PivotIndex
 end
 
-function INSTANCE:GetBit()
-	typecheck.NotImplementedError()
+--- @param frame integer
+--- @return boolean
+function INSTANCE:GetBit( frame )
+	if frame < self.FirstFrame or frame >= self.LastFrame then
+        return self.DefaultValue
+    else
+        local bitValue = frame - self.FirstFrame
+
+        local mask = bit.lshift( 1, bitValue % 8 )
+        return bit.band( self.Bits[ bitValue/8 ], mask ) ~= 0
+    end
 end
 
 function INSTANCE:Free()
-	typecheck.NotImplementedError()
+    self.Bits = nil
 end

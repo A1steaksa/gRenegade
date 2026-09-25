@@ -207,7 +207,7 @@ function INSTANCE:Render()
         -- "In multi-play, only render the combatmanager when we have a valid camera and the menu is not active"
         local menuActive = false
         local menuMode = gameModeManagerClass.Find( "Menu" ) -- "Activate the main menu"
-        if menuMode and menuMode:GetState() == gameModeEnum.GAME_MODE_ACTIVE then
+        if menuMode and menuMode:GetState() == gameModeStateEnum.GAME_MODE_ACTIVE then
             menuActive = true
         end
 

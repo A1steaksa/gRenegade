@@ -405,8 +405,9 @@ function INSTANCE:Seek( byteCount )
     end
 
     local curPos = self.File:Tell()
-    if self.File:Seek( byteCount, seekDirectionEnum.SEEK_CUR ) - curPos ~= byteCount then
-        section.Warn( "Chunk Load Seek has incorrect end position" )
+    local seekPos = self.File:Seek( byteCount, seekDirectionEnum.SEEK_CUR ) - curPos
+    if seekPos ~= byteCount then
+        section.Warn( "Chunk Load Seek has incorrect end position.  Expected ", byteCount, " but got ", seekPos, ", CurPos was ", curPos, ", and file size is ", self.File:Size() )
         return 0
     end
 

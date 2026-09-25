@@ -1,0 +1,101 @@
+{
+  "Name": "TextureLoadTask",
+  "ParentNames": [
+  ],
+  "FileName": "texture-load-task",
+  "CppName": "TextureLoadTaskClass",
+  "CppPath": "Code/ww3d2/textureloader.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "Create",
+      "DeleteFreePool"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "Texture",
+        "DataType": "TextureInstance"
+      },
+      {
+        "Name": "D3dtExture",
+        "DataType": "IDirect3dtExture8Instance"
+      },
+      {
+        "Name": "Format",
+        "DataType": "WW3dFormat"
+      },
+      {
+        "Name": "Width",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Height",
+        "DataType": "integer"
+      },
+      {
+        "Name": "MipLevelCount",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Reduction",
+        "DataType": "integer"
+      },
+      {
+        "Name": "LockedSurfacePointer",
+        "DataType": "string"
+      },
+      {
+        "Name": "LockedSurfacePitch",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Type",
+        "DataType": "TaskType"
+      },
+      {
+        "Name": "Priority",
+        "DataType": "PriorityType"
+      },
+      {
+        "Name": "State",
+        "DataType": "StateType"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Destroy",
+      "Init",
+      "Deinit",
+      "GetType",
+      "GetPriority",
+      "GetState",
+      "GetFormat",
+      "GetWidth",
+      "GetHeight",
+      "GetMipLevelCount",
+      "GetReduction",
+      "GetLockedSurfacePointer",
+      "GetLockedSurfacePitch",
+      "PeekTexture",
+      "PeekD3dTexture",
+      "SetType",
+      "SetPriority",
+      "SetState",
+      "BeginLoad",
+      "Load",
+      "EndLoad",
+      "FinishLoad",
+      "ApplyMissingTexture",
+      "BeginCompressedLoad",
+      "BeginUncompressedLoad",
+      "LoadCompressedMipmap",
+      "LoadUncompressedMipmap",
+      "LockSurfaces",
+      "UnlockSurfaces",
+      "Apply"
+    ]
+  }
+}

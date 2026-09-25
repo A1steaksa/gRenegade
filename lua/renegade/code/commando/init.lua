@@ -59,9 +59,6 @@ end
 	--- @type CombatManagerClass
 	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-	--- @type MainLoopClass
-	local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
-
 	--- @type FileFactoryClass
 	local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
 
@@ -74,15 +71,6 @@ end
 	--- @type FileFactoryListClass
 	local fileFactoryListClass = CNC.Import( "code/combat/file-factory-list.lua" )
 
-	--- @type ChunkLoadClass
-	local chunkLoadClass = CNC.Import( "code/wwlib/chunk-load.lua" )
-
-	--- @type FileClass
-	local fileClass = CNC.Import( "code/wwlib/file.lua" )
-
-	--- @type SaveLoadSystemClass
-	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
-
 	--- @type Ww3dAssetManagerClass
 	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
 
@@ -91,11 +79,13 @@ end
 
 	--- @type WW3dErrorTypes
 	local wW3dErrorTypes = CNC.Import( "code/ww3d2/w3d-errors.lua" )
+
+	--- @type FormatConverterLib
+	local formatConverterLib = CNC.Import( "code/ww3d2/format-converter.lua" )
 --#endregion
 
 --#region Imported Enums
 
-	local fileRightsEnum = fileClass.FILE_RIGHTS
 	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 --#endregion
 
@@ -134,6 +124,9 @@ function STATIC.GameInit()
     end
 
     section.Start( "Running Renegade GameInit" )
+
+    -- Adding D3D init from WINMAIN.CPP
+    formatConverterLib.InitD3dToWw3Conversion()
 
     -- "Set registry key to 1 for the duration of the init.  This way we know if the program crashed while the init."
 
@@ -267,8 +260,10 @@ function STATIC.GameInit()
     --      - RenegadeDialogMgrClass
     -- "
 
-    -- combatManagerClass.SceneInit()
-
+    combatManagerClass.SceneInit()
+    if not SERVER then
+        -- systemSettingsClass.Init()
+    end
     renegadeDialogManagerClass.Initialize()
 
     -- networkClass.OnetimeInit()
@@ -351,7 +346,7 @@ function STATIC.GameInit()
 
 
 
-
+    CNC.HasPostGameInit = true
     hook.Run( "Renegade_PostGameInit" )
 
     return true

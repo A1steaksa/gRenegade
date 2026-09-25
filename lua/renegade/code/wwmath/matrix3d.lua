@@ -49,6 +49,32 @@ INSTANCE.Static = STATIC
 	Some operations in this class assume that the matrix is orthogonal."
 --]]
 
+
+--[[ VMatrix Integration ]] do
+
+    -- Updates the metatable of VMatrix to add functions that help integrate Matrix3dInstance with VMatrix
+
+    --- @class VMatrix
+    local VMATRIX = FindMetaTable( "VMatrix" )
+
+    --- Updates the VMatrix to match the contents of the Matrix3dInstance
+    --- @param other Matrix3dInstance
+    function VMATRIX:SetMatrix3d( other )
+        local row = other.Row
+        local row1 = row[1]
+        local row2 = row[2]
+        local row3 = row[3]
+
+        self:SetUnpacked(
+            row1.x, row1.y, row1.z, row1.w,
+            row2.x, row2.y, row2.z, row2.w,
+            row3.x, row3.y, row3.z, row3.w,
+            0,  0, 0,  1
+        )
+    end
+end
+
+
 --[[ Static Functions and Variables ]] do
 
     --- Creates a new Matrix3dInstance
@@ -83,7 +109,7 @@ INSTANCE.Static = STATIC
         --- @param b Matrix3dInstance
         --- @return Matrix3dInstance
         function STATIC.Multiply( a, b )
-            typecheck.NotImplementedError( "Multiply" )
+            return a * b
         end
 
         --- @param transformationMatrix Matrix3dInstance
@@ -600,22 +626,22 @@ end
 
             return Vector(
                 ( -- X
-                    selfValues[1][1] * other.x +
-                    selfValues[1][2] * other.y +
-                    selfValues[1][3] * other.z +
-                    selfValues[1][4]
+                    selfValues[1].x * other.x +
+                    selfValues[1].y * other.y +
+                    selfValues[1].z * other.z +
+                    selfValues[1].w
                 ),
                 ( -- Y
-                    selfValues[2][1] * other.x +
-                    selfValues[2][2] * other.y +
-                    selfValues[2][3] * other.z +
-                    selfValues[2][4]
+                    selfValues[2].x * other.x +
+                    selfValues[2].y * other.y +
+                    selfValues[2].z * other.z +
+                    selfValues[2].w
                 ),
                 ( -- Z
-                    selfValues[3][1] * other.x +
-                    selfValues[3][2] * other.y +
-                    selfValues[3][3] * other.z +
-                    selfValues[3][4]
+                    selfValues[3].x * other.x +
+                    selfValues[3].y * other.y +
+                    selfValues[3].z * other.z +
+                    selfValues[3].w
                 )
             )
         else
@@ -1626,6 +1652,7 @@ end
         center, extent vectors."
     --]]
 
+    --- "Compute transformed axis-aligned box"
     --- @param min Vector
     --- @param max Vector
     --- @return Vector min

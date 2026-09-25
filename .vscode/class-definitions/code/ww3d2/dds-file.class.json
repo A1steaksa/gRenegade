@@ -1,0 +1,87 @@
+{
+  "Name": "DDSFile",
+  "ParentNames": [],
+  "FileName": "dds-file",
+  "CppName": "DDSFileClass",
+  "CppPath": "Code/ww3d2/ddsfile.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "CalculateDxtcSurfaceSize"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "Width",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Height",
+        "DataType": "integer"
+      },
+      {
+        "Name": "FullWidth",
+        "DataType": "integer"
+      },
+      {
+        "Name": "FullHeight",
+        "DataType": "integer"
+      },
+      {
+        "Name": "MipLevels",
+        "DataType": "integer"
+      },
+      {
+        "Name": "DateTime",
+        "DataType": "integer"
+      },
+      {
+        "Name": "ReductionFactor",
+        "DataType": "integer"
+      },
+      {
+        "Name": "DdsMemory",
+        "DataType": "string"
+      },
+      {
+        "Name": "Format",
+        "DataType": "WW3dFormat"
+      },
+      {
+        "Name": "LevelSizes",
+        "DataType": "integer"
+      },
+      {
+        "Name": "LevelOffsets",
+        "DataType": "integer"
+      },
+      {
+        "Name": "SurfaceDesc",
+        "DataType": "LegacyDdsurfacedesc2Instance"
+      },
+      {
+        "Name": "Name",
+        "DataType": "string"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetWidth",
+      "GetHeight",
+      "GetFullWidth",
+      "GetFullHeight",
+      "GetDateTime",
+      "GetMipLevelCount",
+      "GetMemoryPointer",
+      "GetLevelSize",
+      "GetFormat",
+      "CopyLevelToSurface",
+      "GetPixel",
+      "Get4X4Block",
+      "Load",
+      "IsAvailable"
+    ]
+  }
+}

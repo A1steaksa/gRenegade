@@ -28,50 +28,56 @@ STATIC.Class = "CombatManagerClass"
 
 -- #region Imports
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type ObjectiveManagerClass
-    local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
+	--- @type ObjectiveManagerClass
+	local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
-    --- @type SaveGameManagerClass
-    local saveGameManagerClass = CNC.Import( "code/combat/save-game.lua" )
+	--- @type SaveGameManagerClass
+	local saveGameManagerClass = CNC.Import( "code/combat/save-game.lua" )
 
-    --- @type DefinitionManagerClass
-    local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+	--- @type DefinitionManagerClass
+	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
 
-    --- @type HudClass
-    local hudClass = CNC.Import( "code/combat/hud.lua" )
+	--- @type HudClass
+	local hudClass = CNC.Import( "code/combat/hud.lua" )
 
-    --- @type CommandoCameraClass
-    local commandoCameraClass = CNC.Import( "code/combat/commando-camera.lua" )
+	--- @type CommandoCameraClass
+	local commandoCameraClass = CNC.Import( "code/combat/commando-camera.lua" )
 
-    --- @type DamageLib
-    local damageLib = CNC.Import( "sh_damage.lua" )
+	--- @type DamageLib
+	local damageLib = CNC.Import( "sh_damage.lua" )
 
-    --- @type GameObjectManagerClass
-    local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+	--- @type GameObjectManagerClass
+	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
 
-    --- @type GameTypeClass
-    local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
+	--- @type GameTypeClass
+	local gameTypeClass = CNC.Import( "code/combat/game-type.lua" )
 
-    --- @type GameObjectObserverManagerClass
-    local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
+	--- @type GameObjectObserverManagerClass
+	local gameObjectObserverManagerClass = CNC.Import( "code/combat/game-object-observer-manager.lua" )
 
-    --- @type SmartGameObjectClass
-    local smartGameObjectClass = CNC.Import( "code/combat/smart-game-object.lua" )
+	--- @type SmartGameObjectClass
+	local smartGameObjectClass = CNC.Import( "code/combat/smart-game-object.lua" )
 
-    --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
+	--- @type HudInfoClass
+	local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
 
-    --- @type AssetDependencyManagerClass
-    local assetDependencyManagerClass = CNC.Import( "code/combat/asset-dependency-manager.lua" )
+	--- @type AssetDependencyManagerClass
+	local assetDependencyManagerClass = CNC.Import( "code/combat/asset-dependency-manager.lua" )
+
+	--- @type UnitCoordinationZoneManagerClass
+	local unitCoordinationZoneManagerClass = CNC.Import( "code/combat/unit-coordination-zone-manager.lua" )
+
+	--- @type PhysicsSceneClass
+	local physicsSceneClass = CNC.Import( "code/wwphys/physics-scene.lua" )
 -- #endregion
 
 
 --#region Imported Enums
 
-    local damageDirectionEnum = damageLib.DAMAGE_DIRECTION
+	local damageDirectionEnum = damageLib.DAMAGE_DIRECTION
 --#endregion
 
 
@@ -80,7 +86,7 @@ STATIC.Class = "CombatManagerClass"
     --- [[ Public ]]
 
     --- @class CombatManagerClass
-    --- @field GameScene GameSceneInstance
+    --- @field GameScene PhysicsSceneInstance
     --- @field private _IAmServer boolean
     --- @field private _IAmClient boolean
     --- @field private MyId integer
@@ -183,7 +189,7 @@ STATIC.Class = "CombatManagerClass"
 
         -- surfaceEffectsManagerClass.Init()
 
-        -- objectiveManagerClass.Init()
+        objectiveManagerClass.Init()
 
         -- combatSoundManagerClass.Init()
 
@@ -215,7 +221,13 @@ STATIC.Class = "CombatManagerClass"
     end
 
     function STATIC.SceneInit()
-        typecheck.NotImplementedError()
+        -- "Game scene is where the main action occurs!"
+        STATIC.GameScene = physicsSceneClass.New()
+        STATIC.GameScene:SetAmbientLight( Color( 0.55,0.55,0.55 ) )
+        STATIC.GameScene:SetAmbientLight( Color( 1,1,1 ) )
+        STATIC.GameScene:SetFogColor( Color( 0.6, 0.6, 0.6 ) )
+
+        -- Omitted enabling and disabling collision detections
     end
 
     --[[ Level Loading ]] do

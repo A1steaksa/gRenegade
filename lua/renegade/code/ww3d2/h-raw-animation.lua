@@ -36,12 +36,34 @@ INSTANCE.IsHRawAnimation = true
 
 	--- @type MotionChannelClass
 	local motionChannelClass = CNC.Import( "code/ww3d2/motion-channel.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type QuaternionClass
+	local quaternionClass = CNC.Import( "code/wwmath/quaternion.lua" )
+
+	--- @type BitChannelClass
+	local bitChannelClass = CNC.Import( "code/ww3d2/bit-channel.lua" )
+
+	--- @type ClassUtils
+	local classUtils = CNC.Import( "sh_class-utils.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type WWMathClass
+	local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local hRawAnimationLoadResultEnum = hAnimationManagerClass.H_RAW_ANIMATION_LOAD_RESULT
 	local w3dChunkTypeEnum = w3dFileIds.W3D_CHUNK_TYPE
+	local animationChannelEnum = w3dFileIds.ANIMATION_CHANNEL
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -64,17 +86,32 @@ INSTANCE.IsHRawAnimation = true
     end
 
     typecheck.RegisterType( "HRawAnimationInstance", STATIC.IsHRawAnimation )
+
+	function STATIC.StaticConstructor()
+
+		--- @class NodeMotionStruct
+		--- @field X MotionChannelInstance
+		--- @field Y MotionChannelInstance
+		--- @field Z MotionChannelInstance
+		--- @field XR MotionChannelInstance
+		--- @field YR MotionChannelInstance
+		--- @field ZR MotionChannelInstance
+		--- @field Q MotionChannelInstance
+		--- @field Visibility BitChannelInstance
+		deserializeLib.RegisterComplexDataType( "NodeMotionStruct", {
+			{ Name = "X",  DataType = "MotionChannelInstance" },
+			{ Name = "Y",  DataType = "MotionChannelInstance" },
+			{ Name = "Z",  DataType = "MotionChannelInstance" },
+			{ Name = "XR", DataType = "MotionChannelInstance" },
+			{ Name = "YR", DataType = "MotionChannelInstance" },
+			{ Name = "ZR", DataType = "MotionChannelInstance" },
+			{ Name = "Q",  DataType = "MotionChannelInstance" },
+			{ Name = "Visibility", DataType = "BitChannelInstance" },
+		} )
+
+	end
 end
 
---- @class NodeMotionStruct
---- @field X MotionChannelInstance
---- @field Y MotionChannelInstance
---- @field Z MotionChannelInstance
---- @field XR MotionChannelInstance
---- @field YR MotionChannelInstance
---- @field ZR MotionChannelInstance
---- @field Q MotionChannelInstance
---- @field Visibility BitChannelInstance
 
 --- @class HRawAnimationInstance
 --- @field Name string
@@ -85,11 +122,16 @@ end
 --- @field NodeMotion NodeMotionStruct[]
 
 function INSTANCE:Renegade_HRawAnimation()
-	typecheck.NotImplementedError()
+	self.NumFrames = 0
+	self.NumNodes = 0
+	self.FrameRate = 0
+	self.NodeMotion = nil
+	self.Name = ""
+	self.HierarchyName = ""
 end
 
 function INSTANCE:_Renegade_HRawAnimation()
-	typecheck.NotImplementedError()
+	self:Free()
 end
 
 --- "Loads hierarchy animation from a file"
@@ -130,7 +172,7 @@ function INSTANCE:LoadW3d( cload )
 	-- "TSS chasing crash bug 05/26/99"
 	assert( self.HierarchyName ~= nil )
 	assert( animationHeader.HierarchyName ~= nil )
-	assert( self.HierarchyName:len() > 0 )
+	-- assert( self.HierarchyName:len() > 0 )
 	self.HierarchyName = animationHeader.HierarchyName
 
 	local basePose = ww3dAssetManagerClass.GetInstance():GetHTree( self.HierarchyName )
@@ -143,11 +185,7 @@ function INSTANCE:LoadW3d( cload )
 	self.NumFrames = animationHeader.NumFrames
 	self.FrameRate = animationHeader.FrameRate
 
-	self.NodeMotion = {}
-	if self.NodeMotion == nil then
-		self:Free()
-		return hRawAnimationLoadResultEnum.LOAD_ERROR
-	end
+	self.NodeMotion = classUtils.InitializeTypeArray( "NodeMotionStruct", self.NumNodes )
 
 	-- "Now, read in all of the other chunks (motion channels)."
 	--- @type MotionChannelInstance
@@ -161,10 +199,35 @@ function INSTANCE:LoadW3d( cload )
 
 		if id == w3dChunkTypeEnum.W3D_CHUNK_ANIMATION_CHANNEL then
 			didSucceed, newChannel = self:ReadChannel( cload, pre30 )
+			if not didSucceed then
+				return hRawAnimationLoadResultEnum.LOAD_ERROR
+			end
 
+			-- "
+			-- (gth) if the channel is referring to a node which is outside the range, just throw away the channel.  
+			-- This probably means the animation must be re-exported  
+			-- "
+			if newChannel:GetPivot() <= self.NumNodes then
+				self:AddChannel( newChannel )
+			else
+				section.Warn( "Animation ", self.Name, " referring to missing Bone!  Please re-export." )
+			end
 
 		elseif id == w3dChunkTypeEnum.W3D_CHUNK_BIT_CHANNEL then
+			didSucceed, newBitChannel = self:ReadBitChannel( cload, pre30 )
+			if not didSucceed then
+				return hRawAnimationLoadResultEnum.LOAD_ERROR
+			end
 
+			-- "
+			-- (gth) if the channel is referring to a node which is outside the range, just throw away the channel.  
+			-- This probably means the animation must be re-exported  
+			-- "
+			if newBitChannel:GetPivot() < self.NumNodes then
+				self:AddBitChannel( newBitChannel )
+			else
+				section.Warn( "Animation ", self.Name, " referring to missing Bone!  Please re-export." )
+			end
 		end
 
 		cload:CloseChunk()
@@ -198,28 +261,202 @@ function INSTANCE:GetTotalTime()
 	return self.NumFrames / self.FrameRate
 end
 
-function INSTANCE:GetTranslation()
-	typecheck.NotImplementedError()
+--- "Returns the translation vector for the given fr"
+--- @param translation Vector The Vector where the translation will be put
+--- @param pivotIndex integer
+--- @param frame number
+function INSTANCE:GetTranslation( translation, pivotIndex, frame )
+	local motion = self.NodeMotion[pivotIndex]
+
+	if motion.X == nil and motion.Y == nil and motion.Z == nil then
+		translation:SetUnpacked( 0, 0, 0 )
+	end
+
+	local frame0 = math.floor( frame )
+	local frame1 = frame0 + 1
+
+	local ratio = frame - frame0
+
+	if frame1 >= self.NumFrames then
+		frame1 = 0
+	end
+
+	local translation0 = Vector( 0.0, 0.0, 0.0 )
+	if motion.X ~= nil then
+		motion.X:GetVector( frame0, translation0, 1 )
+	end
+
+	if motion.Y ~= nil then
+		motion.Y:GetVector( frame0, translation0, 2 )
+	end
+
+	if motion.Z ~= nil then
+		motion.Z:GetVector( frame0, translation0, 3 )
+	end
+
+	if ratio == 0.0 then
+		translation:Set( translation0 )
+	end
+
+	local translation1 = Vector( 0.0, 0.0, 0.0 )
+	if motion.X ~= nil then
+		motion.X:GetVector( frame1, translation1, 1 )
+	end
+
+	if motion.Y ~= nil then
+		motion.Y:GetVector( frame1, translation1, 2 )
+	end
+
+	if motion.Z ~= nil then
+		motion.Z:GetVector( frame1, translation1, 3 )
+	end
+
+	translation:Set( LerpVector( ratio, translation0, translation1 ) )
 end
 
-function INSTANCE:GetOrientation()
-	typecheck.NotImplementedError()
+--- @param pivotIndex integer
+--- @param frame number
+--- @return QuaternionInstance
+function INSTANCE:GetOrientation( pivotIndex, frame )
+	local frame0 = math.floor( frame ) -- Omitted -0.499999 as it seemed to be causing problems with the frame number
+	local frame1 = frame0 + 1
+
+	local ratio = frame - frame0
+	assert( ratio >= -wWMathClass.EPSILON and ratio < 1.0 + wWMathClass.EPSILON )
+
+	if frame1 >= self.NumFrames then
+		frame1 = 0
+	end
+
+	local nodeMotionQuaternion = self.NodeMotion[pivotIndex].Q
+
+	local values = {}
+
+	local q0 = quaternionClass.New( true )
+	if nodeMotionQuaternion ~= nil then
+		nodeMotionQuaternion:GetVector( frame0, values )
+		q0:Set( values[1], values[2], values[3], values[4] )
+	end
+
+	if ratio == 0.0 then
+		return q0
+	end
+
+	local q1 = quaternionClass.New( true )
+	if nodeMotionQuaternion ~= nil then
+		nodeMotionQuaternion:GetVector( frame1, values )
+		q1:Set( values[1], values[2], values[3], values[4] )
+	end
+
+	return quaternionClass.Slerp( q0, q1, ratio )
 end
 
-function INSTANCE:GetTransform()
-	typecheck.NotImplementedError()
+--- "Returns the transform matrix for the given frame"
+--- @param pivotIndex integer
+--- @param frame number
+--- @return Matrix3dInstance
+function INSTANCE:GetTransform( pivotIndex, frame )
+	local motion = self.NodeMotion[pivotIndex]
+
+	local frame0 = math.floor( frame ) -- Omitted -0.499999 as it seemed to be causing problems with the frame number
+	local frame1 = frame0 + 1
+
+	local ratio = frame - frame0
+	assert( ratio >= -wWMathClass.EPSILON and ratio < 1.0 + wWMathClass.EPSILON )
+
+	if frame1 >= self.NumFrames then
+		frame1 = 0
+	end
+
+	local vals = {}
+
+	local q0 = quaternionClass.New( true )
+	if self.NodeMotion[pivotIndex].Q ~= nil then
+		self.NodeMotion[pivotIndex].Q:GetVector( frame0, vals )
+		q0:Set( vals[1], vals[2], vals[3], vals[4] )
+	end
+
+	local matrix
+	if ratio == 0.0 then
+		matrix = quaternionClass.BuildMatrix3d( q0 )
+		local row = matrix.Row
+		if motion.X ~= nil then
+			motion.X:GetVector( frame0, row[1][4] )
+		end
+
+		if motion.Y ~= nil then
+			motion.Y:GetVector( frame0, row[2][4] )
+		end
+
+		if motion.Z ~= nil then
+			motion.Z:GetVector( frame0, row[3][4] )
+		end
+
+		return matrix
+	end
+
+	local q1 = quaternionClass.New( true )
+	if self.NodeMotion[pivotIndex].Q ~= nil then
+		self.NodeMotion[pivotIndex].Q:GetVector( frame1, vals )
+		q1:Set( vals[1], vals[2], vals[3], vals[4] )
+	end
+
+	local q = quaternionClass.FastSlerp( q0, q1, ratio )
+	matrix = quaternionClass.BuildMatrix3d( q )
+
+	local translation0 = Vector( 0.0, 0.0, 0.0 )
+	if motion.X ~= nil then
+		motion.X:GetVector( frame0, translation0 )
+	end
+
+	if motion.Y ~= nil then
+		motion.Y:GetVector( frame0, translation0 )
+	end
+
+	if motion.Z ~= nil then
+		motion.Z:GetVector( frame0, translation0 )
+	end
+
+	local translation1 = Vector( 0.0, 0.0, 0.0 )
+	if motion.X ~= nil then
+		motion.X:GetVector( frame1, translation1 )
+	end
+
+	if motion.Y ~= nil then
+		motion.Y:GetVector( frame1, translation1 )
+	end
+
+	if motion.Z ~= nil then
+		motion.Z:GetVector( frame1, translation1 )
+	end
+
+	local transform = LerpVector( ratio, translation0, translation1 )
+
+	matrix:SetTranslation( transform )
+
+	return matrix
 end
 
-function INSTANCE:GetVisibility()
-	typecheck.NotImplementedError()
+--- "Return visibility state for given pivot/frame"
+--- @param pivotIndex integer
+--- @param frame number
+--- @return boolean
+function INSTANCE:GetVisibility( pivotIndex, frame )
+	if self.NodeMotion[pivotIndex].Visibility ~= nil then
+		return self.NodeMotion[pivotIndex].Visibility:GetBit( frame ) == 1
+	end
+
+	-- "Default to always visible..."
+	return true
 end
 
 function INSTANCE:IsNodeMotionPresent()
 	typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:GetNumPivots()
-	typecheck.NotImplementedError()
+	return self.NumNodes
 end
 
 function INSTANCE:HasXTranslation()
@@ -242,8 +479,11 @@ function INSTANCE:HasVisibility()
 	typecheck.NotImplementedError()
 end
 
+--- "De-allocates all memory in use"
 function INSTANCE:Free()
-	typecheck.NotImplementedError()
+	if self.NodeMotion ~= nil then
+		self.NodeMotion = nil
+	end
 end
 
 --- @param cload ChunkLoadInstance
@@ -260,14 +500,44 @@ function INSTANCE:ReadChannel( cload, pre30 )
 	return result, newChannel
 end
 
-function INSTANCE:AddChannel()
-	typecheck.NotImplementedError()
+--- "Adds a motion channel to the animation"
+--- @param newChannel MotionChannelInstance
+function INSTANCE:AddChannel( newChannel )
+	local index = newChannel:GetPivot()
+	local channelType = newChannel:GetType()
+
+	if channelType == animationChannelEnum.ANIM_CHANNEL_X then
+		self.NodeMotion[index].X = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_Y then
+		self.NodeMotion[index].Y = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_Z then
+		self.NodeMotion[index].Z = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_XR then
+		self.NodeMotion[index].XR = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_YR then
+		self.NodeMotion[index].YR = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_ZR then
+		self.NodeMotion[index].ZR = newChannel
+	elseif channelType == animationChannelEnum.ANIM_CHANNEL_Q then
+		self.NodeMotion[index].Q = newChannel
+	end
 end
 
-function INSTANCE:ReadBitChannel()
-	typecheck.NotImplementedError()
+--- "Read a bit channel from the file"
+--- @param cload ChunkLoadInstance
+--- @return boolean, BitChannelInstance
+function INSTANCE:ReadBitChannel( cload, pre30 )
+	local newChannel = bitChannelClass.New()
+	local result = newChannel:LoadW3d( cload )
+
+	if result and pre30 then
+		newChannel.PivotIndex = newChannel.PivotIndex + 1
+	end
+
+	return result, newChannel
 end
 
-function INSTANCE:AddBitChannel()
+--- @param newChannel BitChannelInstance
+function INSTANCE:AddBitChannel( newChannel )
 	typecheck.NotImplementedError()
 end

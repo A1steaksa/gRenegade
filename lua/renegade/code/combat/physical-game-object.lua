@@ -242,7 +242,7 @@ end
 
         -- "If the definition calls for it, add a material effect to the object"
         if definition.UseCreationEffect then
-            local physicalObject = INSTANCE.PeekPhysicalObject( self )
+            local physicalObject = self:PeekPhysicalObject()
             if physicalObject then
                 -- Omitted transition effect
                 -- TODO: Implement transition effect
@@ -252,37 +252,25 @@ end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
     function INSTANCE:CopySettings( definition )
-        section.Start( self.Class, " - ", INSTANCE.Class, " - Copy Settings" )
-
         -- "Release our hold on the physics object"
         if self.PhysicsObject then
             -- Omitted original logic
             INSTANCE.GetConnectedEntity( self ):PhysicsDestroy()
+            self.PhysicsObject = nil
         end
 
         -- "Set the Physical Object"
+        assert( self.PhysicsObject == nil )
         local physicsObjectDefinition = definitionManagerClass.FindDefinition( definition.PhysicsDefinitionId )
-        if not physicsObjectDefinition then
-            section.Error( "Could not find definition for " .. definition.PhysicsDefinitionId )
-            return
-        end
-
-        section.Print( self.Class, " - CopySettings - ", INSTANCE.GetConnectedEntity( self ) )
-        if INSTANCE.GetConnectedEntity( self ) == nil then error() end
-
-        self.PhysicsObject = physicsObjectDefinition:Create( INSTANCE.GetConnectedEntity( self ) ) --[[@as PhysicsInstance]]
-        if not self.PhysicsObject then
-            section.Error( "Could not create definition instance for " .. definition.PhysicsDefinitionId )
-            return
-        end
+        assert( physicsObjectDefinition ~= nil, "Could not find definition for '" .. definition.PhysicsDefinitionId .. "'" )
+        self.PhysicsObject = physicsObjectDefinition:Create( self:GetConnectedEntity() ) --[[@as PhysicsInstance]]
+        assert( self.PhysicsObject ~= nil, "Could not create definition instance for '" .. definition.PhysicsDefinitionId .. "'" )
 
         self.PhysicsObject:SetConnectedEntity( INSTANCE.GetConnectedEntity( self ) )
 
         self.PhysicsObject:SetCollisionGroup( collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP )
         self.PhysicsObject:SetObserver( self )
         -- Omitted adding the physics object to the physics scene
-
-        section.Print( "I'm pretty sure the physics object exists here ", self.PhysicsObject )
 
         --- "Do we still use this?????"
         -- Omitted setting animation from definition
@@ -293,8 +281,6 @@ end
         INSTANCE.EnableHibernation( self, definition.DefaultHibernationEnable )
 
         INSTANCE.ResetRadarBlipShapeType( self )
-
-        section.End()
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
@@ -439,27 +425,52 @@ end
 
     --- @param transformationMatrix Matrix3dInstance
     function INSTANCE:SetTransform( transformationMatrix )
-        INSTANCE.PeekPhysicalObject( self ):SetTransform( transformationMatrix )
+        local physicalObject = self:PeekPhysicalObject()
+        if physicalObject == nil then
+            return
+        end
+
+        physicalObject:SetTransform( transformationMatrix )
     end
 
     --- @return Matrix3dInstance
     function INSTANCE:GetTransform()
-        return INSTANCE.PeekPhysicalObject( self ):GetTransform()
+        local physicalObject = self:PeekPhysicalObject()
+        if physicalObject == nil then
+            return matrix3dClass.Identity
+        end
+
+        return physicalObject:GetTransform()
     end
 
     --- @return Vector
     function INSTANCE:GetPosition()
-        return INSTANCE.PeekPhysicalObject( self ):GetPosition()
+        local physicsObject = self:PeekPhysicalObject()
+        if physicsObject == nil then
+            return Vector( 0, 0, 0 )
+        end
+
+        return physicsObject:GetPosition()
     end
 
     --- @param pos Vector
     function INSTANCE:SetPosition( pos )
-        INSTANCE.PeekPhysicalObject( self ):SetPosition( pos )
+        local physicalObject = self:PeekPhysicalObject()
+        if physicalObject == nil then
+            return
+        end
+
+        physicalObject:SetPosition( pos )
     end
 
     --- @return number
     function INSTANCE:GetFacing()
-        return INSTANCE.PeekPhysicalObject( self ):GetFacing()
+        local physicalObject = self:PeekPhysicalObject()
+        if physicalObject == nil then
+            return 0
+        end
+
+        return physicalObject:GetFacing()
     end
 end
 
@@ -468,7 +479,12 @@ end
 
     --- @return RenderObjectInstance?
     function INSTANCE:PeekModel()
-        return INSTANCE.PeekPhysicalObject( self ):PeekModel()
+        local physicalObject = self:PeekPhysicalObject()
+        if physicalObject == nil then
+            return
+        end
+
+        return physicalObject:PeekModel()
     end
 
     --- @return AnimationControlInstance
@@ -689,7 +705,7 @@ end
 
     --- @param group CollisionGroupType
     function INSTANCE:SetCollisionGroup( group )
-        INSTANCE.PeekPhysicalObject( self ):SetCollisionGroup( group )
+        self:PeekPhysicalObject():SetCollisionGroup( group )
     end
 
     --- @param observedObject PhysicsInstance
@@ -780,7 +796,10 @@ end
 
     --- @return boolean
     function INSTANCE:IsHibernating()
-        return self.HibernationTimer <= 0
+
+        -- Turning hibernation off until I have a way to enable it correctly
+
+        -- return self.HibernationTimer <= 0
     end
 
     --- @param isHibernationEnabled boolean
@@ -905,7 +924,7 @@ end
 
     --- @return integer
     function INSTANCE:GetVisId()
-        local physicsObject = INSTANCE.PeekPhysicalObject( self )
+        local physicsObject = self:PeekPhysicalObject()
 
         -- "Do we have a physics object we can use?"
         if physicsObject then

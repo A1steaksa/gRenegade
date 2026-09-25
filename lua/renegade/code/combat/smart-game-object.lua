@@ -33,6 +33,18 @@ INSTANCE.IsSmartGameObject = true
 
 	--- @type GameObjectManagerClass
 	local gameObjectManagerClass = CNC.Import( "code/combat/game-object-manager.lua" )
+
+	--- @type BaseGameObjectClass
+	local baseGameObjectClass = CNC.Import( "code/combat/base-game-object.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+
+	--- @type ControlClass
+	local controlClass = CNC.Import( "code/combat/control.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -130,6 +142,8 @@ end
 function INSTANCE:Renegade_SmartGameObject()
     armedGameObjectClass.Instance.Renegade_ArmedGameObject( self )
 
+    self.Control = controlClass.New( self )
+
     self.Action = actionClass.New( self )
     self.ControlOwner = STATIC.SERVER_CONTROL_OWNER
     self.ControlEnabled = true
@@ -176,12 +190,30 @@ end
         end
     end
 
-    function INSTANCE:ReInit()
-        typecheck.NotImplementedError()
+    --- @param definition SmartGameObjectDefinitionInstance
+    function INSTANCE:ReInit( definition )
+        armedGameObjectClass.Instance.ReInit( self, definition )
+
+        -- "Remove the listener from the scene"
+        if self.Listener ~= nil then
+            -- self.Listener:RemoveFromScene()
+        end
+
+        -- "Free the stealth effect as necessary"
+        if self.StealthEffect ~= nil then
+            self.StealthEffect = nil
+            self.StealthEnabled = false
+            self.StealthPowerupTimer = 0.0
+            self.StealthFiringTimer = 0.0
+        end
+
+        -- "Copy any internal settings from the definition"
+        self:CopySettings( definition )
     end
 
+    --- @return SmartGameObjectDefinitionInstance
     function INSTANCE:GetDefinition()
-        typecheck.NotImplementedError()
+        return baseGameObjectClass.Instance.GetDefinition( self ) --[[@as SmartGameObjectDefinitionInstance]]
     end
 end
 
@@ -298,7 +330,22 @@ function INSTANCE:IsHumanControlled()
 end
 
 function INSTANCE:IsControlledByMe()
-	typecheck.NotImplementedError()
+    if not combatManagerClass.IAmClient() then
+        return false
+    end
+
+    local gameObject = self
+
+    -- "If this is a vehicle, then passthru to the driver"
+    local vehicle = self:AsVehicleGameObject()
+    if vehicle ~= nil then
+        local driver = vehicle:GetDriver()
+        if driver ~= nil then
+            gameObject = driver
+        end
+    end
+
+    return gameObject:IsHumanControlled() and ( gameObject.ControlOwner == combatManagerClass.GetMyId() )
 end
 
 function INSTANCE:ApplyControl()
@@ -309,11 +356,37 @@ end
 --[[ Thinking ]] do
 
     function INSTANCE:Think()
-        typecheck.NotImplementedError()
+
+        -- For testing purposes, move to my owning source entity if one exists
+        if IsValid( self.ConnectedEntity ) then
+            self:SetPosition( self.ConnectedEntity:GetPos() )
+            -- local matrix = self:GetTransform()
+            -- matrix:SetTranslation( Vector( 0, 0, 0 ) )
+            -- self:SetTransform( matrix )
+
+            -- self:SetPosition( Vector( 0, 0, 0 ) )
+
+            -- section.Print( self:GetPosition() )
+            -- self:SetPosition( Vector( 0, 0, 0 ) )
+        end
+
+        -- Omitted almost all original function contents
+
+        --[[ Embedded Armed think in smart think ]] do
+            armedGameObjectClass.Instance.Think( self )
+        end
     end
 
     function INSTANCE:PostThink()
-        typecheck.NotImplementedError()
+        armedGameObjectClass.Instance.PostThink( self )
+
+        -- "Don't update if destroying... (so we don't create a new laser!)"
+        if self:IsDeletePending() then
+            return
+        end
+
+        -- "Reset the one time booleans"
+        self.Control:ClearOneTimeBoolean()
     end
 end
 
@@ -478,5 +551,8 @@ function INSTANCE:AllocateStealthEffect()
 end
 
 function INSTANCE:RegisterListener()
-	typecheck.NotImplementedError()
+	if self.Listener ~= nil then
+        local definition = INSTANCE.GetDefinition( self )
+
+    end
 end

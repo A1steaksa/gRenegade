@@ -126,8 +126,9 @@ end
 		typecheck.NotImplementedError()
 	end
 
-	function INSTANCE:Render()
-		typecheck.NotImplementedError()
+	--- @param renderInfo RenderInfoInstance
+	function INSTANCE:Render( renderInfo )
+		-- typecheck.NotImplementedError()
 	end
 
 	function INSTANCE:SpecialRender()

@@ -179,8 +179,9 @@ function INSTANCE:NextC4DetonationMode()
 	typecheck.NotImplementedError()
 end
 
+--- @return WeaponDefinitionInstance
 function INSTANCE:GetDefinition()
-	typecheck.NotImplementedError()
+	return self.Definition
 end
 
 function INSTANCE:GetName()
@@ -303,6 +304,7 @@ function INSTANCE:GetRange()
 	typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsModelUpdateNeeded()
 	typecheck.NotImplementedError()
 end
@@ -375,12 +377,18 @@ function INSTANCE:IsSafetySet()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetPrimaryTriggered()
-	typecheck.NotImplementedError()
+--- @param triggered boolean
+function INSTANCE:SetPrimaryTriggered( triggered )
+	if not self.LockTriggers then
+		self.IsPrimaryTriggered = triggered
+	end
 end
 
-function INSTANCE:SetSecondaryTriggered()
-	typecheck.NotImplementedError()
+--- @param triggered boolean
+function INSTANCE:SetSecondaryTriggered( triggered )
+	if not self.LockTriggers then
+		self.IsSecondaryTriggered = triggered
+	end
 end
 
 function INSTANCE:IsTriggered()

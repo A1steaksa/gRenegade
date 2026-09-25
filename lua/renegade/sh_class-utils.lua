@@ -26,13 +26,21 @@ CNC.VirtualFunction = LIB.VirtualFunction
 --- @param dataType `T`|FundamentalDataType
 --- @param count integer
 --- @return T[]
-function LIB.InitializeArray( dataType, count )
+function LIB.InitializeTypeArray( dataType, count )
     local result = {}
 
     -- Classes
     if isstring( dataType ) then
-        for index = 1, count do
-            result[index] = robustclass.Create( dataType )
+        --- @cast dataType string
+
+        if robustclass.IsClassRegistered( dataType ) then
+            for index = 1, count do
+                result[index] = robustclass.Create( dataType )
+            end
+        else
+            for index = 1, count do
+                result[index] = {}
+            end
         end
 
     -- Fundamental data types
@@ -47,4 +55,20 @@ function LIB.InitializeArray( dataType, count )
 
     return result
 end
+
+--- Creates an array of a given length where each index contains the provided value.
+--- @generic T
+--- @param value T
+--- @param count integer
+--- @return T[]
+function LIB.InitializeValueArray( value, count )
+    local result = {}
+
+    for index = 1, count do
+        result[index] = value
+    end
+
+    return result
+end
+
 CNC.VirtualFunction = LIB.VirtualFunction

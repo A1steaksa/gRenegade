@@ -75,10 +75,13 @@ function INSTANCE:Load()
 	typecheck.NotImplementedError()
 end
 
---- @param animation string|HAnimationInstance
---- @param blendTime number
---- @param startFrame number
+--- @param animation string|HAnimationInstance?
+--- @param blendTime number? [Default: `0.0`]
+--- @param startFrame number? [Default: `0.0`]
 function INSTANCE:SetAnimation( animation, blendTime, startFrame )
+	if blendTime == nil then blendTime = 0.0 end
+	if startFrame == nil then startFrame = 0.0 end
+
 	-- "If setting to our current anim, bail"
 	if self.NewChannel:PeekAnimation() == nil and animation == nil then
 		return
@@ -151,14 +154,17 @@ function INSTANCE:GetAnimationName()
 	return self.NewChannel:GetAnimationName()
 end
 
-function INSTANCE:SetTargetFrame()
-	typecheck.NotImplementedError()
+--- @param frame number
+function INSTANCE:SetTargetFrame( frame )
+	self.NewChannel:SetTargetFrame( frame )
 end
 
+--- @return number
 function INSTANCE:GetTargetFrame()
-	typecheck.NotImplementedError()
+	return self.NewChannel:GetTargetFrame()
 end
 
+--- @return HAnimationInstance
 function INSTANCE:PeekAnimation()
 	typecheck.NotImplementedError()
 end
@@ -182,8 +188,20 @@ function INSTANCE:Update( deltaTime )
 	self.OldChannel:Update( deltaTime )
 end
 
-function INSTANCE:GetAnimationData()
-	typecheck.NotImplementedError()
+--- @param list AnimationDataRecordStruct[]
+--- @param weight number? [Default: `1.0`]
+function INSTANCE:GetAnimationData( list, weight )
+	if weight == nil then weight = 1.0 end
+
+	local blendRatio = 1.0 --"Assume no blending"
+	if self.BlendTotal ~= 0.0 then -- "If blending between two animations"
+		-- "Calculate the blend percentage between the two animations."
+		-- "This starts at 0,0 (all OldAnimation) and proceeds to 1.0o (all Animation)"
+		blendRatio = math.Clamp( self.BlendTimer / self.BlendTotal, 0, 1 )
+	end
+
+	self.NewChannel:GetAnimationData( list, weight * blendRatio )
+	self.OldChannel:GetAnimationData( list, weight * ( 1 - blendRatio ) )
 end
 
 --- @param animationModel RenderObjectInstance
@@ -213,10 +231,12 @@ function INSTANCE:UpdateModel( animationModel )
 	end
 end
 
+--- @return number
 function INSTANCE:GetFrame()
 	typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetProgress()
 	typecheck.NotImplementedError()
 end

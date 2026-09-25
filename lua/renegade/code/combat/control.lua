@@ -19,9 +19,28 @@ INSTANCE.Static = STATIC
 INSTANCE.IsControl = true
 
 --#region Exported Enums
+
+    --- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+	--- @enum AnalogControl
+	STATIC.ANALOG_CONTROL = {
+		ANALOG_MOVE_FORWARD  = enumBuilder:Set( 0 ),
+		ANALOG_MOVE_LEFT     = enumBuilder:Next(),
+		ANALOG_MOVE_UP       = enumBuilder:Next(),
+		ANALOG_TURN_LEFT     = enumBuilder:Next(),
+		ANALOG_CONTROL_COUNT = enumBuilder:Next(),
+	}
+    local analogControlEnum = STATIC.ANALOG_CONTROL
+
 --#endregion
 
 --#region Imports
+
+	--- @type ClassUtils
+	local classUtils = CNC.Import( "sh_class-utils.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -32,9 +51,10 @@ INSTANCE.IsControl = true
     --- @class ControlClass
 
     --- Creates a new ControlInstance
+	--- @param owner SmartGameObjectInstance
     --- @return ControlInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_Control" )
+    function STATIC.New( owner )
+        return robustclass.New( "Renegade_Control", owner )
     end
 
     --- @param arg any
@@ -55,14 +75,18 @@ end
 
 
 --- @class ControlInstance
---- @field OneTimeBooleanBits any
---- @field PendingOneTimeBooleanBits any
---- @field ContinuousBooleanBits any
---- @field PendingContinuousBooleanBits any
---- @field ] any
+--- @field Owner SmartGameObjectInstance
+--- @field OneTimeBooleanBits integer
+--- @field PendingOneTimeBooleanBits integer
+--- @field ContinuousBooleanBits integer
+--- @field PendingContinuousBooleanBits integer
+--- @field AnalogValues number[]
 
-function INSTANCE:Renegade_Control()
-	typecheck.NotImplementedError()
+--- @param owner SmartGameObjectInstance
+function INSTANCE:Renegade_Control( owner )
+	self.Owner = owner
+	self.PendingOneTimeBooleanBits = 0
+	self:ClearControl()
 end
 
 function INSTANCE:_Renegade_Control()
@@ -78,7 +102,9 @@ function INSTANCE:Load()
 end
 
 function INSTANCE:ClearControl()
-	typecheck.NotImplementedError()
+	self.OneTimeBooleanBits = 0
+	self.ContinuousBooleanBits = 0
+	self.AnalogValues = classUtils.InitializeValueArray( 0, analogControlEnum.ANALOG_CONTROL_COUNT )
 end
 
 function INSTANCE:ClearBoolean()
@@ -94,7 +120,7 @@ function INSTANCE:GetBoolean()
 end
 
 function INSTANCE:ClearOneTimeBoolean()
-	typecheck.NotImplementedError()
+    self.OneTimeBooleanBits = 0
 end
 
 function INSTANCE:GetOneTimeBooleanBits()
@@ -109,8 +135,30 @@ function INSTANCE:SetAnalog()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetAnalog()
-	typecheck.NotImplementedError()
+--- @param control AnalogControl
+--- @return number
+function INSTANCE:GetAnalog( control )
+	if self.Owner == nil then
+		return 0
+	end
+
+	local ply = self.Owner:GetConnectedEntity()
+	if not IsValid( ply ) or not ply:IsPlayer() then
+		return 0
+	end
+	--- @cast ply Player
+
+	local cmd = ply:GetCurrentCommand()
+
+	if control == analogControlEnum.ANALOG_MOVE_FORWARD then
+		return math.Clamp( cmd:GetForwardMove() / ply:GetMaxSpeed(), -1, 1 )
+	elseif control == analogControlEnum.ANALOG_MOVE_LEFT then
+		return math.Clamp( -cmd:GetSideMove() / ply:GetMaxSpeed(), -1, 1 )
+	elseif control == analogControlEnum.ANALOG_MOVE_UP then
+		return math.Clamp( cmd:GetUpMove() / ply:GetMaxSpeed(), -1, 1 )
+	end
+
+	return 0
 end
 
 function INSTANCE:ImportCs()

@@ -170,10 +170,9 @@ end
 --- @param animation HAnimationInstance?
 --- @overload fun( self, name: string )
 function INSTANCE:SetAnimation( animation )
-	typecheck.AssertArgType( INSTANCE.Class, 1, animation, { "string", "HAnimationInstance" } )
 
 	-- ( animation: HAnimationInstance )
-	if typecheck.IsOfType( animation, "HAnimationInstance" ) then
+	if animation == nil or typecheck.IsOfType( animation, "HAnimationInstance" ) then
 		-- "If this is our current anim, bail"
 		if self.Animation == animation then
 			return
@@ -296,11 +295,11 @@ function INSTANCE:Update( deltaTime )
 			self.Frame = self.Frame + deltaTime * self.Animation:GetFrameRate()
 
 			-- "Handle wrapping"
-			if self.Frame >= self.NumFrames then
+			if self.Frame > self.NumFrames then
 				self.Frame = self.Frame - self.NumFrames
 			end
 
-			if self.Frame >= self.NumFrames then
+			if self.Frame > self.NumFrames then
 				self.Frame = 1
 			end
 
@@ -340,8 +339,7 @@ function INSTANCE:GetAnimationData( list, weight )
 	if weight == nil then weight = 1.0 end
 
 	if self.Animation ~= nil and weight > 0 then
-		--- @type AnimationDataRecordStruct
-		list[#list+1] = {
+		list[#list + 1] = {
 			Animation = self.Animation,
 			Frame = self.Frame,
 			Weight = weight
