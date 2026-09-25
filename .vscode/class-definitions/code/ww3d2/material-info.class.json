@@ -1,0 +1,39 @@
+{
+  "Name": "MaterialInfo",
+  "ParentNames": [],
+  "FileName": "material-info",
+  "CppName": "MaterialInfoClass",
+  "CppPath": "Code/ww3d2/matinfo.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "VertexMaterials",
+      "Textures"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Clone",
+      "Reset",
+      "VertexMaterialCount",
+      "TextureCount",
+      "AddVertexMaterial",
+      "AddTexture",
+      "GetVertexMaterialIndex",
+      "GetTextureIndex",
+      "GetVertexMaterial",
+      "PeekVertexMaterial",
+      "ReplaceMaterial",
+      "ResetTextureMappers",
+      "MakeVertexMaterialsUnique",
+      "HasTimeVariantTextureMappers",
+      "GetTexture",
+      "PeekTexture",
+      "ReplaceTexture",
+      "Free"
+    ]
+  }
+}

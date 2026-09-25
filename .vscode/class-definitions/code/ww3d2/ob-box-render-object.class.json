@@ -1,0 +1,37 @@
+{
+  "Name": "OBBoxRenderObject",
+  "ParentNames": [
+    "BoxRenderObject"
+  ],
+  "FileName": "ob-box-render-object",
+  "CppName": "OBBoxRenderObjClass",
+  "CppPath": "Code/ww3d2/boxrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "CachedBox"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Clone",
+      "ClassId",
+      "Render",
+      "SpecialRender",
+      "SetTransform",
+      "SetPosition",
+      "CastRay",
+      "CastAaBox",
+      "CastObBox",
+      "IntersectAaBox",
+      "IntersectObBox",
+      "GetObjectSpaceBoundingSphere",
+      "GetObjectSpaceBoundingBox",
+      "GetBox",
+      "UpdateCachedBox"
+    ]
+  }
+}

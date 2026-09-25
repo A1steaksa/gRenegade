@@ -1,0 +1,20 @@
+{
+  "Name": "HModelLoader",
+  "ParentNames": [
+    "PrototypeLoader"
+  ],
+  "FileName": "h-model-loader",
+  "CppName": "HModelLoaderClass",
+  "CppPath": "Code/ww3d2/proto.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "Name": "MoveablePhysics",
+  "ParentNames": [
+    "DynamicPhysics"
+  ],
+  "FileName": "moveable-physics",
+  "CppName": "MoveablePhysClass",
+  "CppPath": "Code/wwphys/movephys.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Mass",
+      "MassInv",
+      "GravScale",
+      "Elasticity",
+      "Controller",
+      "Carrier",
+      "CarrierSubObject",
+      "ShadowManager"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "AsMoveablePhysicsClass",
+      "GetMoveablePhysicsDefinition",
+      "DefinitionChanged",
+      "NeedsTimestep",
+      "PostTimestepProcess",
+      "SetMass",
+      "GetMass",
+      "GetMassInv",
+      "SetGravityMultiplier",
+      "GetGravityMultiplier",
+      "SetElasticity",
+      "GetElasticity",
+      "GetInertiaInv",
+      "CanTeleport",
+      "CanTeleportAndStand",
+      "FindTeleportLocation",
+      "CanMoveTo",
+      "CinematicMoveTo",
+      "SetController",
+      "GetController",
+      "Save",
+      "Load",
+      "OnPostLoad",
+      "GetVelocity",
+      "SetVelocity",
+      "GetShadowBlobBox",
+      "IsCastingShadow",
+      "LinkToCarrier",
+      "PeekCarrierObject",
+      "PeekCarrierSubObject"
+    ]
+  }
+}

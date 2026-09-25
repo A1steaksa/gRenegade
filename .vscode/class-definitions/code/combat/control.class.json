@@ -1,0 +1,41 @@
+{
+  "Name": "Control",
+  "ParentNames": [],
+  "FileName": "control",
+  "CppName": "ControlClass",
+  "CppPath": "Code/Combat/control.h",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "SetPrecision"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "OneTimeBooleanBits",
+      "PendingOneTimeBooleanBits",
+      "ContinuousBooleanBits",
+      "PendingContinuousBooleanBits",
+      "]"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "ClearControl",
+      "ClearBoolean",
+      "SetBoolean",
+      "GetBoolean",
+      "ClearOneTimeBoolean",
+      "GetOneTimeBooleanBits",
+      "GetContinuousBooleanBits",
+      "SetAnalog",
+      "GetAnalog",
+      "ImportCs",
+      "ExportCs",
+      "ImportSc",
+      "ExportSc"
+    ]
+  }
+}

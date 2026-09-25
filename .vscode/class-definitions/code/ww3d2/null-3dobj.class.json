@@ -1,0 +1,27 @@
+{
+  "Name": "Null3DObj",
+  "ParentNames": [
+    "RenderObject"
+  ],
+  "FileName": "null-3dobj",
+  "CppName": "Null3DObjClass",
+  "CppPath": "Code/ww3d2/nullrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "]"
+    ],
+    "Functions": [
+      "Constructor",
+      "ClassId",
+      "Clone",
+      "GetName",
+      "Render",
+      "GetObjectSpaceBoundingSphere",
+      "GetObjectSpaceBoundingBox"
+    ]
+  }
+}

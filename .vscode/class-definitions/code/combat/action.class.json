@@ -1,0 +1,54 @@
+{
+  "Name": "Action",
+  "ParentNames": [],
+  "FileName": "action",
+  "CppName": "ActionClass",
+  "CppPath": "Code/Combat/action.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "ActionObject",
+      "ActionCode",
+      "Parameters",
+      "IsPaused",
+      "ActCount"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Save",
+      "Load",
+      "GetActionObject",
+      "GetParameters",
+      "IsActing",
+      "IsAnimating",
+      "BeginHibernation",
+      "EndHibernation",
+      "Reset",
+      "FollowInput",
+      "Stand",
+      "PlayAnimation",
+      "Goto",
+      "EnterExit",
+      "Dive",
+      "Attack",
+      "FaceLocation",
+      "HaveConversation",
+      "DockVehicle",
+      "Modify",
+      "Act",
+      "GetActCount",
+      "IsActive",
+      "IsBusy",
+      "IsPaused",
+      "Pause",
+      "Done",
+      "NotifyCompleted",
+      "RequestAction",
+      "SetActionCode"
+    ]
+  }
+}

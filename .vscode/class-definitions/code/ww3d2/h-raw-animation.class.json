@@ -1,0 +1,49 @@
+{
+  "Name": "HRawAnimation",
+  "ParentNames": [
+    "HAnimation"
+  ],
+  "FileName": "h-raw-animation",
+  "CppName": "HRawAnimClass",
+  "CppPath": "Code/ww3d2/hrawanim.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Name",
+      "HierarchyName",
+      "NumFrames",
+      "NumNodes",
+      "FrameRate",
+      "NodeMotion"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "GetName",
+      "GetHName",
+      "GetNumFrames",
+      "GetFrameRate",
+      "GetTotalTime",
+      "GetTranslation",
+      "GetOrientation",
+      "GetTransform",
+      "GetVisibility",
+      "IsNodeMotionPresent",
+      "GetNumPivots",
+      "HasXTranslation",
+      "HasYTranslation",
+      "HasZTranslation",
+      "HasRotation",
+      "HasVisibility",
+      "Free",
+      "ReadChannel",
+      "AddChannel",
+      "ReadBitChannel",
+      "AddBitChannel"
+    ]
+  }
+}

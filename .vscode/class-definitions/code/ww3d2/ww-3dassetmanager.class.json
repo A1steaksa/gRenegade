@@ -1,0 +1,77 @@
+{
+  "Name": "WW3DAssetManager",
+  "ParentNames": [],
+  "FileName": "ww-3dassetmanager",
+  "CppName": "WW3DAssetManager",
+  "CppPath": "Code/ww3d2/assetmgr.h",
+  "Static": {
+    "Fields": [
+      "TheInstance"
+    ],
+    "Functions": [
+      "GetInstance",
+      "DeleteThis",
+      "LogTextureStatistics"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "PrototypeLoaders",
+      "Prototypes",
+      "PrototypeHashTable",
+      "HTreeManager",
+      "HAnimationManager",
+      "TextureCache",
+      "Font3ddatas",
+      "FontCharsList",
+      "Ww3dLoadOnDemand",
+      "ActivateFogOnLoad",
+      "MetalManager",
+      "TextureHash"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Load3dAssets",
+      "FreeAssets",
+      "ReleaseUnusedAssets",
+      "CreateRenderObject",
+      "RenderObjectExists",
+      "CreateRenderObjectIterator",
+      "ReleaseRenderObjectIterator",
+      "CreateHAnimationIterator",
+      "GetHAnimation",
+      "AddAnimation",
+      "TextureHash",
+      "GetTexture",
+      "ReleaseAllTextures",
+      "ReleaseUnusedTextures",
+      "ReleaseTexture",
+      "LoadProceduralTextures",
+      "PeekMetalMapManager",
+      "GetFont3dinstance",
+      "GetFontChars",
+      "CreateHTreeIterator",
+      "GetHTree",
+      "RegisterPrototypeLoader",
+      "AddPrototype",
+      "RemovePrototype",
+      "FindPrototype",
+      "GetWw3dLoadOnDemand",
+      "SetWw3dLoadOnDemand",
+      "GetActivateFogOnLoad",
+      "SetActivateFogOnLoad",
+      "LogAllTextures",
+      "CreateFont3ddataIterator",
+      "AddFont3ddata",
+      "RemoveFont3ddata",
+      "GetFont3ddata",
+      "ReleaseAllFont3ddatas",
+      "ReleaseUnusedFont3ddatas",
+      "ReleaseAllFontChars",
+      "Free",
+      "FindPrototypeLoader",
+      "LoadPrototype"
+    ]
+  }
+}

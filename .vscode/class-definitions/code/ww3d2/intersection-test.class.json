@@ -1,0 +1,19 @@
+{
+  "Name": "IntersectionTest",
+  "ParentNames": [],
+  "FileName": "intersection-test",
+  "CppName": "IntersectionTestClass",
+  "CppPath": "Code/ww3d2/inttest.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "CollisionType"
+    ],
+    "Functions": [
+      "Constructor"
+    ]
+  }
+}

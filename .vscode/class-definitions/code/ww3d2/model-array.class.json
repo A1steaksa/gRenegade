@@ -1,0 +1,22 @@
+{
+  "Name": "ModelArray",
+  "ParentNames": [
+  ],
+  "FileName": "model-array",
+  "CppName": "ModelArrayClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "MaxScreenSize",
+      "NonPixelCost",
+      "PixelCostPerArea",
+      "BenefitFactor"
+    ],
+    "Functions": [
+    ]
+  }
+}

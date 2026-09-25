@@ -1,0 +1,29 @@
+{
+  "Name": "SimpleGameObjectDefinition",
+  "ParentNames": [
+    "PhysicalGameObjectDefinition"
+  ],
+  "FileName": "simple-game-object-definition",
+  "CppName": "SimpleGameObjDef",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "IsEditorObject",
+      "IsHiddenObject",
+      "PlayerTerminalType"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "Save",
+      "Load",
+      "GetFactory",
+      "GetPlayerTerminalType",
+      "GetIsEditorObject"
+    ]
+  }
+}

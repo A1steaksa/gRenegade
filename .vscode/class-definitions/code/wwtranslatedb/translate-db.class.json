@@ -1,0 +1,72 @@
+{
+  "Name": "TranslateDB",
+  "ParentNames": [
+    "SaveLoadSubSystem"
+  ],
+  "FileName": "translate-db",
+  "CppName": "TranslateDBClass",
+  "CppPath": "Code/wwtranslatedb/translatedb.h",
+  "Static": {
+    "Fields": [
+      "ObjectList",
+      "ObjectHash",
+      "CategoryList",
+      "VersionNumber",
+      "LanguageId",
+      "IsSingleLanguageExport",
+      "CategoryExportFilter",
+      "FilterType",
+      "FilterCategoryId"
+    ],
+    "Functions": [
+      "Initialize",
+      "Shutdown",
+      "GetVersionNumber",
+      "UpdateVersion",
+      "IsLoaded",
+      "ImportStrings",
+      "ImportCHeader",
+      "ExportCHeader",
+      "ExportTable",
+      "GetString",
+      "GetEnglishString",
+      "AddObject",
+      "RemoveObject",
+      "RemoveAll",
+      "GetObjectCount",
+      "GetObject",
+      "GetFirstObject",
+      "GetNextObject",
+      "GetCategoryCount",
+      "GetCategory",
+      "FindCategory",
+      "AddCategory",
+      "RemoveCategory",
+      "SetCurrentLanguage",
+      "GetCurrentLanguage",
+      "IsSingleLanguageExportEnabled",
+      "EnableSingleLanguageExport",
+      "SetExportFilter",
+      "ValidateData",
+      "FreeObjects",
+      "FreeCategories",
+      "FindUniqueId"
+    ]
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "ChunkId",
+      "Name",
+      "FindObject",
+      "ContainsData",
+      "Save",
+      "Load",
+      "LoadVariables",
+      "LoadObjects",
+      "LoadCategories"
+    ]
+  }
+}

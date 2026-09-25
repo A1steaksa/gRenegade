@@ -1,0 +1,782 @@
+-- Based on HTreeClass within Code/ww3d2/htree.h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+
+--- @class HTreeClass
+--- @field Instance HTreeInstance The metatable used by HTreeInstance
+local STATIC = CNC.CreateExport()
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "HTreeClass"
+
+--- @class HTreeInstance
+--- @field Static HTreeClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_HTree" )
+INSTANCE.Class = "HTreeInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsHTree = true
+
+--#region Exported Enums
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+    local enumBuilder = enumBuilderClass.New()
+
+    --- @enum HTreeLoadResult
+    STATIC.H_TREE_LOAD_RESULT = {
+        OK		   = enumBuilder:Set( 0 ),
+        LOAD_ERROR = enumBuilder:Next(),
+    }
+    local hTreeLoadResultEnum = STATIC.H_TREE_LOAD_RESULT
+--#endregion
+
+--#region Imports
+
+	--- @type W3dFileIds
+	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type PivotClass
+	local pivotClass = CNC.Import( "code/ww3d2/pivot.lua" )
+
+	--- @type QuaternionClass
+	local quaternionClass = CNC.Import( "code/wwmath/quaternion.lua" )
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type HTreeClass
+	local hTreeClass = CNC.Import( "code/ww3d2/h-tree.lua" )
+
+	--- @type ClassUtils
+	local classUtils = CNC.Import( "sh_class-utils.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local w3dChunkTypeEnum = w3dFileIds.W3D_CHUNK_TYPE
+--#endregion
+
+--[[ Static Functions and Variables ]] do
+
+    --- @class HTreeClass
+
+    --- Creates a new HTreeInstance
+	--- @param src HTreeInstance?
+    --- @return HTreeInstance
+    function STATIC.New( src )
+        return robustclass.New( "Renegade_HTree", src )
+    end
+
+    --- @param arg any
+    --- @return boolean `true` if the passed argument is a(n) HTreeInstance, `false` otherwise
+    function STATIC.IsHTree( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.IsHTree and true or false
+    end
+
+    typecheck.RegisterType( "HTreeInstance", STATIC.IsHTree )
+
+	function STATIC.CreateMorphed()
+		typecheck.NotImplementedError()
+	end
+
+	--- @param treeBase HTreeInstance
+	--- @param treeA HTreeInstance
+	--- @param treeB HTreeInstance
+	--- @param aScale number
+	--- @param bScale number
+	function STATIC.CreateInterpolated( treeBase, treeA, treeB, aScale, bScale )
+		-- "Clone the first one,"
+		local newTree = hTreeClass.New( treeBase )
+
+		local aScaleAbs = math.abs( aScale )
+		local bScaleAbs = math.abs( bScale )
+
+		if aScaleAbs + bScaleAbs > 0 then
+			-- Then interpolate all the pivots intranslations
+			for pivotIndex = 1, newTree._NumPivots do
+				local posA = LerpVector(
+					aScale,
+					treeBase.Pivot[pivotIndex].BaseTransform:GetTranslation(),
+					treeA.Pivot[pivotIndex].BaseTransform:GetTranslation()
+				)
+
+				local posB = LerpVector(
+					bScale,
+					treeBase.Pivot[pivotIndex].BaseTransform:GetTranslation(),
+					treeB.Pivot[pivotIndex].BaseTransform:GetTranslation()
+				)
+
+				local pos = ( posA * aScaleAbs + posB * bScaleAbs ) / ( aScaleAbs + bScaleAbs )
+
+				newTree.Pivot[pivotIndex].BaseTransform:SetTranslation( pos )
+			end
+		end
+
+		return newTree
+	end
+end
+
+
+--- @class HTreeInstance
+--- @field Name string
+--- @field _NumPivots integer
+--- @field Pivot PivotInstance[]
+--- @field ScaleFactor number
+
+--- @param src HTreeInstance?
+function INSTANCE:Renegade_HTree( src )
+	self._NumPivots = 0
+	self.Pivot = nil
+	self.ScaleFactor = 1.0
+
+	self.Name = ""
+
+	-- ( src: HTreeInstance )
+	if src ~= nil then
+		typecheck.AssertArgType( self.Class, 1, src, "HTreeInstance" )
+		--- @cast src HTreeInstance
+
+		self.Name = src.Name
+
+		self._NumPivots = src._NumPivots
+		if self._NumPivots > 0 then
+			self.Pivot = classUtils.InitializeTypeArray( "Renegade_Pivot", self._NumPivots )
+		end
+
+		for pivotIndex = 1, self._NumPivots do
+			self.Pivot[pivotIndex] = src.Pivot[pivotIndex]
+
+			if src.Pivot[pivotIndex].Parent ~= nil then
+				self.Pivot[pivotIndex].Parent = self.Pivot[src.Pivot[pivotIndex].Parent.Index]
+			else
+				self.Pivot[pivotIndex].Parent = nil
+			end
+		end
+
+		self.ScaleFactor = src.ScaleFactor
+	end
+end
+
+function INSTANCE:_Renegade_HTree()
+	self:Free()
+end
+
+
+--[[ Source Engine Integration ]] do
+
+	--- @class HTreeInstance
+    --- @field SourceBones VMatrix[] The Source Engine matrices that represent this model's bones
+
+    --- Creates, stores, and updates an array with a `VMatrix` for each of the mesh's bones
+    function INSTANCE:CreateSourceBones()
+        local bones = {}
+        self.SourceBones = bones
+
+        for boneIndex = 1, self:NumPivots() do
+            bones[boneIndex] = Matrix()
+			bones[boneIndex]:Identity()
+        end
+    end
+
+    --- Updates the transformation of each Source bone's `VMatrix` to match its corresponding Renegade bone's position
+    function INSTANCE:UpdateSourceBones()
+        if self.SourceBones == nil then
+            self:CreateSourceBones()
+        end
+
+        for boneIndex = 1, self:NumPivots() do
+			local sourceBoneMatrix = self.SourceBones[boneIndex]
+			local renBone = self.Pivot[boneIndex]
+
+			sourceBoneMatrix:SetTranslation( renBone.Transform:GetTranslation() )
+			
+
+        end
+    end
+end
+
+
+--- "Loads a hierarchy tree from a file"
+--- @param cload ChunkLoadInstance
+--- @return HTreeLoadResult
+function INSTANCE:LoadW3d( cload )
+	self:Free()
+
+	-- "Read the first chunk, it should be the hierarchy header"
+	if not cload:OpenChunk() then
+		return hTreeLoadResultEnum.LOAD_ERROR
+	end
+
+	if cload:CurChunkId() ~= w3dChunkTypeEnum.W3D_CHUNK_HIERARCHY_HEADER then
+		section.Warn( "ERROR: Expected Hierarchy Header" )
+		return hTreeLoadResultEnum.LOAD_ERROR
+	end
+
+	local header = cload:ReadStruct( "W3dHierarchyStruct" )
+	if header == nil then
+		return hTreeLoadResultEnum.LOAD_ERROR
+	end
+
+	cload:CloseChunk()
+
+	-- "
+	-- Check the version, if < 3.0 add a root node for everything to attach to.
+	-- The [LoadPivots] function will also have to be notified of this.
+	-- "
+	local pre30 = false
+	if header.Version < w3dFileIds.W3D_MAKE_VERSION( 3, 0 ) then
+		header.NumPivots = header.NumPivots + 1
+		pre30 = true
+	end
+
+	-- "Allocate the array of pivots"
+	self.Name = header.Name
+	self._NumPivots = header.NumPivots
+	if self._NumPivots > 0 then
+		self.Pivot = classUtils.InitializeTypeArray( "Renegade_Pivot", self._NumPivots )
+	end
+
+	-- "Now, read in all of the other chunks for this hierarchy."
+	while cload:OpenChunk() do
+		local chunkId = cload:CurChunkId()
+
+		if chunkId == w3dChunkTypeEnum.W3D_CHUNK_PIVOTS then
+			if not self:ReadPivots( cload, pre30 ) then
+				self:Free()
+				return hTreeLoadResultEnum.LOAD_ERROR
+			end
+		else
+			section.Warn( "Expected W3D_CHUNK_PIVOTS ('", w3dChunkTypeEnum.W3D_CHUNK_PIVOTS, "') but got '", chunkId, "'" )
+		end
+		cload:CloseChunk()
+	end
+
+	return hTreeLoadResultEnum.OK
+end
+
+function INSTANCE:InitDefault()
+	self:Free()
+
+	self._NumPivots = 1
+
+	self.Pivot = classUtils.InitializeTypeArray( "Renegade_Pivot", self._NumPivots )
+
+	local rootPivot = self.Pivot[1]
+	rootPivot.Index = 1
+	rootPivot.Parent = nil
+	rootPivot.BaseTransform:MakeIdentity()
+	rootPivot.Transform:MakeIdentity()
+	rootPivot.IsVisible = true
+	rootPivot.Name = "RootTransform"
+
+	self.Name = ""
+end
+
+--- @return string
+function INSTANCE:GetName()
+	return self.Name
+end
+
+--- @return integer
+function INSTANCE:NumPivots()
+	return self._NumPivots
+end
+
+--- "Find a bone by name"
+--- @param name string
+--- @return integer
+function INSTANCE:GetBoneIndex( name )
+	for i = 1, self._NumPivots do
+		if self.Pivot[i].Name == name then
+			return i
+		end
+	end
+	return 0
+end
+
+--- "Get the name of a bone from its index"
+--- @param boneIndex integer
+--- @return string
+function INSTANCE:GetBoneName( boneIndex )
+	return self.Pivot[boneIndex].Name
+end
+
+--- "Returns index of the parent of the given bone"
+--- @param boneIndex integer "The bone you are interested in"
+--- @return integer "The index of that bone's parent"
+function INSTANCE:GetParentIndex( boneIndex )
+	if self.Pivot[boneIndex].Parent ~= nil then
+		return self.Pivot[boneIndex].Parent.Index
+	else
+		return 1
+	end
+end
+
+--- "Computes the base pose transform for each pivot"
+--- @param root Matrix3dInstance
+function INSTANCE:BaseUpdate( root )
+	if self.SourceBones == nil then
+		self:CreateSourceBones()
+	end
+
+	local pivot = self.Pivot[1]
+	pivot.Transform = root
+	pivot.IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( pivot.Transform )
+
+	for pivotIndex = 2, self._NumPivots do
+		pivot = self.Pivot[pivotIndex]
+
+		assert( pivot.Parent ~= nil )
+		pivot.Transform = pivot.Parent.Transform * pivot.BaseTransform
+		pivot.IsVisible = true
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+	end
+end
+
+--- "Computes the transform for each pivot with motion"
+--- @param root Matrix3dInstance
+--- @param motion HAnimationInstance
+--- @param frame number
+function INSTANCE:AnimationUpdate( root, motion, frame )
+
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = motion:GetNumPivots()
+
+	local pivot
+	for pivotIndex = 2, self._NumPivots do
+		pivot = self.Pivot[pivotIndex]
+
+		-- "Base pose"
+		assert( pivot.Parent ~= nil )
+		pivot.Transform = pivot.Parent.Transform * pivot.BaseTransform
+
+		-- "Don't update this pivot if the HTree doesn't have animation data for it..."
+		if pivotIndex <= numAnimationPivots then
+
+			-- "Animation"
+			local translation = Vector( 0, 0, 0 )
+			motion:GetTranslation( translation, pivotIndex, frame )
+			pivot.Transform:Translate( translation * self.ScaleFactor * unitConversionLib.MetersToSource )
+
+			local q = motion:GetOrientation( pivotIndex, frame )
+
+			-- local temp = q.Data.x
+			-- q.Data.x = q.Data.y
+			-- q.Data.y = temp
+
+			local matrix = quaternionClass.BuildMatrix3d( q )
+			pivot.Transform = pivot.Transform * matrix
+
+			-- "Visibility"
+			pivot.IsVisible = motion:GetVisibility( pivotIndex, frame )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+	end
+end
+
+--- "Computes each pivot as a blend of two anims"
+--- @param root Matrix3dInstance
+--- @param motion0 HAnimationInstance
+--- @param frame0 number
+--- @param motion1 HAnimationInstance
+--- @param frame1 number
+--- @param percentage number
+function INSTANCE:BlendUpdate( root, motion0, frame0, motion1, frame1, percentage )
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = math.min( motion0:GetNumPivots(), motion1:GetNumPivots() )
+
+	local translation0 = Vector()
+	local translation1 = Vector()
+
+	for pivotIndex = 2, self._NumPivots do
+		local pivot = self.Pivot[pivotIndex]
+
+		pivot.Transform = matrix3dClass.Multiply( pivot.Parent.Transform, pivot.BaseTransform )
+
+		if pivotIndex <= numAnimationPivots then
+			-- "Interpolated translation"
+			motion0:GetTranslation( translation0, pivotIndex, frame0 )
+			motion1:GetTranslation( translation1, pivotIndex, frame1 )
+			local lerped = ( 1.0 - percentage ) * translation0 + percentage * translation1
+			pivot.Transform:Translate( lerped * self.ScaleFactor )
+
+			-- "Interpolated rotation"
+			local q0 = motion0:GetOrientation( pivotIndex, frame0 )
+			local q1 = motion0:GetOrientation( pivotIndex, frame1 )
+			local q = quaternionClass.FastSlerp( q0, q1, percentage )
+			pivot.Transform = pivot.Transform * quaternionClass.BuildMatrix3d( q )
+
+			pivot.IsVisible = motion0:GetVisibility( pivotIndex, frame0 ) or motion1:GetVisibility( pivotIndex, frame1 )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+
+		self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+	end
+end
+
+--- @param root Matrix3dInstance
+--- @param animation HAnimationComboInstance
+function INSTANCE:ComboUpdate( root, animation )
+	self.Pivot[1].Transform = root
+	self.Pivot[1].IsVisible = true
+	self.SourceBones[1]:SetMatrix3d( self.Pivot[1].Transform )
+
+	local numAnimationPivots = 100000
+	for animationNumber = 1, animation:GetNumAnimations() do
+		numAnimationPivots = math.min( numAnimationPivots, animation:PeekMotion( animationNumber ):GetNumPivots() )
+	end
+
+	if numAnimationPivots == 100000 then
+		numAnimationPivots = 0
+	end
+
+	local temporaryTranslation = Vector()
+	local translation = Vector()
+
+	for pivotIndex = 2, self._NumPivots do
+		local pivot = self.Pivot[pivotIndex]
+		matrix3dClass.Multiply( pivot.Parent.Transform, pivot.BaseTransform, pivot.Transform )
+
+		if pivotIndex <= numAnimationPivots then
+			local q0
+			local q1
+
+			local weightTotal = 0
+			local wCount = 0
+
+			for animationNumber = 1, animation:GetNumAnimations() do
+				local motion = animation:GetMotion( animationNumber )
+
+
+				if motion ~= nil then
+					local frameNumber = animation:GetFrame( animationNumber )
+
+					local weight = animation:GetWeight( animationNumber )
+
+					-- Omitted pivotmap
+
+					if weight ~= 0.0 then
+						wCount = wCount + 1
+						motion:GetTranslation( temporaryTranslation, pivotIndex, frameNumber )
+						translation = translation + weight * self.ScaleFactor * temporaryTranslation
+						weightTotal = weightTotal + weight
+					end
+
+					q1 = motion:GetOrientation( pivotIndex, frameNumber )
+					if wCount == 1 then
+						q0 = q1
+					else
+						q0 = quaternionClass.Slerp( q0, q1, weight / weightTotal )
+					end
+				end
+			end
+
+			if weightTotal ~= 0.0 then
+				pivot.Transform:Translate( translation )
+			end
+
+			pivot.IsVisible = false
+
+			local animationNumber = 1
+			while ( animationNumber <= animation:GetNumAnimations() and not pivot.IsVisible ) do
+				local motion = animation:GetMotion( animationNumber )
+				if motion ~= nil then
+					local frameNumber = animation:GetFrame( animationNumber )
+					pivot.IsVisible = pivot.IsVisible or motion:GetVisibility( pivotIndex, frameNumber )
+				end
+				animationNumber = animationNumber + 1
+			end
+
+			self.SourceBones[pivotIndex]:SetMatrix3d( pivot.Transform )
+		end
+
+		if pivot.IsCaptured then
+			pivot:CaptureUpdate()
+			pivot.IsVisible = true
+		end
+	end
+end
+
+--- "Returns the transformation for the desired pivot"
+--- @param pivot integer
+--- @return Matrix3dInstance
+function INSTANCE:GetTransform( pivot )
+	assert( pivot >= 1 )
+	assert( pivot <= self._NumPivots )
+
+	return self.Pivot[pivot].Transform
+end
+
+--- @param pivot integer
+--- @return boolean
+function INSTANCE:GetVisibility( pivot )
+	assert( pivot >= 1 )
+	assert( pivot <= self._NumPivots )
+	return self.Pivot[pivot].IsVisible
+end
+
+--- @return Matrix3dInstance
+function INSTANCE:GetRootTransform()
+	return self.Pivot[1].Transform
+end
+
+--- @param boneIndex integer
+function INSTANCE:CaptureBone( boneIndex )
+	assert( boneIndex >= 1 )
+	assert( boneIndex <= self._NumPivots )
+
+	self.Pivot[boneIndex].IsCaptured = true
+end
+
+--- @param boneIndex integer
+function INSTANCE:ReleaseBone( boneIndex )
+	assert( boneIndex >= 1 )
+	assert( boneIndex <= self._NumPivots )
+
+	self.Pivot[boneIndex].IsCaptured = false
+end
+
+--- @param boneIndex integer
+--- @return boolean
+function INSTANCE:IsBoneCaptured( boneIndex )
+	assert( boneIndex >= 1 )
+	assert( boneIndex <= self._NumPivots )
+
+	return self.Pivot[boneIndex].IsCaptured
+end
+
+--- @param boneIndex integer
+--- @param relativeTranslationMatrix Matrix3dInstance
+--- @param worldSpaceTranslation boolean
+function INSTANCE:ControlBone( boneIndex, relativeTranslationMatrix, worldSpaceTranslation )
+	assert( boneIndex >= 1 )
+	assert( boneIndex <= self._NumPivots )
+	assert( self.Pivot[boneIndex].IsCaptured )
+
+	self.Pivot[boneIndex].WorldSpaceTranslation = worldSpaceTranslation
+	self.Pivot[boneIndex].CapTransform = relativeTranslationMatrix
+end
+
+--- @param boneIndex integer
+--- @return Matrix3dInstance
+function INSTANCE:GetBoneControl( boneIndex )
+	assert( boneIndex >= 1 )
+	assert( boneIndex < self._NumPivots )
+
+	-- "Return the bone's control transform to the caller"
+	if self.Pivot[boneIndex].IsCaptured then
+		return self.Pivot[boneIndex].CapTransform
+	else
+		return matrix3dClass.New( true )
+	end
+end
+
+--- "Returns the transform of a pivot at the given frame."
+--- @overload fun( self: HTreeInstance, motion: HAnimationInstance, pivotIndex: integer, frame: number, objectTransformationMatrix: Matrix3dInstance ):boolean, Matrix3dInstance
+--- @overload fun( self: HTreeInstance, pivotIndex: integer, objectTransformationMatrix: Matrix3dInstance ): boolean, Matrix3dInstance
+function INSTANCE:SimpleEvaluatePivot( ... )
+	local args = { ... }
+	local argCount = #args
+	typecheck.AssertArgCount( self.Class, argCount, { 2, 4 } )
+
+	local returnValue = false
+
+	--- @type Matrix3dInstance
+	local endTransformationMatrix = matrix3dClass.New()
+	endTransformationMatrix:MakeIdentity()
+
+	-- ( pivotIndex: integer, objectTransformationMatrix: Matrix3dInstance ): boolean, Matrix3dInstance
+	if argCount == 2 then
+		local pivotIndex				 = args[1] --[[@as integer]]
+		local objectTransformationMatrix = args[2] --[[@as Matrix3dInstance]]
+
+		if endTransformationMatrix ~= nil and pivotIndex >= 1 and pivotIndex < self._NumPivots then
+			-- "Loop over the hierarchy of pivots that this pivot is attached to and transform each."
+			local pivot = self.Pivot[pivotIndex]
+			while pivot ~= nil and pivot.Parent ~= nil do
+				-- "Build a matrix that represents the animatino for this pivot"
+				local animationTransformationMatrix = matrix3dClass.New( true )
+
+				-- "Transform the animation transform by the 'relative-to-parent' transform."
+				local currentTransformationMatrix = pivot.BaseTransform * animationTransformationMatrix
+
+				-- "Transform the return value by this transform"
+				endTransformationMatrix = currentTransformationMatrix * endTransformationMatrix
+
+				pivot = pivot.Parent
+			end
+
+			-- "Transform the return value by the object's transform"
+			endTransformationMatrix = objectTransformationMatrix * endTransformationMatrix
+			returnValue = true
+		end
+
+	-- ( motion: HAnimationInstance, pivotIndex: integer, frame: number, objectTransformationMatrix: Matrix3dInstance ): boolean, Matrix3dInstance
+	else
+		local motion 	 				 = args[1] --[[@as HAnimationInstance]]
+		local pivotIndex 				 = args[2] --[[@as integer]]
+		local frame 	 				 = args[3] --[[@as number]]
+		local objectTransformationMatrix = args[4] --[[@as Matrix3dInstance]]
+
+		if motion ~= nil and endTransformationMatrix ~= nil and pivotIndex >= 1 and pivotIndex < self._NumPivots then
+			-- "Loop over the hierarchy of pivots that this pivot is attached to and transform each."
+			local pivot = self.Pivot[pivotIndex]
+			while pivot ~= nil and pivot.Parent ~= nil do
+				-- "Build a matrix that represents the animatino for this pivot"
+				local animationTransformationMatrix = motion:GetTransform( pivot.Index, frame )
+
+				local transform = animationTransformationMatrix:GetTranslation()
+				animationTransformationMatrix:SetTranslation( transform * self.ScaleFactor )
+
+				-- "Transform the animation transform by the 'relative-to-parent' transform."
+				local currentTransformationMatrix = pivot.BaseTransform * animationTransformationMatrix
+
+				-- "Transform the return value by this transform"
+				endTransformationMatrix = currentTransformationMatrix * endTransformationMatrix
+
+				pivot = pivot.Parent
+			end
+
+			-- "Transform the return value by the object's transform"
+			endTransformationMatrix = objectTransformationMatrix * endTransformationMatrix
+
+			-- "Success!"
+			returnValue = true
+		end
+	end
+
+	return returnValue, endTransformationMatrix
+end
+
+function INSTANCE:Scale()
+	typecheck.NotImplementedError()
+end
+
+--- "De-allocate all memory in use"
+function INSTANCE:Free()
+	if self.Pivot ~= nil then
+		self.Pivot = nil
+	end
+	self._NumPivots = 0
+
+	-- "Also clean up other members:"
+	self.ScaleFactor = 1.0
+end
+
+--- "Reads the pivots out of a file"
+--- @param cload ChunkLoadInstance
+--- @param pre30 boolean
+--- @return boolean
+function INSTANCE:ReadPivots( cload, pre30 )
+	local firstPivot = 1
+
+	-- "At (w3d file format) version 3.0, I added a node for the root.  Pre-3.0 htrees didn't have this so we just put one in"
+	if pre30 then
+		local pivot = pivotClass.New()
+		pivot.Index = 0
+		pivot.Parent = nil
+		pivot.BaseTransform:MakeIdentity()
+		pivot.Transform:MakeIdentity()
+		pivot.IsVisible = true
+		pivot.Name = "RootTransform"
+		self.Pivot[1] = pivot
+		firstPivot = firstPivot + 1
+	end
+
+	--- @type W3dPivotStruct?
+	local readPivot
+	--- @type PivotInstance
+	local newPivot
+
+	for pivotIndex = firstPivot, self._NumPivots do
+
+		readPivot = cload:ReadStruct( "W3dPivotStruct" )
+		if readPivot == nil then
+			return false
+		end
+
+		-- Adjust the parent index to account for Lua's arrays starting at 1 instead of 0
+		readPivot.ParentIdx = readPivot.ParentIdx + 1
+
+		newPivot = pivotClass.New()
+		self.Pivot[pivotIndex] = newPivot
+		newPivot.Name = readPivot.Name
+		newPivot.Index = pivotIndex
+
+		newPivot.BaseTransform:MakeIdentity()
+		newPivot.BaseTransform:Translate(
+			Vector(
+				readPivot.Translation.X,
+				readPivot.Translation.Y,
+				readPivot.Translation.Z
+			)
+			* unitConversionLib.MetersToSource
+		)
+
+		newPivot.BaseTransform =
+			newPivot.BaseTransform *
+			quaternionClass.BuildMatrix3d(
+				quaternionClass.New(
+					readPivot.Rotation.Q[1],
+					readPivot.Rotation.Q[2],
+					readPivot.Rotation.Q[3],
+					readPivot.Rotation.Q[4]
+				)
+			)
+
+		-- "At version 3.0 a root node was added, this "fixes up" pre-3.0 files to have that root node"
+		if pre30 then
+			readPivot.ParentIdx = readPivot.ParentIdx + 1
+		end
+
+		-- "  
+		-- Set the parent pointer.
+		-- The first pivot will have a parent index of -1 (in post-3.0 files) so set its parent to [nil].
+		-- "  
+		if readPivot.ParentIdx == -1 then
+			self.Pivot[pivotIndex].Parent = nil
+			assert( pivotIndex == 1 )
+		else
+			self.Pivot[pivotIndex].Parent = self.Pivot[readPivot.ParentIdx]
+		end
+	end
+
+	self.Pivot[1].Transform:MakeIdentity()
+	self.Pivot[1].IsVisible = true
+
+	return true
+end

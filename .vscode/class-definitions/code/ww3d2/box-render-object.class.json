@@ -1,0 +1,46 @@
+{
+  "Name": "BoxRenderObject",
+  "ParentNames": [
+    "RenderObject"
+  ],
+  "FileName": "box-render-object",
+  "CppName": "BoxRenderObjClass",
+  "CppPath": "Code/ww3d2/boxrobj.h",
+  "Static": {
+    "Fields": [
+      "IsInitted",
+      "DisplayMask"
+    ],
+    "Functions": [
+      "Init",
+      "Shutdown",
+      "SetBoxDisplayMask",
+      "GetBoxDisplayMask"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "Name",
+      "Color",
+      "ObjectSpaceCenter",
+      "ObjectSpaceExtent",
+      "Opacity"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "GetNumPolys",
+      "GetName",
+      "SetName",
+      "SetColor",
+      "SetOpacity",
+      "SetLocalCenterExtent",
+      "SetLocalMinMax",
+      "GetLocalCenter",
+      "GetLocalExtent",
+      "UpdateCachedBox",
+      "RenderBox",
+      "VisRenderBox"
+    ]
+  }
+}

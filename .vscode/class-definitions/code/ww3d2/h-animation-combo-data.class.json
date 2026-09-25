@@ -1,0 +1,43 @@
+{
+  "Name": "HAnimationComboData",
+  "ParentNames": [
+  ],
+  "FileName": "h-animation-combo-data",
+  "CppName": "HAnimComboDataClass",
+  "CppPath": "Code/ww3d2/hanim.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "HAnimation",
+      "Frame",
+      "PrevFrame",
+      "Weight",
+      "PivotMap",
+      "Shared"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Copy",
+      "Clear",
+      "SetHAnimation",
+      "GiveHAnimation",
+      "SetFrame",
+      "SetPrevFrame",
+      "SetWeight",
+      "SetPivotMap",
+      "PeekHAnimation",
+      "GetHAnimation",
+      "GetFrame",
+      "GetPrevFrame",
+      "GetWeight",
+      "PeekPivotMap",
+      "GetPivotMap",
+      "IsShared",
+      "BuildActivePivotMap"
+    ]
+  }
+}

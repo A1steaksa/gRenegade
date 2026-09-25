@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/p_health3"
+	"$surfaceprop" "Metal_Box"
+}

@@ -1,0 +1,40 @@
+{
+  "Name": "AABoxRenderObject",
+  "ParentNames": [
+    "BoxRenderObject"
+  ],
+  "FileName": "aa-box-render-object",
+  "CppName": "AABoxRenderObjClass",
+  "CppPath": "Code/ww3d2/boxrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "CachedBox",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Clone",
+      "ClassId",
+      "Render",
+      "SpecialRender",
+      "SetTransform",
+      "SetPosition",
+      "CastRay",
+      "CastAaBox",
+      "CastObBox",
+      "IntersectAaBox",
+      "IntersectObBox",
+      "GetObjectSpaceBoundingSphere",
+      "GetObjectSpaceBoundingBox",
+      "GetBox",
+      "UpdateCachedBox"
+    ]
+  }
+}

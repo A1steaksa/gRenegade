@@ -1,0 +1,742 @@
+-- Based on Render2DClass within Code/ww3d2/render2d.cpp/h
+
+--- @class Renegade
+local CNC = CNC_RENEGADE
+
+--- A 2D renderer that constructs an internal IMesh
+--- @class Render2dClass
+--- @field Instance Render2dInstance The metatable used by Render2dInstance
+local STATIC = CNC.CreateExport()
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "Render2dClass"
+
+--- A 2D renderer that constructs an internal IMesh
+--- @class Render2dInstance
+--- @field Static Render2dClass The static table for this instance's class
+local INSTANCE = robustclass.Register( "Renegade_Render2d" )
+INSTANCE.Class = "Render2dInstance"
+STATIC.Instance = INSTANCE
+INSTANCE.Static = STATIC
+INSTANCE.IsRender2d = true
+
+--#region Imports
+
+    --- @type RectClass
+    local rectClass = CNC.Import( "code/wwmath/rect.lua" )
+
+    --- @type WW3dClass
+    local ww3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
+
+    --- @type ShaderClass
+    local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
+--#endregion
+
+
+--[[ Static Functions and Variables ]] do
+
+    --- @class Render2dClass
+    --- @field protected ScreenResolution RectInstance
+
+    if CLIENT then
+        --- Material used for non-materialing renderers
+        STATIC.ColorMaterial = CreateMaterial( "Renegade_2dColorMaterial", "UnlitGeneric", {
+            ["$basetexture"]    = "color/white",
+            ["$model"]          = "1",
+            ["$translucent"]    = "1",
+            ["$vertexalpha"]    = "1",
+            ["$vertexcolor"]    = "1"
+        } )
+    end
+
+
+    --- Creates a new Render2d
+    --- @param material IMaterial?
+    --- @return Render2dInstance
+    function STATIC.New( material )
+        return robustclass.New( "Renegade_Render2d", material )
+    end
+
+    ---@param arg any
+    ---@return boolean `true` if the passed argument is a(n) Render2dInstance, `false` otherwise
+    function STATIC.IsRender2d( arg )
+        if not istable( arg ) then return false end
+        if getmetatable( arg ) ~= INSTANCE then return false end
+
+        return arg.IsRender2d and true or false
+    end
+    typecheck.RegisterType( "Render2dInstance", STATIC.IsRender2d )
+
+    --- @return ShaderInstance
+    function STATIC.GetDefaultShader()
+        local shaderInstance = shaderClass.New()
+
+        shaderInstance:SetDepthMask( shaderClass.DEPTH_MASK.Disable )
+        shaderInstance:SetDepthCompare( shaderClass.DEPTH_COMPARE.PassAlways )
+        shaderInstance:SetDstBlendFunc( shaderClass.DST_BLEND_FUNC.OneMinusSrcAlpha )
+        shaderInstance:SetSrcBlendFunc( shaderClass.SRC_BLEND_FUNC.SrcAlpha )
+        shaderInstance:SetFogFunc( shaderClass.FOG_FUNC.Disable )
+        shaderInstance:SetPrimaryGradient( shaderClass.PRIMARY_GRADIENT.Modulate )
+        shaderInstance:SetMaterialing( shaderClass.MATERIALING.Enable )
+
+        return shaderInstance
+    end
+
+    --- Retrieves the screen size as a RectangleInstance
+    --- @return RectInstance 
+    function STATIC.GetScreenResolution()
+        if not STATIC.ScreenResolution then
+            STATIC.ScreenResolution = robustclass.New( "Renegade_Rect", 0, 0, ScrW(), ScrH() )
+        end
+
+        return STATIC.ScreenResolution
+    end
+
+    -- Force the screen resolution rect to be rebuilt whenever the resolution changes
+    hook.Add( "OnScreenSizeChanged", "A1_Renegade_Render2d_ResolutionChanged", function ()
+        STATIC.ScreenResolution = nil
+    end )
+end
+
+
+local math_remap = math.Remap
+
+--- Constructs a new Render2DInstance object
+--- @param material IMaterial?
+function INSTANCE:Renegade_Render2d( material )
+    self.CoordinateScale = Vector( 1, 1 )
+    self.CoordinateOffset = Vector( 0, 0 )
+    self.ZValue = 0
+    self.IsHidden = false
+    self.UsePointFiltering = false
+
+    self.Vertices = {}
+    self.Uvs = {}
+    self.Colors = {}
+    self.ShouldRebuildMesh = false
+
+    self:SetMaterial( material )
+    self.Shader = STATIC.GetDefaultShader()
+
+    self:UpdateBias()
+end
+
+--- Deletes the Mesh contents of this renderer
+function INSTANCE:Reset()
+
+    if self.Mesh then
+        self.Mesh:Destroy()
+        self.Mesh = nil
+    end
+
+    self.Vertices = {}
+    self.Uvs = {}
+    self.Colors = {}
+    self.ShouldRebuildMesh = true
+
+    self:UpdateBias()
+end
+
+function INSTANCE:Render()
+    if self.IsHidden then
+        return
+    end
+
+    -- Don't bother if we don't have anything to draw
+    if #self.Vertices == 0 then
+        return
+    end
+
+    -- Build the mesh if it's out of date
+    if self.ShouldRebuildMesh then
+
+        -- Sanity check
+        if #self.Vertices ~= #self.Uvs or #self.Uvs ~= #self.Colors then
+            typecheck.Error( INSTANCE.Class, "Render", string.format( "Render2d:Render has mismatch in list counts: Vertices (%d), UVs (%d), Colors (%d)", #self.Vertices, #self.Uvs, #self.Colors ) )
+        end
+
+        local triCount = #self.Vertices / 3
+
+        -- Can't have partial triangles
+        if triCount ~= math.floor( triCount ) then
+            typecheck.Error( INSTANCE.Class, "Render", string.format(  "Render2d:Render count of Vertices (%d) must be divisible by 3", #self.Vertices ) )
+        end
+
+        if self.Mesh then
+            self.Mesh:Destroy()
+        end
+
+        self.Mesh = Mesh()
+
+        local screenSize = STATIC.GetScreenResolution()
+        local screenWidth = screenSize:Width()
+        local screenHeight = screenSize:Height()
+
+        mesh.Begin( self.Mesh, MATERIAL_TRIANGLES, triCount )
+
+        for i = 1, #self.Vertices do
+            local vertex = self.Vertices[i]
+            local uv     = self.Uvs[i]
+            local color  = self.Colors[i]
+
+            -- Convert from the (-1,1),(1,-1) coordinate space the Renegade renderer uses to Garry's Mod's screen pixel coordinate space
+            vertex.x = math_remap( vertex.x, -1, 1, 0, screenWidth )
+            vertex.y = math_remap( vertex.y, 1, -1, 0, screenHeight )
+
+            mesh.Position( vertex )
+            mesh.TexCoord( 0, uv.x, uv.y )
+            mesh.Color( color.r, color.g, color.b, color.a )
+            mesh.AdvanceVertex()
+        end
+
+        mesh.End()
+
+        self.ShouldRebuildMesh = false
+    end
+
+    if self.Mesh then
+
+        local material = self.Material
+        if material then
+            render.SetMaterial( material )
+        else
+            render.SetMaterial( STATIC.ColorMaterial )
+        end
+
+        cam.Start2D()
+
+        if self.UsePointFiltering then
+            render.PushFilterMin( TEXFILTER.POINT )
+            render.PushFilterMag( TEXFILTER.POINT )
+        else
+            render.PushFilterMin( TEXFILTER.ANISOTROPIC )
+            render.PushFilterMag( TEXFILTER.ANISOTROPIC )
+        end
+
+        self.Shader:Apply()
+        self.Mesh:Draw()
+        self.Shader:Unapply()
+
+        render.PopFilterMag()
+        render.PopFilterMin()
+
+        cam.End2D()
+    end
+end
+
+--- > *"default range is (-1,1)-(1,-1)" -Code/ww3d2/render2d.cpp#170*
+--- @param range RectInstance
+function INSTANCE:SetCoordinateRange( range )
+    self.CoordinateScale.x =  2 / range:Width()
+    self.CoordinateScale.y = -2 / range:Height()
+    self.CoordinateOffset.x = -( self.CoordinateScale.x * range.Left ) - 1
+    self.CoordinateOffset.y = -( self.CoordinateScale.y * range.Top  ) + 1
+
+    -- self.CoordinateScale.x = range:Width()
+    -- self.CoordinateScale.y = range:Height()
+    -- self.CoordinateOffset.x = 0
+    -- self.CoordinateOffset.y = 0
+
+    self:UpdateBias()
+end
+
+--- Sets the IMaterial that this renderer will use
+--- Originally called `Set_Texture`
+--- @param material IMaterial?
+function INSTANCE:SetMaterial( material )
+    self.Material = material
+end
+
+--- Originally called `Peek_Texture`
+--- @returns IMaterial
+function INSTANCE:PeekMaterial()
+    return self.Material
+end
+
+--- @param hasAlpha boolean
+function INSTANCE:EnableAlpha( hasAlpha )
+    if hasAlpha then
+        self.Shader:SetDstBlendFunc( shaderClass.DST_BLEND_FUNC.OneMinusSrcAlpha )
+        self.Shader:SetSrcBlendFunc( shaderClass.SRC_BLEND_FUNC.SrcAlpha )
+    else
+        self.Shader:SetSrcBlendFunc( shaderClass.DST_BLEND_FUNC.One )
+        self.Shader:SetDstBlendFunc( shaderClass.SRC_BLEND_FUNC.Zero )
+    end
+end
+
+--- @param isAdditive boolean
+function INSTANCE:EnableAdditive( isAdditive )
+    if isAdditive then
+        self.Shader:SetDstBlendFunc( shaderClass.DST_BLEND_FUNC.One )
+        self.Shader:SetSrcBlendFunc( shaderClass.SRC_BLEND_FUNC.One )
+    else
+        self.Shader:SetSrcBlendFunc( shaderClass.DST_BLEND_FUNC.One )
+        self.Shader:SetDstBlendFunc( shaderClass.SRC_BLEND_FUNC.Zero )
+    end
+end
+
+--- Originally called `Enable_Texturing`
+--- @param useMaterial boolean
+function INSTANCE:EnableMaterial( useMaterial )
+    if useMaterial then
+        self.Shader:SetMaterialing( shaderClass.MATERIALING.Enable )
+    else
+        self.Shader:SetMaterialing( shaderClass.MATERIALING.Disable )
+    end
+end
+
+--- @return ShaderInstance
+function INSTANCE:GetShader()
+    return self.Shader
+end
+
+--- Adds a Quad to this renderer
+--- @param ... any
+--- @overload fun( self: Render2dInstance,  vertex0: Vector,     vertex1: Vector,    vertex2: Vector,    vertex3: Vector,    uvs: RectInstance,  color: Color?   ) Adds a UV'd Quad to this renderer by individually defining its points
+--- @overload fun( self: Render2dInstance,  vertex0: Vector,     vertex1: Vector,    vertex2: Vector,    vertex3: Vector,    color: Color?                       ) Adds an un-UV'd Quad to this renderer by individually defining its points
+--- @overload fun( self: Render2dInstance,  rect: RectInstance,  uvs: RectInstance,  color: Color?                                                               ) Adds a UV'd Quad to this renderer using Rects
+--- @overload fun( self: Render2dInstance,  rect: RectInstance,  color: Color?                                                                                   ) Adds an un-UV'd Quad to this renderer using a Rect
+function INSTANCE:AddQuad( ... )
+    local args = { ... }
+
+    local firstArg  = args[1]
+    local secondArg = args[2]
+    local thirdArg  = args[3]
+    local fourthArg = args[4]
+    local fifthArg  = args[5]
+    local sixthArg  = args[6]
+
+    --- For individually defined vertices
+    --- @type Vector, Vector, Vector, Vector
+    local vertex0, vertex1, vertex2, vertex3
+
+    --- For collectively defined vertices
+    --- @type RectInstance
+    local _rect
+
+    local uvs = robustclass.New( "Renegade_Rect", 0, 0, 1, 1 )
+    local color = Color( 255, 255, 255, 255 )
+
+    typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, { "Vector", "RectInstance" } )
+
+    -- ( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, ... )
+    if isvector( firstArg ) then
+        --- @cast firstArg Vector
+
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector" )
+
+        vertex0 = firstArg
+        vertex1 = secondArg
+        vertex2 = thirdArg
+        vertex3 = fourthArg
+
+        -- ( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, uvs: RectInstance, color: Color? )
+        if rectClass.IsRect( fifthArg ) then
+            --- @cast fifthArg RectInstance
+            uvs = fifthArg
+
+            -- Sixth arg must be Color
+            if sixthArg then
+                typecheck.AssertArgType( INSTANCE.Class, 6, sixthArg, "color" )
+
+                --- @cast sixthArg Color
+                color = sixthArg
+            end
+
+        -- ( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, color: Color? )
+        else
+            -- Fifth arg must be Color
+            if fifthArg then
+                typecheck.AssertArgType( INSTANCE.Class, 5, fifthArg, "color" )
+
+                --- @cast fifthArg Color
+                color = fifthArg
+            end
+        end
+
+    -- ( rect: RectInstance, ... )
+    else
+        --- @cast firstArg RectInstance
+
+        -- ( rect: RectInstance, uvs: RectInstance, color: Color? )
+        if rectClass.IsRect( secondArg ) then
+            --- @cast secondArg RectInstance
+
+            _rect = firstArg
+            uvs = secondArg
+
+            -- Third arg must be Color
+            if thirdArg then
+                typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "color" )
+                --- @cast thirdArg Color
+                color = thirdArg
+            end
+
+        -- ( rect: RectInstance, color: Color? )
+        else
+            _rect  = firstArg
+
+            if secondArg then
+                typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "color" )
+                --- @cast secondArg Color
+                color = secondArg
+            end
+        end
+    end
+
+    -- One final sanity check
+    local hasVertices = ( _rect or ( vertex0 and vertex1 and vertex2 and vertex3 ) )
+    if not hasVertices or not uvs or not color then
+        typecheck.Error( INSTANCE.Class, "AddQuad", "an unknown error occurred" )
+    end
+
+    if _rect then
+        self:InternalAddQuadVertices( _rect, false )
+    else
+        self:InternalAddQuadVertices( vertex0, vertex1, vertex2, vertex3, false )
+    end
+
+    self:InternalAddQuadUvs( uvs )
+    self:InternalAddQuadColors( color )
+
+    self.ShouldRebuildMesh = true
+end
+
+--- @param vertex0 Vector
+--- @param vertex1 Vector
+--- @param vertex2 Vector
+--- @param vertex3 Vector
+--- @param uv RectInstance
+--- @param color Color? [Default: White]
+function INSTANCE:AddQuadBackfaced( vertex0, vertex1, vertex2, vertex3, uv, color )
+    if not color then color = Color( 255, 255, 255, 255 ) end
+
+    self:InternalAddQuadVertices( vertex0, vertex1, vertex2, vertex3, true )
+    self:InternalAddQuadUvs( uv, true )
+    self:InternalAddQuadColors( color )
+end
+
+--- @param screen RectInstance
+--- @param topColor Color
+--- @param bottomColor Color
+function INSTANCE:AddQuadVerticalGradient( screen, topColor, bottomColor )
+    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
+end
+
+---@param screen RectInstance
+---@param leftColor Color
+---@param rightColor Color
+function INSTANCE:AddQuadVerticalGradient( screen, leftColor, rightColor )
+    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
+end
+
+--- @param vertex0 Vector
+--- @param vertex1 Vector
+--- @param vertex2 Vector
+--- @param uv0 Vector
+--- @param uv1 Vector
+--- @param uv2 Vector
+--- @param color Color? [Default: White]
+function INSTANCE:AddTri( vertex0, vertex1, vertex2, uv0, uv1, uv2, color )
+    -- Vertices
+    self.Vertices[#self.Vertices + 1] = self:ConvertVert( vertex0 )
+    self.Vertices[#self.Vertices + 1] = self:ConvertVert( vertex1 )
+    self.Vertices[#self.Vertices + 1] = self:ConvertVert( vertex2 )
+
+    -- UVs
+    self.Uvs[#self.Uvs + 1] = uv0
+    self.Uvs[#self.Uvs + 1] = uv1
+    self.Uvs[#self.Uvs + 1] = uv2
+
+    -- Colors
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+end
+
+--- @overload fun( self: Render2dInstance, startPos: Vector, endPos: Vector, width: number, color: Color )
+--- @overload fun( self: Render2dInstance, startPos: Vector, endPos: Vector, width: number, uv: RectInstance, color: Color )
+function INSTANCE:AddLine( ... )
+    local args = { ... }
+    local argCount = select( "#", ... )
+
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 4, 5 } )
+
+    local startPos
+    local endPos
+    local width
+    local uv
+    local color
+
+    -- ( startPos: Vector, endPos: Vector, width: number, color: Color )
+    if argCount == 4 then
+        typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, args[3], "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, args[4], "Color"  )
+
+        startPos = args[1] --[[@as Vector]]
+        endPos   = args[2] --[[@as Vector]]
+        width    = args[3] --[[@as number]]
+        uv       = rectClass.New( 0, 0, 1, 1 ) --[[@as RectInstance]]
+        color    = args[4] --[[@as Color]]
+    end
+
+    -- ( startPos: Vector, endPos: Vector, width: number, uv: RectInstance, color: Color )
+    if argCount == 5 then
+        typecheck.AssertArgType( INSTANCE.Class, 1, startPos, "Vector"       )
+        typecheck.AssertArgType( INSTANCE.Class, 2, endPos,   "Vector"       )
+        typecheck.AssertArgType( INSTANCE.Class, 3, width,    "number"       )
+        typecheck.AssertArgType( INSTANCE.Class, 4, uv,       "RectInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 5, color,    "Color"        )
+
+        startPos = args[1] --[[@as Vector]]
+        endPos   = args[2] --[[@as Vector]]
+        width    = args[3] --[[@as number]]
+        uv       = args[4] --[[@as RectInstance]]
+        color    = args[5] --[[@as Color]]
+    end
+
+    local cornerOffset = startPos - endPos -- "Get line relative to endPos"
+    local temp = cornerOffset.x -- "Rotate 90"
+    cornerOffset.x = cornerOffset.y
+    cornerOffset.y = -temp
+    cornerOffset:Normalize()
+    cornerOffset = cornerOffset * width / 2
+
+    self:AddQuad( startPos - cornerOffset, startPos + cornerOffset, endPos - cornerOffset, endPos + cornerOffset, uv, color )
+end
+
+function INSTANCE:AddOutline( ... )
+    typecheck.NotImplementedError( "AddOutline" )
+end
+
+--- @param rect RectInstance
+--- @param borderWidth number
+--- @param borderColor Color? [Default: Red]
+--- @param fillColor Color? [Default: White]
+function INSTANCE:AddRect( rect, borderWidth, borderColor, fillColor )
+    typecheck.NotImplementedError( "AddRect" )
+end
+
+---@param isHidden boolean
+function INSTANCE:SetHidden( isHidden )
+    self.IsHidden = isHidden
+end
+
+--- > *"this is usefull for playing tricks with the z-buffer" -Code/ww3d2/render2d.h#142*
+--- @param zValue number
+function INSTANCE:SetZValue( zValue )
+    self.ZValue = zValue
+end
+
+--- Moves/translates all vertices
+--- @param translation Vector
+function INSTANCE:Move( translation )
+    typecheck.NotImplementedError( "Move" )
+end
+
+--- @param alpha number
+function INSTANCE:ForceAlpha( alpha )
+    typecheck.NotImplementedError( "ForceAlpha" )
+end
+
+--- @param color Color
+function INSTANCE:ForceColor( color )
+    typecheck.NotImplementedError( "ForceColor" )
+end
+
+--- @return Color[]
+function INSTANCE:GetColorArray()
+    return self.Colors
+end
+
+--[[ Protected ]]
+
+--- @class Render2dInstance
+--- @field protected CoordinateScale Vector
+--- @field protected CoordinateOffset Vector
+--- @field protected BiasedCoordinateOffset Vector
+--- @field protected Material IMaterial? (Originally called "Texture") The material to be drawn on this renderer's faces
+--- @field protected Shader ShaderInstance
+--- @field protected Vertices Vector[]
+--- @field protected Uvs Vector[]
+--- @field protected ShouldRebuildMesh boolean
+--- @field protected Colors Color[]
+--- @field protected IsHidden boolean
+--- @field protected ZValue number The depth value used when rendering vertices
+--- @field protected Mesh IMesh The mesh that this renderer wraps
+--- @field protected UsePointFiltering boolean Should this renderer use pixelated point texture filtering instead of smooth filtering?
+
+--- Adjusts a given Vector based on the Screen UV Bias
+--- @param ... unknown
+--- @overload fun( self: Render2dInstance, vector: Vector ): Vector
+--- @overload fun( self: Render2dInstance, x: number, y: number ): Vector
+function INSTANCE:ConvertVert( ... )
+    local args = { ... }
+    local argCount = select( "#", ... )
+
+    local firstArg  = args[1]
+    local secondArg = args[2]
+
+    --- @type integer, integer
+    local x, y
+
+    if argCount == 1 then
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "vector" )
+        --- @cast firstArg Vector
+
+        x = firstArg.x
+        y = firstArg.y
+    elseif argCount == 2 then
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "number" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "number" )
+
+        x = firstArg  --[[@as number]]
+        y = secondArg --[[@as number]]
+    else
+        typecheck.AssertArgCount( INSTANCE.Class, argCount )
+    end
+
+    return Vector(
+        x * self.CoordinateScale.x + self.BiasedCoordinateOffset.x,
+        y * self.CoordinateScale.y + self.BiasedCoordinateOffset.y
+    )
+end
+
+--- Adds the Vertices of a Quad to the internal list of Vertices
+--- @overload fun( self: Render2dInstance, vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector, isBackfaced: boolean )
+--- @overload fun( self: Render2dInstance, rect: RectInstance, isBackfaced: boolean )
+--- @protected
+function INSTANCE:InternalAddQuadVertices( ... )
+    local args = { ... }
+    local argCount = select( "#", ... )
+
+    typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2, 4, 5 } )
+
+    local firstArg  = args[1]
+    local secondArg = args[2]
+    local thirdArg  = args[3]
+    local fourthArg = args[4]
+    local fifthArg  = args[5]
+
+    --- @type Vector, Vector, Vector, Vector, boolean
+    local vertex0, vertex1, vertex2, vertex3, isBackfaced
+
+    -- InternalAddQuadVertices( rect: RectInstance )
+    if argCount == 1 or argCount == 2 then
+        local rect = firstArg --[[@as RectInstance]]
+        isBackfaced = ( secondArg and secondArg or false ) --[[@as boolean]]
+
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "RectInstance" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, isBackfaced, "boolean" )
+
+        vertex0 = Vector( rect.Left,    rect.Top    )
+        vertex1 = Vector( rect.Left,    rect.Bottom )
+        vertex2 = Vector( rect.Right,   rect.Top    )
+        vertex3 = Vector( rect.Right,   rect.Bottom )
+
+    -- InternalAddQuadVertices( vertex0: Vector, vertex1: Vector, vertex2: Vector, vertex3: Vector )
+    elseif argCount == 4 or argCount == 5 then
+        vertex0 = firstArg  --[[@as Vector]]
+        vertex1 = secondArg --[[@as Vector]]
+        vertex2 = thirdArg  --[[@as Vector]]
+        vertex3 = fourthArg --[[@as Vector]]
+        isBackfaced = ( fifthArg and fifthArg or false ) --[[@as boolean]]
+
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg,  "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 5, isBackfaced,  "boolean" )
+    end
+
+    local convertedVertex0 = self:ConvertVert( vertex0 )
+    local convertedVertex1 = self:ConvertVert( vertex1 )
+    local convertedVertex2 = self:ConvertVert( vertex2 )
+    local convertedVertex3 = self:ConvertVert( vertex3 )
+
+    if isBackfaced then
+        -- First triangle
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex1 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex0 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex2 )
+
+        -- Second triangle
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex1 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex2 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex3 )
+    else
+        -- First triangle
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex0 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex1 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex2 )
+
+        -- Second triangle
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex2 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex1 )
+        self.Vertices[#self.Vertices + 1] = Vector( convertedVertex3 )
+    end
+end
+
+--- Adds the UVs of a Quad to the internal list of UVs
+--- @param uv RectInstance
+--- @param isBackfaced boolean? [Default: false]
+--- @protected
+function INSTANCE:InternalAddQuadUvs( uv, isBackfaced )
+
+    if isBackfaced then
+        -- First triangle
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Bottom ) -- Vertex 1
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Top    ) -- Vertex 0
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Top    ) -- Vertex 2
+
+        -- Second triangle
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Bottom ) -- Vertex 1
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Top    ) -- Vertex 2
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Bottom ) -- Vertex 3
+    else
+        -- First triangle
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Top    ) -- Vertex 0
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Bottom ) -- Vertex 1
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Top    ) -- Vertex 2
+
+        -- Second triangle
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Top    ) -- Vertex 2
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Left,  uv.Bottom ) -- Vertex 1
+        self.Uvs[#self.Uvs + 1] = Vector( uv.Right, uv.Bottom ) -- Vertex 3
+    end
+
+end
+
+--- Adds a given color to a Quad in the internal list of Colors
+--- @param color Color
+--- @protected
+function INSTANCE:InternalAddQuadColors( color )
+
+    -- First Triangle
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+
+    -- Second Triangle
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+    self.Colors[#self.Colors + 1] = color
+end
+
+--- Updates the biased coordinate offsets based on if ScreenUvBias is enabled
+--- @protected
+function INSTANCE:UpdateBias()
+    self.BiasedCoordinateOffset = self.CoordinateOffset
+
+    if ww3dClass.IsScreenUvBiased() then
+        local biasAdd = Vector( -0.5, -0.5 )
+        local screenResolution = STATIC.GetScreenResolution()
+        biasAdd.x = biasAdd.x / ( screenResolution:Width()  *  0.5 )
+        biasAdd.y = biasAdd.y / ( screenResolution:Height() * -0.5 )
+
+        self.BiasedCoordinateOffset = self.BiasedCoordinateOffset + biasAdd
+    end
+end

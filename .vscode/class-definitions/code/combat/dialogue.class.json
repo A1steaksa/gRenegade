@@ -1,0 +1,29 @@
+{
+  "Name": "Dialogue",
+  "ParentNames": [],
+  "FileName": "dialogue",
+  "CppName": "DialogueClass",
+  "CppPath": "Code/Combat/dialogue.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "OptionList",
+      "SilenceWeight"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetOptionList",
+      "FreeOptions",
+      "GetSilenceWeight",
+      "SetSilenceWeight",
+      "GetConversation",
+      "Save",
+      "Load",
+      "LoadVariables"
+    ]
+  }
+}

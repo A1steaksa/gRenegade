@@ -1,0 +1,19 @@
+{
+    "Name": "CombatPhysicsObserver",
+    "ParentNames": [ "PhysicsObserver" ],
+    "CppName": "CombatPhysObserverClass",
+
+    "Static": {
+        "Fields": [],
+        "Functions": []
+    },
+
+    "Instance": {
+        "Fields": [],
+        "Functions": [
+            "AsDamageableGameObject",
+            "AsPhysicalGameObject",
+            "AsBuildingGameObject"
+        ]
+    }
+}

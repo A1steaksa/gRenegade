@@ -1,0 +1,17 @@
+{
+    "Name": "OratorType",
+    "CppName": "OratorTypeClass",
+
+    "Enums": [
+        "ORATOR_TYPE"
+    ],
+
+    "Static": {
+        "Fields": [],
+        "Functions": [
+            "GetCount",
+            "GetId",
+            "GetDescription"
+        ]
+    }
+}

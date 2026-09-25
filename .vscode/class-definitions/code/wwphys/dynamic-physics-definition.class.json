@@ -1,0 +1,24 @@
+{
+  "Name": "DynamicPhysicsDefinition",
+  "ParentNames": [
+    "PhysicsDefinition"
+  ],
+  "FileName": "dynamic-physics-definition",
+  "CppName": "DynamicPhysDefClass",
+  "CppPath": "Code/wwphys/dynamicphys.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "Save",
+      "Load",
+      "GetTypeName",
+      "IsType",
+      "IsValidConfig"
+    ]
+  }
+}

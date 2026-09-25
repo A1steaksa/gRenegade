@@ -1,0 +1,26 @@
+{
+  "Name": "HumanPhysicsDefinition",
+  "ParentNames": [
+    "Physics3Definition"
+  ],
+  "FileName": "human-physics-definition",
+  "CppName": "HumanPhysDefClass",
+  "CppPath": "Code/wwphys/humanphys.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Constructor",
+      "GetClassId",
+      "Create",
+      "GetTypeName",
+      "IsType",
+      "GetFactory",
+      "Save",
+      "Load"
+    ]
+  }
+}

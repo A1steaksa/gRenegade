@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/ladder"
+	"$alphatest" 1
+	"$surfaceprop" "Metal"
+}

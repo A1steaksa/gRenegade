@@ -1,0 +1,35 @@
+{
+  "Name": "RAMFileFactory",
+  "ParentNames": [
+    "FileFactory"
+  ],
+  "FileName": "ram-file-factory",
+  "CppName": "RAMFileFactoryClass",
+  "CppPath": "Code/Installer/RAMFileFactory.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "FileBuffer",
+        "DataType": "UnsignedcharInstance"
+      },
+      {
+        "Name": "FileBufferSize",
+        "DataType": "UnsignedInstance"
+      },
+      {
+        "Name": "FileName",
+        "DataType": "string"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetFile",
+      "ReturnFile"
+    ]
+  }
+}

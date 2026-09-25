@@ -1,0 +1,25 @@
+{
+  "Name": "CacheStraw",
+  "ParentNames": [
+    "Straw"
+  ],
+  "FileName": "cache-straw",
+  "CppName": "CacheStraw",
+  "CppPath": "Code/wwlib/cstraw.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "BufferPtr",
+      "Index",
+      "Length"
+    ],
+    "Functions": [
+      "Constructor",
+      "Get",
+      "IsValid"
+    ]
+  }
+}

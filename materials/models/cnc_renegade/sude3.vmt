@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cnc_renegade/sude3"
+	"$surfaceprop" "Metal"
+}

@@ -1,0 +1,26 @@
+{
+  "Name": "OBBoxIntersectionTest",
+  "ParentNames": [
+    "IntersectionTest"
+  ],
+  "FileName": "ob-box-intersection-test",
+  "CppName": "OBBoxIntersectionTestClass",
+  "CppPath": "Code/ww3d2/inttest.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Box",
+      "BoundingBox"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Cull",
+      "IntersectTriangle",
+      "UpdateBoundingBox"
+    ]
+  }
+}

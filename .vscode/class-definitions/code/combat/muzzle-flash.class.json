@@ -1,0 +1,45 @@
+{
+  "Name": "MuzzleFlash",
+  "ParentNames": [],
+  "FileName": "muzzle-flash",
+  "CppName": "MuzzleFlashClass",
+  "CppPath": "Code/Combat/weapons.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "MuzzleA0bOne",
+        "DataType": "integer"
+      },
+      {
+        "Name": "MuzzleA1bOne",
+        "DataType": "integer"
+      },
+      {
+        "Name": "Rotation",
+        "DataType": "number"
+      },
+      {
+        "Name": "Model",
+        "DataType": "any"
+      },
+      {
+        "Name": "LastFlashA0",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "LastFlashA1",
+        "DataType": "boolean"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "Update"
+    ]
+  }
+}

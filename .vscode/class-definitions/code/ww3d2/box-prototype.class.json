@@ -1,0 +1,24 @@
+{
+  "Name": "BoxPrototype",
+  "ParentNames": [
+    "Prototype"
+  ],
+  "FileName": "box-prototype",
+  "CppName": "BoxPrototypeClass",
+  "CppPath": "Code/ww3d2/boxrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Definition"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetName",
+      "GetClassId",
+      "Create"
+    ]
+  }
+}

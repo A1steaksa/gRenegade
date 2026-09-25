@@ -115,7 +115,7 @@ end
 function STATIC.Render()
     if not CLIENT then return end
 
-    -- render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA, BLENDFUNC_ADD )
+    render.OverrideBlend( true, BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA, BLENDFUNC_ADD )
 
     render.PushFilterMin( TEXFILTER.POINT )
     render.PushFilterMag( TEXFILTER.POINT )
@@ -159,7 +159,7 @@ function STATIC.Render()
     render.PopFilterMag()
     render.PopFilterMin()
 
-    -- render.OverrideBlend( false )
+    render.OverrideBlend( false )
 end
 
 --- "Find a registered game mode by name"

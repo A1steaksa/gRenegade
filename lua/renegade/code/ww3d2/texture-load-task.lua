@@ -360,6 +360,7 @@ function INSTANCE:BeginCompressedLoad()
 	self.Height = height
 	self.Format = originalFormat -- Omitted call to GetValidTextureFormat because I don't want to deal with it right now
 
+	local textureFlags = 32768
 	local renderTargetFlags = 0
 
 	if CLIENT then
@@ -369,10 +370,7 @@ function INSTANCE:BeginCompressedLoad()
 			self.Height,
 			RT_SIZE_NO_CHANGE,
 			MATERIAL_RT_DEPTH_NONE,
-			bit.bor(
-				1, -- TEXTUREFLAGS_POINTSAMPLE
-				512 -- TEXTUREFLAGS_NOMIP
-			),
+			textureFlags,
 			renderTargetFlags,
 			IMAGE_FORMAT_RGBA8888
 		)

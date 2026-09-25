@@ -1,0 +1,29 @@
+{
+  "Name": "Pivot",
+  "ParentNames": [],
+  "FileName": "pivot",
+  "CppName": "PivotClass",
+  "CppPath": "Code/ww3d2/pivot.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Name",
+      "Index",
+      "Parent",
+      "BaseTransform",
+      "Transform",
+      "IsVisible",
+      "IsCaptured",
+      "CapTransform",
+      "WorldSpaceTranslation"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "CaptureUpdate"
+    ]
+  }
+}

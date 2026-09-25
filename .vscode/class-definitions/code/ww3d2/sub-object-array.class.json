@@ -1,0 +1,26 @@
+{
+  "Name": "SubObjectArray",
+  "ParentNames": [],
+  "FileName": "sub-object-array",
+  "CppName": "SubObjectArrayClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "MaxScreenSize",
+      "ModelCount",
+      "ModelName",
+      "BoneIndex"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Reset",
+      "LoadW3d",
+      "SaveW3d"
+    ]
+  }
+}

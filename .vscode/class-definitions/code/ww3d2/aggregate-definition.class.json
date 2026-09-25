@@ -1,0 +1,64 @@
+{
+  "Name": "AggregateDefinition",
+  "ParentNames": [],
+  "FileName": "aggregate-definition",
+  "CppName": "AggregateDefClass",
+  "CppPath": "Code/ww3d2/agg_def.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "MVersion",
+        "DataType": "any"
+      },
+      {
+        "Name": "MSubobjectList",
+        "DataType": "any"
+      },
+      {
+        "Name": "MInfo",
+        "DataType": "any"
+      },
+      {
+        "Name": "MMiscInfo",
+        "DataType": "any"
+      },
+      {
+        "Name": "MPName",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Destructor",
+      "LoadW3d",
+      "SaveW3d",
+      "GetName",
+      "SetName",
+      "Create",
+      "Clone",
+      "ClassId",
+      "Initialize",
+      "ReadHeader",
+      "ReadInfo",
+      "ReadSubobject",
+      "ReadClassInfo",
+      "SaveHeader",
+      "SaveInfo",
+      "SaveSubobject",
+      "SaveClassInfo",
+      "AttachSubobjects",
+      "FindSubobject",
+      "FreeSubobjectList",
+      "AddSubobject",
+      "LoadAssets",
+      "CreateRenderObject",
+      "IsObjectInList",
+      "BuildSubobjectList"
+    ]
+  }
+}

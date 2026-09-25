@@ -1,0 +1,39 @@
+{
+  "Name": "HAnimation",
+  "ParentNames": [],
+  "FileName": "h-animation",
+  "CppName": "HAnimClass",
+  "CppPath": "Code/ww3d2/hanim.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "HasEmbeddedSounds"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetName",
+      "GetHName",
+      "GetKey",
+      "GetNumFrames",
+      "GetFrameRate",
+      "GetTotalTime",
+      "GetTranslation",
+      "GetOrientation",
+      "GetTransform",
+      "GetVisibility",
+      "GetNumPivots",
+      "IsNodeMotionPresent",
+      "HasXTranslation",
+      "HasYTranslation",
+      "HasZTranslation",
+      "HasRotation",
+      "HasVisibility",
+      "HasEmbeddedSounds",
+      "SetHasEmbeddedSounds"
+    ]
+  }
+}

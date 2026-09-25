@@ -1,0 +1,57 @@
+{
+  "Name": "HumanLoiterGlobalSettingsDefinition",
+  "ParentNames": [
+    "Definition"
+  ],
+  "FileName": "human-loiter-global-settings-definition",
+  "CppName": "HumanLoiterGlobalSettingsDef",
+  "CppPath": "Code/Combat/globalsettings.h",
+  "Static": {
+    "Fields": [
+      {
+        "Name": "DefaultLoiters",
+        "DataType": "any"
+      },
+      {
+        "Name": "WeaponLoiters",
+        "DataType": "any"
+      },
+      {
+        "Name": "WeaponlessLoiters",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "GetDefaultLoiters",
+      "GetWeaponLoiters",
+      "GetWeaponlessLoiters"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "ActivationDelay",
+        "DataType": "number"
+      },
+      {
+        "Name": "LoiterFrequency",
+        "DataType": "number"
+      },
+      {
+        "Name": "LoiterAnimationList",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetClassId",
+      "Create",
+      "Save",
+      "Load",
+      "GetFactory",
+      "GetActivationDelay",
+      "PickAnimation"
+    ]
+  }
+}

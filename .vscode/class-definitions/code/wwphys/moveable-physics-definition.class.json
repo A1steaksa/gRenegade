@@ -1,0 +1,32 @@
+{
+  "Name": "MoveablePhysicsDefinition",
+  "ParentNames": [
+    "DynamicPhysicsDefinition"
+  ],
+  "FileName": "moveable-physics-definition",
+  "CppName": "MoveablePhysDefClass",
+  "CppPath": "Code/wwphys/movephys.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Mass",
+      "GravScale",
+      "Elasticity",
+      "CinematicCollisionMode"
+    ],
+    "Functions": [
+      "Constructor",
+      "GetTypeName",
+      "IsType",
+      "Save",
+      "Load",
+      "GetMass",
+      "GetGravScale",
+      "SetMass",
+      "SetGravScale"
+    ]
+  }
+}

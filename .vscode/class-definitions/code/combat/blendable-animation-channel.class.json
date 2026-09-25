@@ -1,0 +1,37 @@
+{
+  "Name": "BlendableAnimationChannel",
+  "ParentNames": [],
+  "FileName": "blendable-animation-channel",
+  "CppName": "BlendableAnimChannelClass",
+  "CppPath": "Code/Combat/animcontrol.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "NewChannel",
+      "OldChannel",
+      "BlendTimer",
+      "BlendTotal"
+    ],
+    "Functions": [
+      "Constructor",
+      "Save",
+      "Load",
+      "SetAnimation",
+      "SetMode",
+      "GetMode",
+      "IsComplete",
+      "GetAnimationName",
+      "SetTargetFrame",
+      "GetTargetFrame",
+      "PeekAnimation",
+      "Update",
+      "GetAnimationData",
+      "UpdateModel",
+      "GetFrame",
+      "GetProgress"
+    ]
+  }
+}

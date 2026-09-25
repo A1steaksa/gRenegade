@@ -1,0 +1,20 @@
+{
+  "Name": "BoxLoader",
+  "ParentNames": [
+    "PrototypeLoader"
+  ],
+  "FileName": "box-loader",
+  "CppName": "BoxLoaderClass",
+  "CppPath": "Code/ww3d2/boxrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

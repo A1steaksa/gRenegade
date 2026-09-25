@@ -1,0 +1,234 @@
+{
+  "Name": "Weapon",
+  "ParentNames": [],
+  "FileName": "weapon",
+  "CppName": "WeaponClass",
+  "CppPath": "Code/Combat/weapons.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      {
+        "Name": "Definition",
+        "DataType": "any"
+      },
+      {
+        "Name": "Owner",
+        "DataType": "any"
+      },
+      {
+        "Name": "Model",
+        "DataType": "any"
+      },
+      {
+        "Name": "C4dEtonationMode",
+        "DataType": "integer"
+      },
+      {
+        "Name": "PrimaryAmmoDefinition",
+        "DataType": "any"
+      },
+      {
+        "Name": "SecondaryAmmoDefinition",
+        "DataType": "any"
+      },
+      {
+        "Name": "ClipRounds",
+        "DataType": "any"
+      },
+      {
+        "Name": "InventoryRounds",
+        "DataType": "any"
+      },
+      {
+        "Name": "BurstDelayTimer",
+        "DataType": "any"
+      },
+      {
+        "Name": "BurstCount",
+        "DataType": "any"
+      },
+      {
+        "Name": "BulletBumpTime",
+        "DataType": "number"
+      },
+      {
+        "Name": "WeaponExists",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "State",
+        "DataType": "any"
+      },
+      {
+        "Name": "StateTimer",
+        "DataType": "number"
+      },
+      {
+        "Name": "DidFire",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "LastFrameIsPrimaryTriggered",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "LastFrameIsSecondaryTriggered",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "IsPrimaryTriggered",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "IsSecondaryTriggered",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "TotalRoundsFired",
+        "DataType": "integer"
+      },
+      {
+        "Name": "SafetySet",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "LockTriggers",
+        "DataType": "boolean"
+      },
+      {
+        "Name": "EmptySoundTimer",
+        "DataType": "number"
+      },
+      {
+        "Name": "NextAnimationState",
+        "DataType": "any"
+      },
+      {
+        "Name": "CurrentAnimationState",
+        "DataType": "any"
+      },
+      {
+        "Name": "UpdateModel",
+        "DataType": "any"
+      },
+      {
+        "Name": "Target",
+        "DataType": "any"
+      },
+      {
+        "Name": "TargetObject",
+        "DataType": "any"
+      },
+      {
+        "Name": "ContinuousEmitters",
+        "DataType": "any"
+      },
+      {
+        "Name": "ContinuousSound",
+        "DataType": "any"
+      },
+      {
+        "Name": "FiringSound",
+        "DataType": "any"
+      },
+      {
+        "Name": "FiringSoundDefinitionID",
+        "DataType": "integer"
+      },
+      {
+        "Name": "MuzzleFlash",
+        "DataType": "any"
+      }
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "Save",
+      "Load",
+      "SetModel",
+      "SetOwner",
+      "GetOwner",
+      "Select",
+      "Deselect",
+      "Update",
+      "IsMuzzleClear",
+      "ComputeBulletStartPoint",
+      "NextC4DetonationMode",
+      "GetDefinition",
+      "GetName",
+      "GetId",
+      "GetHudIconTextureName",
+      "GetModelName",
+      "GetBackModelName",
+      "GetAnimationName",
+      "GetStyle",
+      "GetKeyNumber",
+      "GetCanSnipe",
+      "GetRating",
+      "GetEffectiveRange",
+      "GetPrimaryFireRate",
+      "GetFirstPersonModelName",
+      "GetFirstPersonModelOffset",
+      "GetRecoilTime",
+      "GetRecoilScale",
+      "SetTotalRounds",
+      "GetTotalRounds",
+      "AddRounds",
+      "SetClipRounds",
+      "GetClipRounds",
+      "SetInventoryRounds",
+      "GetInventoryRounds",
+      "DoReload",
+      "DecrementRounds",
+      "IsAmmoMaxed",
+      "IsLoaded",
+      "IsReloadOk",
+      "IsReloadNeeded",
+      "GetRange",
+      "IsModelUpdateNeeded",
+      "ResetModelUpdate",
+      "IsAnimationUpdateNeeded",
+      "ResetAnimationUpdate",
+      "GetAnimationState",
+      "GetTotalRoundsFired",
+      "DisplayTargeting",
+      "SetTarget",
+      "GetTarget",
+      "SetTargetObject",
+      "GetTargetObject",
+      "GetState",
+      "IsFiring",
+      "IsReloading",
+      "IsSwitching",
+      "ForceReload",
+      "SetSafety",
+      "IsSafetySet",
+      "SetPrimaryTriggered",
+      "SetSecondaryTriggered",
+      "IsTriggered",
+      "InitMuzzleFlash",
+      "UpdateMuzzleFlash",
+      "DoesWeaponExist",
+      "SetWeaponExists",
+      "CastWeapon",
+      "CastWeaponDownMuzzle",
+      "MakeShellEject",
+      "StopFiringSound",
+      "FireC4",
+      "FireBeacon",
+      "FireBullet",
+      "GetMuzzle",
+      "DoFire",
+      "SetState",
+      "UpdateState",
+      "DoFiringEffects",
+      "DoContinuousEffects",
+      "IgnoreOwner",
+      "UnignoreOwner"
+    ]
+  }
+}

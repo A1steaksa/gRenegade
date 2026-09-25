@@ -1,0 +1,32 @@
+{
+  "Name": "HAnimationManager",
+  "ParentNames": [],
+  "FileName": "h-animation-manager",
+  "CppName": "HAnimManagerClass",
+  "CppPath": "Code/ww3d2/hanimmgr.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "AnimationPtrTable",
+      "MissingAnimationTable"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadAnimation",
+      "GetAnimation",
+      "PeekAnimation",
+      "AddAnimation",
+      "FreeAllAnims",
+      "RegisterMissing",
+      "IsMissing",
+      "ResetMissing",
+      "LoadCompressedAnimation",
+      "LoadRawAnimation",
+      "LoadMorphAnimation"
+    ]
+  }
+}

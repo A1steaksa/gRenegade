@@ -1,0 +1,26 @@
+{
+  "Name": "HLodPrototype",
+  "ParentNames": [
+    "Prototype"
+  ],
+  "FileName": "h-lod-prototype",
+  "CppName": "HLodPrototypeClass",
+  "CppPath": "Code/ww3d2/hlod.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "Definition"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "GetName",
+      "GetClassId",
+      "Create",
+      "GetDefinition"
+    ]
+  }
+}

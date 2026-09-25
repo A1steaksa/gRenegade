@@ -1,0 +1,18 @@
+{
+  "Name": "FileFactory",
+  "ParentNames": [],
+  "FileName": "file-factory",
+  "CppName": "FileFactoryClass",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "Destructor",
+      "GetFile",
+      "ReturnFile"
+    ]
+  }
+}

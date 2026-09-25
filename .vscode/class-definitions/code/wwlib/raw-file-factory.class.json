@@ -1,0 +1,19 @@
+{
+  "Name": "RawFileFactory",
+  "ParentNames": [
+    "FileFactory"
+  ],
+  "FileName": "raw-file-factory",
+  "CppName": "RawFileFactoryClass",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "GetFile",
+      "ReturnFile"
+    ]
+  }
+}

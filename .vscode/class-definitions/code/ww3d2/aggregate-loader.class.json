@@ -1,0 +1,20 @@
+{
+  "Name": "AggregateLoader",
+  "ParentNames": [
+    "PrototypeLoader"
+  ],
+  "FileName": "aggregate-loader",
+  "CppName": "AggregateLoaderClass",
+  "CppPath": "Code/ww3d2/agg_def.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

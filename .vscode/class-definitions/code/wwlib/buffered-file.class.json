@@ -1,0 +1,35 @@
+{
+  "Name": "BufferedFile",
+  "ParentNames": [
+    "RawFile"
+  ],
+  "FileName": "buffered-file",
+  "CppName": "BufferedFileClass",
+  "CppPath": "Code/wwlib/bufffile.h",
+  "Static": {
+    "Fields": [
+      "DesiredBufferSize"
+    ],
+    "Functions": [
+      "SetDesiredBufferSize"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "Buffer",
+      "BufferSize",
+      "BufferAvailable",
+      "BufferOffset"
+    ],
+    "Functions": [
+      "Constructor",
+      "Constructor",
+      "Destructor",
+      "Read",
+      "Seek",
+      "Write",
+      "Close",
+      "ResetBuffer"
+    ]
+  }
+}

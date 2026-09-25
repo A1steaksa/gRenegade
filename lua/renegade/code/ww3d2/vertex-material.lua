@@ -562,12 +562,12 @@ end
         -- to initialize any special mappers used.
         local mapping0ArgIni
         if mapping0ArgBuffer then
-            -- typecheck.NotImplementedError()
+            typecheck.NotImplementedError()
         end
 
         local mapping1ArgIni
         if mapping1ArgBuffer then
-            -- typecheck.NotImplementedError()
+            typecheck.NotImplementedError()
         end
 
         if bit.band( vertexMaterial.Attributes, w3dFileIds.W3DVERTMAT_USE_DEPTH_CUE ) == 1 then
@@ -582,20 +582,20 @@ end
         -- Set up the vertex mapper.  
         -- If it is one of the simple ones, set the pointer to one of the global instances.  
         -- "  
-        -- local mapping = bit.band( vertexMaterial.Attributes, w3dFileIds.W3DVERTMAT_STAGE0_MAPPING_MASK )
-        -- if mapping == w3dFileIds.W3DVERTMAT_STAGE0_MAPPING_UV then
-        --     -- Empty in the original code
-        -- else
-        --     typecheck.NotImplementedError()
-        -- end
+        local mapping = bit.band( vertexMaterial.Attributes, w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_MASK )
+        if mapping == w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_UV then
+            -- Empty in the original code
+        else
+            typecheck.NotImplementedError()
+        end
 
-        -- -- "Same setup for stage 1's mapper."
-        -- mapping = bit.band( vertexMaterial.Attributes, w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_MASK )
-        -- if mapping == w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_UV then
-        --     -- Empty in the original code
-        -- else
-        --     typecheck.NotImplementedError()
-        -- end
+        -- "Same setup for stage 1's mapper."
+        mapping = bit.band( vertexMaterial.Attributes, w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_MASK )
+        if mapping == w3dFileIds.W3DVERTMAT_STAGE1_MAPPING_UV then
+            -- Empty in the original code
+        else
+            typecheck.NotImplementedError()
+        end
 
         local temp
         local ambient = vertexMaterial.Ambient

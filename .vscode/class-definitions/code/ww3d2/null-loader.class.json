@@ -1,0 +1,20 @@
+{
+  "Name": "NullLoader",
+  "ParentNames": [
+    "PrototypeLoader"
+  ],
+  "FileName": "null-loader",
+  "CppName": "NullLoaderClass",
+  "CppPath": "Code/ww3d2/nullrobj.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [],
+    "Functions": [
+      "ChunkType",
+      "LoadW3d"
+    ]
+  }
+}

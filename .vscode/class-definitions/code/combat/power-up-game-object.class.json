@@ -1,0 +1,40 @@
+{
+  "Name": "PowerUpGameObject",
+  "ParentNames": [
+    "SimpleGameObject"
+  ],
+  "FileName": "power-up-game-object",
+  "CppName": "PowerUpGameObj",
+  "Static": {
+    "Fields": [],
+    "Functions": [
+      "CreateBackpack"
+    ]
+  },
+  "Instance": {
+    "Fields": [
+      "IdleSoundObject",
+      "State",
+      "StateEndTimer",
+      "WeaponBag"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Init",
+      "GetDefinition",
+      "Save",
+      "Load",
+      "OnPostLoad",
+      "GetFactory",
+      "Think",
+      "Grant",
+      "AsPowerUpGameObject",
+      "IsAlwaysDirty",
+      "GetDescription",
+      "Expire",
+      "SetState",
+      "UpdateState"
+    ]
+  }
+}

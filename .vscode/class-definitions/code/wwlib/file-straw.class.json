@@ -1,0 +1,25 @@
+{
+  "Name": "FileStraw",
+  "ParentNames": [
+    "Straw"
+  ],
+  "FileName": "file-straw",
+  "CppName": "FileStraw",
+  "CppPath": "Code/wwlib/xstraw.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "File",
+      "HasOpened"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "Get",
+      "ValidFile"
+    ]
+  }
+}

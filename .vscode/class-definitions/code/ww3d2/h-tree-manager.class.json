@@ -1,0 +1,30 @@
+{
+  "Name": "HTreeManager",
+  "ParentNames": [],
+  "FileName": "h-tree-manager",
+  "CppName": "HTreeManagerClass",
+  "CppPath": "Code/ww3d2/htreemgr.h",
+  "Static": {
+    "Fields": [],
+    "Functions": []
+  },
+  "Instance": {
+    "Fields": [
+      "NumTrees",
+      "TreePtr",
+      "TreeHash"
+    ],
+    "Functions": [
+      "Constructor",
+      "Destructor",
+      "LoadTree",
+      "NumTrees",
+      "GetTree",
+      "GetTreeHandle",
+      "FreeAllTrees",
+      "GetTreeId",
+      "GetTreeName",
+      "Free"
+    ]
+  }
+}
