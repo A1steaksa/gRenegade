@@ -751,8 +751,8 @@ end
 
 --[[ Rotation ]] do
 
-    --- @overload fun( rotation: Matrix3dInstance ): nil
-    --- @overload fun( rotation: QuaternionInstance ): nil
+    --- @overload fun( self, rotation: Matrix3dInstance ): nil
+    --- @overload fun( self, rotation: QuaternionInstance ): nil
     function INSTANCE:SetRotation( ... )
         local args = { ... }
         local argCount = select( "#", ... )
