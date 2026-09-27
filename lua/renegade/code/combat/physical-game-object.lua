@@ -647,6 +647,27 @@ end
 
 --[[ Thinking ]] do
 
+    function INSTANCE:Think()
+
+        -- For testing purposes, move to my owning source entity if one exists
+        if IsValid( self.ConnectedEntity ) then            
+            local transform = self:GetTransform()
+            transform:MakeIdentity()
+
+            local pos = self.ConnectedEntity:GetPos()
+            transform:SetTranslation( pos )
+
+            local ang = self.ConnectedEntity:GetAngles()
+            transform:RotateZ( math.rad( ang.yaw ) )
+            transform:RotateX( math.rad( ang.roll ) )
+            transform:RotateY( math.rad( ang.pitch ) )
+
+            self:SetTransform( transform )
+        end
+
+        damageableGameObjectClass.Instance.Think( self )
+    end
+
     function INSTANCE:PostThink()
         if self.AnimationControl then
             -- "For some reason??  Some vehicles come in with an anim control, but not model in the anim control."
