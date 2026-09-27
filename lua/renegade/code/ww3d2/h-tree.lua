@@ -220,7 +220,7 @@ function INSTANCE:LoadW3d( cload )
 	end
 
 	if cload:CurChunkId() ~= w3dChunkTypeEnum.W3D_CHUNK_HIERARCHY_HEADER then
-		section.Warn( "ERROR: Expected Hierarchy Header" )
+		section.Warn( INSTANCE.Class, " - LoadW3d - ERROR: Expected Hierarchy Header but got ", cload:CurChunkId() )
 		return hTreeLoadResultEnum.LOAD_ERROR
 	end
 
@@ -258,7 +258,7 @@ function INSTANCE:LoadW3d( cload )
 				return hTreeLoadResultEnum.LOAD_ERROR
 			end
 		else
-			section.Warn( "Expected W3D_CHUNK_PIVOTS ('", w3dChunkTypeEnum.W3D_CHUNK_PIVOTS, "') but got '", chunkId, "'" )
+			section.Warn( INSTANCE.Class, " - LoadW3d - Expected W3D_CHUNK_PIVOTS ('", w3dChunkTypeEnum.W3D_CHUNK_PIVOTS, "') but got '", chunkId, "'" )
 		end
 		cload:CloseChunk()
 	end
