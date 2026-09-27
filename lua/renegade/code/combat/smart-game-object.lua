@@ -356,20 +356,6 @@ end
 --[[ Thinking ]] do
 
     function INSTANCE:Think()
-
-        -- For testing purposes, move to my owning source entity if one exists
-        if IsValid( self.ConnectedEntity ) then
-            self:SetPosition( self.ConnectedEntity:GetPos() )
-            -- local matrix = self:GetTransform()
-            -- matrix:SetTranslation( Vector( 0, 0, 0 ) )
-            -- self:SetTransform( matrix )
-
-            -- self:SetPosition( Vector( 0, 0, 0 ) )
-
-            -- section.Print( self:GetPosition() )
-            -- self:SetPosition( Vector( 0, 0, 0 ) )
-        end
-
         -- Omitted almost all original function contents
 
         --[[ Embedded Armed think in smart think ]] do
