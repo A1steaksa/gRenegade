@@ -6,6 +6,8 @@
 CNC_RENEGADE = CNC_RENEGADE or {}
 local CNC = CNC_RENEGADE
 
+local isHotload = not table.IsEmpty( CNC )
+
 
 --#region Helper Functions
 
@@ -124,7 +126,7 @@ end
 -- Execute Renegade's entrypoint script 
 --- @type MainLoopClass
 local mainLoopClass = CNC.Import( "code/commando/main-loop.lua" )
-mainLoopClass.GameMainLoop()
+mainLoopClass.GameMainLoop( isHotload )
 
 if SERVER then
     hook.Add( "InitPostEntity", "Addbot", function()

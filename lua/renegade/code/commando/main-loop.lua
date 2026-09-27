@@ -85,13 +85,22 @@ function STATIC.GameMainLoopLoop()
 end
 
 -- This is the main entrypoint for Renegade and for the addon
-function STATIC.GameMainLoop()
+--- @param immediateInit boolean Should the init function be called immediately?
+function STATIC.GameMainLoop( immediateInit )
     if SERVER then
-        hook.Add( "InitPostEntity", "A1_Renegade_GameInit_Server", initClass.GameInit )
+        if immediateInit then
+            initClass.GameInit()
+        else
+            hook.Add( "InitPostEntity", "A1_Renegade_GameInit_Server", initClass.GameInit )
+        end
     end
 
     if CLIENT then
-        hook.Add( "HUDPaint", "A1_Renegade_GameInit_Client", initClass.GameInit )
+        if immediateInit then
+            initClass.GameInit()
+        else
+            hook.Add( "HUDPaint", "A1_Renegade_GameInit_Client", initClass.GameInit )
+        end
     end
 end
 
