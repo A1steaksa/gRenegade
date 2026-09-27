@@ -52,12 +52,51 @@ local isHotload = not table.IsEmpty( STATIC )
         --- @type table<string, table<string, function>>
         STATIC.IntersectionTestFunctions = {}
     
-        
-        function STATIC.AddIntersectionTest()
+        --- @generic A
+        --- @generic B
+        --- @param aType `A`
+        --- @param bType `B`
+        --- @param intersectionFunction fun( a: A, b: B ):boolean
+        function STATIC.AddIntersectionTest( aType, bType, intersectionFunction )
+            typecheck.AssertArgType( STATIC.Class, 1, aType, "string" )
+            typecheck.AssertArgType( STATIC.Class, 2, bType, "string" )
+            typecheck.AssertArgType( STATIC.Class, 3, intersectionFunction, "function" )
+
+            --- @cast aType string
+            --- @cast bType string
+
+            aType = aType:Trim():lower()
+            bType = bType:Trim():lower()
+
+            local aTable = STATIC.IntersectionTestFunctions[aType]
+            if not aTable then
+                aTable = {}
+                STATIC.IntersectionTestFunctions[aType] = aTable
+            end
+
+            STATIC.IntersectionTestFunctions[aType][bType] = intersectionFunction
         end
 
+        --- Determines how, if at all, two shapes intersect
+        --- @param a any 
+        --- @param b any
+        --- @return boolean
+        function STATIC.IntersectionTest( a, b )
+            local aType = typecheck.GetType( a )
+            local bType = typecheck.GetType( b )
 
+            local aTable = STATIC.IntersectionTestFunctions[aType]
+            if not aTable then
+                typecheck.NotImplementedError( "First operand of type '" .. aType .. "'" )
+            end
 
+            local checkFunction = aTable[bType]
+            if not checkFunction then
+                typecheck.NotImplementedError( "First operand of type '" .. aType .. "' and second operand of type '" .. bType .. "'" )
+            end
+
+            return checkFunction( a, b )
+        end
     end
 
 
@@ -118,6 +157,7 @@ local isHotload = not table.IsEmpty( STATIC )
             return checkFunction( a, b )
         end
 
+        --- @private
         --- Determines the OverlapType of a CastResultStruct
         --- @param result CastResultStructInstance
         --- @return OverlapType
@@ -173,4 +213,5 @@ end
 
     include( "renegade/code/wwmath/collision-math-frustum.lua" )
     include( "renegade/code/wwmath/collision-math-plane.lua" )
+    include( "renegade/code/wwmath/collision-math-obb-obb.lua" )
 end
