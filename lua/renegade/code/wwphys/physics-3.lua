@@ -329,12 +329,49 @@ function INSTANCE:CastObBox()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:IntersectionTest()
-	typecheck.NotImplementedError()
-end
+--- @param test PhysicsAABoxIntersectionTestInstance|PhysicsOBBoxIntersectionTestInstance|PhysicsMeshIntersectionTestInstance
+--- @return boolean
+function INSTANCE:IntersectionTest( test )
+	typecheck.AssertArgType( INSTANCE.Class, 1, test, {
+		"PhysicsAABoxIntersectionTestInstance",
+		"PhysicsOBBoxIntersectionTestInstance",
+		"PhysicsMeshIntersectionTestInstance"
+	} )
 
-function INSTANCE:IntersectionTest()
-	typecheck.NotImplementedError()
+	-- "Check an AABox for intersection with this object"
+	-- ( test: PhysicsAABoxIntersectionTestInstance ):boolean
+	if typecheck.IsOfType( test, "PhysicsAABoxIntersectionTestInstance" ) then
+		--- @cast test PhysicsAABoxIntersectionTestInstance
+
+		local worldBox = aABoxClass.New()
+		worldBox.Extent = self.CollisionBox.Extent
+		worldBox.Center = self.State.Position + self.CollisionBox.Center
+
+		if collisionMathClass.IntersectionTest( worldBox, test.Box ) then
+			test:AddIntersectedObject( self )
+			return true
+		end
+
+		return false
+
+	-- "Check an OBBox for intersection with this object"
+	-- ( test: PhysicsOBBoxIntersectionTestInstance ):boolean
+	elseif typecheck.IsOfType( test, "PhysicsOBBoxIntersectionTestInstance" ) then
+		--- @cast test PhysicsOBBoxIntersectionTestInstance
+
+		typecheck.NotImplementedError()
+
+		return false
+
+	-- "Check a mesh for intersection with this object"
+	-- ( test: PhysicsMeshIntersectionTestInstance ):boolean
+	else
+		--- @cast test PhysicsMeshIntersectionTestInstance
+
+		typecheck.NotImplementedError()
+
+		return false
+	end
 end
 
 --- "Set the model being used"
