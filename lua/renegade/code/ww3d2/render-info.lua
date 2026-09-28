@@ -107,12 +107,15 @@ function INSTANCE:PopMaterialPass()
 	typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:AdditionalPassCount()
-	typecheck.NotImplementedError()
+	return self.AdditionalMaterialPassCount
 end
 
-function INSTANCE:PeekAdditionalPass()
-	typecheck.NotImplementedError()
+--- @param passIndex integer
+--- @return MaterialPassInstance
+function INSTANCE:PeekAdditionalPass( passIndex )
+    return self.AdditionalMaterialPassArray[passIndex]
 end
 
 function INSTANCE:PushOverrideFlags()
@@ -123,6 +126,7 @@ function INSTANCE:PopOverrideFlags()
 	typecheck.NotImplementedError()
 end
 
+--- @return RenderInfoOverrideFlags
 function INSTANCE:CurrentOverrideFlags()
-	typecheck.NotImplementedError()
+	return self.OverrideFlag[self.OverrideFlagLevel]
 end
