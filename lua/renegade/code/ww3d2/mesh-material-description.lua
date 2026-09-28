@@ -479,8 +479,10 @@ function INSTANCE:GetSingleTexture()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetSingleShader()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return ShaderInstance
+function INSTANCE:GetSingleShader( pass )
+	return self.Shader[pass]
 end
 
 function INSTANCE:PeekSingleMaterial()
