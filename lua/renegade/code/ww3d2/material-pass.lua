@@ -22,6 +22,9 @@ INSTANCE.IsMaterialPass = true
 --#endregion
 
 --#region Imports
+
+	--- @type ShaderClass
+	local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -31,6 +34,9 @@ INSTANCE.IsMaterialPass = true
 
     --- @class MaterialPassClass
 	--- @field _EnablePerPolygonCulling boolean
+
+	STATIC.MAX_TEX_STAGES = 2
+	STATIC._EnablePerPolygonCulling = true
 
     --- Creates a new MaterialPassInstance
     --- @return MaterialPassInstance
@@ -49,79 +55,127 @@ INSTANCE.IsMaterialPass = true
 
     typecheck.RegisterType( "MaterialPassInstance", STATIC.IsMaterialPass )
 
-	function STATIC.EnablePerPolygonCulling()
-		typecheck.NotImplementedError()
+	--- @param onOff boolean
+	function STATIC.EnablePerPolygonCulling( onOff )
+		STATIC._EnablePerPolygonCulling = onOff
 	end
 
+	--- @return boolean
 	function STATIC.IsPerPolygonCullingEnabled()
-		typecheck.NotImplementedError()
+		return STATIC._EnablePerPolygonCulling
 	end
 end
 
-
+--- "
+--- This class wraps all of the data needed to describe an additional material pass for any object.  
+--- The motivation for this class is to implement certain types of special effects.  
+--- All data needed to apply the pass should be generated procedurally.  
+--- Typically a vertex processor will be used to generate any needed u-v's or vertex colors.  
+--- Alternatively, we could add the option to request to re-use the model's existing u-v's or vertex colors.  
+--- "
 --- @class MaterialPassInstance
---- @field Texture TextureInstance
+--- @field Texture TextureInstance[]
 --- @field Shader ShaderInstance
 --- @field Material VertexMaterialInstance
 --- @field _EnableOnTranslucentMeshes boolean
 --- @field CullVolume OBBoxInstance
 
 function INSTANCE:Renegade_MaterialPass()
-	typecheck.NotImplementedError()
+	self.Shader = shaderClass.New( 0 )
+	self.Material = nil
+	self.CullVolume = nil
+	self._EnableOnTranslucentMeshes = true
+
+	self.Texture = {}
 end
 
 function INSTANCE:_Renegade_MaterialPass()
-	typecheck.NotImplementedError()
+	self.Texture = nil
+	self.Material = nil
 end
 
+--- "Plug our material settings into D3D"
 function INSTANCE:InstallMaterials()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTexture()
-	typecheck.NotImplementedError()
+--- "Set texture to use"
+--- @param texture TextureInstance?
+--- @param stage integer? [Default: `1`]
+function INSTANCE:SetTexture( texture, stage )
+	if stage == nil then stage = 1 end
+
+	assert( stage >= 1 )
+	assert( stage < STATIC.MAX_TEX_STAGES )
+
+	self.Texture[stage] = texture
 end
 
-function INSTANCE:SetShader()
-	typecheck.NotImplementedError()
+--- "Set the shader to use"
+--- @param shader ShaderInstance "Shader for this material pass"
+function INSTANCE:SetShader( shader )
+	self.Shader = shader
+	self.Shader:EnableFog( "MaterialPassClass" );
 end
 
-function INSTANCE:SetMaterial()
-	typecheck.NotImplementedError()
+--- "Set vertex material to use"
+--- @param material VertexMaterialInstance
+function INSTANCE:SetMaterial( material )
+	self.Material = material
 end
 
-function INSTANCE:GetTexture()
-	typecheck.NotImplementedError()
+--- "Get a pointer to the texture"
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:GetTexture( stage )
+	if stage == nil then stage = 1 end
+
+	assert( stage >= 0 )
+	assert( stage < STATIC.MAX_TEX_STAGES )
+
+	return self.Texture[stage]
 end
 
+--- "Get the vertex material"
+--- @return VertexMaterialInstance
 function INSTANCE:GetMaterial()
-	typecheck.NotImplementedError()
+	return self.Material
 end
 
-function INSTANCE:PeekTexture()
-	typecheck.NotImplementedError()
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:PeekTexture( stage )
+	if stage == nil then stage = 1 end
+
+	return self.Texture[stage]
 end
 
+--- @return ShaderInstance
 function INSTANCE:PeekShader()
-	typecheck.NotImplementedError()
+	return self.Shader
 end
 
+--- @return VertexMaterialInstance
 function INSTANCE:PeekMaterial()
-	typecheck.NotImplementedError()
+	return self.Material
 end
 
-function INSTANCE:SetCullVolume()
-	typecheck.NotImplementedError()
+--- @param volume OBBoxInstance
+function INSTANCE:SetCullVolume( volume )
+	self.CullVolume = volume
 end
 
+--- @return OBBoxInstance
 function INSTANCE:GetCullVolume()
-	typecheck.NotImplementedError()
+	return self.CullVolume
 end
 
-function INSTANCE:EnableOnTranslucentMeshes()
-	typecheck.NotImplementedError()
+--- @param onOff boolean
+function INSTANCE:EnableOnTranslucentMeshes( onOff )
+	self._EnableOnTranslucentMeshes = onOff
 end
 
+--- @return boolean
 function INSTANCE:IsEnabledOnTranslucentMeshes()
-	typecheck.NotImplementedError()
+	return self._EnableOnTranslucentMeshes
 end
