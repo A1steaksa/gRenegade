@@ -238,24 +238,6 @@ function INSTANCE:_Renegade_RenderObject()
 end
 
 
---[[ Source Engine Connection ]] do
-
-    --- @class MeshInstance
-    --- @field ConnectedEntity Entity The Source engine Entity this Render Object is connected to
-    --- @field SourceMaterial IMaterial The Source Engine Material that should be used with this model
-
-    --- @param ent Entity
-    function INSTANCE:SetConnectedEntity( ent )
-        self.ConnectedEntity = ent
-    end
-
-    --- @return Entity
-    function INSTANCE:GetConnectedEntity()
-        return self.ConnectedEntity
-    end
-end
-
-
 --[[ Render Object Interface - Cloning and Identification ]] do
 
     --- @return RenderObjectInstance
