@@ -780,3 +780,41 @@ function INSTANCE:ReadPivots( cload, pre30 )
 
 	return true
 end
+
+function INSTANCE:DebugDraw()
+	local matrix = Matrix()
+
+	local boneOutline = Color(0, 0, 0 )
+	local boneColor = Color( 100, 255, 255 )
+
+	local forwardColor = Color( 255, 0, 0 )
+	local rightColor = Color( 0, 255, 0 )
+	local upColor = Color( 0, 0, 255 )
+
+	local directionLength = 2
+
+	for pivotIndex, pivot in ipairs( self.Pivot ) do
+		matrix:SetMatrix3d( pivot.Transform )
+
+		local pivotPos = matrix:GetTranslation()
+
+		-- Position
+		debugdraw.Sphere( pivotPos, -0.45, boneOutline, 0.1, true )
+		debugdraw.Sphere( pivotPos, 0.35, boneColor, 0.1, true )
+
+		-- Forward
+		local forward = matrix:GetForward()
+		debugdraw.Line( pivotPos, pivotPos + forward * directionLength, 0.1, forwardColor, 0.1, false )
+
+		-- Right
+		local right = matrix:GetRight()
+		debugdraw.Line( pivotPos, pivotPos + right * directionLength, 0.1, rightColor, 0.1, false )
+
+		-- Up
+		local up = matrix:GetUp()
+		debugdraw.Line( pivotPos, pivotPos + up * directionLength, 0.1, upColor, 0.1, false )
+
+		-- Name
+		debugdraw.Text( pivotPos, pivotIndex .. ". " .. pivot.Name, Color( 255, 255, 255 ), 0.1, true )
+	end
+end
