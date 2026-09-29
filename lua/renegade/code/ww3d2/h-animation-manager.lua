@@ -135,7 +135,7 @@ function INSTANCE:AddAnimation( newAnimation )
     assert( newAnimation ~= nil )
 
     -- "Increment the refcount on the new animation and add it to our table."
-    self.AnimationPointerTable[newAnimation:GetName()] = newAnimation
+    self.AnimationPointerTable[newAnimation:GetName():upper()] = newAnimation
 
     -- "Check to see if this animation has any embedded sounds that may need to play while its animating."
     -- local hasSoundTrigger = animatedSoundManagerClass.DoesAnimationHaveEmbeddedSounds( newAnimation )
@@ -162,12 +162,16 @@ end
 --- "  
 --- @param name string
 function INSTANCE:RegisterMissing( name )
+    name = name:upper()
+
     section.Warn( INSTANCE.Class, " - RegisterMissing - Animation missing: '", name, "'" )
     self.AnimationPointerTable[name] = false
 end
 
 --- @param name string
 function INSTANCE:IsMissing( name )
+    name = name:upper()
+
     return self.AnimationPointerTable[name] == false
 end
 

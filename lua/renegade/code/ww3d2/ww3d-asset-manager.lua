@@ -319,6 +319,8 @@ end
 --- @param name string
 --- @return HAnimationInstance?
 function INSTANCE:GetHAnimation( name )
+	name = name:upper()
+
 	-- "Try to find the hanim"
 	local animation = self.HAnimationManager:GetAnimation( name )
 
