@@ -93,7 +93,7 @@ end
 
 --- "Loads a set of motion data from a file"
 --- @param cload ChunkLoadInstance
---- @return integer
+--- @return boolean
 function INSTANCE:LoadAnimation( cload )
     local id = cload:CurChunkId()
 
@@ -107,7 +107,7 @@ function INSTANCE:LoadAnimation( cload )
         return self:LoadMorphAnimation( cload )
     end
 
-    return 0
+    return false
 end
 
 --- "Returns a pointer to the specified animation data"
@@ -180,24 +180,24 @@ function INSTANCE:ResetMissing()
 end
 
 --- @param cload ChunkLoadInstance
---- @return integer
+--- @return boolean hasError
 function INSTANCE:LoadCompressedAnimation( cload )
 	local newAnimation = hCompressedAnimationClass.New()
     if newAnimation == nil then
-        return 1
+        return true
     end
 
     if newAnimation:LoadW3d( cload ) ~= hCompressedAnimationClass.OK then
         -- "Load failed"
-        return 1
+        return true
     elseif INSTANCE.PeekAnimation( self, newAnimation:GetName() ) ~= nil then
         -- "Duplicate exists!"
-        return 1
+        return true
     else
         INSTANCE.AddAnimation( self, newAnimation )
     end
 
-    return 0
+    return false
 end
 
 --- "Load a raw anim"
