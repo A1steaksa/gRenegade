@@ -80,9 +80,9 @@ end
 --- @field Texture TextureInstance[][]
 --- @field Shader ShaderInstance[]
 --- @field Material VertexMaterialInstance[]
---- @field TextureArray TextureInstance[][]
---- @field MaterialArray VertexMaterialInstance[]
---- @field ShaderArray ShaderInstance[][]
+--- @field TextureArray TextureInstance[][][]
+--- @field MaterialArray VertexMaterialInstance[][][]
+--- @field ShaderArray ShaderInstance[][][]
 
 --- @param that MeshMaterialDescriptionInstance?
 function INSTANCE:Renegade_MeshMaterialDescription( that )
@@ -120,9 +120,8 @@ function INSTANCE:Renegade_MeshMaterialDescription( that )
 				self.TextureArray[pass][stage] = nil
 			end
 
-			-- Omitted setting color sources
-			-- self.DcgSource[pass] = colorSourceTypeEnum.MATERIAL
-			-- self.DigSource[pass] = colorSourceTypeEnum.MATERIAL
+			self.DcgSource[pass] = colorSourceTypeEnum.MATERIAL
+			self.DigSource[pass] = colorSourceTypeEnum.MATERIAL
 
 			self.Shader[pass] = nil
 			self.Material[pass] = nil
@@ -139,7 +138,7 @@ function INSTANCE:Renegade_MeshMaterialDescription( that )
 end
 
 function INSTANCE:_Renegade_MeshMaterialDescription()
-	typecheck.NotImplementedError()
+	self:Reset( 0, 0, 0 )
 end
 
 --- @param polyCount integer
@@ -280,6 +279,8 @@ end
 	--- @class MeshMaterialDescriptionInstance
 	--- @field SourceMaterials IMaterial[][]
 
+	--- @param pass integer
+	--- @param stage integer
 	--- @param material VertexMaterialInstance
 	function INSTANCE:CreateSourceMaterial( pass, stage, material )
 		local sourceMaterial = material.Material
@@ -388,6 +389,11 @@ end
 --- @param stage integer
 --- @param sourceIndex integer
 function INSTANCE:SetUvSource( pass, stage, sourceIndex )
+	assert( pass >= 1 )
+	assert( pass <= STATIC.MAX_PASSES )
+	assert( stage >= 1 )
+	assert( stage <= STATIC.MAX_TEX_STAGES)
+
 	self.UvSource[pass][stage] = sourceIndex
 end
 
@@ -395,24 +401,90 @@ end
 --- @param stage integer
 --- @return integer
 function INSTANCE:GetUvSource( pass, stage )
-	typecheck.NotImplementedError()
+	assert( pass >= 1 )
+	assert( pass <= STATIC.MAX_PASSES )
+	assert( stage >= 1 )
+	assert( stage <= STATIC.MAX_TEX_STAGES)
+
+	return self.UvSource[pass][stage]
 end
 
 --- @return integer
 function INSTANCE:GetUvArrayCount()
-	typecheck.NotImplementedError()
+	return #self.Uv
 end
 
-function INSTANCE:GetUvArrayByIndex()
-	typecheck.NotImplementedError()
+--- @param index integer
+--- @param create boolean? [Default: `true`]
+--- @return Vector[]?
+function INSTANCE:GetUvArrayByIndex( index, create )
+	if create == nil then create = true end
+
+	if create and not tobool( self.Uv[index] ) then
+		self.Uv[index] = {}
+	end
+
+	if self.Uv[index] ~= nil then
+		return self.Uv[index]
+	end
+
+	return nil
 end
 
-function INSTANCE:GetDcgArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]?
+function INSTANCE:GetDcgArray( pass )
+	assert( pass >= 1 )
+	assert( pass <= STATIC.MAX_PASSES )
+
+	local dcgSource = self.DcgSource[pass]
+
+	if dcgSource == colorSourceTypeEnum.MATERIAL then
+		return nil
+	elseif dcgSource == colorSourceTypeEnum.COLOR1 then
+		if tobool( self.ColorArray[1] ) then
+			return self.ColorArray[1]
+		else
+			return nil
+		end
+	elseif dcgSource == colorSourceTypeEnum.COLOR2 then
+		if tobool( self.ColorArray[2] ) then
+			return self.ColorArray[2]
+		else
+			return nil
+		end
+	else
+		assert( false )
+		return nil
+	end
 end
 
-function INSTANCE:GetDigArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]?
+function INSTANCE:GetDigArray( pass )
+	assert( pass >= 1 )
+	assert( pass <= STATIC.MAX_PASSES )
+
+	local digSource = self.DigSource[pass]
+
+	if digSource == colorSourceTypeEnum.MATERIAL then
+		return nil
+	elseif digSource == colorSourceTypeEnum.COLOR1 then
+		if tobool( self.ColorArray[1] ) then
+			return self.ColorArray[1]
+		else
+			return nil
+		end
+	elseif digSource == colorSourceTypeEnum.COLOR2 then
+		if tobool( self.ColorArray[2] ) then
+			return self.ColorArray[2]
+		else
+			return nil
+		end
+	else
+		assert( false )
+		return nil
+	end
 end
 
 function INSTANCE:SetDcgSource( pass, source )
@@ -471,12 +543,22 @@ function INSTANCE:SetSingleShader( shader, pass )
 	self.Shader[pass] = shader
 end
 
-function INSTANCE:GetSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return VertexMaterialInstance
+function INSTANCE:GetSingleMaterial( pass )
+	if pass == nil then pass = 1 end
+
+	return self.Material[pass]
 end
 
-function INSTANCE:GetSingleTexture()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:GetSingleTexture( pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+
+	return self.Texture[pass][stage]
 end
 
 --- @param pass integer
@@ -485,12 +567,22 @@ function INSTANCE:GetSingleShader( pass )
 	return self.Shader[pass]
 end
 
-function INSTANCE:PeekSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return VertexMaterialInstance
+function INSTANCE:PeekSingleMaterial( pass )
+	if pass == nil then pass = 1 end
+
+	return self.Material[pass]
 end
 
-function INSTANCE:PeekSingleTexture()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:PeekSingleTexture( pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+
+	return self.Texture[pass][stage]
 end
 
 --- @param vertexMaterialIndex integer
@@ -518,16 +610,23 @@ function INSTANCE:SetTexture( pidx, texture, pass, stage )
 	textures[pidx] = texture
 end
 
-function INSTANCE:HasMaterialArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return boolean
+function INSTANCE:HasMaterialArray( pass )
+	return ( self.MaterialArray[pass] ~= nil )
 end
 
-function INSTANCE:HasShaderArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return boolean
+function INSTANCE:HasShaderArray( pass )
+	return ( self.ShaderArray[pass] ~= nil )
 end
 
-function INSTANCE:HasTextureArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @param stage integer
+--- @return boolean
+function INSTANCE:HasTextureArray( pass, stage )
+	return ( self.TextureArray[pass][stage] ~= nil )
 end
 
 --- @param pass integer
@@ -562,16 +661,49 @@ function INSTANCE:HasMaterialData( pass )
 	return ( self.Material[pass] ~= nil ) or ( self.MaterialArray[pass] ~= nil )
 end
 
-function INSTANCE:GetMaterial()
-	typecheck.NotImplementedError()
+--- @param vertexIndex integer
+--- @param pass integer? [Default: `1`]
+--- @return VertexMaterialInstance?
+function INSTANCE:GetMaterial( vertexIndex, pass )
+	if pass == nil then pass = 1 end
+
+	if tobool( self.MaterialArray[pass] ) then
+		return self.MaterialArray[pass][vertexIndex]
+	elseif self.Material[pass] ~= nil then
+		return self.Material[pass]
+	end
+
+	return nil
 end
 
-function INSTANCE:GetTexture()
-	typecheck.NotImplementedError()
+--- @param polygonIndex integer
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance?
+function INSTANCE:GetTexture( polygonIndex, pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+
+	if self.TextureArray[pass][stage] then
+		return self.TextureArray[pass][stage][polygonIndex]
+	elseif self.Texture[pass][stage] ~= nil then
+		return self.Texture[pass][stage]
+	end
+
+	return nil
 end
 
-function INSTANCE:GetShader()
-	typecheck.NotImplementedError()
+--- @param polygonIndex integer
+--- @param pass integer? [Default: `1`]
+--- @return ShaderInstance
+function INSTANCE:GetShader( polygonIndex, pass )
+	if pass == nil then pass = 1 end
+
+	if tobool( self.ShaderArray[pass] ) then
+		return self.ShaderArray[pass][polygonIndex]
+	end
+
+	return self.Shader[pass]
 end
 
 --- @param vertexMaterialIndex integer
@@ -629,11 +761,14 @@ function INSTANCE:GetShaderArray( pass, create )
 	return nil
 end
 
-function INSTANCE:MakeUvArrayUnique()
+--- @param pass integer
+--- @param stage integer
+function INSTANCE:MakeUvArrayUnique( pass, stage )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:MakeColorArrayUnique()
+--- @param array integer
+function INSTANCE:MakeColorArrayUnique( array )
 	typecheck.NotImplementedError()
 end
 
@@ -678,9 +813,12 @@ function INSTANCE:PostLoadProcess( lightingEnabled, parent )
 end
 
 function INSTANCE:DisableLighting()
+	-- Appears to not be implemented in the original code
 	typecheck.NotImplementedError()
 end
 
+--- "Do any of the vertex materials require vertex normals?"
+--- @return boolean
 function INSTANCE:DoMappersNeedNormals()
 	typecheck.NotImplementedError()
 end
@@ -714,6 +852,8 @@ function INSTANCE:DisableBackfaceCulling()
 	end
 end
 
-function INSTANCE:DeletePass()
+--- @param pass integer
+function INSTANCE:DeletePass( pass )
+	-- Appears to not be implemented in the original code
 	typecheck.NotImplementedError()
 end
