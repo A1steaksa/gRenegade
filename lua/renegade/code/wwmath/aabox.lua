@@ -194,9 +194,9 @@ end
 
 --- Initializes this box to a random state
 --- @param minCenter number? [Default: -1]
---- @param maxCenter number? [Default: 1]
---- @param minExtent number? [Default: 0.5]
---- @param maxExtent number? [Default: 1]
+--- @param maxCenter number? [Default: `1`]
+--- @param minExtent number? [Default: `0.5`]
+--- @param maxExtent number? [Default: `1`]
 function INSTANCE:InitRandom( minCenter, maxCenter, minExtent, maxExtent )
     if not minCenter then minCenter = -1 end
     if not maxCenter then maxCenter = 1 end

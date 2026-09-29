@@ -55,7 +55,7 @@ INSTANCE.IsDefenseObject = true
 
     --- Creates a new DefenseObjectInstance
     --- @param health number? [Default: DEFAULT_HEALTH]
-    --- @param skin number? [Default: 0]
+    --- @param skin number? [Default: `0`]
     function STATIC.New( health, skin )
         return robustclass.New( "Renegade_DefenseObject", health, skin )
     end
@@ -97,7 +97,7 @@ local PUNISH_DELAY            = 60
 
     --- Constructs a new DefenseObjectInstance
     --- @param health number? [Default: DEFAULT_HEALTH]
-    --- @param skin number? [Default: 0]
+    --- @param skin number? [Default: `0`]
     function INSTANCE:Renegade_DefenseObject( health, skin )
         health = health or DEFAULT_HEALTH
         skin = skin or 0
@@ -359,7 +359,7 @@ end
 --[[ Apply Damage ]] do
 
     --- @param offense OffenseObjectInstance
-    --- @param scale number? [Default: 1.0]
+    --- @param scale number? [Default: `1.0`]
     --- @param alternateSkin integer? [Default: -1]
     --- @return number
     function INSTANCE:ApplyDamage( offense, scale, alternateSkin )
@@ -378,7 +378,7 @@ end
     end
 
     --- @param offense OffenseObjectInstance
-    --- @param scale number? [Default: 1.0]
+    --- @param scale number? [Default: `1.0`]
     --- @param alternateSkin integer? [Default: -1]
     --- @return number
     function INSTANCE:DoDamage( offense, scale, alternateSkin )
@@ -533,7 +533,7 @@ end
 end
 
 --- @param offense OffenseObjectInstance
---- @param scale number? [Default: 1.0]
+--- @param scale number? [Default: `1.0`]
 function INSTANCE:RequestDamage( offense, scale )
     scale = scale or 1.0
 
@@ -545,7 +545,7 @@ end
 
 --- "Will an apply damage call actually repair?"
 --- @param offense OffenseObjectInstance
---- @param scale number? [Default: 1.0]
+--- @param scale number? [Default: `1.0`]
 --- @return boolean
 function INSTANCE:IsRepair( offense, scale )
     scale = scale or 1.0
@@ -560,7 +560,7 @@ end
 
 --- "Would an apply damage call actually damage?"
 --- @param offense OffenseObjectInstance
---- @param scale number? [Default: 1.0]
+--- @param scale number? [Default: `1.0`]
 --- @return boolean
 function INSTANCE:WouldDamage( offense, scale )
     scale = scale or 1.0

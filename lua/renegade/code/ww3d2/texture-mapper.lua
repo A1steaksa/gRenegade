@@ -67,7 +67,7 @@ INSTANCE.IsTextureMapper = true
     --- @class TextureMapperClass
 
     --- Creates a new TextureMapperInstance
-    --- @param stage integer? [Default: 1]
+    --- @param stage integer? [Default: `1`]
     --- @overload fun( src: TextureMapperInstance )
     --- @return TextureMapperInstance
     function STATIC.New( stage )
@@ -90,7 +90,7 @@ end
 --- @class TextureMapperInstance
 --- @field protected Stage integer
 
---- @param stage integer? [Default: 1]
+--- @param stage integer? [Default: `1`]
 --- @overload fun( src: TextureMapperInstance )
 function INSTANCE:Renegade_TextureMapper( stage )
     if stage == nil then stage = 1 end

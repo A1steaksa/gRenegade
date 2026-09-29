@@ -1104,7 +1104,7 @@ function INSTANCE:GetFirstPersonHandsModelName()
 	return self:GetDefinition().FirstPersonHands
 end
 
---- @param maxPerturb number? [Default: 5]
+--- @param maxPerturb number? [Default: `5`]
 function INSTANCE:PerturbPosition( maxPerturb )
 	if maxPerturb == nil then maxPerturb = 5 end
 

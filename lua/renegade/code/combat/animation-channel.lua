@@ -334,7 +334,7 @@ function INSTANCE:Update( deltaTime )
 end
 
 --- @param list AnimationDataRecordStruct[]
---- @param weight number? [Default: 1.0]
+--- @param weight number? [Default: `1.0`]
 function INSTANCE:GetAnimationData( list, weight )
 	if weight == nil then weight = 1.0 end
 

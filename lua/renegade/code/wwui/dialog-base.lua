@@ -178,7 +178,7 @@ end
     end
 
     --- @param control DialogControlInstance
-    --- @param direction integer? [Default: 1]
+    --- @param direction integer? [Default: `1`]
     --- @return DialogControlInstance
     function INSTANCE:FindNextControl( control, direction )
         if not direction then direction = 1 end
@@ -187,7 +187,7 @@ end
     end
 
     --- @param control DialogControlInstance
-    --- @param direction integer? [Default: 1]
+    --- @param direction integer? [Default: `1`]
     --- @return DialogControlInstance
     function INSTANCE:FindNextGroupControl( control, direction )
         if not direction then direction = 1 end

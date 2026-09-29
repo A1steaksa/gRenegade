@@ -500,7 +500,7 @@ end
     --- "Note: Set_Animation calls will force an AnimControl to be created, if needed"
     --- @param animationName string?
     --- @param looping boolean? [Default: true]
-    --- @param frameOffset number? [Default: 0.0]
+    --- @param frameOffset number? [Default: `0.0`]
     function INSTANCE:SetAnimation( animationName, looping, frameOffset )
         if looping == nil then looping = true end
         if frameOffset == nil then frameOffset = 0.0 end
@@ -580,7 +580,7 @@ end
 --[[ Damage ]] do
 
     --- @param damager OffenseObjectInstance
-    --- @param scale number? [Default: 1.0]
+    --- @param scale number? [Default: `1.0`]
     --- @param alternateSkin integer? [Default: -1]
     function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
         scale = scale or 1.0

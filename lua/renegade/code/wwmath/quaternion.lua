@@ -484,10 +484,10 @@ function INSTANCE:__tostring()
 end
 
 --- "Set the quaternion"
---- @param a number? [Default: 0.0]
---- @param b number? [Default: 0.0]
---- @param c number? [Default: 0.0]
---- @param d number? [Default: 1.0]
+--- @param a number? [Default: `0.0`]
+--- @param b number? [Default: `0.0`]
+--- @param c number? [Default: `0.0`]
+--- @param d number? [Default: `1.0`]
 function INSTANCE:Set( a, b, c, d )
     self.x = a or 0.0
     self.y = b or 0.0

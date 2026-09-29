@@ -169,7 +169,7 @@ function INSTANCE:GetDefenseObject()
 end
 
 --- @param damager OffenseObjectInstance
---- @param scale number? [Default: 1.0]
+--- @param scale number? [Default: `1.0`]
 --- @param alternateSkin integer? [Default: -1]
 function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
     scale = scale or 1.0

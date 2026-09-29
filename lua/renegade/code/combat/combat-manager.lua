@@ -741,7 +741,7 @@ STATIC.Class = "CombatManagerClass"
         end
 
         ---@param vehicle Entity
-        ---@param seat integer? [Default: 0]
+        ---@param seat integer? [Default: `0`]
         function STATIC.SetCameraVehicle( vehicle, seat )
             if not seat then
                 seat = 0

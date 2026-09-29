@@ -40,7 +40,7 @@ local isHotload = not table.IsEmpty( LIB )
 
     --- Retrieve an Entity's current radar blip intensity value
     --- @param ent Entity
-    --- @return number intensity [Default: 1]
+    --- @return number intensity [Default: `1`]
     function LIB.GetRadarBlipIntensity( ent )
         return LIB.RadarBlipIntensity[ent] or 1
     end

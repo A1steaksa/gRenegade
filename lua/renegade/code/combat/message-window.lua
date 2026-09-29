@@ -85,7 +85,7 @@ end
     --- @param message string
     --- @param color Color? [Default: Color( 0, 230, 51 )]
     --- @param ent SmartGameObjectInstance? [Default: NULL]
-    --- @param decayTime number? [Default: 0]
+    --- @param decayTime number? [Default: `0`]
     function INSTANCE:AddMessage( message, color, ent, decayTime )
         if not color then color = Color( 0, 0.9 * 255, 0.2 * 255 ) end
         if not ent then ent = NULL end
