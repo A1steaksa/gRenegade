@@ -175,7 +175,7 @@ end
 	--- @class MeshModelInstance
 	--- @field SourceMesh IMesh? The Source engine IMesh that this Render Object uses for rendering
 
-    --- Creates, stores, and returns an `IMesh` for this MeshInstance  
+    --- Creates and stores an `IMesh` for this MeshInstance  
     --- Note: If there is already an IMesh, it will be re-used
     function INSTANCE:CreateSourceMesh()
         if self.SourceMatrix == nil then
@@ -328,7 +328,7 @@ end
 
 
 function INSTANCE:RegisterForRendering()
-	typecheck.NotImplementedError()
+	self.HasBeenInUse = true
 end
 
 function INSTANCE:ShadowRender()
@@ -345,8 +345,8 @@ function INSTANCE:GetPassCount()
 	return self.CurrentMaterialDescription:GetPassCount()
 end
 
---- @param pass integer? [Default: 1]
---- @param stage integer? [Default: 1]
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
 function INSTANCE:GetUvArray( pass, stage )
 	pass = ( pass == nil and 1 or pass ) --[[@as integer]]
 	stage = ( stage == nil and 1 or stage ) --[[@as integer]]
@@ -354,56 +354,100 @@ function INSTANCE:GetUvArray( pass, stage )
 	return self.CurrentMaterialDescription:GetUvArray( pass, stage )
 end
 
+--- @return integer
 function INSTANCE:GetUvArrayCount()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetUvArrayByIndex()
+--- @param index integer
+--- @return Vector[]
+function INSTANCE:GetUvArrayByIndex( index )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetDcgArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]
+function INSTANCE:GetDcgArray( pass )
+	return self.CurrentMaterialDescription:GetDcgArray( pass )
 end
 
-function INSTANCE:GetDigArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]
+function INSTANCE:GetDigArray( pass )
+	return self.CurrentMaterialDescription:GetDigArray( pass )
 end
 
-function INSTANCE:GetDcgSource()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return ColorSourceType
+function INSTANCE:GetDcgSource( pass )
+	return self.CurrentMaterialDescription:GetDcgSource( pass )
 end
 
-function INSTANCE:GetDigSource()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return ColorSourceType
+function INSTANCE:GetDigSource( pass )
+	return self.CurrentMaterialDescription:GetDigSource( pass )
 end
 
-function INSTANCE:GetColorArray()
-	typecheck.NotImplementedError()
+--- @param arrayIndex integer
+--- @param create boolean? [Default: `true`]
+--- @return integer[]?
+function INSTANCE:GetColorArray( arrayIndex, create )
+	if create == nil then create = true end
+
+	return self.CurrentMaterialDescription:GetColorArray( arrayIndex, create )
 end
 
-function INSTANCE:SetSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param vertexMaterial VertexMaterialInstance
+--- @param pass integer? [Default: `1`]
+function INSTANCE:SetSingleMaterial( vertexMaterial, pass )
+	if pass == nil then pass = 1 end
+
+	self.CurrentMaterialDescription:SetSingleMaterial( vertexMaterial, pass )
 end
 
-function INSTANCE:SetSingleTexture()
-	typecheck.NotImplementedError()
+--- @param texture TextureInstance
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+function INSTANCE:SetSingleTexture( texture, pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+	
+	self.CurrentMaterialDescription:SetSingleTexture( texture, pass, stage )
 end
 
-function INSTANCE:SetSingleShader()
-	typecheck.NotImplementedError()
+--- @param shader ShaderInstance
+--- @param pass integer? [Default: `1`]
+function INSTANCE:SetSingleShader( shader, pass )
+	if pass == nil then pass = 1 end
+
+	self.CurrentMaterialDescription:SetSingleShader( shader, pass )
 end
 
-function INSTANCE:GetSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return VertexMaterialInstance
+function INSTANCE:GetSingleMaterial( pass )
+	if pass == nil then pass = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleMaterial( pass )
 end
 
-function INSTANCE:GetSingleTexture()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:GetSingleTexture( pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleTexture( pass, stage )
 end
 
-function INSTANCE:GetSingleShader()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return ShaderInstance
+function INSTANCE:GetSingleShader( pass )
+	if pass == nil then pass = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleShader( pass )
 end
 
 function INSTANCE:PeekSingleMaterial()
