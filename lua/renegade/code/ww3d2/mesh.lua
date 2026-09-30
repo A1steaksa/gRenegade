@@ -241,7 +241,6 @@ function INSTANCE:Render( renderInfo, transform, bones)
                 -- "Link each polygon renderer for this mesh into the visible list"
                 -- Omitted polygon renderers with the visible list
 
-
                 if isSkinned then
                     self.Model:RenderSourceMesh( bones )
                 else
@@ -307,24 +306,23 @@ function INSTANCE:IntersectObBox()
     typecheck.NotImplementedError()
 end
 
---- @return SphereInstance
-function INSTANCE:GetObjectSpaceBoundingSphere()
+--- @param sphere SphereInstance
+function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
     if self.Model ~= nil then
-        return self.Model:GetBoundingSphere()
+        self.Model:GetBoundingSphere( sphere )
     else
-        return sphereClass.New( Vector( 0, 0, 0 ), 1.0 )
+        sphere.Center:SetUnpacked( 0, 0, 0 )
+        sphere.Radius = 1.0
     end
 end
 
 --- "Returns the obj-space bounding box"
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
     if self.Model then
-        return self.Model:GetBoundingBox()
+        self.Model:GetBoundingBox( box )
     else
-        local box = aABoxClass.New()
         box:Init( Vector( 0, 0, 0 ), Vector( 1, 1, 1 ) )
-        return box
     end
 end
 
@@ -501,7 +499,7 @@ function INSTANCE:AddDependenciesToList()
 end
 
 function INSTANCE:UpdateCachedBoundingVolumes()
-    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+    self:GetObjectSpaceBoundingSphere( self.CachedBoundingSphere )
 
     self.CachedBoundingSphere.Center = self:GetTransform() * self.CachedBoundingSphere.Center
 
@@ -513,7 +511,7 @@ function INSTANCE:UpdateCachedBoundingVolumes()
         self.CachedBoundingBox.Center = self.CachedBoundingSphere.Center
         self.CachedBoundingBox.Extent:SetUnpacked( self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius )
     else
-        self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
+        self:GetObjectSpaceBoundingBox( self.CachedBoundingBox )
         self.CachedBoundingBox:Transform( self:GetTransform() )
     end
 

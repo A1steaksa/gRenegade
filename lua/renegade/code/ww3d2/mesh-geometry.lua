@@ -316,18 +316,18 @@ end
 		return type[polygonIndex]
 	end
 
-	--- @return AABoxInstance
-	function INSTANCE:GetBoundingBox()
-		local box = aABoxClass.New()
+	--- @param box AABoxInstance
+	function INSTANCE:GetBoundingBox( box )
 		box.Center = ( self.BoundBoxMax + self.BoundBoxMin ) * 0.5
 		box.Extent = ( self.BoundBoxMax - self.BoundBoxMin ) * 0.5
-		return box
 	end
 
 	--- "Get the bounding sphere"
-	--- @return SphereInstance
-	function INSTANCE:GetBoundingSphere()
-		return sphereClass.New( self.BoundSphereCenter, self.BoundSphereRadius )
+	--- @param sphere SphereInstance
+	function INSTANCE:GetBoundingSphere( sphere )
+		assert( sphere ~= nil )
+		sphere.Center = self.BoundSphereCenter
+		sphere.Radius = self.BoundSphereRadius
 	end
 end
 

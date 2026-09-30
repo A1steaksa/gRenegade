@@ -711,7 +711,8 @@ function INSTANCE:GetCurrentLod()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetBoundingSphere()
+--- @param sphere SphereInstance
+function INSTANCE:GetBoundingSphere( sphere )
 	typecheck.NotImplementedError()
 end
 
@@ -720,11 +721,11 @@ end
 function INSTANCE:GetBoundingBox()
 	if self.BoundingBoxIndex >= 1 then
 		-- "Get the bounding box in local coordinates"
-		local box = self:GetObjectSpaceBoundingBox()
-		assert( box ~= nil, INSTANCE.Class .. " - GetBoundingBox - Failed to get ObjectSpaceBoundingBox for: " .. tostring( self ) )
+		local box = aABoxClass.New()
+		self:GetObjectSpaceBoundingBox( box )
 
 		-- "Transform the bounding box to world coordinates"
-		self:GetTransform():TransformCenterExtentAABox( box.Center, box.Extent )
+		self:GetTransform():TransformCenterExtentAABox( box.Center, box.Extent, self.CachedBoundingBox.Center, self.CachedBoundingBox.Extent )
 	else
 		animatable3dObjectClass.Instance.GetBoundingBox( self )
 	end
@@ -732,22 +733,20 @@ function INSTANCE:GetBoundingBox()
 	return self.CachedBoundingBox
 end
 
---- @return SphereInstance
-function INSTANCE:GetObjectSpaceBoundingSphere()
-	local box = self:GetObjectSpaceBoundingBox()
+--- "Use the bounding box mesh to calculate a sphere"
+--- @param sphere SphereInstance
+function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
+	local box = aABoxClass.New()
+	self:GetObjectSpaceBoundingBox( box )
 
-	if box == nil then
-		section.Error( INSTANCE.Class, " - GetObjectSpaceBoundingSphere - Could not retrieve object space bounding box" )
-		error()
-	end
-
-	local sphere = sphereClass.New( box.Center, box.Extent:Length() )
-	return sphere
+	sphere.Center = box.Center
+	sphere.Radius = box.Extent:Length()
 end
 
 --- "Return the bounding box mesh if we have one."
---- @return AABoxInstance?
-function INSTANCE:GetObjectSpaceBoundingBox()
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
+	assert( box ~= nil )
 
 	-- "Do we have a bounding box mesh?"
 	local count = #self.Lod[self.LodCount]
@@ -770,11 +769,10 @@ function INSTANCE:GetObjectSpaceBoundingBox()
 			local worldToHLodTransformationMatrix = self:GetTransform():GetOrthogonalInverse()
 			local boxToHLodTransformationMatrix = worldToHLodTransformationMatrix * boxTransformationMatrix
 
-			local center, extent = boxToHLodTransformationMatrix:TransformCenterExtentAABox( oBBBoxMesh:GetLocalCenter(), oBBBoxMesh:GetLocalExtent() )
-			return aABoxClass.New( center, extent )
+			boxToHLodTransformationMatrix:TransformCenterExtentAABox( oBBBoxMesh:GetLocalCenter(), oBBBoxMesh:GetLocalExtent(), box.Center, box.Extent )
 		end
 	else
-		return animatable3dObjectClass.Instance.GetObjectSpaceBoundingBox( self )
+		animatable3dObjectClass.Instance.GetObjectSpaceBoundingBox( self, box )
 	end
 end
 
@@ -903,8 +901,8 @@ function INSTANCE:UpdateObjectSpaceBoundingVolumes()
 
 	-- "Loop through all sub-objects, combining their object-space bounding spheres and boxes"
 	-- "Put our HTree in its base pose at the origin."
-	local sphere
-	local objectAABox
+	local sphere = sphereClass.New()
+	local objectAABox = aABoxClass.New()
 	local box = minMaxAABoxClass.New()
 
 	self.HTree:BaseUpdate( matrix3dClass.New( true ) )
@@ -912,13 +910,19 @@ function INSTANCE:UpdateObjectSpaceBoundingVolumes()
 	local renderObject = self:GetSubObject( 1 )
 	assert( renderObject ~= nil )
 
-	local boneTransformationMatrix = self.HTree:GetTransform( self:GetSubObjectBoneIndex( renderObject ) )
-	sphere = renderObject:GetObjectSpaceBoundingSphere()
+
+	local boneIndex = self:GetSubObjectBoneIndex( renderObject )
+	local boneTransformationMatrix = self.HTree:GetTransform( boneIndex )
+
+	renderObject:GetObjectSpaceBoundingSphere( sphere )
 	sphere:Transform( boneTransformationMatrix )
-	objectAABox = renderObject:GetObjectSpaceBoundingBox()
+	renderObject:GetObjectSpaceBoundingBox( objectAABox )
 
 	box:Init( objectAABox )
 	box:Transform( boneTransformationMatrix )
+
+	local tempSphere = sphereClass.New()
+	local tempBox = aABoxClass.New()
 
 	for i = 2, self:GetNumSubObjects() do
 		renderObject = self:GetSubObject( i )
@@ -926,17 +930,17 @@ function INSTANCE:UpdateObjectSpaceBoundingVolumes()
 
 		local boneTransformationMatrix = self.HTree:GetTransform( self:GetSubObjectBoneIndex( renderObject ) )
 
-		local tempSphere = renderObject:GetObjectSpaceBoundingSphere()
+		renderObject:GetObjectSpaceBoundingSphere( tempSphere )
 		tempSphere:Transform( boneTransformationMatrix )
 		sphere:AddSphere( tempSphere )
 
-		local tempBox = renderObject:GetObjectSpaceBoundingBox()
+		renderObject:GetObjectSpaceBoundingBox( tempBox )
 		tempBox:Transform( boneTransformationMatrix )
 		box:AddBox( tempBox )
 	end
 
 	self.ObjectSphere = sphere
-	self.ObjectBox = aABoxClass.New( box )
+	self.ObjectBox:Init( box )
 
 	self:InvalidateCachedBoundingVolumes()
 	self:SetHierarchyValid( false )

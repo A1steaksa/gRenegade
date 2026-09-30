@@ -263,11 +263,16 @@ end
 --- 
 --- Note that this function extends the box to enclose its transformed form.  
 --- "  
---- @param transformationMatrix Matrix3dInstance
-function INSTANCE:Transform( transformationMatrix)
-    local oldCenter = self.Center
-    local oldExtent = self.Extent
-    self.Center, self.Extent = transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent )
+--- @overload fun( self, transformationMatrix: Matrix3dInstance, inBox: AABoxInstance, outBox: AABoxInstance )
+--- @overload fun( self, transformationMatrix: Matrix3dInstance )
+function INSTANCE:Transform( transformationMatrix, inBox, outBox )
+    if inBox == nil and outBox == nil then
+        local oldCenter = self.Center
+        local oldExtent = self.Extent
+        transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent, self.Center, self.Extent )
+    else
+        transformationMatrix:TransformCenterExtentAABox( inBox.Center, inBox.Extent, outBox.Center, outBox.Extent )
+    end
 end
 
 --- @param pos Vector

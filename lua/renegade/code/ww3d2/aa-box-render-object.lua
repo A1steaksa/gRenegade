@@ -168,18 +168,14 @@ end
 		typecheck.NotImplementedError()
 	end
 
-	--- @return SphereInstance
-	function INSTANCE:GetObjectSpaceBoundingSphere()
-		local sphere = sphereClass.New()
+	--- @param sphere SphereInstance
+	function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
 		sphere:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent:Length() )
-		return sphere
 	end
 
-	--- @return AABoxInstance
-	function INSTANCE:GetObjectSpaceBoundingBox()
-		local box = aABoxClass.New()
+	--- @param box AABoxInstance
+	function INSTANCE:GetObjectSpaceBoundingBox( box )
 		box:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent )
-		return box
 	end
 end
 

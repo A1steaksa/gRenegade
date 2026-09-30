@@ -629,21 +629,17 @@ function INSTANCE:GetBoundingBox()
 end
 
 --- "Default collision sphere"
---- @return SphereInstance
-function INSTANCE:GetObjectSpaceBoundingSphere()
-    return sphereClass.New(
-        Vector( 0, 0, 0 ),
-        1.0
-    )
+--- @param sphere SphereInstance
+function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
+    sphere.Center:SetUnpacked( 0, 0, 0 )
+    sphere.Radius = 1.0
 end
 
 --- "Default collision box."
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
-    return aABoxClass.New(
-        Vector( 0, 0, 0 ),
-        Vector( 0, 0, 0 )
-    )
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
+    box.Center:SetUnpacked( 0, 0, 0 )
+    box.Extent:SetUnpacked( 0, 0, 0 )
 end
 
 function INSTANCE:UpdateObjectSpaceBoundingVolumes()
@@ -919,9 +915,8 @@ end
 
 --- "default collision sphere."
 function INSTANCE:UpdateCachedBoundingVolumes()
-
-    self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
-    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+    self:GetObjectSpaceBoundingBox( self.CachedBoundingBox )
+    self:GetObjectSpaceBoundingSphere( self.CachedBoundingSphere )
 
     local transform = self:GetTransform()
     self.CachedBoundingSphere.Center = transform * self.CachedBoundingSphere.Center
