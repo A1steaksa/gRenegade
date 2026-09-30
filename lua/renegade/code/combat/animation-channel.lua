@@ -295,11 +295,11 @@ function INSTANCE:Update( deltaTime )
 			self.Frame = self.Frame + deltaTime * self.Animation:GetFrameRate()
 
 			-- "Handle wrapping"
-			if self.Frame > self.NumFrames then
-				self.Frame = self.Frame - self.NumFrames
+			if self.Frame >= self.NumFrames - 1 then
+				self.Frame = self.Frame - ( self.NumFrames - 1 )
 			end
 
-			if self.Frame > self.NumFrames then
+			if self.Frame >= self.NumFrames then
 				self.Frame = 1
 			end
 
