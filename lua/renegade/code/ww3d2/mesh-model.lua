@@ -278,8 +278,10 @@ end
     end
 
 
-	--- @param bones VMatrix[]? [Optional] The bone matrices to use for rendering if this is a skeletal mesh
-    function INSTANCE:RenderSourceMesh( bones )
+
+	--- @overload fun( self, transform: VMatrix )
+	--- @overload fun( self, bones: VMatrix[] )
+    function INSTANCE:RenderSourceMesh( arg1 )
 		-- Ensure we have a Source mesh to render
 		local mesh = self.SourceMesh
         if mesh == nil then
@@ -306,8 +308,8 @@ end
 		render.OverrideAlphaWriteEnable( true, true )
 		render.CullMode( MATERIAL_CULLMODE_CW )
 
-		if bones ~= nil then
-
+		if istable( arg1 ) then
+			local bones = arg1 --[[@as VMatrix[] ]]
 			-- A janky way to get lighting to work on the IMesh.
 			-- Not sure why normal lighting doesn't work.
 			local lightingPos = bones[1]:GetTranslation()
@@ -315,9 +317,18 @@ end
 			local lightColor = render.GetLightColor( lightingPos )
 			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
 
-			mesh:DrawSkinned( bones, false )
+			mesh:DrawSkinned( bones, true )
 		else
+			local transform = arg1 --[[@as VMatrix]]
+
+			local lightingPos = transform:GetTranslation()
+			lightingPos.z = lightingPos.z + 5
+			local lightColor = render.GetLightColor( lightingPos )
+			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
+
+			cam.PushModelMatrix( transform )
 			mesh:Draw()
+			cam.PopModelMatrix()
 		end
 
 		render.CullMode( MATERIAL_CULLMODE_CCW )
@@ -582,7 +593,14 @@ function INSTANCE:LoadW3d( cload )
 	-- If this is a pre-3.0 mesh and it has vertex influences,
 	-- fixup the bone indices to account for the new root node
 	-- "
-	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping pre-3.0 mesh checks" )
+	if context.Header.Version < w3dFileIds.W3D_MAKE_VERSION( 3, 0 ) and self:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) then
+		local links = self:GetBoneLinks()
+		assert( links )
+
+		for linkIndex = 1, #links do
+			links[linkIndex] = links[linkIndex] + 1
+		end
+	end
 
 	-- "If this mesh is collideable and no AABTree was in the file, generate one now"
 	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping generating culling tree" )
