@@ -350,6 +350,8 @@ function INSTANCE:Render( renderInfo )
 	end
 
 	animatable3dObjectClass.Instance.Render( self, renderInfo )
+	
+	local matrix = Matrix()
 
 	-- Render each object within the current LOD model
 	for i = 1, #self.Lod[self.CurrentLod] do
@@ -358,7 +360,10 @@ function INSTANCE:Render( renderInfo )
 
 		if typecheck.IsOfType( lodModel, "MeshInstance" ) then
 			--- @cast lodModel MeshInstance
-			lodModel:Render( renderInfo, self.HTree.SourceBones )
+
+			matrix:SetMatrix3d( lodNode.Model:GetTransform() )
+
+			lodModel:Render( renderInfo, matrix, self.HTree.SourceBones )
 		else
 			lodModel:Render( renderInfo )
 		end
