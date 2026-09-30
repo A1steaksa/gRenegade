@@ -96,8 +96,6 @@ function INSTANCE:SetAnimation( animation, blendTime, startFrame )
 		if typecheck.IsOfType( animation, "string" ) then
 			--- @cast comparison HAnimationInstance
 
-			section.Warn( comparison )
-
 			comparison = comparison:GetName()
 		end
 
