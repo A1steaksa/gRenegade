@@ -31,7 +31,6 @@ ENT.AutomaticFrameAdvance = true
 --#region Imported Enums
 --#endregion
 
-
 function ENT:Initialize()
     if SERVER then
         self:SetModel( "models/props_junk/PopCan01a.mdl" )
@@ -55,6 +54,8 @@ function ENT:Initialize()
         end
 
         self.PowerUpGameObjectInstance = definition:Create( self ) --[[@as PowerUpGameObjectInstance]]
+        self.RenderInfo = renderInfoClass.New( combatManagerClass.GetCamera() )
+        self.RenegadeModel = self.PowerUpGameObjectInstance:PeekModel()
     end
 end
 
@@ -66,13 +67,7 @@ function ENT:OnRemove( isFullUpdate )
 end
 
 function ENT:Draw()
-    local powerup = self.PowerUpGameObjectInstance
-    if powerup == nil then return end
-    local model = self.PowerUpGameObjectInstance:PeekModel()
-    if model == nil then return end
+    if self.RenegadeModel == nil then return end
 
-    -- model:GetHTree():DebugDraw()
-
-    local renderInfo = renderInfoClass.New( combatManagerClass.GetCamera() )
-    model:Render( renderInfo )
+    self.RenegadeModel:Render( self.RenderInfo )
 end
