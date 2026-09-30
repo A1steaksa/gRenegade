@@ -85,7 +85,7 @@ INSTANCE.IsMeshGeometry = true
 
     --- @class MeshGeometryClass
 
-	--- @type Vector4[]
+	--- @type Vector4Instance[]
 	STATIC.PlaneEqArray = {}
 
     --- Creates a new MeshGeometryInstance
@@ -416,7 +416,7 @@ function INSTANCE:LoadW3d( cload )
 	-- "Open the first chunk, it should be the mesh header"
 	cload:OpenChunk()
 
-	if cload:CurChunkId() ~= w3dChunkTypesEnum.W3D_CHUNK_MESH_HEADER3 then
+	if cload:CurChunkId() ~= w3dChunkTypeEnum.W3D_CHUNK_MESH_HEADER3 then
 		section.Warn( "Old format mesh mesh, no longer supported." )
 		goto Error
 	end
