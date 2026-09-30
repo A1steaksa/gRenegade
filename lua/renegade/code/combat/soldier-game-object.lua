@@ -544,9 +544,11 @@ function INSTANCE:IsTurreted()
 end
 
 --- @param targetPos Vector
---- @param doTilt boolean
+--- @param doTilt boolean? [Default: `true`]
 --- @return boolean
 function INSTANCE:SetTargeting( targetPos, doTilt )
+	if doTilt == nil then doTilt = true end
+
 	local returnValue = false
 
 	-- "Don't do the targetting if we are locked on an object"
