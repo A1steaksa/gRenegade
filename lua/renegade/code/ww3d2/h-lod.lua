@@ -171,6 +171,7 @@ function INSTANCE:Renegade_HLod( ... )
 			-- We need to initialize these arrays manually
 			self.Lod = classUtils.InitializeTypeArray( "Renegade_ModelArray", self.LodCount )
 			self.Cost = classUtils.InitializeTypeArray( fundamentalDataTypeEnum.Float, self.LodCount )
+
 			-- "
 			-- Value has LodCount + 1 entries so PostIncrementValue can always use
 			-- Value[CurLod + 1] (the last entry will be AT_MAX_LOD).

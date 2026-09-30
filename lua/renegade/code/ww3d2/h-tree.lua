@@ -201,8 +201,6 @@ end
 			local renBone = self.Pivot[boneIndex]
 
 			sourceBoneMatrix:SetTranslation( renBone.Transform:GetTranslation() )
-			
-
         end
     end
 end
@@ -743,8 +741,7 @@ function INSTANCE:ReadPivots( cload, pre30 )
 				readPivot.Translation.X,
 				readPivot.Translation.Y,
 				readPivot.Translation.Z
-			)
-			* unitConversionLib.MetersToSource
+			) * unitConversionLib.MetersToSource
 		)
 
 		newPivot.BaseTransform =
