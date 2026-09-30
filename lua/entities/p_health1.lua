@@ -20,6 +20,12 @@ ENT.AutomaticFrameAdvance = true
 
 	--- @type DefinitionManagerClass
 	local definitionManagerClass = CNC.Import( "code/wwsaveload/definition-manager.lua" )
+
+	--- @type RenderInfoClass
+	local renderInfoClass = CNC.Import( "code/ww3d2/render-info.lua" )
+
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -39,8 +45,6 @@ function ENT:Initialize()
         end
     end
 
-    self:ResetSequence( "idle" )
-
     if self.PowerUpGameObjectInstance == nil then
         local definitionId = 1665
 
@@ -50,8 +54,7 @@ function ENT:Initialize()
             return
         end
 
-        self.PowerUpGameObjectInstance = powerUpGameObjectClass.New()
-        self.PowerUpGameObjectInstance:Init( definition, self )
+        self.PowerUpGameObjectInstance = definition:Create( self ) --[[@as PowerUpGameObjectInstance]]
     end
 end
 
@@ -62,15 +65,14 @@ function ENT:OnRemove( isFullUpdate )
     robustclass.Delete( self.PowerUpGameObjectInstance )
 end
 
-function ENT:Think()
+function ENT:Draw()
+    local powerup = self.PowerUpGameObjectInstance
+    if powerup == nil then return end
+    local model = self.PowerUpGameObjectInstance:PeekModel()
+    if model == nil then return end
 
-    -- This is hacky and bad and should be replaced with a proper looping animation solution ASAP
-    if self:IsSequenceFinished() then
-        self:ResetSequence( "idle" )
-    end
+    -- model:GetHTree():DebugDraw()
 
-    if SERVER then
-        self:NextThink( CurTime() )
-        return true
-    end
+    local renderInfo = renderInfoClass.New( combatManagerClass.GetCamera() )
+    model:Render( renderInfo )
 end
