@@ -1689,27 +1689,27 @@ end
 
     --- @param center Vector
     --- @param extent Vector
-    --- @return Vector newCenter
-    --- @return Vector newExtent
-    function INSTANCE:TransformCenterExtentAABox( center, extent )
-        local row = self.Row
+    --- @param setCenter Vector
+    --- @param setExtent Vector
+    function INSTANCE:TransformCenterExtentAABox( center, extent, setCenter, setExtent )
+        assert( center ~= nil )
+        assert( extent ~= nil )
+        assert( setCenter ~= nil )
+        assert( setExtent ~= nil )
 
-        --- @type Vector, Vector
-        local newCenter, newExtent = Vector(), Vector()
+        local row = self.Row
 
         -- "Push each extent out to the projections of the original extents"
         for i = 1, 3 do
             -- "Start the center out at the translation portion of the matrix and the extent at zero"
-            newCenter[i] = row[i][4]
-            newExtent[i] = 0
+            setCenter[i] = row[i][4]
+            setExtent[i] = 0.0
 
             for j = 1, 3 do
-                newCenter[i] = newCenter[i] + row[i][j] * center[j]
-                newExtent[i] = newExtent[i] + math.abs( row[i][j] * extent[j] )
+                setCenter[i] = setCenter[i] + row[i][j] * center[j]
+                setExtent[i] = setExtent[i] + math.abs( row[i][j] * extent[j] )
             end
         end
-
-        return newCenter, newExtent
     end
 end
 
