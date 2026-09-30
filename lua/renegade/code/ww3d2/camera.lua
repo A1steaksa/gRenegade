@@ -247,11 +247,11 @@ function INSTANCE:SetViewPlane( ... )
     -- ( horizontalFov: number, verticalFov: number )
     end
 
-    if isnumber( args[1] ) and isnumber( args[2] ) then
+    if isnumber( args[1] ) then
         typecheck.AssertArgType( INSTANCE.Class, 1, args[1], "number" )
 
         local horizontalFov = args[1] --[[@as number]]
-        local verticalFov   = args[2] --[[@as number]]
+        local verticalFov   = args[2] or -1 --[[@as number]]
 
         local widthHalf = math.tan( horizontalFov / 2 )
         local heightHalf = 0
