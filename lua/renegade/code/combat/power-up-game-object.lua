@@ -61,6 +61,12 @@ INSTANCE.IsPowerUpGameObject = true
 
 	--- @type PhysicsAABoxIntersectionTestClass
 	local physicsAABoxIntersectionTestClass = CNC.Import( "code/wwphys/physics-aa-box-intersection-test.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 --#endregion
 
 
@@ -120,7 +126,7 @@ end
 
 --- @class PowerUpGameObjectInstance
 --- @field IdleSoundObject AudibleSoundInstance
---- @field State integer
+--- @field State PowerUpState
 --- @field StateEndTimer number
 --- @field WeaponBag WeaponBagInstance "For backpacks, which can hold multiple weapons and ammo"
 
@@ -300,7 +306,11 @@ function INSTANCE:SetState( state )
 
             -- "Play the grant animation (if exists)"
             if self:GetDefinition().GrantAnimationName:len() > 0 then
-                -- TODO: Implement grant animation
+                self:SetAnimation( self:GetDefinition().GrantAnimationName, false )
+                local animation = ww3dAssetManagerClass.GetInstance():GetHAnimation( self:GetAnimationControl():GetAnimationName() )
+                if animation ~= nil then
+                    self.StateEndTimer = animation:GetTotalTime()
+                end
             end
         end
     end
