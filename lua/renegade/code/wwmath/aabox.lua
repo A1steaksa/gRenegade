@@ -17,11 +17,19 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsAABox = true
 
+--#region Exported Enums
+--#endregion
 
 --#region Imports
 
-    --- @type VectorBridgeClass
-    local vectorBridgeClass = CNC.Import( "bridges/sh_vector.lua" )
+	--- @type VectorBridgeClass
+	local vectorBridgeClass = CNC.Import( "bridges/sh_vector.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
+--#endregion
+
+--#region Imported Enums
 --#endregion
 
 
@@ -275,4 +283,8 @@ end
 --- @return boolean
 function INSTANCE:Contains( ... )
     typecheck.NotImplementedError( "Contains" )
+end
+
+function INSTANCE:DebugDraw()
+    debugdraw.Box( self.Center, Angle( 0, 0, 0 ), self.Extent * unitConversionLib.MetersToSource, Color( 55, 200, 10 ), 0.1, false )
 end
