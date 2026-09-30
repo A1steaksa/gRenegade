@@ -35,11 +35,8 @@ INSTANCE.IsSphere = true
     --- @class SphereClass
 
     --- Creates a new SphereInstance
-    --- @param center Vector
-    --- @param radius number
-    --- @overload fun()
-    --- @overload fun( center: Vector, sphere: SphereInstance )
-    --- @return SphereInstance
+    --- @overload fun(): SphereInstance
+    --- @overload fun( center: Vector, sphere: SphereInstance ): SphereInstance
     function STATIC.New( center, radius )
         return robustclass.New( "Renegade_Sphere", center, radius )
     end
