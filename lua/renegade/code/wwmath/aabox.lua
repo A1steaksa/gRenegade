@@ -124,6 +124,19 @@ function INSTANCE:Renegade_AABox( ... )
     end
 end
 
+--- @return string
+function INSTANCE:__tostring()
+    return INSTANCE.Class .. ": Center: ("
+        .. math.Round( self.Center.x, 2 ) .. ", "
+        .. math.Round( self.Center.y, 2 ) .. ", "
+        .. math.Round( self.Center.z, 2 ) ..
+        "), Extent: ("
+        .. math.Round( self.Extent.x, 2 ) .. ", "
+        .. math.Round( self.Extent.y, 2 ) .. ", "
+        .. math.Round( self.Extent.z, 2 ) ..
+        ")"
+end
+
 --- @param other AABoxInstance
 function INSTANCE:__eq( other )
     if not STATIC.IsAABox( other ) then
