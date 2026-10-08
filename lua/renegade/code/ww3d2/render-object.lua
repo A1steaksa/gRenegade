@@ -613,8 +613,9 @@ function INSTANCE:IntersectSphereQuick()
     typecheck.NotImplementedError()
 end
 
+--- @return SphereInstance
 function INSTANCE:GetBoundingSphere()
-    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
+    if not tobool( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingSphere
@@ -622,7 +623,7 @@ end
 
 --- @return AABoxInstance
 function INSTANCE:GetBoundingBox()
-    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
+    if not tobool( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingBox
