@@ -280,8 +280,8 @@ end
 --- @overload fun( self, transformationMatrix: Matrix3dInstance )
 function INSTANCE:Transform( transformationMatrix, inBox, outBox )
     if inBox == nil and outBox == nil then
-        local oldCenter = self.Center
-        local oldExtent = self.Extent
+        local oldCenter = Vector( self.Center )
+        local oldExtent = Vector( self.Extent )
         transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent, self.Center, self.Extent )
     else
         transformationMatrix:TransformCenterExtentAABox( inBox.Center, inBox.Extent, outBox.Center, outBox.Extent )
