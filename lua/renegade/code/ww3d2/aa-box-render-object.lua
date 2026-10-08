@@ -139,13 +139,13 @@ end
 	--- @param matrix Matrix3dInstance
 	function INSTANCE:SetTransform( matrix )
 		renderObjectClass.Instance.SetTransform( self, matrix )
-		INSTANCE.UpdateCachedBox( self )
+		self:UpdateCachedBox()
 	end
 
 	--- @param pos Vector
 	function INSTANCE:SetPosition( pos )
 		renderObjectClass.Instance.SetPosition( self, pos )
-		INSTANCE.UpdateCachedBox( self )
+		self:UpdateCachedBox()
 	end
 
 	function INSTANCE:CastRay()
