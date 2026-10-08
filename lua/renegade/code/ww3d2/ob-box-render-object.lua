@@ -175,11 +175,9 @@ function INSTANCE:GetObjectSpaceBoundingSphere()
 	return sphere
 end
 
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
-	local box = aABoxClass.New()
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
 	box:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent )
-	return box
 end
 
 function INSTANCE:GetBox()
