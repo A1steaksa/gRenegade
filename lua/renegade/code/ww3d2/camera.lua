@@ -230,11 +230,11 @@ function INSTANCE:SetViewPlane( ... )
     local args = { ... }
     local argCount = select( "#", ... )
     typecheck.AssertArgCount( INSTANCE.Class, argCount, { 1, 2 } )
-    typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "vector", "number" } )
+    typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "Vector", "number" } )
 
     -- ( min: Vector, max: Vector )
     if isvector( args[1] ) then
-        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, args[2], "Vector" )
 
         local vMin = args[1] --[[@as Vector]]
         local vMax = args[2] --[[@as Vector]]

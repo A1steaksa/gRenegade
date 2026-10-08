@@ -65,9 +65,6 @@ local isHotload = not table.IsEmpty( STATIC )
             --- @cast aType string
             --- @cast bType string
 
-            aType = aType:Trim():lower()
-            bType = bType:Trim():lower()
-
             local aTable = STATIC.IntersectionTestFunctions[aType]
             if not aTable then
                 aTable = {}
@@ -123,9 +120,6 @@ local isHotload = not table.IsEmpty( STATIC )
 
             --- @cast aType string
             --- @cast bType string
-
-            aType = aType:Trim():lower()
-            bType = bType:Trim():lower()
 
             local aTable = STATIC.OverlapTestFunctions[aType]
             if not aTable then

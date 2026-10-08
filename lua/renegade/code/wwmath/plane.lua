@@ -95,8 +95,8 @@ function INSTANCE:Set( ... )
     local fourthArg = args[4]
 
     if argCount == 2 then
-        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "vector" )
-        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, { "number", "vector" } )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, { "number", "Vector" } )
 
         --- @type Vector
         local normal = firstArg
@@ -124,9 +124,9 @@ function INSTANCE:Set( ... )
 
     -- point1: Vector, point2: Vector, point3: Vector
     if argCount == 3 then
-        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "vector" )
-        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector" )
-        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "Vector" )
 
         --- @type Vector
         local point1 = firstArg
@@ -190,7 +190,7 @@ end
 function INSTANCE:InFront( ... )
     local args = { ... }
 
-    typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "vector", "sphere" } )
+    typecheck.AssertArgType( INSTANCE.Class, 1, args[1], { "Vector", "SphereInstance" } )
 
     if isvector( args[1] ) then
         typecheck.NotImplementedError( "Vector check" )

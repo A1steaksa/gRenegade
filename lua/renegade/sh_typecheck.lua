@@ -47,8 +47,6 @@ LIB.EntityTypes = {
         --- @param typeName string The name of the type being registered. This will be the type name used when checking types. Case insensitive.
         --- @param checkFunction fun( arg: any ): boolean
         function LIB.RegisterType( typeName, checkFunction )
-            typeName = string.lower( typeName ):Trim()
-
             typecheck.CustomTypes[ typeName ] = {
                 TypeName = typeName,
                 CheckFunction = checkFunction
@@ -73,12 +71,12 @@ LIB.EntityTypes = {
         function LIB.IsOfType( valueToCheck, expectedTypes )
             expectedTypes = LIB.EnsureStringTable( expectedTypes )
 
-            local valueType = LIB.CleanString( type( valueToCheck ) )
+            local valueType = type( valueToCheck )
 
             for _, expectedType in ipairs( expectedTypes ) do
-                expectedType = LIB.CleanString( expectedType )
+                expectedType = expectedType
 
-                local customType = LIB.CustomTypes[ expectedType:lower() ]
+                local customType = LIB.CustomTypes[ expectedType ]
 
                 local isCorrectType = false
                 if customType ~= nil then
@@ -107,10 +105,6 @@ LIB.EntityTypes = {
         --- @return any arg The arg value that was passed in
         function LIB.AssertArgType( className, argNumber, arg, expectedArgTypes )
             if isstring( expectedArgTypes ) then expectedArgTypes = { expectedArgTypes --[[@as string]] } end
-
-            for index = 1, #expectedArgTypes do
-                expectedArgTypes[index] = expectedArgTypes[index]:lower():Trim()
-            end
 
             if not LIB.IsOfType( arg, expectedArgTypes ) then
                 local functionName = LIB.GetCallerFunctionName()
@@ -246,7 +240,7 @@ LIB.EntityTypes = {
         --- @param value any
         function LIB.GetType( value )
             -- Anything other than a table can be returned immediately
-            local baseType = LIB.CleanString( type( value ) )
+            local baseType = type( value )
             if baseType ~= "table" then
                 return baseType
             end
@@ -261,12 +255,6 @@ LIB.EntityTypes = {
 
             -- If none of the custom types matched, it's just a normal table
             return "table"
-        end
-
-        --- Trims and lowercases a given string
-        --- @param str string
-        function LIB.CleanString( str )
-            return str:lower():Trim()
         end
 
         --- If the passed value is not a sequential table of strings, it is placed into a table
