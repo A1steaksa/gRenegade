@@ -266,7 +266,7 @@ end
         self.PhysicsObject = physicsObjectDefinition:Create( self:GetConnectedEntity() ) --[[@as PhysicsInstance]]
         assert( self.PhysicsObject ~= nil, "Could not create definition instance for '" .. definition.PhysicsDefinitionId .. "'" )
 
-        self.PhysicsObject:SetConnectedEntity( INSTANCE.GetConnectedEntity( self ) )
+        self.PhysicsObject:SetConnectedEntity( self:GetConnectedEntity() )
 
         self.PhysicsObject:SetCollisionGroup( collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP )
         self.PhysicsObject:SetObserver( self )
@@ -278,9 +278,9 @@ end
             INSTANCE.SetAnimation( self, definition.Animation )
         end
 
-        INSTANCE.EnableHibernation( self, definition.DefaultHibernationEnable )
+        self:EnableHibernation( definition.DefaultHibernationEnable )
 
-        INSTANCE.ResetRadarBlipShapeType( self )
+        self:ResetRadarBlipShapeType()
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
@@ -291,10 +291,10 @@ end
         damageableGameObjectClass.Instance.ReInit( self, definition )
 
         -- "Copy any internal settings from the definition"
-        INSTANCE.CopySettings( self, definition )
+        self:CopySettings( definition )
 
         -- "Restore the necessary settings"
-        INSTANCE.SetTransform( self, transformationMatrix )
+        self:SetTransform( transformationMatrix )
     end
 
     --- @return PhysicalGameObjectDefinitionInstance

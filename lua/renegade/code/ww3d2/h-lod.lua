@@ -542,10 +542,10 @@ function INSTANCE:AddSubObjectToBone( subObject, bone )
 
 	self.AdditionalModels[#self.AdditionalModels + 1] = newNode
 
-	INSTANCE.UpdateSubObjectBits( self )
-	INSTANCE.UpdateObjectSpaceBoundingVolumes( self )
-	INSTANCE.SetHierarchyValid( self, false )
-	INSTANCE.SetSubObjectTransformsDirty( self, true )
+	self:UpdateSubObjectBits()
+	self:UpdateObjectSpaceBoundingVolumes()
+	self:SetHierarchyValid( false )
+	self:SetSubObjectTransformsDirty( true )
 
 	if INSTANCE.IsInScene( self ) then
 		subObject:NotifyAdded( self.Scene )
