@@ -304,5 +304,5 @@ function INSTANCE:Contains( ... )
 end
 
 function INSTANCE:DebugDraw()
-    debugdraw.Box( self.Center, Angle( 0, 0, 0 ), self.Extent * unitConversionLib.MetersToSource, Color( 55, 200, 10 ), 0.1, false )
+    debugdraw.Box( self.Center, Angle( 0, 0, 0 ), self.Extent, Color( 55, 200, 10 ), 0.1, false )
 end
