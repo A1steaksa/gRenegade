@@ -648,9 +648,8 @@ end
 --[[ Thinking ]] do
 
     function INSTANCE:Think()
-
-        -- For testing purposes, move to my owning source entity if one exists
-        if IsValid( self.ConnectedEntity ) then            
+        -- Match my connected Entity's transform if I have one
+        if IsValid( self.ConnectedEntity ) then
             local transform = self:GetTransform()
             transform:MakeIdentity()
 
@@ -662,7 +661,15 @@ end
             transform:RotateX( math.rad( ang.roll ) )
             transform:RotateY( math.rad( ang.pitch ) )
 
-            self:SetTransform( transform )
+            local physObj = self:PeekPhysicalObject()
+            if physObj ~= nil then
+                physObj:SetTransform( transform )
+            end
+
+            local model = self:PeekModel()
+            if model ~= nil then
+                model:InvalidateCachedBoundingVolumes()
+            end
         end
 
         damageableGameObjectClass.Instance.Think( self )
