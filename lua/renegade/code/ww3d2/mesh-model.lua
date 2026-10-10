@@ -581,6 +581,12 @@ function INSTANCE:LoadW3d( cload )
 	self.BoundSphereCenter = Vector( header.SphCenter.X, header.SphCenter.Y, header.SphCenter.Z )
 	self.BoundSphereRadius = header.SphRadius
 
+	-- Convert from Renegade to Source units as we load from the header
+	self.BoundBoxMax:Mul( unitConversionLib.MetersToSource )
+	self.BoundBoxMin:Mul( unitConversionLib.MetersToSource )
+	self.BoundSphereCenter:Mul( unitConversionLib.MetersToSource )
+	self.BoundSphereRadius = self.BoundSphereRadius * unitConversionLib.MetersToSource
+
 	-- "Flags"
 	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping setting flags" )
 
