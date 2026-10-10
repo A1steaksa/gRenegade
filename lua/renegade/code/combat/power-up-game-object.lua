@@ -67,12 +67,16 @@ INSTANCE.IsPowerUpGameObject = true
 
 	--- @type SaveLoadSystemClass
 	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+
+	--- @type GameObjectObserverClass
+	local gameObjectObserverClass = CNC.Import( "code/combat/game-object-observer.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
 	local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
+	local customEventEnum = gameObjectObserverClass.CUSTOM_EVENT
 --#endregion
 
 
@@ -222,30 +226,22 @@ end
         -- "
         if combatManagerClass.IAmServer() and self.State ~= powerUpStateEnum.STATE_GRANTING then
 
+            if self.PeekModel == nil then return end
+
             -- "Check my bounding box for collisions with Soldiers"
-            local model = self:PeekModel()
-            if not model then
-                section.Error( self, ": ", self.Class, ": Think: No model was found" )
-                return
-            end
-            local box = model:GetBoundingBox()
+            local box = self:PeekModel():GetBoundingBox()
 
             for _, object in ipairs( gameObjectManagerClass.GetSmartGameObjectList() ) do
                 local soldier = object:AsSoldierGameObject()
 
                 if object:AsVehicleGameObject() then
-                    typecheck.NotImplementedError()
+                    soldier = object:AsVehicleGameObject():GetDriver()
                 end
 
                 if soldier ~= nil and soldier:WantsPowerups() then
-
                     local test = physicsAABoxIntersectionTestClass.New( box, collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP, collisionTypeClass.COLLISION_TYPE_PHYSICAL )
 
-                    local soldierPhysicalObject = object:PeekPhysicalObject()
-
-                    section.Print( "Soldier Physical Object: ", soldierPhysicalObject )
-
-                    local result = soldierPhysicalObject:IntersectionTest( test )
+                    local result = object:PeekPhysicalObject():IntersectionTest( test )
                     if result then
                         self:Grant( soldier ) -- "Don't grant any more"
                         break
