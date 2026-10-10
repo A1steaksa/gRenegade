@@ -257,7 +257,23 @@ end
 
     --- @param object SmartGameObjectInstance
     function INSTANCE:Grant( object )
-        typecheck.NotImplementedError()
+        assert( self.State ~= powerUpStateEnum.STATE_GRANTING )
+        assert( object ~= nil )
+
+        -- "Grant Def"
+        self:GetDefinition():Grant( object, self )
+
+        -- "If we have a weapon bag, move it"
+        if self.WeaponBag ~= nil then
+            typecheck.NotImplementedError()
+        end
+
+        if self.State == powerUpStateEnum.STATE_GRANTING then
+            local observerList = self:GetObservers()
+            for index = 1, #observerList do
+                observerList[index]:Custom( self, customEventEnum.CUSTOM_EVENT_POWERUP_GRANTED, 1, self )
+            end
+        end
     end
 end
 
