@@ -203,7 +203,11 @@ function INSTANCE:Render( renderInfo, transform, bones)
         local frustum = renderInfo.Camera:GetFrustum()
 
         local isSkinned = tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
-        local isOnScreen = collisionMathClass.OverlapTest( frustum, self:GetBoundingBox() ) ~= overlapTypeEnum.OUTSIDE
+
+        local boundingBox = self:GetBoundingBox()
+        local overlapResult = collisionMathClass.OverlapTest( frustum, boundingBox )
+        local isOnScreen = overlapResult ~= overlapTypeEnum.OUTSIDE
+
         if( isSkinned or isOnScreen ) then
             local renderedSomething = false
 
