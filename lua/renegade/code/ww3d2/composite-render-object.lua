@@ -161,8 +161,8 @@ end
 
 --- @param box AABoxInstance
 function INSTANCE:GetObjectSpaceBoundingBox( box )
-	self.ObjectBox.Center:Set( box.Center )
-	self.ObjectBox.Extent:Set( box.Extent )
+	box.Center:Set( self.ObjectBox.Center )
+	box.Extent:Set( self.ObjectBox.Extent )
 end
 
 --- "Updates the object-space BVs"
