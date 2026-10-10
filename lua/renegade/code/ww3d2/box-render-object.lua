@@ -30,6 +30,9 @@ INSTANCE.IsBoxRenderObject = true
 
 	--- @type W3dFileIds
 	local w3dFileIds = CNC.Import( "code/ww3d2/w3d-file.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -116,6 +119,11 @@ function INSTANCE:Renegade_BoxRenderObject( src )
 			self.Color = Color( def.Color.R, def.Color.G, def.Color.B )
 			self.ObjectSpaceCenter = Vector( def.Center.X, def.Center.Y, def.Center.Z )
 			self.ObjectSpaceExtent = Vector( def.Extent.X, def.Extent.Y, def.Extent.Z )
+
+			-- Convert the bounds units from Renegade to Source
+			self.ObjectSpaceCenter:Mul( unitConversionLib.MetersToSource )
+			self.ObjectSpaceExtent:Mul( unitConversionLib.MetersToSource )
+
 			local collisionBits = bit.rshift(
 				bit.band(
 					def.Attributes,
