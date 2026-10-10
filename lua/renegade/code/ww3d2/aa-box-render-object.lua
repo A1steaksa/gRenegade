@@ -175,7 +175,7 @@ end
 
 	--- @param box AABoxInstance
 	function INSTANCE:GetObjectSpaceBoundingBox( box )
-		box:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent )
+		box:Init( Vector( self.ObjectSpaceCenter ), Vector( self.ObjectSpaceExtent ) )
 	end
 end
 
