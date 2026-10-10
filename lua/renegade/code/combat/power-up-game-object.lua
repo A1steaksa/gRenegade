@@ -317,7 +317,7 @@ function INSTANCE:SetState( state )
 
             -- "Play the grant sound (if exists)"
             if self:GetDefinition().GrantSoundId ~= 0 then
-                wwAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
+                -- wwAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
             end
 
             -- "Play the grant animation (if exists)"
