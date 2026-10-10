@@ -34,7 +34,16 @@ end )
 
 hook.Add( "HUDShouldDraw", "A1_Renegade_HideHud", function( name )
     if not isHudActive then return end
-    if LocalPlayer().GetActiveWeapon and LocalPlayer():GetActiveWeapon():GetClass() == "gmod_camera" then return end
+    local ply = LocalPlayer()
+    if  ply ~= nil
+        and IsValid( ply )
+        and ( ply.GetActiveWeapon ~= nil )
+        and IsValid( ply:GetActiveWeapon() )
+        and ply:GetActiveWeapon():GetClass() == "gmod_camera"
+    then
+        return
+    end
+
     return hudElements[ name ]
 end )
 
