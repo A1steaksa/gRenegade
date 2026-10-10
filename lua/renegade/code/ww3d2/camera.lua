@@ -189,35 +189,6 @@ end
     end
 end
 
-
---- Originally part of RenderObjClass in Code/ww3d2/rendobj.h/cpp
---- Camera extends RenderObjClass but I don't feel like porting that right now
---- @return Matrix3dInstance
-function INSTANCE:GetTransform()
-    local viewSetup = cameraBridge.GetViewSetup() --[[@as ViewSetup]]
-
-    local viewAng = viewSetup.angles
-
-    local matrix = matrix3dClass.New( false )
-    local row = matrix.Row
-    local row1, row2, row3 = row[1], row[2], row[3]
-
-    row1.x, row1.y, row1.z =  0,  0, -1
-    row2.x, row2.y, row2.z = -1,  0,  0
-    row3.x, row3.y, row3.z =  0,  1,  0
-
-    row1.w = viewSetup.origin.x
-    row2.w = viewSetup.origin.y
-    row3.w = viewSetup.origin.z
-
-    -- Rotate the camera's matrix, adjusting the Source angles to match Renegade's coordinate space
-    matrix:RotateY( math.rad(  viewAng.yaw   ) )
-    matrix:RotateX( math.rad( -viewAng.pitch ) )
-    matrix:RotateZ( math.rad( -viewAng.roll  ) )
-
-    return matrix
-end
-
 --- "Get the corners of the current view plane"
 --- @return Vector viewPlaneMin, Vector viewPlaneMax
 function INSTANCE:GetViewPlane()
@@ -329,7 +300,7 @@ end
 --- @protected
 function INSTANCE:UpdateFrustum()
     if self.FrustumValid then
-        return
+        -- return
     end
 
     local cameraMatrix = self:GetTransform()
