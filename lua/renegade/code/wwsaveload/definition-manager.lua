@@ -296,14 +296,10 @@ end
 
         -- "Assign a mgr link to each definition"
         -- Omitted manager link for now
-
         section.End( "Loaded ", loadedDefinitionCount, " definitions" )
 
-        section.Start( "Definition Chunk IDs without factories:" )
-        for chunkId, _ in pairs( chunkIdsWithoutFactories ) do
-            section.Print( chunkId )
-        end
-        section.End( table.Count( chunkIdsWithoutFactories ), " total missing factories" )
+        local text = table.concat(  table.GetKeys( chunkIdsWithoutFactories ), ", " )
+        section.Print( table.Count( chunkIdsWithoutFactories ), " total missing factories: ", text )
 
         return retVal
     end
