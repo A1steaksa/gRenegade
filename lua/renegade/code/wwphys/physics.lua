@@ -77,8 +77,6 @@ INSTANCE.IsPhysics = true
             error() -- To make LuaLS happy
         end
 
-        renderObject:SetConnectedEntity( connectedEntity )
-
         return renderObject
     end
 

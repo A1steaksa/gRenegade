@@ -322,9 +322,9 @@ function INSTANCE:AddQuad( ... )
     if isvector( firstArg ) then
         --- @cast firstArg Vector
 
-        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector" )
-        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "vector" )
-        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "Vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "Vector" )
 
         vertex0 = firstArg
         vertex1 = secondArg
@@ -338,7 +338,7 @@ function INSTANCE:AddQuad( ... )
 
             -- Sixth arg must be Color
             if sixthArg then
-                typecheck.AssertArgType( INSTANCE.Class, 6, sixthArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 6, sixthArg, "Color" )
 
                 --- @cast sixthArg Color
                 color = sixthArg
@@ -348,7 +348,7 @@ function INSTANCE:AddQuad( ... )
         else
             -- Fifth arg must be Color
             if fifthArg then
-                typecheck.AssertArgType( INSTANCE.Class, 5, fifthArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 5, fifthArg, "Color" )
 
                 --- @cast fifthArg Color
                 color = fifthArg
@@ -368,7 +368,7 @@ function INSTANCE:AddQuad( ... )
 
             -- Third arg must be Color
             if thirdArg then
-                typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg, "Color" )
                 --- @cast thirdArg Color
                 color = thirdArg
             end
@@ -378,7 +378,7 @@ function INSTANCE:AddQuad( ... )
             _rect  = firstArg
 
             if secondArg then
-                typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "color" )
+                typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "Color" )
                 --- @cast secondArg Color
                 color = secondArg
             end
@@ -584,7 +584,7 @@ function INSTANCE:ConvertVert( ... )
     local x, y
 
     if argCount == 1 then
-        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "vector" )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg, "Vector" )
         --- @cast firstArg Vector
 
         x = firstArg.x
@@ -645,10 +645,10 @@ function INSTANCE:InternalAddQuadVertices( ... )
         vertex3 = fourthArg --[[@as Vector]]
         isBackfaced = ( fifthArg and fifthArg or false ) --[[@as boolean]]
 
-        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "vector"  )
-        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "vector"  )
-        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg,  "vector"  )
-        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 1, firstArg,  "Vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 2, secondArg, "Vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 3, thirdArg,  "Vector"  )
+        typecheck.AssertArgType( INSTANCE.Class, 4, fourthArg, "Vector"  )
         typecheck.AssertArgType( INSTANCE.Class, 5, isBackfaced,  "boolean" )
     end
 

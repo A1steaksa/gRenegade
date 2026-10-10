@@ -175,7 +175,7 @@ end
 	--- @class MeshModelInstance
 	--- @field SourceMesh IMesh? The Source engine IMesh that this Render Object uses for rendering
 
-    --- Creates, stores, and returns an `IMesh` for this MeshInstance  
+    --- Creates and stores an `IMesh` for this MeshInstance  
     --- Note: If there is already an IMesh, it will be re-used
     function INSTANCE:CreateSourceMesh()
         if self.SourceMatrix == nil then
@@ -278,8 +278,10 @@ end
     end
 
 
-	--- @param bones VMatrix[]? [Optional] The bone matrices to use for rendering if this is a skeletal mesh
-    function INSTANCE:RenderSourceMesh( bones )
+
+	--- @overload fun( self, transform: VMatrix )
+	--- @overload fun( self, bones: VMatrix[] )
+    function INSTANCE:RenderSourceMesh( arg1 )
 		-- Ensure we have a Source mesh to render
 		local mesh = self.SourceMesh
         if mesh == nil then
@@ -306,8 +308,8 @@ end
 		render.OverrideAlphaWriteEnable( true, true )
 		render.CullMode( MATERIAL_CULLMODE_CW )
 
-		if bones ~= nil then
-
+		if istable( arg1 ) then
+			local bones = arg1 --[[@as VMatrix[] ]]
 			-- A janky way to get lighting to work on the IMesh.
 			-- Not sure why normal lighting doesn't work.
 			local lightingPos = bones[1]:GetTranslation()
@@ -315,9 +317,18 @@ end
 			local lightColor = render.GetLightColor( lightingPos )
 			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
 
-			mesh:DrawSkinned( bones, false )
+			mesh:DrawSkinned( bones, true )
 		else
+			local transform = arg1 --[[@as VMatrix]]
+
+			local lightingPos = transform:GetTranslation()
+			lightingPos.z = lightingPos.z + 5
+			local lightColor = render.GetLightColor( lightingPos )
+			render.ResetModelLighting( lightColor.x, lightColor.y, lightColor.z )
+
+			cam.PushModelMatrix( transform )
 			mesh:Draw()
+			cam.PopModelMatrix()
 		end
 
 		render.CullMode( MATERIAL_CULLMODE_CCW )
@@ -328,7 +339,7 @@ end
 
 
 function INSTANCE:RegisterForRendering()
-	typecheck.NotImplementedError()
+	self.HasBeenInUse = true
 end
 
 function INSTANCE:ShadowRender()
@@ -345,8 +356,8 @@ function INSTANCE:GetPassCount()
 	return self.CurrentMaterialDescription:GetPassCount()
 end
 
---- @param pass integer? [Default: 1]
---- @param stage integer? [Default: 1]
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
 function INSTANCE:GetUvArray( pass, stage )
 	pass = ( pass == nil and 1 or pass ) --[[@as integer]]
 	stage = ( stage == nil and 1 or stage ) --[[@as integer]]
@@ -354,56 +365,100 @@ function INSTANCE:GetUvArray( pass, stage )
 	return self.CurrentMaterialDescription:GetUvArray( pass, stage )
 end
 
+--- @return integer
 function INSTANCE:GetUvArrayCount()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetUvArrayByIndex()
+--- @param index integer
+--- @return Vector[]
+function INSTANCE:GetUvArrayByIndex( index )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetDcgArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]
+function INSTANCE:GetDcgArray( pass )
+	return self.CurrentMaterialDescription:GetDcgArray( pass )
 end
 
-function INSTANCE:GetDigArray()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return integer[]
+function INSTANCE:GetDigArray( pass )
+	return self.CurrentMaterialDescription:GetDigArray( pass )
 end
 
-function INSTANCE:GetDcgSource()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return ColorSourceType
+function INSTANCE:GetDcgSource( pass )
+	return self.CurrentMaterialDescription:GetDcgSource( pass )
 end
 
-function INSTANCE:GetDigSource()
-	typecheck.NotImplementedError()
+--- @param pass integer
+--- @return ColorSourceType
+function INSTANCE:GetDigSource( pass )
+	return self.CurrentMaterialDescription:GetDigSource( pass )
 end
 
-function INSTANCE:GetColorArray()
-	typecheck.NotImplementedError()
+--- @param arrayIndex integer
+--- @param create boolean? [Default: `true`]
+--- @return integer[]?
+function INSTANCE:GetColorArray( arrayIndex, create )
+	if create == nil then create = true end
+
+	return self.CurrentMaterialDescription:GetColorArray( arrayIndex, create )
 end
 
-function INSTANCE:SetSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param vertexMaterial VertexMaterialInstance
+--- @param pass integer? [Default: `1`]
+function INSTANCE:SetSingleMaterial( vertexMaterial, pass )
+	if pass == nil then pass = 1 end
+
+	self.CurrentMaterialDescription:SetSingleMaterial( vertexMaterial, pass )
 end
 
-function INSTANCE:SetSingleTexture()
-	typecheck.NotImplementedError()
+--- @param texture TextureInstance
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+function INSTANCE:SetSingleTexture( texture, pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+	
+	self.CurrentMaterialDescription:SetSingleTexture( texture, pass, stage )
 end
 
-function INSTANCE:SetSingleShader()
-	typecheck.NotImplementedError()
+--- @param shader ShaderInstance
+--- @param pass integer? [Default: `1`]
+function INSTANCE:SetSingleShader( shader, pass )
+	if pass == nil then pass = 1 end
+
+	self.CurrentMaterialDescription:SetSingleShader( shader, pass )
 end
 
-function INSTANCE:GetSingleMaterial()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return VertexMaterialInstance
+function INSTANCE:GetSingleMaterial( pass )
+	if pass == nil then pass = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleMaterial( pass )
 end
 
-function INSTANCE:GetSingleTexture()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @param stage integer? [Default: `1`]
+--- @return TextureInstance
+function INSTANCE:GetSingleTexture( pass, stage )
+	if pass == nil then pass = 1 end
+	if stage == nil then stage = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleTexture( pass, stage )
 end
 
-function INSTANCE:GetSingleShader()
-	typecheck.NotImplementedError()
+--- @param pass integer? [Default: `1`]
+--- @return ShaderInstance
+function INSTANCE:GetSingleShader( pass )
+	if pass == nil then pass = 1 end
+
+	return self.CurrentMaterialDescription:GetSingleShader( pass )
 end
 
 function INSTANCE:PeekSingleMaterial()
@@ -526,6 +581,12 @@ function INSTANCE:LoadW3d( cload )
 	self.BoundSphereCenter = Vector( header.SphCenter.X, header.SphCenter.Y, header.SphCenter.Z )
 	self.BoundSphereRadius = header.SphRadius
 
+	-- Convert from Renegade to Source units as we load from the header
+	self.BoundBoxMax:Mul( unitConversionLib.MetersToSource )
+	self.BoundBoxMin:Mul( unitConversionLib.MetersToSource )
+	self.BoundSphereCenter:Mul( unitConversionLib.MetersToSource )
+	self.BoundSphereRadius = self.BoundSphereRadius * unitConversionLib.MetersToSource
+
 	-- "Flags"
 	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping setting flags" )
 
@@ -538,7 +599,14 @@ function INSTANCE:LoadW3d( cload )
 	-- If this is a pre-3.0 mesh and it has vertex influences,
 	-- fixup the bone indices to account for the new root node
 	-- "
-	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping pre-3.0 mesh checks" )
+	if context.Header.Version < w3dFileIds.W3D_MAKE_VERSION( 3, 0 ) and self:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) then
+		local links = self:GetBoneLinks()
+		assert( links )
+
+		for linkIndex = 1, #links do
+			links[linkIndex] = links[linkIndex] + 1
+		end
+	end
 
 	-- "If this mesh is collideable and no AABTree was in the file, generate one now"
 	-- section.Warn( INSTANCE.Class, ":LoadW3d - Skipping generating culling tree" )

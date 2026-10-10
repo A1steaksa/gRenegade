@@ -440,8 +440,8 @@ end
 --- "[Count] how many entries with the indicated prefix followed by a number exist in the section"
 --- @param section string
 --- @param entryPrefix string
---- @param startNumber integer? [Default: 0]
---- @param endNumber integer? [Default: -1]
+--- @param startNumber integer? [Default: `0`]
+--- @param endNumber integer? [Default: `-1`]
 function INSTANCE:EnumerateEntries( section, entryPrefix, startNumber, endNumber )
     -- Appears to be unused in the original game
     typecheck.NotImplementedError()
@@ -498,7 +498,7 @@ end
     --- > "  
     --- @param sectionName string "The section name to find the entry under."
     --- @param entryName string "The entry name to fetch the float value from."
-    --- @param defaultValue number? [Default: 0.0] "Return value to use if the section and entry could not be found."
+    --- @param defaultValue number? [Default: `0.0`] "Return value to use if the section and entry could not be found."
     --- @return number "Returns with the float value from the section and entry specified. If not found, then the default value is returned."
     function INSTANCE:GetFloat( sectionName, entryName, defaultValue )
         -- "Verify that the parameters are nominally correct."

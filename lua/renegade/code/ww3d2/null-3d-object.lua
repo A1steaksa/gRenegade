@@ -117,10 +117,9 @@ function INSTANCE:GetObjectSpaceBoundingSphere()
     )
 end
 
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
-    return aABoxClass.New(
-        Vector( 0, 0, 0 ),
-        Vector( 0.1, 0.1, 0.1 )
-    )
+
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
+    box.Center:SetUnpacked( 0, 0, 0 )
+    box.Extent:SetUnpacked( 0.1, 0.1, 0.1 )
 end

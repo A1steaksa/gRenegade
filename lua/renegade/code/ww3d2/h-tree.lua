@@ -201,8 +201,6 @@ end
 			local renBone = self.Pivot[boneIndex]
 
 			sourceBoneMatrix:SetTranslation( renBone.Transform:GetTranslation() )
-			
-
         end
     end
 end
@@ -220,7 +218,7 @@ function INSTANCE:LoadW3d( cload )
 	end
 
 	if cload:CurChunkId() ~= w3dChunkTypeEnum.W3D_CHUNK_HIERARCHY_HEADER then
-		section.Warn( "ERROR: Expected Hierarchy Header" )
+		section.Warn( INSTANCE.Class, " - LoadW3d - ERROR: Expected Hierarchy Header but got ", cload:CurChunkId() )
 		return hTreeLoadResultEnum.LOAD_ERROR
 	end
 
@@ -258,7 +256,7 @@ function INSTANCE:LoadW3d( cload )
 				return hTreeLoadResultEnum.LOAD_ERROR
 			end
 		else
-			section.Warn( "Expected W3D_CHUNK_PIVOTS ('", w3dChunkTypeEnum.W3D_CHUNK_PIVOTS, "') but got '", chunkId, "'" )
+			section.Warn( INSTANCE.Class, " - LoadW3d - Expected W3D_CHUNK_PIVOTS ('", w3dChunkTypeEnum.W3D_CHUNK_PIVOTS, "') but got '", chunkId, "'" )
 		end
 		cload:CloseChunk()
 	end
@@ -743,8 +741,7 @@ function INSTANCE:ReadPivots( cload, pre30 )
 				readPivot.Translation.X,
 				readPivot.Translation.Y,
 				readPivot.Translation.Z
-			)
-			* unitConversionLib.MetersToSource
+			) * unitConversionLib.MetersToSource
 		)
 
 		newPivot.BaseTransform =
@@ -779,4 +776,42 @@ function INSTANCE:ReadPivots( cload, pre30 )
 	self.Pivot[1].IsVisible = true
 
 	return true
+end
+
+function INSTANCE:DebugDraw()
+	local matrix = Matrix()
+
+	local boneOutline = Color(0, 0, 0 )
+	local boneColor = Color( 100, 255, 255 )
+
+	local forwardColor = Color( 255, 0, 0 )
+	local rightColor = Color( 0, 255, 0 )
+	local upColor = Color( 0, 0, 255 )
+
+	local directionLength = 2
+
+	for pivotIndex, pivot in ipairs( self.Pivot ) do
+		matrix:SetMatrix3d( pivot.Transform )
+
+		local pivotPos = matrix:GetTranslation()
+
+		-- Position
+		debugdraw.Sphere( pivotPos, -0.45, boneOutline, 0.1, true )
+		debugdraw.Sphere( pivotPos, 0.35, boneColor, 0.1, true )
+
+		-- Forward
+		local forward = matrix:GetForward()
+		debugdraw.Line( pivotPos, pivotPos + forward * directionLength, 0.1, forwardColor, 0.1, false )
+
+		-- Right
+		local right = matrix:GetRight()
+		debugdraw.Line( pivotPos, pivotPos + right * directionLength, 0.1, rightColor, 0.1, false )
+
+		-- Up
+		local up = matrix:GetUp()
+		debugdraw.Line( pivotPos, pivotPos + up * directionLength, 0.1, upColor, 0.1, false )
+
+		-- Name
+		debugdraw.Text( pivotPos, pivotIndex .. ". " .. pivot.Name, Color( 255, 255, 255 ), 0.1, true )
+	end
 end

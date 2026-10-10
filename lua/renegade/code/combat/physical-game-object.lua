@@ -266,7 +266,7 @@ end
         self.PhysicsObject = physicsObjectDefinition:Create( self:GetConnectedEntity() ) --[[@as PhysicsInstance]]
         assert( self.PhysicsObject ~= nil, "Could not create definition instance for '" .. definition.PhysicsDefinitionId .. "'" )
 
-        self.PhysicsObject:SetConnectedEntity( INSTANCE.GetConnectedEntity( self ) )
+        self.PhysicsObject:SetConnectedEntity( self:GetConnectedEntity() )
 
         self.PhysicsObject:SetCollisionGroup( collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP )
         self.PhysicsObject:SetObserver( self )
@@ -278,9 +278,9 @@ end
             INSTANCE.SetAnimation( self, definition.Animation )
         end
 
-        INSTANCE.EnableHibernation( self, definition.DefaultHibernationEnable )
+        self:EnableHibernation( definition.DefaultHibernationEnable )
 
-        INSTANCE.ResetRadarBlipShapeType( self )
+        self:ResetRadarBlipShapeType()
     end
 
     --- @param definition PhysicalGameObjectDefinitionInstance
@@ -291,10 +291,10 @@ end
         damageableGameObjectClass.Instance.ReInit( self, definition )
 
         -- "Copy any internal settings from the definition"
-        INSTANCE.CopySettings( self, definition )
+        self:CopySettings( definition )
 
         -- "Restore the necessary settings"
-        INSTANCE.SetTransform( self, transformationMatrix )
+        self:SetTransform( transformationMatrix )
     end
 
     --- @return PhysicalGameObjectDefinitionInstance
@@ -500,7 +500,7 @@ end
     --- "Note: Set_Animation calls will force an AnimControl to be created, if needed"
     --- @param animationName string?
     --- @param looping boolean? [Default: true]
-    --- @param frameOffset number? [Default: 0.0]
+    --- @param frameOffset number? [Default: `0.0`]
     function INSTANCE:SetAnimation( animationName, looping, frameOffset )
         if looping == nil then looping = true end
         if frameOffset == nil then frameOffset = 0.0 end
@@ -580,7 +580,7 @@ end
 --[[ Damage ]] do
 
     --- @param damager OffenseObjectInstance
-    --- @param scale number? [Default: 1.0]
+    --- @param scale number? [Default: `1.0`]
     --- @param alternateSkin integer? [Default: -1]
     function INSTANCE:ApplyDamage( damager, scale, alternateSkin )
         scale = scale or 1.0
@@ -646,6 +646,34 @@ end
 
 
 --[[ Thinking ]] do
+
+    function INSTANCE:Think()
+        -- Match my connected Entity's transform if I have one
+        if IsValid( self.ConnectedEntity ) then
+            local transform = self:GetTransform()
+            transform:MakeIdentity()
+
+            local pos = self.ConnectedEntity:GetPos()
+            transform:SetTranslation( pos )
+
+            local ang = self.ConnectedEntity:GetAngles()
+            transform:RotateZ( math.rad( ang.yaw ) )
+            transform:RotateX( math.rad( ang.roll ) )
+            transform:RotateY( math.rad( ang.pitch ) )
+
+            local physObj = self:PeekPhysicalObject()
+            if physObj ~= nil then
+                physObj:SetTransform( transform )
+            end
+
+            local model = self:PeekModel()
+            if model ~= nil then
+                model:InvalidateCachedBoundingVolumes()
+            end
+        end
+
+        damageableGameObjectClass.Instance.Think( self )
+    end
 
     function INSTANCE:PostThink()
         if self.AnimationControl then

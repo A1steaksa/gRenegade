@@ -57,6 +57,12 @@ INSTANCE.IsMesh = true
 
 	--- @type UnitConversionLib
 	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
+
+	--- @type RenderInfoClass
+	local renderInfoClass = CNC.Import( "code/ww3d2/render-info.lua" )
+
+	--- @type ShaderClass
+	local shaderClass = CNC.Import( "code/ww3d2/shader.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -64,6 +70,8 @@ INSTANCE.IsMesh = true
 	local wW3dErrorTypeEnum = wW3dErrorTypes.WW3D_ERROR_TYPE
 	local meshGeometryFlagsTypeEnum = meshGeometryClass.MESH_GEOMETRY_FLAGS_TYPE
 	local overlapTypeEnum = collisionMathClass.OVERLAP_TYPE
+	local renderInfoOverrideFlagsEnum = renderInfoClass.RENDER_INFO_OVERRIDE_FLAGS
+	local srcBlendFuncEnum = shaderClass.SRC_BLEND_FUNC
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -170,16 +178,12 @@ end
 
 --- "Renders this mesh"
 --- @param renderInfo RenderInfoInstance
+--- @param transform VMatrix
 --- @param bones VMatrix[]
-function INSTANCE:Render( renderInfo, bones)
+function INSTANCE:Render( renderInfo, transform, bones)
     if self:IsNotHiddenAtAll() == false then
         return
     end
-
-    self.Model:RenderSourceMesh( bones )
-
-    -- this is a debug thing to stop wrrors from later in the file while I try to fix soldier models not working
-    do return end
 
     -- "If static sort lists are enabled and this mesh has a sort level, put it on the list instead of rendering it."
     local sortLevel = self.Model:GetSortLevel()
@@ -198,12 +202,82 @@ function INSTANCE:Render( renderInfo, bones)
 
         local frustum = renderInfo.Camera:GetFrustum()
 
-        if(
-            tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
-            or collisionMathClass.OverlapTest( frustum, self:GetBoundingBox() ) ~= overlapTypeEnum.OUTSIDE
-        ) then
+        local isSkinned = tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
+
+        local boundingBox = self:GetBoundingBox()
+        local overlapResult = collisionMathClass.OverlapTest( frustum, boundingBox )
+        local isOnScreen = overlapResult ~= overlapTypeEnum.OUTSIDE
+
+        if( isSkinned or isOnScreen ) then
+            local renderedSomething = false
+
             -- "If this mesh model has never been rendered, we need to generate the DX8 datastructures"
-            typecheck.NotImplementedError()
+            if self.Model.SourceMesh == nil then
+                self.Model:RegisterForRendering()
+                self.Model:CreateSourceMesh()
+                -- Omitted registering mesh type with TheDX8MeshRenderer
+            end
+
+            -- Look up the FVF container that this mesh is in
+            -- Omitted FVF container lookup
+
+            -- "
+            -- Check if we should render the base passes.
+            -- One special case here:
+            -- If the mesh is translucent (alpha) and the base passes are disabled but we are rendering a shadow,
+            -- we go ahead and render the base pass.
+            -- This is an ugly way to get our tree shadows and other alpha textured shadows to work.
+            -- "
+            local renderBasePasses = ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 )
+            local isAlpha = (
+                   self.Model:GetSingleShader():GetAlphaTest() == shaderClass.ALPHA_TEST.Enable
+                or self.Model:GetSingleShader():GetSrcBlendFunc() == srcBlendFuncEnum.SrcAlpha
+            )
+
+            if (
+                tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_SHADOW_RENDERING ) )
+                and ( isAlpha == true )
+            ) then
+                renderBasePasses = true
+            end
+
+            if renderBasePasses then
+                -- "Link each polygon renderer for this mesh into the visible list"
+                -- Omitted polygon renderers with the visible list
+
+                if isSkinned then
+                    self.Model:RenderSourceMesh( bones )
+                else
+                    self.Model:RenderSourceMesh( transform )
+                end
+
+                renderedSomething = true
+            end
+
+            -- "If the rendering context specifies procedural material passes, register them for rendering"
+            for passNumber = 1, renderInfo:AdditionalPassCount() do
+                local materialPass = renderInfo:PeekAdditionalPass( passNumber )
+
+                if not self:IsTranslucent() or materialPass:IsEnabledOnTranslucentMeshes() then
+
+                    -- "  
+                    -- If the base pass for this mesh has been disabled, we have to make sure the procedural material pass
+                    -- is rendered after everything else has rendered  
+                    -- "
+                    if tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY  ) ) then
+                        typecheck.NotImplementedError()
+                    else
+                        typecheck.NotImplementedError()
+                    end
+
+                    renderedSomething = true
+                end
+            end
+
+            -- "If we have a decal mesh, link it into the mesh rendering system"
+            if ( self.DecalMesh ~= nil ) and ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 ) then
+                typecheck.NotImplementedError()
+            end
         end
     end
 end
@@ -236,24 +310,23 @@ function INSTANCE:IntersectObBox()
     typecheck.NotImplementedError()
 end
 
---- @return SphereInstance
-function INSTANCE:GetObjectSpaceBoundingSphere()
+--- @param sphere SphereInstance
+function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
     if self.Model ~= nil then
-        return self.Model:GetBoundingSphere()
+        self.Model:GetBoundingSphere( sphere )
     else
-        return sphereClass.New( Vector( 0, 0, 0 ), 1.0 )
+        sphere.Center:SetUnpacked( 0, 0, 0 )
+        sphere.Radius = 1.0
     end
 end
 
 --- "Returns the obj-space bounding box"
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
     if self.Model then
-        return self.Model:GetBoundingBox()
+        self.Model:GetBoundingBox( box )
     else
-        local box = aABoxClass.New()
         box:Init( Vector( 0, 0, 0 ), Vector( 1, 1, 1 ) )
-        return box
     end
 end
 
@@ -430,7 +503,7 @@ function INSTANCE:AddDependenciesToList()
 end
 
 function INSTANCE:UpdateCachedBoundingVolumes()
-    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+    self:GetObjectSpaceBoundingSphere( self.CachedBoundingSphere )
 
     self.CachedBoundingSphere.Center = self:GetTransform() * self.CachedBoundingSphere.Center
 
@@ -442,7 +515,7 @@ function INSTANCE:UpdateCachedBoundingVolumes()
         self.CachedBoundingBox.Center = self.CachedBoundingSphere.Center
         self.CachedBoundingBox.Extent:SetUnpacked( self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius, self.CachedBoundingSphere.Radius )
     else
-        self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
+        self:GetObjectSpaceBoundingBox( self.CachedBoundingBox )
         self.CachedBoundingBox:Transform( self:GetTransform() )
     end
 

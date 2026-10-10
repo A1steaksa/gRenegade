@@ -55,6 +55,12 @@ INSTANCE.IsCommandoCamera = true
 
     --- @type InfoEntityLib
     local infoEntityLib = CNC.Import( "sh_info-entity.lua")
+
+    --- @type PlayerLib
+    local playerLib = CNC.Import( "sh_players.lua" )
+
+    --- @type CameraBridgeClass
+    local cameraBridgeClass = CNC.Import( "bridges/sh_camera.lua" )
 --#endregion
 
 
@@ -133,7 +139,7 @@ function INSTANCE:Renegade_CommandoCamera()
     self.LagPersistTimer = 0
     self.DisableLag = false
 
-
+    self.StarTargetingPosition = Vector( 0, 0, 0 )
 
 
 
@@ -162,234 +168,244 @@ end
 
 --- Updates the camera's parameters each frame
 function INSTANCE:Update()
-
     -- "First, set the aiming point to where the camera is looking"
     if self:DetermineTargetingPosition() == false then
         -- "Then, modify the aiming point for weapon help, if not on a target"
         self:ApplyWeaponHelp()
     end
 
-    -- Omitted camera update logic
-    --[[
-    self:HandleInput()
+    -- self:HandleInput()
 
-    if self._SnapshotMode ~= snapshot.OFF then
-        self:HandleSnapshotMode()
-        return
-    end
+    -- if self._SnapshotMode ~= snapshot.OFF then
+    --     self:HandleSnapshotMode()
+    --     return
+    -- end
 
     -- if using a host model, update the camera from it
-    if self:IsUsingHostModel() then
-        self:UseHostModel()
-        return
+    -- if self:IsUsingHostModel() then
+    --     self:UseHostModel()
+    --     return
+    -- end
+
+    -- local anchorPosition = self.AnchorPosition
+    -- local cameraHeading = self.Heading
+
+    -- local frameTime = FrameTime()
+
+    local combatStar = playerLib.GetPlayerSoldier( LocalPlayer() )
+
+    -- Omitted camera update logic
+
+    -- local profile
+
+    -- local interpolating = false
+
+    -- if LerpTimeTotal then
+    --     interpolating = true
+
+    --     local lerp = math.Clamp( LerpTimeRemaining / LerpTimeTotal, 0, 1 )
+
+    --     LerpTimeRemaining = LerpTimeRemaining - frameTime
+    --     if LerpTimeRemaining <= 0 then
+    --         LerpTimeRemaining = 0
+    --         LerpTimeTotal = 0
+
+    --         -- Set up last, so out Lag code doesn't use the old
+    --         LastAnchorPosition = anchorPosition
+    --         LastHeading	= self.Heading
+    --     end
+        -- profile = self.CurrentProfile
+
+    --     if self.LastProfile then
+    --         profile:Lerp( self.CurrentProfile, self.LastProfile, lerp )
+    --     end
+
+    --     anchorPosition = LerpVector( lerp, anchorPosition, LastAnchorPosition )
+
+    --     cameraHeading =	RadianLerp( cameraHeading, LastHeading, lerp )
+
+    -- else
+    --     profile = self.CurrentProfile
+    --     LastProfile = self.CurrentProfile
+    --     LastProfileName = self.CurrentProfileName
+
+    --     if profile.Lag.Length() > 0 then
+    --         -- This is an attempt to not lag when in an elevator
+    --         local lagOk = false
+    --         if ( not IsValid( combatStar ) or not combatStar:IsOnGround() ) then
+    --             lagOk = true
+    --             LagPersistTimer = 1  -- Persist the lag for 1 second
+    --         else
+    --             if LagPersistTimer > 0 then
+    --                 lagOk = true
+    --                 LagPersistTimer = LagPersistTimer - frameTime
+    --             end
+    --         end
+
+    --         if self.DisableLag then
+    --             lagOk = false
+    --             DisableLag = false
+    --         end
+
+    --         if lagOk then
+    --             -- Get position local to the camera
+    --             local localLastPosition
+    --             local localCurrentPosition
+
+    --             local transformMatrix = self:GetTransform()
+    --             Matrix3D::Inverse_Transform_Vector( transformMatrix, LastAnchorPosition, localLastPosition )
+    --             Matrix3D::Inverse_Transform_Vector( transformMatrix, anchorPosition, localCurrentPosition )
+
+    --             local lerp = profile.Lag * math.Clamp( LagPersistTimer, 0, 1 )
+    --             lerp.x = math.pow( lerp.x, 10 * frameTime ) -- Left/Right
+    --             lerp.y = math.pow( lerp.y, 10 * frameTime ) -- Up/Down
+    --             lerp.z = math.pow( lerp.z, 10 * frameTime ) -- Forward/Back
+    --             lerp = Vector( 1,1,1 ) - lerp
+    --             localCurrentPosition.X = localLastPosition.X + ( localCurrentPosition.X - localLastPosition.X ) * lerp.X
+    --             localCurrentPosition.Y = localLastPosition.Y + ( localCurrentPosition.Y - localLastPosition.Y ) * lerp.Y
+    --             localCurrentPosition.Z = localLastPosition.Z + ( localCurrentPosition.Z - localLastPosition.Z ) * lerp.Z
+    --             Matrix3D::Transform_Vector( transformMatrix, localCurrentPosition, anchorPosition )
+
+    --             local diff = anchorPosition - LastAnchorPosition
+    --             if ( diff:Length() < 5 ) then -- Don't lerp over long distances
+    --                 anchorPosition = LerpVector( 0.25, anchorPosition, LastAnchorPosition )
+    --             else
+    --                 LagPersistTimer = 0
+    --                 DisableLag = true
+    --             end
+
+    --         end
+    --     end
+
+    --     LastAnchorPosition = anchorPosition
+    --     LastHeading	= self.Heading
+    -- end
+
+
+    --[[ Sync with Garry's Mod view setup ]] do
+        local viewSetup = cameraBridgeClass.GetViewSetup()
+        self:SetViewPlane( math.rad( viewSetup.fov ) )
+
+        local transform = self:GetTransform()
+        transform:MakeIdentity()
+
+        transform:SetTranslation( viewSetup.origin )
+        local ang = viewSetup.angles
+        transform:RotateZ( math.rad( ang.yaw - 90 ) )
+        transform:RotateX( math.rad( -ang.pitch + 90 ) )
+        transform:RotateZ( math.rad( ang.roll ) )
     end
 
-    local anchorPosition = self.AnchorPosition
-    local cameraHeading = self.Heading
+    -- -- Calculate the Camera Transform
+    -- local transformMatrix = Matrix() -- Setup base position
+    -- transformMatrix:Identity()
+    -- transformMatrix:Translate( anchorPosition )
+    -- transformMatrix:Translate( Vector( 0, 0, profile:GetHeight() ) )
 
-    local frameTime = FrameTime()
+    -- ConvertWorldToCamera( transformMatrix ) -- Setup orientation
+    -- transformMatrix:RotateY( cameraHeading ) -- Apply rotations
+    -- transformMatrix:RotateX( -profile:GetViewTilt() - self.Tilt )
 
-    local combatStar = LocalPlayer()
+    -- -- Only do this when the profile has a distance value
+    -- if ( profile:GetDistance() ~= 0 ) then
+    --     -- Translate along Z so that our near clip plane is behind the head
+    --     local nearz, farz = self:GetClipPlanes()
+    --     local headRadius = 0.2 -- HEAD_RADIUS should be renamed and become part of the profile?
+    --     transformMatrix:TranslateZ( nearz + headRadius )
+    -- end
 
-    local profile
+    -- local intermediatePos = transformMatrix:GetTranslation() -- Save base position
+    -- local intermediateTm = transformMatrix -- Save base transform
 
-    local interpolating = false
+    -- -- Generate a translation path for the camera which is 'tilt' off of the z-axis
+    -- local cameraMove = Vector( 0, 0, profile:GetDistance() )
+    -- cameraMove:RotateX( -profile:GetTranslationTilt() )
+    -- cameraMove:RotateX( -math.max( -self.Tilt * profile:GetTiltTweak(), 0 ) )
+    -- transformMatrix:Translate( cameraMove ) -- Pull back
+    -- local endPos = transformMatrix:GetTranslation() -- Save the end position
 
-    if LerpTimeTotal then
-        interpolating = true
+    -- -- Sweep the view plane back until it hits something
+    -- if ( profile:GetDistance() ~= 0 ) then
+    --     -- (gth) FIXME!
+    --     -- Sort of a hack here, trying to make the camera not collide with the star
+    --     -- Really this should make sure we don't collide with whatever the camera is starting inside
+    --     self:IgnoreStarAndVehicle()
 
-        local lerp = math.Clamp( LerpTimeRemaining / LerpTimeTotal, 0, 1 )
+    --     -- Collide the bounding box of the near clip plane
+    --     -- Have to SetTransform so that the camera can calculate the box for us
+    --     CastResultStruct res
+    --     self:SetTransform( intermediateTm )
+    --     self:SetClipPlanes( NearClipPlane,FarClipPlane )
+    --     local box = self:GetNearClipBoundingBox()
+    --     local boxTest = physOBBoxCollisionTestClass.New( box, endPos - intermediatePos, res, DEFAULT_COLLISION_GROUP, COLLISION_TYPE_CAMERA )
+    --     PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
 
-        LerpTimeRemaining = LerpTimeRemaining - frameTime
-        if LerpTimeRemaining <= 0 then
-            LerpTimeRemaining = 0
-            LerpTimeTotal = 0
+    --     -- Solve the problem of the camera when getting out of the car
+    --     if res.StartBad and interpolating and boxtest.CollidedPhysObj then
+    --         -- ignore what we hit and do it again
+    --         PhysClass * hit = boxTest.CollidedPhysObj
+    --         hit->Inc_Ignore_Counter()
+    --         res.Reset()
+    --         PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
+    --         hit->Dec_Ignore_Counter()
+    --     end
 
-            -- Set up last, so out Lag code doesn't use the old
-            LastAnchorPosition = anchorPosition
-            LastHeading	= self.Heading
-        end
-        profile = self.CurrentProfile
+    --     -- Move the camera to the collision if needed.
+    --     if res.Fraction < DistanceFraction then
+    --         DistanceFraction = res.Fraction -- Always pull camera in if a collision occured
+    --     end
+    --     if res.Fraction > DistanceFraction then
+    --         DistanceFraction = DistanceFraction + math.min( res.Fraction-DistanceFraction, CAMERA_UNWIND_SPEED * frameTime )
+    --     end
 
-        if self.LastProfile then
-            profile:Lerp( self.CurrentProfile, self.LastProfile, lerp )
-        end
+    --     if DistanceFraction < 1.0 then
+    --         transformMatrix:SetTranslation( intermediatePos + DistanceFraction * ( end_pos - intermediatePos ) )
+    --         end_pos = transformMatrix:GetTranslation()
+    --     end
 
-        anchorPosition = LerpVector( lerp, anchorPosition, LastAnchorPosition )
+    --     -- Now put the star back to his original 'ignore' state
+    --     self:UnignoreStarAndVehicle()
 
-        cameraHeading =	RadianLerp( cameraHeading, LastHeading, lerp )
+    -- else
+    --     -- This is a camera which doesn't translate back.  Just check its near clip plane for intersection
+    --     -- with the world and if it does intersect, pull the near clip plane in to its minimum.
+    --     self:IgnoreStarAndVehicle()
 
-    else
-        profile = self.CurrentProfile
-        LastProfile = self.CurrentProfile
-        LastProfileName = self.CurrentProfileName
+    --     -- Collide the bounding box of the near clip plane
+    --     -- Have to Set_Transform so that the camera can calculate the box for us
+    --     CastResultStruct res
+    --     self:SetTransform( transformMatrix )
+    --     self:SetClipPlanes( NearClipPlane, FarClipPlane )
+    --     local box = self:GetNearClipBoundingBox()
 
-        if profile.Lag.Length() > 0 then
-            -- This is an attempt to not lag when in an elevator
-            local lagOk = false
-            if ( not IsValid( combatStar ) or not combatStar:IsOnGround() ) then
-                lagOk = true
-                LagPersistTimer = 1  -- Persist the lag for 1 second
-            else
-                if LagPersistTimer > 0 then
-                    lagOk = true
-                    LagPersistTimer = LagPersistTimer - frameTime
-                end
-            end
+    --     local nullVector = Vector( 0, 0, 0 )
+    --     local boxTest = physOBBoxCollisionTestClass.New( box, nullVector, res, DEFAULT_COLLISION_GROUP, COLLISION_TYPE_CAMERA )
+    --     PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
 
-            if self.DisableLag then
-                lagOk = false
-                DisableLag = false
-            end
+    --     -- Set the near clip plane depending on whether the default near clip plane intersected any geometry
+    --     if res.StartBad then
+    --         self:SetClipPlanes( CCAMERA_MIN_NEARZ, self.FarClipPlane )
+    --     else
+    --         self:SetClipPlanes( self.NearClipPlane, self.FarClipPlane )
+    --     end
 
-            if lagOk then
-                -- Get position local to the camera
-                local localLastPosition
-                local localCurrentPosition
+    --     self:UnignoreStarAndVehicle()
+    -- end
 
-                local transformMatrix = self:GetTransform()
-                Matrix3D::Inverse_Transform_Vector( transformMatrix, LastAnchorPosition, localLastPosition )
-                Matrix3D::Inverse_Transform_Vector( transformMatrix, anchorPosition, localCurrentPosition )
+    -- self:SetTransform( transformMatrix ) -- Set our new transform
 
-                local lerp = profile.Lag * math.Clamp( LagPersistTimer, 0, 1 )
-                lerp.x = math.pow( lerp.x, 10 * frameTime ) -- Left/Right
-                lerp.y = math.pow( lerp.y, 10 * frameTime ) -- Up/Down
-                lerp.z = math.pow( lerp.z, 10 * frameTime ) -- Forward/Back
-                lerp = Vector( 1,1,1 ) - lerp
-                localCurrentPosition.X = localLastPosition.X + ( localCurrentPosition.X - localLastPosition.X ) * lerp.X
-                localCurrentPosition.Y = localLastPosition.Y + ( localCurrentPosition.Y - localLastPosition.Y ) * lerp.Y
-                localCurrentPosition.Z = localLastPosition.Z + ( localCurrentPosition.Z - localLastPosition.Z ) * lerp.Z
-                Matrix3D::Transform_Vector( transformMatrix, localCurrentPosition, anchorPosition )
-
-                local diff = anchorPosition - LastAnchorPosition
-                if ( diff:Length() < 5 ) then -- Don't lerp over long distances
-                    anchorPosition = LerpVector( 0.25, anchorPosition, LastAnchorPosition )
-                else
-                    LagPersistTimer = 0
-                    DisableLag = true
-                end
-
-            end
-        end
-
-        LastAnchorPosition = anchorPosition
-        LastHeading	= self.Heading
-    end
-
-    self:SetViewPlane( profile:GetFov() ) -- Apply Zoom
-
-
-    -- Calculate the Camera Transform
-    local transformMatrix = Matrix() -- Setup base position
-    transformMatrix:Identity()
-    transformMatrix:Translate( anchorPosition )
-    transformMatrix:Translate( Vector( 0, 0, profile:GetHeight() ) )
-
-    ConvertWorldToCamera( transformMatrix ) -- Setup orientation
-    transformMatrix:RotateY( cameraHeading ) -- Apply rotations
-    transformMatrix:RotateX( -profile:GetViewTilt() - self.Tilt )
-
-    -- Only do this when the profile has a distance value
-    if ( profile:GetDistance() ~= 0 ) then
-        -- Translate along Z so that our near clip plane is behind the head
-        local nearz, farz = self:GetClipPlanes()
-        local headRadius = 0.2 -- HEAD_RADIUS should be renamed and become part of the profile?
-        transformMatrix:TranslateZ( nearz + headRadius )
-    end
-
-    local intermediatePos = transformMatrix:GetTranslation() -- Save base position
-    local intermediateTm = transformMatrix -- Save base transform
-
-    -- Generate a translation path for the camera which is 'tilt' off of the z-axis
-    local cameraMove = Vector( 0, 0, profile:GetDistance() )
-    cameraMove:RotateX( -profile:GetTranslationTilt() )
-    cameraMove:RotateX( -math.max( -self.Tilt * profile:GetTiltTweak(), 0 ) )
-    transformMatrix:Translate( cameraMove ) -- Pull back
-    local endPos = transformMatrix:GetTranslation() -- Save the end position
-
-    -- Sweep the view plane back until it hits something
-    if ( profile:GetDistance() ~= 0 ) then
-        -- (gth) FIXME!
-        -- Sort of a hack here, trying to make the camera not collide with the star
-        -- Really this should make sure we don't collide with whatever the camera is starting inside
-        self:IgnoreStarAndVehicle()
-
-        -- Collide the bounding box of the near clip plane
-        -- Have to SetTransform so that the camera can calculate the box for us
-        CastResultStruct res
-        self:SetTransform( intermediateTm )
-        self:SetClipPlanes( NearClipPlane,FarClipPlane )
-        local box = self:GetNearClipBoundingBox()
-        local boxTest = physOBBoxCollisionTestClass.New( box, endPos - intermediatePos, res, DEFAULT_COLLISION_GROUP, COLLISION_TYPE_CAMERA )
-        PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
-
-        -- Solve the problem of the camera when getting out of the car
-        if res.StartBad and interpolating and boxtest.CollidedPhysObj then
-            -- ignore what we hit and do it again
-            PhysClass * hit = boxTest.CollidedPhysObj
-            hit->Inc_Ignore_Counter()
-            res.Reset()
-            PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
-            hit->Dec_Ignore_Counter()
-        end
-
-        -- Move the camera to the collision if needed.
-        if res.Fraction < DistanceFraction then
-            DistanceFraction = res.Fraction -- Always pull camera in if a collision occured
-        end
-        if res.Fraction > DistanceFraction then
-            DistanceFraction = DistanceFraction + math.min( res.Fraction-DistanceFraction, CAMERA_UNWIND_SPEED * frameTime )
-        end
-
-        if DistanceFraction < 1.0 then
-            transformMatrix:SetTranslation( intermediatePos + DistanceFraction * ( end_pos - intermediatePos ) )
-            end_pos = transformMatrix:GetTranslation()
-        end
-
-        -- Now put the star back to his original 'ignore' state
-        self:UnignoreStarAndVehicle()
-
-    else
-        -- This is a camera which doesn't translate back.  Just check its near clip plane for intersection
-        -- with the world and if it does intersect, pull the near clip plane in to its minimum.
-        self:IgnoreStarAndVehicle()
-
-        -- Collide the bounding box of the near clip plane
-        -- Have to Set_Transform so that the camera can calculate the box for us
-        CastResultStruct res
-        self:SetTransform( transformMatrix )
-        self:SetClipPlanes( NearClipPlane, FarClipPlane )
-        local box = self:GetNearClipBoundingBox()
-
-        local nullVector = Vector( 0, 0, 0 )
-        local boxTest = physOBBoxCollisionTestClass.New( box, nullVector, res, DEFAULT_COLLISION_GROUP, COLLISION_TYPE_CAMERA )
-        PhysicsSceneClass::Get_Instance()->CastOBBox( boxTest )
-
-        -- Set the near clip plane depending on whether the default near clip plane intersected any geometry
-        if res.StartBad then
-            self:SetClipPlanes( CCAMERA_MIN_NEARZ, self.FarClipPlane )
-        else
-            self:SetClipPlanes( self.NearClipPlane, self.FarClipPlane )
-        end
-
-        self:UnignoreStarAndVehicle()
-    end
-
-    self:SetTransform( transformMatrix ) -- Set our new transform
-
-    -- First, set the aiming point to where the camera is looking
-    if ( self:DetermineTargetingPosition() == false ) then
-        -- Then, modify the aiming point for weapon help, if not on a target
-        self:ApplyWeaponHelp()
-    end
+    -- -- First, set the aiming point to where the camera is looking
+    -- if ( self:DetermineTargetingPosition() == false ) then
+    --     -- Then, modify the aiming point for weapon help, if not on a target
+    --     self:ApplyWeaponHelp()
+    -- end
 
     -- Lastly, pass the aiming point to the star and tell the star what we are looking at
-    local isStarDeterminingTarget = combatManager.IsStarDeterminingTarget()
-    if ( IsValid( combatStar ) and isStarDeterminingTarget ) then
+    local isStarDeterminingTarget = combatManagerClass.IsStarDeterminingTarget()
+    if ( combatStar and isStarDeterminingTarget ) then
         -- Omitted setting combat star target
-        --combatStar:SetTargeting( self.StarTargetingPosition )
+        combatStar:SetTargeting( self.StarTargetingPosition )
     end
-    --]]
 end
 
 --- @return boolean

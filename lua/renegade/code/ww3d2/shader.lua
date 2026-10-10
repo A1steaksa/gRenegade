@@ -635,7 +635,13 @@ end
 
 --- "Turn on fog for this shader"  
 --- "Enable most appropriate fog mode (FOG_ENABLE, FOG_SCALE_FRAGMENT, or FOG_WHITE) for given source and destination blends."
-function INSTANCE:EnableFog()
+--- @param source string?
+function INSTANCE:EnableFog( source )
+
+    if source ~= nil then
+        typecheck.NotImplementedError()
+    end
+
     local sourceBlendFunc = self:GetSrcBlendFunc()
 
     local destBlendFunc = self:GetDstBlendFunc()
@@ -644,7 +650,7 @@ function INSTANCE:EnableFog()
         if destBlendFunc == dstBlendFuncEnum.SrcColor then
             self:SetFogFunc( fogFuncEnum.White )
         else
-            -- Omitted call to ReportUnableToFog()
+            section.Warn( INSTANCE.Class, " - EnableFog - Failed to enable fog for '", source, "'" )
         end
         return
     elseif sourceBlendFunc == srcBlendFuncEnum.One then
@@ -657,21 +663,21 @@ function INSTANCE:EnableFog()
         elseif isAdditive or isScreen then
             self:SetFogFunc( fogFuncEnum.ScaleFragment )
         else
-            -- Omitted call to ReportUnableToFog()
+            section.Warn( INSTANCE.Class, " - EnableFog - Failed to enable fog for '", source, "'" )
         end
         return
     elseif sourceBlendFunc == srcBlendFuncEnum.SrcAlpha then
         if destBlendFunc == dstBlendFuncEnum.OneMinusSrcAlpha then
             self:SetFogFunc( fogFuncEnum.Enable )
         else
-            -- Omitted call to ReportUnableToFog()
+            section.Warn( INSTANCE.Class, " - EnableFog - Failed to enable fog for '", source, "'" )
         end
         return
     elseif sourceBlendFunc == srcBlendFuncEnum.OneMinusSrcAlpha then
         if destBlendFunc == dstBlendFuncEnum.SrcAlpha then
             self:SetFogFunc( fogFuncEnum.Enable )
         else
-            -- Omitted call to ReportUnableToFog()
+            section.Warn( INSTANCE.Class, " - EnableFog - Failed to enable fog for '", source, "'" )
         end
         return
     end

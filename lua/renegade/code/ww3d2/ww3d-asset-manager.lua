@@ -263,8 +263,6 @@ function INSTANCE:CreateRenderObject( name )
 
 	-- "If we didn't find one, try to load on demand"
 	if self.Ww3dLoadOnDemand and prototype == nil then
-		section.Start( "Loading Render Object Prototype on demand for: '", name, "'" )
-
 		local fileName
 		local periodIndex = textUtils.IndexOf( name, "." )
 		if periodIndex ~= nil then
@@ -281,8 +279,6 @@ function INSTANCE:CreateRenderObject( name )
 
 		-- "Try again"
 		prototype = self:FindPrototype( name )
-
-		section.End()
 	end
 
 	if prototype == nil then
@@ -319,6 +315,8 @@ end
 --- @param name string
 --- @return HAnimationInstance?
 function INSTANCE:GetHAnimation( name )
+	name = name:upper()
+
 	-- "Try to find the hanim"
 	local animation = self.HAnimationManager:GetAnimation( name )
 
@@ -447,8 +445,6 @@ function INSTANCE:GetHTree( name )
 
 	-- "If we didn't find it, try to load on demand"
 	if self.Ww3dLoadOnDemand and hTree == nil then
-		section.Warn( "Loading HTree on demand: '", name, "'" )
-
 		local fileName = name .. ".w3d"
 
 		-- "If we can't find it, try the parent [directory]"

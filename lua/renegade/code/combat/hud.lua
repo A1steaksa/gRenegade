@@ -1365,13 +1365,13 @@ end
             local entToBoxViewTM = boxViewInvTM * entTM
 
             local boxViewBox = aABoxClass.New()
-            boxViewBox.Center, boxViewBox.Extent = entToBoxViewTM:TransformCenterExtentAABox( entBox.Center, entBox.Extent )
+            entToBoxViewTM:TransformCenterExtentAABox( entBox.Center, entBox.Extent, boxViewBox.Center, boxViewBox.Extent )
 
             local cameraInvTM = cameraTM:GetOrthogonalInverse()
             local boxViewToCameraTM = cameraInvTM * boxViewTM
 
             local cameraBox = aABoxClass.New() --[[@as AABoxInstance]]
-            cameraBox.Center, cameraBox.Extent = boxViewToCameraTM:TransformCenterExtentAABox( boxViewBox.Center, boxViewBox.Extent )
+            boxViewToCameraTM:TransformCenterExtentAABox( boxViewBox.Center, boxViewBox.Extent, cameraBox.Center, cameraBox.Extent )
 
             cameraBox.Extent.z = 0
             local centerTop    = cameraBox.Center - cameraBox.Extent

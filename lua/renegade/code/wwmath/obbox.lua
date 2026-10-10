@@ -100,8 +100,8 @@ function INSTANCE:InitFromBoxPoints( points, numPoints )
     typecheck.NotImplementedError()
 end
 
---- @param minExtent number? [Default: 0.5]
---- @param maxExtent number? [Default: 1.0]
+--- @param minExtent number? [Default: `0.5`]
+--- @param maxExtent number? [Default: `1.0`]
 function INSTANCE:InitRandom( minExtent, maxExtent )
     if not minExtent then minExtent = 0.5 end
     if not maxExtent then maxExtent = 1.0 end

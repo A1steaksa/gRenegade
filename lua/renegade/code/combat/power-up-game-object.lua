@@ -61,12 +61,22 @@ INSTANCE.IsPowerUpGameObject = true
 
 	--- @type PhysicsAABoxIntersectionTestClass
 	local physicsAABoxIntersectionTestClass = CNC.Import( "code/wwphys/physics-aa-box-intersection-test.lua" )
+
+	--- @type Ww3dAssetManagerClass
+	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
+
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+
+	--- @type GameObjectObserverClass
+	local gameObjectObserverClass = CNC.Import( "code/combat/game-object-observer.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
 	local collisionGroupTypeEnum = physicalGameObjectClass.COLLISION_GROUP_TYPE
+	local customEventEnum = gameObjectObserverClass.CUSTOM_EVENT
 --#endregion
 
 
@@ -120,7 +130,7 @@ end
 
 --- @class PowerUpGameObjectInstance
 --- @field IdleSoundObject AudibleSoundInstance
---- @field State integer
+--- @field State PowerUpState
 --- @field StateEndTimer number
 --- @field WeaponBag WeaponBagInstance "For backpacks, which can hold multiple weapons and ammo"
 
@@ -216,30 +226,22 @@ end
         -- "
         if combatManagerClass.IAmServer() and self.State ~= powerUpStateEnum.STATE_GRANTING then
 
+            if self.PeekModel == nil then return end
+
             -- "Check my bounding box for collisions with Soldiers"
-            local model = self:PeekModel()
-            if not model then
-                section.Error( self, ": ", self.Class, ": Think: No model was found" )
-                return
-            end
-            local box = model:GetBoundingBox()
+            local box = self:PeekModel():GetBoundingBox()
 
             for _, object in ipairs( gameObjectManagerClass.GetSmartGameObjectList() ) do
                 local soldier = object:AsSoldierGameObject()
 
                 if object:AsVehicleGameObject() then
-                    typecheck.NotImplementedError()
+                    soldier = object:AsVehicleGameObject():GetDriver()
                 end
 
                 if soldier ~= nil and soldier:WantsPowerups() then
-
                     local test = physicsAABoxIntersectionTestClass.New( box, collisionGroupTypeEnum.DEFAULT_COLLISION_GROUP, collisionTypeClass.COLLISION_TYPE_PHYSICAL )
 
-                    local soldierPhysicalObject = object:PeekPhysicalObject()
-
-                    section.Print( "Soldier Physical Object: ", soldierPhysicalObject )
-
-                    local result = soldierPhysicalObject:IntersectionTest( test )
+                    local result = object:PeekPhysicalObject():IntersectionTest( test )
                     if result then
                         self:Grant( soldier ) -- "Don't grant any more"
                         break
@@ -251,7 +253,23 @@ end
 
     --- @param object SmartGameObjectInstance
     function INSTANCE:Grant( object )
-        typecheck.NotImplementedError()
+        assert( self.State ~= powerUpStateEnum.STATE_GRANTING )
+        assert( object ~= nil )
+
+        -- "Grant Def"
+        self:GetDefinition():Grant( object, self )
+
+        -- "If we have a weapon bag, move it"
+        if self.WeaponBag ~= nil then
+            typecheck.NotImplementedError()
+        end
+
+        if self.State == powerUpStateEnum.STATE_GRANTING then
+            local observerList = self:GetObservers()
+            for index = 1, #observerList do
+                observerList[index]:Custom( self, customEventEnum.CUSTOM_EVENT_POWERUP_GRANTED, 1, self )
+            end
+        end
     end
 end
 
@@ -295,12 +313,16 @@ function INSTANCE:SetState( state )
 
             -- "Play the grant sound (if exists)"
             if self:GetDefinition().GrantSoundId ~= 0 then
-                wwAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
+                -- wwAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
             end
 
             -- "Play the grant animation (if exists)"
             if self:GetDefinition().GrantAnimationName:len() > 0 then
-                -- TODO: Implement grant animation
+                self:SetAnimation( self:GetDefinition().GrantAnimationName, false )
+                local animation = ww3dAssetManagerClass.GetInstance():GetHAnimation( self:GetAnimationControl():GetAnimationName() )
+                if animation ~= nil then
+                    self.StateEndTimer = animation:GetTotalTime()
+                end
             end
         end
     end

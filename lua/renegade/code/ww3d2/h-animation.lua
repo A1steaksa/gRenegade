@@ -87,6 +87,7 @@ function INSTANCE:GetFrameRate()
 	typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetTotalTime()
 	typecheck.NotImplementedError()
 end

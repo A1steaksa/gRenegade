@@ -85,7 +85,7 @@ INSTANCE.IsMeshGeometry = true
 
     --- @class MeshGeometryClass
 
-	--- @type Vector4[]
+	--- @type Vector4Instance[]
 	STATIC.PlaneEqArray = {}
 
     --- Creates a new MeshGeometryInstance
@@ -316,18 +316,18 @@ end
 		return type[polygonIndex]
 	end
 
-	--- @return AABoxInstance
-	function INSTANCE:GetBoundingBox()
-		local box = aABoxClass.New()
+	--- @param box AABoxInstance
+	function INSTANCE:GetBoundingBox( box )
 		box.Center = ( self.BoundBoxMax + self.BoundBoxMin ) * 0.5
 		box.Extent = ( self.BoundBoxMax - self.BoundBoxMin ) * 0.5
-		return box
 	end
 
 	--- "Get the bounding sphere"
-	--- @return SphereInstance
-	function INSTANCE:GetBoundingSphere()
-		return sphereClass.New( self.BoundSphereCenter, self.BoundSphereRadius )
+	--- @param sphere SphereInstance
+	function INSTANCE:GetBoundingSphere( sphere )
+		assert( sphere ~= nil )
+		sphere.Center = self.BoundSphereCenter
+		sphere.Radius = self.BoundSphereRadius
 	end
 end
 
@@ -416,7 +416,7 @@ function INSTANCE:LoadW3d( cload )
 	-- "Open the first chunk, it should be the mesh header"
 	cload:OpenChunk()
 
-	if cload:CurChunkId() ~= w3dChunkTypesEnum.W3D_CHUNK_MESH_HEADER3 then
+	if cload:CurChunkId() ~= w3dChunkTypeEnum.W3D_CHUNK_MESH_HEADER3 then
 		section.Warn( "Old format mesh mesh, no longer supported." )
 		goto Error
 	end

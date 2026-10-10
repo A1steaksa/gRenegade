@@ -24,12 +24,47 @@ INSTANCE.IsGameObjectObserver = true
 
     local enumBuilder = enumBuilderClass.New()
 
-    --- @enum PlaceholderName
-    STATIC.PLACEHOLDER_NAME = {
-        PLACEHOLDER = enumBuilder:Set( 0 ),
-        PLACEHOLDER = enumBuilder:Next(),
+    --- @enum ActionCompleteReason
+    STATIC.ACTION_COMPLETE_REASON = {
+        ACTION_COMPLETE_NORMAL                = enumBuilder:Set( 0 ),
+        ACTION_COMPLETE_LOW_PRIORITY          = enumBuilder:Next(),
+        ACTION_COMPLETE_PATH_BAD_START        = enumBuilder:Next(),
+        ACTION_COMPLETE_PATH_BAD_DEST         = enumBuilder:Next(),
+        ACTION_COMPLETE_MOVE_NO_PROGRESS_MADE = enumBuilder:Next(),
+        ACTION_COMPLETE_ATTACK_OUT_OF_RANGE   = enumBuilder:Next(),
+
+        -- Conversation support
+        ACTION_COMPLETE_CONVERSATION_ENDED          = enumBuilder:Next(),
+        ACTION_COMPLETE_CONVERSATION_INTERRUPTED    = enumBuilder:Next(),
+        ACTION_COMPLETE_CONVERSATION_UNABLE_TO_INIT = enumBuilder:Next(),
+
+        MOVEMENT_COMPLETE_ARRIVED = enumBuilder:Next(), -- TEMP
     }
-    local placeholderEnum = STATIC.PLACEHOLDER_NAME
+    local actionCompleteReasonEnum = STATIC.ACTION_COMPLETE_REASON
+
+    --- @enum CustomEvent
+    STATIC.CUSTOM_EVENT = {
+        CUSTOM_EVENT_SYSTEM_FIRST             = enumBuilder:Set( 1000000000 ),
+        CUSTOM_EVENT_SOUND_ENDED              = enumBuilder:Next(),
+        CUSTOM_EVENT_BUILDING_POWER_CHANGED   = enumBuilder:Next(),
+        CUSTOM_EVENT_DOCK_BACKING_IN          = enumBuilder:Next(),
+        CUSTOM_EVENT_CINEMATIC_SET_FIRST_SLOT = enumBuilder:Next(),
+        CUSTOM_EVENT_CINEMATIC_SET_LAST_SLOT  = enumBuilder:Offset( 20 ),
+        CUSTOM_EVENT_POWERUP_GRANTED          = enumBuilder:Next(),
+        CUSTOM_EVENT_BUILDING_DAMAGED         = enumBuilder:Next(),
+        CUSTOM_EVENT_BUILDING_REPAIRED        = enumBuilder:Next(),
+        CUSTOM_EVENT_VEHICLE_ENTERED          = enumBuilder:Next(),
+        CUSTOM_EVENT_VEHICLE_EXITED           = enumBuilder:Next(),
+        CUSTOM_EVENT_ATTACK_ARRIVED           = enumBuilder:Next(),
+
+        CUSTOM_EVENT_CONVERSATION_BEGAN          = enumBuilder:Next(),
+        CUSTOM_EVENT_CONVERSATION_REMARK_STARTED = enumBuilder:Next(),
+        CUSTOM_EVENT_CONVERSATION_REMARK_ENDED   = enumBuilder:Next(),
+
+        CUSTOM_EVENT_LADDER_OCCUPIED = enumBuilder:Next(),
+        CUSTOM_EVENT_FALLING_DAMAGE  = enumBuilder:Next()
+    }
+    local customEventEnum = STATIC.CUSTOM_EVENT
 --#endregion
 
 

@@ -50,9 +50,9 @@ end
     --- @class GameObjectObserverTimerClass
 
     --- Creates a new GameObjectObserverTimerInstance
-    --- @param observerId integer? [Default: 0]
+    --- @param observerId integer? [Default: `0`]
     --- @param time number? [Default:0]
-    --- @param timerId integer? [Default: 0]
+    --- @param timerId integer? [Default: `0`]
     --- @return GameObjectObserverTimerInstance
     function STATIC.New( observerId, time, timerId )
         return robustclass.New( "Renegade_GameObjectObserverTimer", observerId, time, timerId )
@@ -77,9 +77,9 @@ end
 --- @field TimerId integer
 
 --- Constructs a new GameObjectObserverTimerInstance
---- @param observerId integer? [Default: 0]
+--- @param observerId integer? [Default: `0`]
 --- @param time number? [Default:0]
---- @param timerId integer? [Default: 0]
+--- @param timerId integer? [Default: `0`]
 function INSTANCE:Renegade_GameObjectObserverTimer( observerId, time, timerId )
     self.ObserverId    = observerId or 0
     self.RemainingTime = time       or 0

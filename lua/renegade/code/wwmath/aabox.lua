@@ -17,11 +17,19 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsAABox = true
 
+--#region Exported Enums
+--#endregion
 
 --#region Imports
 
-    --- @type VectorBridgeClass
-    local vectorBridgeClass = CNC.Import( "bridges/sh_vector.lua" )
+	--- @type VectorBridgeClass
+	local vectorBridgeClass = CNC.Import( "bridges/sh_vector.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
+--#endregion
+
+--#region Imported Enums
 --#endregion
 
 
@@ -116,6 +124,19 @@ function INSTANCE:Renegade_AABox( ... )
     end
 end
 
+--- @return string
+function INSTANCE:__tostring()
+    return INSTANCE.Class .. ": Center: ("
+        .. math.Round( self.Center.x, 2 ) .. ", "
+        .. math.Round( self.Center.y, 2 ) .. ", "
+        .. math.Round( self.Center.z, 2 ) ..
+        "), Extent: ("
+        .. math.Round( self.Extent.x, 2 ) .. ", "
+        .. math.Round( self.Extent.y, 2 ) .. ", "
+        .. math.Round( self.Extent.z, 2 ) ..
+        ")"
+end
+
 --- @param other AABoxInstance
 function INSTANCE:__eq( other )
     if not STATIC.IsAABox( other ) then
@@ -194,9 +215,9 @@ end
 
 --- Initializes this box to a random state
 --- @param minCenter number? [Default: -1]
---- @param maxCenter number? [Default: 1]
---- @param minExtent number? [Default: 0.5]
---- @param maxExtent number? [Default: 1]
+--- @param maxCenter number? [Default: `1`]
+--- @param minExtent number? [Default: `0.5`]
+--- @param maxExtent number? [Default: `1`]
 function INSTANCE:InitRandom( minCenter, maxCenter, minExtent, maxExtent )
     if not minCenter then minCenter = -1 end
     if not maxCenter then maxCenter = 1 end
@@ -255,11 +276,16 @@ end
 --- 
 --- Note that this function extends the box to enclose its transformed form.  
 --- "  
---- @param transformationMatrix Matrix3dInstance
-function INSTANCE:Transform( transformationMatrix)
-    local oldCenter = self.Center
-    local oldExtent = self.Extent
-    self.Center, self.Extent = transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent )
+--- @overload fun( self, transformationMatrix: Matrix3dInstance, inBox: AABoxInstance, outBox: AABoxInstance )
+--- @overload fun( self, transformationMatrix: Matrix3dInstance )
+function INSTANCE:Transform( transformationMatrix, inBox, outBox )
+    if inBox == nil and outBox == nil then
+        local oldCenter = Vector( self.Center )
+        local oldExtent = Vector( self.Extent )
+        transformationMatrix:TransformCenterExtentAABox( oldCenter, oldExtent, self.Center, self.Extent )
+    else
+        transformationMatrix:TransformCenterExtentAABox( inBox.Center, inBox.Extent, outBox.Center, outBox.Extent )
+    end
 end
 
 --- @param pos Vector
@@ -275,4 +301,8 @@ end
 --- @return boolean
 function INSTANCE:Contains( ... )
     typecheck.NotImplementedError( "Contains" )
+end
+
+function INSTANCE:DebugDraw()
+    debugdraw.Box( self.Center, Angle( 0, 0, 0 ), self.Extent, Color( 55, 200, 10 ), 0.1, false )
 end

@@ -45,9 +45,9 @@ end
 
     --- Creates a new GameObjectCustomTimerInstance
     --- @param sender ScriptableGameObjectInstance? [Default: nil]
-    --- @param time number? [Default: 0]
-    --- @param type integer? [Default: 0]
-    --- @param param integer? [Default: 0]
+    --- @param time number? [Default: `0`]
+    --- @param type integer? [Default: `0`]
+    --- @param param integer? [Default: `0`]
     --- @return GameObjectCustomTimerInstance
     function STATIC.New( sender, time, type, param )
         return robustclass.New( "Renegade_GameObjectCustomTimer", sender, time, type, param )
@@ -74,9 +74,9 @@ end
 
 --- Constructs a new GameObjectCustomTimerInstance
 --- @param sender ScriptableGameObjectInstance? [Default: nil]
---- @param time number? [Default: 0]
---- @param type integer? [Default: 0]
---- @param param integer? [Default: 0]
+--- @param time number? [Default: `0`]
+--- @param type integer? [Default: `0`]
+--- @param param integer? [Default: `0`]
 function INSTANCE:Renegade_GameObjectCustomTimer( sender, time, type, param )
     self.RemainingTime = time  or 0
     self.Type          = type  or 0

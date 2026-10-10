@@ -222,7 +222,7 @@ end
 
     --- @param obj BaseGameObjectInstance
     function STATIC.Remove( obj )
-        local key = table.RemoveByValue( STATIC.GameObjectList, obj )
+        table.RemoveByValue( STATIC.GameObjectList, obj )
     end
 
     --- @return BaseGameObjectInstance[]

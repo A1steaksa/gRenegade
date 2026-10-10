@@ -238,24 +238,6 @@ function INSTANCE:_Renegade_RenderObject()
 end
 
 
---[[ Source Engine Connection ]] do
-
-    --- @class MeshInstance
-    --- @field ConnectedEntity Entity The Source engine Entity this Render Object is connected to
-    --- @field SourceMaterial IMaterial The Source Engine Material that should be used with this model
-
-    --- @param ent Entity
-    function INSTANCE:SetConnectedEntity( ent )
-        self.ConnectedEntity = ent
-    end
-
-    --- @return Entity
-    function INSTANCE:GetConnectedEntity()
-        return self.ConnectedEntity
-    end
-end
-
-
 --[[ Render Object Interface - Cloning and Identification ]] do
 
     --- @return RenderObjectInstance
@@ -631,8 +613,9 @@ function INSTANCE:IntersectSphereQuick()
     typecheck.NotImplementedError()
 end
 
+--- @return SphereInstance
 function INSTANCE:GetBoundingSphere()
-    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
+    if not tobool( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingSphere
@@ -640,28 +623,24 @@ end
 
 --- @return AABoxInstance
 function INSTANCE:GetBoundingBox()
-    if not ( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) == 1 ) then
+    if not tobool( bit.band( self.Bits, STATIC.BOUNDING_VOLUMES_VALID ) ) then
         self:UpdateCachedBoundingVolumes()
     end
     return self.CachedBoundingBox
 end
 
 --- "Default collision sphere"
---- @return SphereInstance
-function INSTANCE:GetObjectSpaceBoundingSphere()
-    return sphereClass.New(
-        Vector( 0, 0, 0 ),
-        1.0
-    )
+--- @param sphere SphereInstance
+function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
+    sphere.Center:SetUnpacked( 0, 0, 0 )
+    sphere.Radius = 1.0
 end
 
 --- "Default collision box."
---- @return AABoxInstance
-function INSTANCE:GetObjectSpaceBoundingBox()
-    return aABoxClass.New(
-        Vector( 0, 0, 0 ),
-        Vector( 0, 0, 0 )
-    )
+--- @param box AABoxInstance
+function INSTANCE:GetObjectSpaceBoundingBox( box )
+    box.Center:SetUnpacked( 0, 0, 0 )
+    box.Extent:SetUnpacked( 0, 0, 0 )
 end
 
 function INSTANCE:UpdateObjectSpaceBoundingVolumes()
@@ -937,9 +916,8 @@ end
 
 --- "default collision sphere."
 function INSTANCE:UpdateCachedBoundingVolumes()
-
-    self.CachedBoundingBox = self:GetObjectSpaceBoundingBox()
-    self.CachedBoundingSphere = self:GetObjectSpaceBoundingSphere()
+    self:GetObjectSpaceBoundingBox( self.CachedBoundingBox )
+    self:GetObjectSpaceBoundingSphere( self.CachedBoundingSphere )
 
     local transform = self:GetTransform()
     self.CachedBoundingSphere.Center = transform * self.CachedBoundingSphere.Center

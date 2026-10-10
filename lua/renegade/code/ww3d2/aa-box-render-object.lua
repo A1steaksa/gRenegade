@@ -139,13 +139,13 @@ end
 	--- @param matrix Matrix3dInstance
 	function INSTANCE:SetTransform( matrix )
 		renderObjectClass.Instance.SetTransform( self, matrix )
-		INSTANCE.UpdateCachedBox( self )
+		self:UpdateCachedBox()
 	end
 
 	--- @param pos Vector
 	function INSTANCE:SetPosition( pos )
 		renderObjectClass.Instance.SetPosition( self, pos )
-		INSTANCE.UpdateCachedBox( self )
+		self:UpdateCachedBox()
 	end
 
 	function INSTANCE:CastRay()
@@ -168,18 +168,14 @@ end
 		typecheck.NotImplementedError()
 	end
 
-	--- @return SphereInstance
-	function INSTANCE:GetObjectSpaceBoundingSphere()
-		local sphere = sphereClass.New()
+	--- @param sphere SphereInstance
+	function INSTANCE:GetObjectSpaceBoundingSphere( sphere )
 		sphere:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent:Length() )
-		return sphere
 	end
 
-	--- @return AABoxInstance
-	function INSTANCE:GetObjectSpaceBoundingBox()
-		local box = aABoxClass.New()
-		box:Init( self.ObjectSpaceCenter, self.ObjectSpaceExtent )
-		return box
+	--- @param box AABoxInstance
+	function INSTANCE:GetObjectSpaceBoundingBox( box )
+		box:Init( Vector( self.ObjectSpaceCenter ), Vector( self.ObjectSpaceExtent ) )
 	end
 end
 

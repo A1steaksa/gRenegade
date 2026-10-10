@@ -93,7 +93,7 @@ end
 
 --- "Loads a set of motion data from a file"
 --- @param cload ChunkLoadInstance
---- @return integer
+--- @return boolean
 function INSTANCE:LoadAnimation( cload )
     local id = cload:CurChunkId()
 
@@ -107,7 +107,7 @@ function INSTANCE:LoadAnimation( cload )
         return self:LoadMorphAnimation( cload )
     end
 
-    return 0
+    return false
 end
 
 --- "Returns a pointer to the specified animation data"
@@ -135,7 +135,7 @@ function INSTANCE:AddAnimation( newAnimation )
     assert( newAnimation ~= nil )
 
     -- "Increment the refcount on the new animation and add it to our table."
-    self.AnimationPointerTable[newAnimation:GetName()] = newAnimation
+    self.AnimationPointerTable[newAnimation:GetName():upper()] = newAnimation
 
     -- "Check to see if this animation has any embedded sounds that may need to play while its animating."
     -- local hasSoundTrigger = animatedSoundManagerClass.DoesAnimationHaveEmbeddedSounds( newAnimation )
@@ -162,12 +162,16 @@ end
 --- "  
 --- @param name string
 function INSTANCE:RegisterMissing( name )
+    name = name:upper()
+
     section.Warn( INSTANCE.Class, " - RegisterMissing - Animation missing: '", name, "'" )
     self.AnimationPointerTable[name] = false
 end
 
 --- @param name string
 function INSTANCE:IsMissing( name )
+    name = name:upper()
+
     return self.AnimationPointerTable[name] == false
 end
 
@@ -180,24 +184,24 @@ function INSTANCE:ResetMissing()
 end
 
 --- @param cload ChunkLoadInstance
---- @return integer
+--- @return boolean hasError
 function INSTANCE:LoadCompressedAnimation( cload )
 	local newAnimation = hCompressedAnimationClass.New()
     if newAnimation == nil then
-        return 1
+        return true
     end
 
     if newAnimation:LoadW3d( cload ) ~= hCompressedAnimationClass.OK then
         -- "Load failed"
-        return 1
+        return true
     elseif INSTANCE.PeekAnimation( self, newAnimation:GetName() ) ~= nil then
         -- "Duplicate exists!"
-        return 1
+        return true
     else
         INSTANCE.AddAnimation( self, newAnimation )
     end
 
-    return 0
+    return false
 end
 
 --- "Load a raw anim"

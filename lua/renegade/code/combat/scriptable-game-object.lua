@@ -236,12 +236,12 @@ end
 --[[ Thinking ]] do
 
     function INSTANCE:Think()
-        if INSTANCE.IsAlwaysDirty( self ) then
-            INSTANCE.SetObjectDirtyBit( self, networkObjectClass.DIRTY_BIT.BIT_FREQUENT, true )
+        if self:IsAlwaysDirty() then
+            self:SetObjectDirtyBit( networkObjectClass.DIRTY_BIT.BIT_FREQUENT, true )
         end
 
         if self.ObserverCreatedPending then
-            INSTANCE.StartObservers( self )
+            self:StartObservers()
             self.ObserverCreatedPending = false
         end
 

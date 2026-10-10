@@ -115,8 +115,16 @@ end
     function INSTANCE:GetConnectedEntity()
         return self.ConnectedEntity
     end
-end
 
+    function INSTANCE:SetDeletePending()
+        networkObjectClass.Instance.SetDeletePending( self )
+
+        if IsValid( self.ConnectedEntity ) then
+            self.ConnectedEntity:Remove()
+            robustclass.Delete( self )
+        end
+    end
+end
 
 --[[ Definitions ]] do
 
