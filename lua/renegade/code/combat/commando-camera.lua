@@ -168,7 +168,6 @@ end
 
 --- Updates the camera's parameters each frame
 function INSTANCE:Update()
-
     -- "First, set the aiming point to where the camera is looking"
     if self:DetermineTargetingPosition() == false then
         -- "Then, modify the aiming point for weapon help, if not on a target"
@@ -283,9 +282,19 @@ function INSTANCE:Update()
     -- end
 
 
-    local viewSetup = cameraBridgeClass.GetViewSetup()
-    self:SetViewPlane( math.rad( viewSetup.fov ) )
+    --[[ Sync with Garry's Mod view setup ]] do
+        local viewSetup = cameraBridgeClass.GetViewSetup()
+        self:SetViewPlane( math.rad( viewSetup.fov ) )
 
+        local transform = self:GetTransform()
+        transform:MakeIdentity()
+
+        transform:SetTranslation( viewSetup.origin )
+        local ang = viewSetup.angles
+        transform:RotateZ( math.rad( ang.yaw - 90 ) )
+        transform:RotateX( math.rad( -ang.pitch + 90 ) )
+        transform:RotateZ( math.rad( ang.roll ) )
+    end
 
     -- -- Calculate the Camera Transform
     -- local transformMatrix = Matrix() -- Setup base position
