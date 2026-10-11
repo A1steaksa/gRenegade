@@ -24,26 +24,29 @@ INSTANCE.IsLoadingScreen = true
 
 --#region Imports
 
-    --- @type MenuBackdropClass
-    local menuBackdropClass = CNC.Import( "code/wwui/menu-backdrop.lua" )
+	--- @type MenuBackdropClass
+	local menuBackdropClass = CNC.Import( "code/wwui/menu-backdrop.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerclass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type CampaignManagerClass
-    local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
+	--- @type CampaignManagerClass
+	local campaignManagerClass = CNC.Import( "code/commando/campaign.lua" )
 
-    --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
+	--- @type StyleManagerClass
+	local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 
-    --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
+	--- @type Render2dTextClass
+	local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
+
+	--- @type WW3dClass
+	local wW3dClass = CNC.Import( "code/ww3d2/ww3d.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local fontStyleEnum = styleManagerClass.FONT_STYLE
+	local fontStyleEnum = styleManagerClass.FONT_STYLE
 --#endregion
 
 
@@ -189,6 +192,7 @@ function INSTANCE:Render( updateNetwork )
     self.LoadTime = self.LoadTime + frameTime
 
     -- Omitting begin render
+    wW3dClass.BeginRender( true, true, Color( 0, 0, 0 ) )
 
     self.Backdrop:Render()
     self.BackdropText:Render()
@@ -196,8 +200,8 @@ function INSTANCE:Render( updateNetwork )
 
     STATIC.LastCount = STATIC.LastCount or -1
     STATIC.LastPercentDrawn = STATIC.LastPercentDrawn or -1
-    if STATIC.LastCount ~= combatManagerclass.GetLoadProgress() then
-        STATIC.LastCount = combatManagerclass.GetLoadProgress()
+    if STATIC.LastCount ~= combatManagerClass.GetLoadProgress() then
+        STATIC.LastCount = combatManagerClass.GetLoadProgress()
         self.LoadPercentage = self:GetPredictedPercentage( STATIC.LastCount )
         self.LoadPercentageRate = self.LoadPercentage / self.LoadTime
         self.LoadPercentageClamp = self:GetPredictedPercentage( STATIC.LastCount + 1 )
@@ -212,5 +216,5 @@ function INSTANCE:Render( updateNetwork )
         section.Print( string.format( "Load %d%% complete", self.LoadPercentageDrawn * 100 ) )
     end
 
-    -- Omitting end render
+    wW3dClass.EndRender()
 end
