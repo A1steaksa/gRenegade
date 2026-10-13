@@ -53,12 +53,12 @@ INSTANCE.IsSoundBuffer = true
 
     --- @class SoundBufferClass
 
-	STATIC.DecodingIndexTable = {
+	STATIC.IndexTable = {
 		-1, -1, -1, -1, 2, 4, 6, 8,
   		-1, -1, -1, -1, 2, 4, 6, 8
 	}
 
-	STATIC.DecodingStepTable = {
+	STATIC.StepSizeTable = {
 		7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
 		19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
 		50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
@@ -152,73 +152,92 @@ function INSTANCE:_Renegade_SoundBuffer()
 end
 
 function INSTANCE:DecodeAdpcm()
+	local input = self.Data -- "Input buffer pointer"
+	local outBuffer = {}
+	local sign -- "Current ADPCM sign bit"
+	local delta -- "Current ADPCM output value"
+	local step -- "Stepsize"
+	local predictedValue
+	local predictedValueDifference -- "Current change ito [predictedValue]"
+	local index -- "Current step change index"
 
-	local stepIndex = 0
-	local stepSize = 16
-	local sample = 0
+	predictedValue = 0
+	index = 0
+	step = STATIC.StepSizeTable[index + 1]
 
-	-- Create a mask so we can extract each sample's bits from the byte it's in
-	local sampleMask = 0
-	for i = 1, self.Bits do
-		sampleMask = bit.bor( sampleMask, bit.lshift( 1, i - 1 ) )
-	end
+	for byteIndex = 1, input:len() do
+		local byte = input:byte( byteIndex, byteIndex )
+		for nibbleIndex = 1, 0, -1 do
 
-	local originalData = self.Data
-
-	local convertedData = {}
-
-	for byteIndex = 1, originalData:len() do
-		local byte = string.byte( originalData, byteIndex, byteIndex )
-
-		for sampleIndex = 0, 1 do
-			-- Extract the next sample from this byte, isolate it, and convert it to be 16 bits
-			-- local sampleShiftCount = sampleIndex * self.Bits
-			-- local shiftedSample = bit.rshift( byte, sampleShiftCount )
-			-- local nibble = bit.band( shiftedSample, sampleMask )
-
-			local nibble
-			if sampleIndex == 0 then
-				nibble = byte / 16
+			-- "Step 1 - Get the delta value"
+			-- Left nibble
+			if nibbleIndex == 0 then
+				delta = bit.band( bit.rshift( byte, 4 ), 0xF )
+			-- Right nibble
 			else
-				nibble = bit.band( byte, 15 )
+				delta = bit.band( byte, 0xF )
 			end
 
-			local newSample = bit.band( nibble, 7 )
-			local difference = math.floor( stepSize / 8 )
+			-- "Step 2 - Find new index value (for later)"
+			index = index + STATIC.IndexTable[delta + 1]
+			if index < 0 then index = 0 end
+			if index > 88 then index = 88 end
 
-			if tobool( bit.band( newSample, 4 ) ) then
-				difference = difference + stepSize
+			-- "Step 3 - Separate sign and magniture"
+			sign = bit.band( delta, 8 )
+			delta = bit.band( delta, 7 )
+
+			-- "Step 4 - Compute difference and new predicted value"
+			predictedValueDifference = bit.rshift( step, 3 )
+			if bit.band( delta, 4 ) ~= 0 then
+				predictedValueDifference = predictedValueDifference + step
 			end
 
-			if tobool( bit.band( newSample, 2 ) ) then
-				difference = difference + math.floor( stepSize / 2 )
+			if bit.band( delta, 2 ) ~= 0 then
+				predictedValueDifference = predictedValueDifference + bit.rshift( step, 1 )
 			end
 
-			if tobool( bit.band( newSample, 1 ) ) then
-				difference = difference + math.floor( stepSize / 4 )
+			if bit.band( delta, 1 ) ~= 0 then
+				predictedValueDifference = predictedValueDifference + bit.rshift( step, 2 )
 			end
 
-			if tobool( bit.band( nibble, 8 ) ) then
-				sample = sample - difference
+			if sign ~= 0 then
+				predictedValue = predictedValue - predictedValueDifference
 			else
-				sample = sample + difference
+				predictedValue = predictedValue + predictedValueDifference
 			end
 
-			sample = math.Clamp( sample, -2048, 2047 )
+			-- "Step 5 - Clamp output value"
+			if predictedValue > 32767 then
+				predictedValue = 32767
+			elseif predictedValue < -32768 then
+				predictedValue = -32768
+			end
+
+			index = math.Clamp( index, 1, #STATIC.StepSizeTable - 1 )
+
+			-- "Step 6 - Update step value"
+			step = STATIC.StepSizeTable[index + 1]
+
+			-- "Step 7 - Output value"
 
 			--- Convert the 16 bit sample into two 8 bit chars
-			local leftByte  = bit.band( bit.rshift( sample, 8 ), 255 )
-			local rightByte = bit.band( sample, 255 )
+			local highByte = bit.band( bit.rshift( predictedValue, 8 ), 255 )
+			local lowByte  = bit.band( predictedValue, 255 )
 
-			convertedData[#convertedData + 1] = string.char( rightByte )
-			convertedData[#convertedData + 1] = string.char( leftByte )
+			local unsignedPredictedValue = (
+				highByte * 0x100 +
+				lowByte
+			)
 
-			stepIndex = math.Clamp( stepIndex + STATIC.DecodingStepTable[newSample + 1], 0, 48 )
-			stepSize = STATIC.DecodingStepTable[stepIndex + 1]
+			highByte = bit.band( bit.rshift( unsignedPredictedValue, 8 ), 255 )
+			lowByte  = bit.band( unsignedPredictedValue, 255 )
+
+			outBuffer[#outBuffer + 1] = string.char( lowByte, highByte )
 		end
 	end
 
-	self.Data = table.concat( convertedData )
+	self.Data = table.concat( outBuffer )
 end
 
 --- Ensures that the audio data is 16 bit
