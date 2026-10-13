@@ -94,3 +94,11 @@ function STATIC.CloseTool( consoleCommand )
 
     return previousState
 end
+
+--- @param consoleCommand string
+function STATIC.HotloadTool( consoleCommand )
+    if STATIC.IsToolOpen( consoleCommand ) then
+        local previousState = STATIC.CloseTool( consoleCommand )
+        STATIC.OpenTool( consoleCommand, previousState )
+    end
+end
