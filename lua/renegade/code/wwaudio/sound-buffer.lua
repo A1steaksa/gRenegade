@@ -87,39 +87,174 @@ INSTANCE.IsSoundBuffer = true
 
     typecheck.RegisterType( "SoundBufferInstance", STATIC.IsSoundBuffer )
 
+	--- @param bytes string
+	--- @return ImaAdpcmWaveFile
+	function STATIC.ParseImaAdpcmWaveFile( bytes )
+		-- Riff Header Chunk
+		local riffHeaderLength = deserializeLib.GetComplexDataTypeSize( "RiffHeaderChunk" )
+		local riffHeaderBytes = bytes:sub( 1, riffHeaderLength )
+		bytes = bytes:sub( riffHeaderLength + 1 )
+		local riffHeader = deserializeLib.DeserializeComplexDataType( "RiffHeaderChunk", riffHeaderBytes )
+		assert( riffHeader ~= nil )
+
+		-- Wave Format Chunk
+		local formatChunkLength = deserializeLib.GetComplexDataTypeSize( "WaveFormatChunk" )
+		local formatChunkBytes = bytes:sub( 1, formatChunkLength )
+		bytes = bytes:sub( formatChunkLength + 1 )
+		local formatChunk = deserializeLib.DeserializeComplexDataType( "WaveFormatChunk", formatChunkBytes )
+		assert( formatChunk ~= nil )
+
+		-- Wave Format Chunk - Wave Format Ex
+		local waveFormatExLength = deserializeLib.GetComplexDataTypeSize( "WaveFormatEx" )
+		local waveFormatExBytes = bytes:sub( 1, waveFormatExLength )
+		bytes = bytes:sub( waveFormatExLength + 1 )
+		local waveFormatEx = deserializeLib.DeserializeComplexDataType( "WaveFormatEx", waveFormatExBytes )
+		assert( waveFormatEx ~= nil )
+		formatChunk.Format = waveFormatEx
+
+		-- Wave Format Chunk - Wave Format Ex - ExtraData
+		local extraData = bytes:sub( 1, waveFormatEx.ExtraDataSize )
+		bytes = bytes:sub( waveFormatEx.ExtraDataSize + 1 )
+		waveFormatEx.ExtraData = extraData
+
+		-- Wave Fact Chunk
+		local factChunkLength = deserializeLib.GetComplexDataTypeSize( "WaveFactChunk" )
+		local factChunkBytes = bytes:sub( 1, factChunkLength )
+		bytes = bytes:sub( factChunkLength + 1 )
+		local factChunk = deserializeLib.DeserializeComplexDataType( "WaveFactChunk", factChunkBytes )
+		assert( factChunk ~= nil )
+
+		-- Wave Data Chunk
+		local dataChunkLength = deserializeLib.GetComplexDataTypeSize( "WaveDataChunk" )
+		local dataChunkBytes = bytes:sub( 1, dataChunkLength )
+		bytes = bytes:sub( dataChunkLength + 1 )
+		local dataChunk = deserializeLib.DeserializeComplexDataType( "WaveDataChunk", dataChunkBytes )
+		assert( dataChunk ~= nil )
+
+		-- Wave Data Chunk - Blocks
+		local encodedDataBlockLengthWithoutSamples = deserializeLib.GetComplexDataTypeSize( "ImaAdpcmEncodedDataBlock" )
+		-- "Samples" field isn't included in the calculated size and needs to be added
+		local encodedDataBlockByteCount = formatChunk.Format.BytesPerBlock - 4
+		local encodedDataBlockLengthWithSamples = encodedDataBlockLengthWithoutSamples + encodedDataBlockByteCount
+		local encodedDataBlockCount = dataChunk.Header.ChunkSize / encodedDataBlockLengthWithSamples
+
+		dataChunk.Blocks = {}
+		for _ = 1, encodedDataBlockCount do
+			local encodedDatablockBytes = bytes:sub( 1, encodedDataBlockLengthWithSamples )
+			bytes = bytes:sub( encodedDataBlockLengthWithSamples + 1 )
+
+			-- The first bytes of the encoded data block are the header
+			local encodedDataBlock = deserializeLib.DeserializeComplexDataType( "ImaAdpcmEncodedDataBlock", encodedDatablockBytes )
+			assert( encodedDataBlock ~= nil )
+			encodedDatablockBytes = encodedDatablockBytes:sub( encodedDataBlockLengthWithoutSamples + 1 )
+
+			-- The remaining bytes after the header are the samples
+			encodedDataBlock.Samples = encodedDatablockBytes
+
+			dataChunk.Blocks[#dataChunk.Blocks + 1] = encodedDataBlock
+		end
+
+		--- @type ImaAdpcmWaveFile
+		local waveFile = {
+			RiffHeader = riffHeader,
+			FormatChunk = formatChunk,
+			FactChunk = factChunk,
+			DataChunk = dataChunk
+		}
+
+		return waveFile
+	end
+
 	function STATIC.StaticConstructor()
 
-		--- @class WaveHeader
-		--- @field Riff string This should always contain the exact string "RIFF"
-		--- @field Size integer The overall file size
-		--- @field FileTypeHeader string This should always contain the exact string "WAVE"
-		--- @field FormatChunkMarker string This should always contain the exact string "fmt" followed by a null character
-		--- @field FormatDataLength integer The length of the preceeding fields.  Should probably be 16
-		--- @field FormatType integer Should probably be 1 (PCM)
-		--- @field ChannelCount integer The number of audio channels in the file
-		--- @field SampleRate integer Must be either 11025, 22050, or 44100
-		--- @field BytesPerSecond integer `(SampleRate * BitsPerSample * Channels)/8`
-		--- @field StereoMonoSplit integer I don't know: `(BitsPerSample * Channels) / 8.1` - 8 bit mono2 - 8 bit stereo/16 bit mono4 - 16 bit stereo
-		--- @field BitsPerSample integer
-		--- @field DataChunkHeader string This should always contain the exact string "data"
-		--- @field DataSize integer The number of bytes in the data section
-
-		deserializeLib.RegisterComplexDataType( "WaveHeader", {
-			{ Name = "Riff", 			  DataType = fundamentalDataTypeEnum.String, Length = 4 },
-			{ Name = "Size", 			  DataType = fundamentalDataTypeEnum.UInt32 },
-			{ Name = "FileTypeHeader", 	  DataType = fundamentalDataTypeEnum.String, Length = 4 },
-			{ Name = "FormatChunkMarker", DataType = fundamentalDataTypeEnum.String, Length = 4 },
-			{ Name = "FormatDataLength",  DataType = fundamentalDataTypeEnum.UInt32 },
-			{ Name = "FormatType",  	  DataType = fundamentalDataTypeEnum.UInt16 },
-			{ Name = "ChannelCount",  	  DataType = fundamentalDataTypeEnum.UInt16 },
-			{ Name = "SampleRate",  	  DataType = fundamentalDataTypeEnum.UInt32 },
-			{ Name = "BytesPerSecond", 	  DataType = fundamentalDataTypeEnum.UInt32 },
-			{ Name = "StereoMonoSplit",	  DataType = fundamentalDataTypeEnum.UInt16 },
-			{ Name = "BitsPerSample", 	  DataType = fundamentalDataTypeEnum.UInt16 },
-			{ Name = "DataChunkHeader",   DataType = fundamentalDataTypeEnum.String, Length = 4 },
-			{ Name = "DataSize",		  DataType = fundamentalDataTypeEnum.UInt32 }
+		--- "The header used by every chunk within a RIFF file (including the root chunk)"
+		--- @class RiffChunkHeader
+		--- @field ChunkId integer
+		--- @field ChunkSize integer
+		deserializeLib.RegisterComplexDataType( "RiffChunkHeader", {
+			{ Name = "ChunkId", DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "ChunkSize", DataType = fundamentalDataTypeEnum.UInt32 },
 		} )
 
+		--- Credit: https://web.archive.org/web/20260116114137/https://wiki.multimedia.cx/index.php/WAVEFORMATEX
+		--- @class WaveFormatEx
+		--- @field AudioFormat integer
+		--- @field ChannelCount integer
+		--- @field Frequency integer
+		--- @field BytesPerSecond integer
+		--- @field BytesPerBlock integer
+		--- @field BitsPerSample integer
+		--- @field ExtraDataSize integer
+		--- @field ExtraData string
+		deserializeLib.RegisterComplexDataType( "WaveFormatEx", {
+			-- Common Fields
+			{ Name = "AudioFormat",    DataType = fundamentalDataTypeEnum.UInt16 },
+			{ Name = "ChannelCount",   DataType = fundamentalDataTypeEnum.UInt16 },
+			{ Name = "Frequency", 	  DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "BytesPerSecond", DataType = fundamentalDataTypeEnum.UInt32 },
+			{ Name = "BytesPerBlock",  DataType = fundamentalDataTypeEnum.UInt16 },
+
+			-- Format-Specific Fields
+			{ Name = "BitsPerSample", DataType = fundamentalDataTypeEnum.UInt16 },
+			{ Name = "ExtraDataSize", DataType = fundamentalDataTypeEnum.UInt16 }
+			-- ExtraData field is omitted as its length is not fixed
+		} )
+
+		--- @class RiffHeaderChunk
+		--- @field Header RiffChunkHeader
+		--- @field FileTypeChunkId integer
+		deserializeLib.RegisterComplexDataType( "RiffHeaderChunk", {
+			{ Name = "Header", 			DataType = "RiffChunkHeader" },
+			{ Name = "FileTypeChunkId", DataType = fundamentalDataTypeEnum.UInt32 }
+		} )
+
+		--- @class WaveFormatChunk
+		--- @field Header RiffChunkHeader
+		--- @field Format WaveFormatEx
+		deserializeLib.RegisterComplexDataType( "WaveFormatChunk", {
+			{ Name = "Header", DataType = "RiffChunkHeader" },
+			-- Format field is omitted as its length is not fixed
+		} )
+
+		--- @class WaveFactChunk
+		--- @field Header RiffChunkHeader
+		--- @field SampleCount integer
+		deserializeLib.RegisterComplexDataType( "WaveFactChunk", {
+			{ Name = "Header", 		DataType = "RiffChunkHeader" },
+			{ Name = "SampleCount", DataType = fundamentalDataTypeEnum.UInt32 }
+		} )
+
+		--- @class ImaAdpcmEncodedDataBlock
+		--- @field InitialPredictor integer
+		--- @field InitialIndex integer
+		--- @field Reserved integer
+		--- @field Samples string
+		deserializeLib.RegisterComplexDataType( "ImaAdpcmEncodedDataBlock", {
+			{ Name = "InitialPredictor",	DataType = fundamentalDataTypeEnum.UInt16 },
+			{ Name = "InitialIndex", DataType = fundamentalDataTypeEnum.UInt8 },
+			{ Name = "Reserved", DataType = fundamentalDataTypeEnum.UInt8 },
+			-- Samples field is omitted as its length is not fixed
+		} )
+
+		--- @class WaveDataChunk
+		--- @field Header RiffChunkHeader
+		--- @field Blocks ImaAdpcmEncodedDataBlock[]
+		deserializeLib.RegisterComplexDataType( "WaveDataChunk", {
+			{ Name = "Header",	DataType = "RiffChunkHeader" },
+			-- Blocks field is omitted as its length is not fixed
+		} )
+
+		--- @class ImaAdpcmWaveFile
+		--- @field RiffHeader RiffHeaderChunk
+		--- @field FormatChunk WaveFormatChunk
+		--- @field FactChunk WaveFactChunk
+		--- @field DataChunk WaveDataChunk
+		deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveFile", {
+			{ Name = "RiffHeader",	DataType = "RiffHeaderChunk" },
+			{ Name = "FormatChunk",	DataType = "WaveFormatChunk" },
+			{ Name = "FactChunk",	DataType = "WaveFactChunk" },
+			{ Name = "DataChunk",	DataType = "WaveDataChunk" },
+		} )
 	end
 end
 
@@ -133,8 +268,7 @@ end
 --- @field Bits integer
 --- @field Channels integer
 --- @field Type integer
---- @field Header WaveHeader
---- @field Data string
+--- @field DecodedSamples string
 
 function INSTANCE:Renegade_SoundBuffer()
 	self.Buffer = nil
@@ -151,141 +285,94 @@ function INSTANCE:_Renegade_SoundBuffer()
 	self:FreeBuffer()
 end
 
-function INSTANCE:DecodeAdpcm()
-	local input = self.Data -- "Input buffer pointer"
+--- @param encodedWave ImaAdpcmWaveFile
+function INSTANCE:DecodeAdpcm( encodedWave )
+
 	local outBuffer = {}
 	local sign -- "Current ADPCM sign bit"
 	local delta -- "Current ADPCM output value"
 	local step -- "Stepsize"
 	local predictedValue
 	local predictedValueDifference -- "Current change ito [predictedValue]"
-	local index -- "Current step change index"
+	local index = 0 -- "Current step change index"
 
-	predictedValue = 0
-	index = 0
 	step = STATIC.StepSizeTable[index + 1]
 
-	for byteIndex = 1, input:len() do
-		local byte = input:byte( byteIndex, byteIndex )
-		for nibbleIndex = 1, 0, -1 do
+	for encodedBlockIndex, encodedBlock in ipairs( encodedWave.DataChunk.Blocks ) do
+		predictedValue = encodedBlock.InitialPredictor
+		index = encodedBlock.InitialIndex
+		-- step = STATIC.StepSizeTable[index + 1]
 
-			-- "Step 1 - Get the delta value"
-			-- Left nibble
-			if nibbleIndex == 0 then
-				delta = bit.band( bit.rshift( byte, 4 ), 0xF )
-			-- Right nibble
-			else
-				delta = bit.band( byte, 0xF )
+		local samples = encodedBlock.Samples
+
+		for byteIndex = 1, samples:len() do
+			local byte = samples:byte( byteIndex, byteIndex )
+
+			for nibbleIndex = 1, 2 do
+
+				-- "Step 1 - Get the delta value"
+				if nibbleIndex == 2 then
+					-- High nibble
+					delta = bit.band( bit.rshift( byte, 4 ), 0xF )
+				else
+					-- Low nibble
+					delta = bit.band( byte, 0xF )
+				end
+
+				-- "Step 2 - Find new index value (for later)"
+				index = index + STATIC.IndexTable[delta + 1]
+				if index < 0 then index = 0 end
+				if index > 88 then index = 88 end
+
+				-- "Step 3 - Separate sign and magnitude"
+				sign = bit.band( delta, 8 )
+				delta = bit.band( delta, 7 )
+
+				-- "Step 4 - Compute difference and new predicted value"
+				predictedValueDifference = bit.rshift( step, 3 )
+				if bit.band( delta, 4 ) ~= 0 then
+					predictedValueDifference = predictedValueDifference + step
+				end
+
+				if bit.band( delta, 2 ) ~= 0 then
+					predictedValueDifference = predictedValueDifference + bit.rshift( step, 1 )
+				end
+
+				if bit.band( delta, 1 ) ~= 0 then
+					predictedValueDifference = predictedValueDifference + bit.rshift( step, 2 )
+				end
+
+				if sign ~= 0 then
+					predictedValue = predictedValue - predictedValueDifference
+				else
+					predictedValue = predictedValue + predictedValueDifference
+				end
+
+				-- "Step 5 - Clamp output value"
+				predictedValue = math.Clamp( predictedValue, -32768, 32767  )
+
+				-- "Step 6 - Update step value"
+				step = STATIC.StepSizeTable[index + 1]
+
+				-- "Step 7 - Output value"
+				local highByte = bit.band( bit.rshift( predictedValue, 8 ), 0xFF )
+				local lowByte  = bit.band( predictedValue, 0xFF )
+
+				outBuffer[#outBuffer + 1] = string.char( lowByte, highByte )
 			end
-
-			-- "Step 2 - Find new index value (for later)"
-			index = index + STATIC.IndexTable[delta + 1]
-			if index < 0 then index = 0 end
-			if index > 88 then index = 88 end
-
-			-- "Step 3 - Separate sign and magniture"
-			sign = bit.band( delta, 8 )
-			delta = bit.band( delta, 7 )
-
-			-- "Step 4 - Compute difference and new predicted value"
-			predictedValueDifference = bit.rshift( step, 3 )
-			if bit.band( delta, 4 ) ~= 0 then
-				predictedValueDifference = predictedValueDifference + step
-			end
-
-			if bit.band( delta, 2 ) ~= 0 then
-				predictedValueDifference = predictedValueDifference + bit.rshift( step, 1 )
-			end
-
-			if bit.band( delta, 1 ) ~= 0 then
-				predictedValueDifference = predictedValueDifference + bit.rshift( step, 2 )
-			end
-
-			if sign ~= 0 then
-				predictedValue = predictedValue - predictedValueDifference
-			else
-				predictedValue = predictedValue + predictedValueDifference
-			end
-
-			-- "Step 5 - Clamp output value"
-			if predictedValue > 32767 then
-				predictedValue = 32767
-			elseif predictedValue < -32768 then
-				predictedValue = -32768
-			end
-
-			index = math.Clamp( index, 1, #STATIC.StepSizeTable - 1 )
-
-			-- "Step 6 - Update step value"
-			step = STATIC.StepSizeTable[index + 1]
-
-			-- "Step 7 - Output value"
-
-			--- Convert the 16 bit sample into two 8 bit chars
-			local highByte = bit.band( bit.rshift( predictedValue, 8 ), 255 )
-			local lowByte  = bit.band( predictedValue, 255 )
-
-			local unsignedPredictedValue = (
-				highByte * 0x100 +
-				lowByte
-			)
-
-			highByte = bit.band( bit.rshift( unsignedPredictedValue, 8 ), 255 )
-			lowByte  = bit.band( unsignedPredictedValue, 255 )
-
-			outBuffer[#outBuffer + 1] = string.char( lowByte, highByte )
 		end
 	end
 
 	self.Data = table.concat( outBuffer )
 end
 
---- Ensures that the audio data is 16 bit
-function INSTANCE:ConvertTo16Bit()
-	local originalData = self.Data
-	if self.Bits == 16 then return end
-
-	local convertedData = {}
-
-	local shiftTo16BitAmount = 16 - self.Bits
-
-	local samplesPerByte = ( 8 / self.Bits )
-
-	-- Create a mask so we can extract each sample's bits from the byte it's in
-	local sampleMask = 0
-	for i = 1, self.Bits do
-		sampleMask = bit.bor( sampleMask, bit.lshift( 1, i - 1 ) )
-	end
-
-	for byteIndex = 1, originalData:len() do
-		local byte = string.byte( originalData, byteIndex, byteIndex )
-
-		for sampleIndex = 1, samplesPerByte do
-			-- Extract the next sample from this byte, isolate it, and convert it to be 16 bits
-			local sampleShiftCount = ( sampleIndex - 1 ) * self.Bits
-			local shiftedSample = bit.rshift( byte, sampleShiftCount )
-			local maskedSample = bit.band( shiftedSample, sampleMask )
-			local completeSample = bit.lshift( maskedSample, shiftTo16BitAmount )
-
-			--- Convert the 16 bit sample into two 8 bit chars
-			local rightByte = bit.band( completeSample, 255 )
-			local leftByte  = bit.band( bit.rshift( completeSample, 8 ), 255 )
-
-			convertedData[#convertedData + 1] = string.char( rightByte )
-			convertedData[#convertedData + 1] = string.char( leftByte )
-		end
-	end
-
-	self.Data = table.concat( convertedData )
-end
-
---- @param file string|FileInstance
+--- @param fileToLoad string|FileInstance
 --- @return boolean
-function INSTANCE:LoadFromFile( file )
-	typecheck.AssertArgType( INSTANCE.Class, 1, file, { "string", "BufferedFileInstance" } )
+function INSTANCE:LoadFromFile( fileToLoad )
+	typecheck.AssertArgType( INSTANCE.Class, 1, fileToLoad, { "string", "BufferedFileInstance" } )
 
-	if isstring( file ) then
-		local fileName = file --[[@as string]]
+	if isstring( fileToLoad ) then
+		local fileName = fileToLoad --[[@as string]]
 
 		-- "Assume failure"
 		local returnValue = false
@@ -304,27 +391,27 @@ function INSTANCE:LoadFromFile( file )
 		-- "Return the true/false result code"
 		return returnValue
 	else
-		--- @cast file FileInstance
+		--- @cast fileToLoad FileInstance
 
 		-- "Assume failure"
 		local returnValue = false
 
 		-- "Start from scratch"
 		self:FreeBuffer()
-		self:SetFilename( file:FileName() )
+		self:SetFilename( fileToLoad:FileName() )
 
 		-- "Open the file if necessary"
 		local weOpened = false
-		if file:IsOpen() == false then
-			weOpened = file:Open() == true
+		if fileToLoad:IsOpen() == false then
+			weOpened = fileToLoad:Open() == true
 		end
 
 		-- "Determine the size of the buffer"
-		self.Length = file:Size()
+		self.Length = fileToLoad:Size()
 		assert( self.Length > 0 )
 		if self.Length > 0 then
 			-- "Allocate a new buffer of the correct length and read the contents of the file into the buffer"
-			local readBytes, readByteCount = file:Read( self.Length )
+			local readBytes, readByteCount = fileToLoad:Read( self.Length )
 			self.Buffer = readBytes
 			returnValue = readByteCount == self.Length
 
@@ -333,14 +420,14 @@ function INSTANCE:LoadFromFile( file )
 				self:FreeBuffer()
 			end
 
-			self:DetermineStats( self.Buffer )
-
-			self:DecodeAdpcm()
+			local parsedWav = STATIC.ParseImaAdpcmWaveFile( self.Buffer )
+			self:DetermineStats( parsedWav )
+			self:DecodeAdpcm( parsedWav )
 		end
 
 		-- "Close the file if necessary"
 		if weOpened then
-			file:Close()
+			fileToLoad:Close()
 		end
 
 		-- "Return the true/false result code"
@@ -412,30 +499,23 @@ function INSTANCE:FreeBuffer()
 	self.Length = 0
 end
 
---- @param buffer string
-function INSTANCE:DetermineStats( buffer )
+--- @param wave ImaAdpcmWaveFile
+function INSTANCE:DetermineStats( wave )
 	self.Duration = 0
-	self.Rate = 0
+	self.Rate     = 0
 	self.Channels = 0
-	self.Bits = 0
-	self.Type = waveFormatEnum.WAVE_FORMAT_IMA_ADPCM
-
-	-- "Attempt to get statistical information about this sound"
-	local info = deserializeLib.Deserialize( "WaveHeader", self.Buffer )
+	self.Bits 	  = 0
+	self.Type 	  = waveFormatEnum.WAVE_FORMAT_IMA_ADPCM
 
 	-- "Cache this information"
-	self.Rate = info.SampleRate
-	self.Channels = info.ChannelCount
-	self.Bits = info.BitsPerSample
-	self.Type = info.FormatType
+	self.Rate 	  = wave.FormatChunk.Format.Frequency
+	self.Channels = wave.FormatChunk.Format.ChannelCount
+	self.Bits 	  = wave.FormatChunk.Format.BitsPerSample
+	self.Type 	  = wave.FormatChunk.Format.AudioFormat
 
 	-- "Determine how long this sound will play for"
 	local bytesSec = bit.rshift( self.Channels * self.Rate * self.Bits, 3 )
 	self.Duration = ( self.Length / bytesSec )
-
-	-- Extract the data portion while we still have the info object
-	self.Header = info
-	self.Data = self.Buffer:sub( 45, 45 + info.DataSize )
 end
 
 if isHotload then
