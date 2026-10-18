@@ -15,6 +15,9 @@ local isHotload = not table.IsEmpty( LIB )
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type TextUtils
+	local textUtils = CNC.Import( "sh_text-utils.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -22,10 +25,13 @@ local isHotload = not table.IsEmpty( LIB )
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
+--- @class ImaAdpcmDecoderState
+--- @field previousPredictedSample integer
+--- @field previousStepSizeIndex integer
 
 --- @class WaveFileLib
 
-LIB.IndexTable = {
+LIB.IndexTable = { 0xFF,
     -1, -1, -1, -1, 2, 4, 6, 8,
     -1, -1, -1, -1, 2, 4, 6, 8
 }
@@ -135,6 +141,7 @@ function LIB.StaticConstructor()
     } )
 end
 
+--- @private
 --- @param interleaved string
 --- @return string leftChannel, string rightChannel
 function LIB.DeinterleaveImaData( interleaved )
@@ -158,6 +165,7 @@ function LIB.DeinterleaveImaData( interleaved )
     return table.concat( leftChannel ), table.concat( rightChannel )
 end
 
+--- @private
 --- @param leftChannelSamples string
 --- @param rightChannelSamples string
 --- @return string
@@ -195,16 +203,15 @@ function LIB.DecodeWave( waveFile )
     local outputBuffer = {}
 
     for blockIndex, block in ipairs( waveFile.DataChunk.Blocks ) do
-        local inputBuffer = block.Samples
-
+        section.Print( "Block ", blockIndex, ", Initial Predictor: ", block.InitialPredictor, ", Initial Index: ", block.InitialIndex )
         -- Mono
         if channelCount == 1 then
-            outputBuffer[#outputBuffer+1] = LIB.DecodeImaAdpcmSamples( inputBuffer, block.InitialPredictor, block.InitialIndex )
+            outputBuffer[#outputBuffer+1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
 
         -- Stereo
         else
             -- Pull channels apart
-            local leftEncodedSamples, rightEncodedSamples = LIB.DeinterleaveImaData( inputBuffer )
+            local leftEncodedSamples, rightEncodedSamples = LIB.DeinterleaveImaData( block.Samples )
 
             -- Decode channels
             local leftDecodedSamples = LIB.DecodeImaAdpcmSamples( leftEncodedSamples, block.InitialPredictor, block.InitialIndex )
@@ -218,99 +225,108 @@ function LIB.DecodeWave( waveFile )
     end
 
     local decodedSamples = table.concat( outputBuffer )
-
     return decodedSamples
 end
 
---- @class ImaAdpcmDecoderState
---- @field predictedSample integer
---- @field stepSizeIndex integer
-
---- @param byte integer
-function LIB.DecodeByte( byte, decoderState )
-    
-end
-
-
-
---- @param samples string
----@param startingPrediction integer
----@param startingIndex integer
+--- @private
+--- @param sampleBytes string
+--- @param initialPredictor integer
+--- @param initialIndex integer
 --- @return string
-function LIB.DecodeImaAdpcmSamples( samples, startingPrediction, startingIndex )
+function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex )
     local outputBuffer = {}
-    local sign
-    local delta
-    local step
-    local predictedValue
-    local predictedValueDelta
 
-    local index
-    local inputBuffer
-
+    --- @type ImaAdpcmDecoderState
     local state = {
-        previousValue = 0,
-        index = 0
+        previousPredictedSample = initialPredictor,
+        previousStepSizeIndex = initialIndex
     }
-    inputBuffer = 0
 
-    predictedValue = startingPrediction --state.previousValue
-    index = startingIndex --state.index
-    step = LIB.StepSizeTable[index + 1]
+    local codedByteIndexCountToPrint = 4
 
-    local bufferStep = false
+    for codedByteIndex = 1, sampleBytes:len() do
+        local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
 
-    for sampleIndex = 1, samples:len() do
+        local shouldPrintCodedIndex = codedByteIndex <= codedByteIndexCountToPrint or codedByteIndex > sampleBytes:len() - codedByteIndexCountToPrint
 
-        -- "Step 1 - Get the delta value"
-        if bufferStep then
-            delta = bit.band( inputBuffer, 0xF )
-        else
-            inputBuffer = ( string.byte( samples, sampleIndex, sampleIndex ) )
+        local debugText = "Byte " .. codedByteIndex .. ": " .. textUtils.Hex( sampleBytes:sub( codedByteIndex, codedByteIndex ) ) .. " ("
 
-            delta = bit.band( bit.rshift( inputBuffer, 4 ), 0xF )
-        end
-        bufferStep = not bufferStep
+        for nibbleIndex = 1, 2 do
+            -- Get the coded 4 bit sample from this coded sample
+            -- Note that nibble order here is: n1n0 n3n2 n5n4 ...
+            local codedSample
+            if nibbleIndex == 1 then
+                codedSample = bit.band( codedByte, 0xF )
+            else
+                codedSample = bit.band( bit.rshift( codedByte, 4 ), 0xF )
+            end
 
-        -- "Step 2 - Find new index value (for later)"
-        index = index + LIB.IndexTable[delta + 1]
-        if index < 0 then index = 0 end
-        if index > 88 then index = 88 end
+            debugText = debugText ..  "N" .. nibbleIndex .. ": " .. textUtils.Hex( string.char( codedSample ) )
+            if nibbleIndex == 1 then debugText = debugText .. " " end
 
-        -- "Step 3 - Separate sign and magnitude"
-        sign = bit.band( delta, 8 )
-        delta = bit.band( delta, 7 )
+            local decodedSample = LIB.DecodeImaAdpcmByte( codedSample, state )
 
-        -- "Step 4 - Compute difference and new predicted value"
-        predictedValueDelta = bit.rshift( step, 3 )
-        if bit.band( delta, 4 ) ~= 0 then predictedValueDelta = predictedValueDelta + step end
-        if bit.band( delta, 2 ) ~= 0 then predictedValueDelta = predictedValueDelta + bit.rshift( step, 1 ) end
-        if bit.band( delta, 1 ) ~= 0 then predictedValueDelta = predictedValueDelta + bit.rshift( step, 2 ) end
-
-        if sign ~= 0 then
-            predictedValue = predictedValue - predictedValueDelta
-        else
-            predictedValue = predictedValue + predictedValueDelta
+            local decodedLowByte = bit.band( decodedSample, 0xFF )
+            local decodedHighByte = bit.band( bit.rshift( decodedSample, 8 ), 0xFF )
+            outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
         end
 
-        -- "Step 5 - Clamp output value"
-        if predictedValue > 32767 then
-            predictedValue = 32767
-        elseif predictedValue < -32768 then
-            predictedValue = -32768
-        end
-
-        -- "Step 6 - Update step value"
-        step = LIB.StepSizeTable[index + 1]
-
-        -- "Step 7 - Output value"
-        local lowByte = bit.band( predictedValue, 0xFF )
-        local highByte = bit.band( bit.rshift( predictedValue, 8 ), 0xFF )
-
-        outputBuffer[#outputBuffer + 1] = string.char( highByte, lowByte )
+        debugText = debugText
+        .. ") -> "
+        .. textUtils.Hex( outputBuffer[#outputBuffer - 1] )
+        .. " "
+        .. textUtils.Hex( outputBuffer[#outputBuffer - 0] )
+        section.PrintWhen( shouldPrintCodedIndex, debugText )
+        section.PrintWhen( codedByteIndex == 6, "..." )
     end
 
+    section.Print()
+
 	return table.concat( outputBuffer )
+end
+
+--- @private
+--- @param code integer The 4-bit ADPCM data in sign-magnitude format
+--- @param state ImaAdpcmDecoderState The previous values of the predicted sample and quantizer step size index
+function LIB.DecodeImaAdpcmByte( code, state )
+    local predictedSample = state.previousPredictedSample
+    local index = state.previousStepSizeIndex
+
+    local step = LIB.StepSizeTable[index + 1]
+
+    local difference = bit.rshift( step, 3 )
+    if tobool( bit.band( code, 4 ) ) then
+        difference = difference + step
+    elseif tobool( bit.band( code, 2 ) ) then
+        difference = difference + bit.rshift( step, 1 )
+    elseif tobool( bit.band( code, 1 ) ) then
+        difference = difference + bit.rshift( step, 2 )
+    end
+
+    if tobool( bit.band( code, 8 ) ) then
+        predictedSample = predictedSample - difference
+    else
+        predictedSample = predictedSample + difference
+    end
+
+    if predictedSample > 32767 then
+        predictedSample = 32767
+    elseif predictedSample < -32768 then
+        predictedSample = -32768
+    end
+
+    index = index + LIB.IndexTable[ code + 1 ]
+
+    if index < 0 then
+        index = 0
+    elseif index > 88 then
+        index = 88
+    end
+
+    state.previousPredictedSample = predictedSample
+    state.previousStepSizeIndex = index
+
+    return predictedSample
 end
 
 

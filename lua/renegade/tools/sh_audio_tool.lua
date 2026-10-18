@@ -52,13 +52,15 @@ STATIC.DefaultFileName = "m00evan_dsgn0057i1evan_snd.wav"
 function STATIC.LoadFile( fileName )
     if STATIC.FileName == nil then return end
 
-    local file = fileFactoryClass.TheFileFactory:GetFile( fileName )
-    if file == nil or not file:IsAvailable() then
+    local wavFile = fileFactoryClass.TheFileFactory:GetFile( fileName )
+    if wavFile == nil or not wavFile:IsAvailable() then
         return
     end
 
     STATIC.LoadedSound = soundBufferClass.New()
     STATIC.LoadedSound:LoadFromFile( STATIC.FileName )
+
+    file.Write( "my_decompressed.txt", STATIC.LoadedSound.DecodedSamples )
 
     STATIC.PopulateFileInfo()
 end
@@ -77,8 +79,6 @@ function STATIC.PopulateFileInfo()
             continue
         end
 
-        section.Print( "Base Key ", key )
-
         local row = STATIC.Frame.FileProperties:CreateRow( "SoundBufferInstance", key )
 
         row:Setup( "Generic" )
@@ -90,8 +90,6 @@ function STATIC.PopulateFileInfo()
         if not istable( tbl ) then
             continue
         end
-
-        section.Print( "Table Key ", tableName )
 
         for k, v in pairs( tbl ) do
             local row = STATIC.Frame.FileProperties:CreateRow( tableName, k )
@@ -209,7 +207,7 @@ function STATIC.OpenTool()
     function STATIC.Frame.PlayButton:DoClick()
         section.Print( "Playing sound..." )
         local soundName = "a1_renegade_testsound" .. math.floor( CurTime() )
-        sound.Generate( soundName, STATIC.LoadedSound.Rate, STATIC.LoadedSound.Duration, STATIC.LoadedSound.Data )
+        sound.Generate( soundName, STATIC.LoadedSound.Rate, STATIC.LoadedSound.Duration, STATIC.LoadedSound.DecodedSamples )
         surface.PlaySound( soundName )
     end
 
