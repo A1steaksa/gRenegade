@@ -31,7 +31,7 @@ local isHotload = not table.IsEmpty( LIB )
 
 --- @class WaveFileLib
 
-LIB.IndexTable = { 0xFF,
+LIB.IndexTable = {
     -1, -1, -1, -1, 2, 4, 6, 8,
     -1, -1, -1, -1, 2, 4, 6, 8
 }
