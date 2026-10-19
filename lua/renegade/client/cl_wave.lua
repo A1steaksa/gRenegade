@@ -224,7 +224,7 @@ function LIB.DecodeWave( waveFile )
             -- Put channels back together
             local interleavedDecodedSamples = LIB.InterleaveStereo( leftDecodedSamples, rightDecodedSamples )
 
-            outputBuffer[#outputBuffer+1] = interleavedDecodedSamples
+            outputBuffer[#outputBuffer + 1] = interleavedDecodedSamples
         end
     end
 
