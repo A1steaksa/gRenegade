@@ -203,11 +203,6 @@ function LIB.DecodeWave( waveFile )
     local outputBuffer = {}
 
     for blockIndex, block in ipairs( waveFile.DataChunk.Blocks ) do
-
-        -- For debugging
-        LIB.CurrentBlockIndex = blockIndex
-        LIB.CurrentBlock = block
-
         -- Mono
         if channelCount == 1 then
             outputBuffer[#outputBuffer + 1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
@@ -253,17 +248,9 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
     end
 
     for codedByteIndex = 1, sampleBytes:len() do
-
         local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
 
-        -- For debugging
-        LIB.CurrentByteIndex = codedByteIndex
-        LIB.CurrentByte = codedByte
-
         for nibbleIndex = 1, 2 do
-            -- For debugging
-            LIB.CurrentNibbleIndex = nibbleIndex
-
             -- Get the coded 4 bit sample from this coded sample
             -- Note that nibble order here is: n1n0 n3n2 n5n4 ...
             local codedSample
@@ -272,9 +259,6 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
             else
                 codedSample = bit.band( bit.rshift( codedByte, 4 ), 0xF )
             end
-
-            -- For debugging
-            LIB.CurrentCodedSample = codedSample
 
             local decodedSample = LIB.DecodeImaAdpcmNibble( codedSample, state )
 
