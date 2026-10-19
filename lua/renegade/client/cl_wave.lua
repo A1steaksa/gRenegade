@@ -252,8 +252,6 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
         outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
     end
 
-    local codedByteIndexCountToPrint = 4
-
     for codedByteIndex = 1, sampleBytes:len() do
 
         local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
@@ -263,7 +261,6 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
         LIB.CurrentByte = codedByte
 
         for nibbleIndex = 1, 2 do
-
             -- For debugging
             LIB.CurrentNibbleIndex = nibbleIndex
 
@@ -292,45 +289,41 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
 	return table.concat( outputBuffer )
 end
 
+--- Credit to: https://gist.github.com/aquagoose/526a2d6bc829f39a01d29dc2de0b8146
 --- @private
---- @param code integer The 4-bit ADPCM data in sign-magnitude format
+--- @param nibble integer The 4-bit ADPCM data in sign-magnitude format
 --- @param state ImaAdpcmDecoderState The previous values of the predicted sample and quantizer step size index
-function LIB.DecodeImaAdpcmNibble( code, state )
+function LIB.DecodeImaAdpcmNibble( nibble, state )
     local predictedSample = state.previousPredictedSample
     local index = state.previousStepSizeIndex
 
     local step = LIB.StepSizeTable[index + 1]
 
-    local difference = bit.rshift( step, 3 )
-    if tobool( bit.band( code, 4 ) ) then
-        difference = difference + step
+    local sign = bit.band( nibble, 8 )
+    local delta = bit.band( nibble, 7 )
+    local diff = bit.rshift( step, 3 )
 
-    elseif tobool( bit.band( code, 2 ) ) then
-        difference = difference + bit.rshift( step, 1 )
-
-    elseif tobool( bit.band( code, 1 ) ) then
-        difference = difference + bit.rshift( step, 2 )
+    if bit.band( delta, 4 ) == 4 then
+        diff = diff + step
+    end
+    if bit.band( delta, 2 ) == 2 then
+        diff = diff + bit.rshift( step, 1 )
+    end
+    if bit.band( delta, 1 ) == 1 then
+        diff = diff + bit.rshift( step, 2 )
     end
 
-    if bit.band( code, 8 ) ~= 0 then
-        predictedSample = predictedSample - difference
+    if sign ~= 0 then
+        predictedSample = predictedSample - diff
     else
-        predictedSample = predictedSample + difference
+        predictedSample = predictedSample + diff
     end
 
-    if predictedSample > 32767 then
-        predictedSample = 32767
-    elseif predictedSample < -32768 then
-        predictedSample = -32768
-    end
+    predictedSample = math.Clamp( predictedSample, -32768, 32767 )
 
-    index = index + LIB.IndexTable[code + 1]
-
-    if index < 0 then
-        index = 0
-    elseif index > 88 then
-        index = 88
-    end
+    index = index + LIB.IndexTable[nibble + 1]
+    index = math.Clamp( index, 0, 88 )
+    step = LIB.StepSizeTable[index + 1]
 
     state.previousPredictedSample = predictedSample
     state.previousStepSizeIndex = index
