@@ -21,6 +21,7 @@ STATIC.Class = "DeserializeLib"
         UInt16  = enumBuilder:Next(),
         UInt8   = enumBuilder:Next(),
         Int     = enumBuilder:Next(),
+        Int16   = enumBuilder:Next(),
         ULong   = enumBuilder:Next(),
         Long    = enumBuilder:Next(),
         Float   = enumBuilder:Next(),
@@ -84,12 +85,13 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "UInt16",  fundamentalDataTypeEnum.UInt16,      0, 2,  STATIC.DeserializeUInt16  )
     STATIC.RegisterFundamentalDataType( "UInt8",   fundamentalDataTypeEnum.UInt8,       0, 1,  STATIC.DeserializeUInt8   )
     STATIC.RegisterFundamentalDataType( "Int",     fundamentalDataTypeEnum.Int,         0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "Int16",   fundamentalDataTypeEnum.Int16,       0, 2,  STATIC.DeserializeInt16   )
     STATIC.RegisterFundamentalDataType( "ULong",   fundamentalDataTypeEnum.ULong,       0, 4,  STATIC.DeserializeUInt32  )
     STATIC.RegisterFundamentalDataType( "Long",    fundamentalDataTypeEnum.Long,        0, 4,  STATIC.DeserializeInt32   )
     STATIC.RegisterFundamentalDataType( "Float",   fundamentalDataTypeEnum.Float,     0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Float32", fundamentalDataTypeEnum.Float32,   0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
-    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,   0, 4,  STATIC.DeserializeUInt32 )
+    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,     0, 4,  STATIC.DeserializeUInt32  )
 
     STATIC.RegisterComplexDataType( "Vector", {
         { Name = "X", DataType = fundamentalDataTypeEnum.Float },
@@ -420,7 +422,7 @@ end
     end
 
     --- @param bytes string
-    --- @return boolean
+    --- @return integer
     function STATIC.DeserializeUInt32( bytes )
         local b1, b2, b3, b4 = bytes:byte( 1, 4 )
         return (
@@ -437,7 +439,17 @@ end
         local unsignedInt = STATIC.DeserializeUInt32( bytes )
 
         if unsignedInt > 0x7FFFFFFF then
-            return ( unsignedInt - 0x100000000 )
+            return ( unsignedInt - 0x100000000 + 1 )
+        end
+
+        return unsignedInt
+    end
+
+    function STATIC.DeserializeInt16( bytes )
+        local unsignedInt = STATIC.DeserializeUInt16( bytes )
+
+        if unsignedInt > 0x7FFF then
+            return ( unsignedInt - 0x10000 + 1 )
         end
 
         return unsignedInt
