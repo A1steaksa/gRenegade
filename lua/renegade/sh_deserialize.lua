@@ -439,7 +439,7 @@ end
         local unsignedInt = STATIC.DeserializeUInt32( bytes )
 
         if unsignedInt > 0x7FFFFFFF then
-            return ( unsignedInt - 0x100000000 + 1 )
+            return ( unsignedInt - 0x100000000 )
         end
 
         return unsignedInt
@@ -449,7 +449,7 @@ end
         local unsignedInt = STATIC.DeserializeUInt16( bytes )
 
         if unsignedInt > 0x7FFF then
-            return ( unsignedInt - 0x10000 + 1 )
+            return ( unsignedInt - 0x10000 )
         end
 
         return unsignedInt
