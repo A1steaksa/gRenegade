@@ -323,7 +323,6 @@ function LIB.DecodeImaAdpcmNibble( nibble, state )
 
     index = index + LIB.IndexTable[nibble + 1]
     index = math.Clamp( index, 0, 88 )
-    step = LIB.StepSizeTable[index + 1]
 
     state.previousPredictedSample = predictedSample
     state.previousStepSizeIndex = index
