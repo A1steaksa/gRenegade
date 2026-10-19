@@ -114,9 +114,9 @@ function LIB.StaticConstructor()
     --- @field Reserved integer
     --- @field Samples string
     deserializeLib.RegisterComplexDataType( "ImaAdpcmEncodedDataBlock", {
-        { Name = "InitialPredictor",	DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "InitialIndex", DataType = fundamentalDataTypeEnum.UInt8 },
-        { Name = "Reserved", DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "InitialPredictor", DataType = fundamentalDataTypeEnum.Int16 },
+        { Name = "InitialIndex",     DataType = fundamentalDataTypeEnum.UInt8 },
+        { Name = "Reserved",         DataType = fundamentalDataTypeEnum.UInt8 },
         -- Samples field is omitted as its length is not fixed
     } )
 
@@ -203,10 +203,14 @@ function LIB.DecodeWave( waveFile )
     local outputBuffer = {}
 
     for blockIndex, block in ipairs( waveFile.DataChunk.Blocks ) do
-        section.Print( "Block ", blockIndex, ", Initial Predictor: ", block.InitialPredictor, ", Initial Index: ", block.InitialIndex )
+
+        -- For debugging
+        LIB.CurrentBlockIndex = blockIndex
+        LIB.CurrentBlock = block
+
         -- Mono
         if channelCount == 1 then
-            outputBuffer[#outputBuffer+1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
+            outputBuffer[#outputBuffer + 1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
 
         -- Stereo
         else
@@ -242,16 +246,27 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
         previousStepSizeIndex = initialIndex
     }
 
+    do -- The initial predictor is itself a sample so we need to add that to the output buffer 
+        local decodedLowByte = bit.band( initialPredictor, 0xFF )
+        local decodedHighByte = bit.band( bit.rshift( initialPredictor, 8 ), 0xFF )
+        outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
+    end
+
     local codedByteIndexCountToPrint = 4
 
     for codedByteIndex = 1, sampleBytes:len() do
+
         local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
 
-        local shouldPrintCodedIndex = codedByteIndex <= codedByteIndexCountToPrint or codedByteIndex > sampleBytes:len() - codedByteIndexCountToPrint
-
-        local debugText = "Byte " .. codedByteIndex .. ": " .. textUtils.Hex( sampleBytes:sub( codedByteIndex, codedByteIndex ) ) .. " ("
+        -- For debugging
+        LIB.CurrentByteIndex = codedByteIndex
+        LIB.CurrentByte = codedByte
 
         for nibbleIndex = 1, 2 do
+
+            -- For debugging
+            LIB.CurrentNibbleIndex = nibbleIndex
+
             -- Get the coded 4 bit sample from this coded sample
             -- Note that nibble order here is: n1n0 n3n2 n5n4 ...
             local codedSample
@@ -261,26 +276,18 @@ function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex 
                 codedSample = bit.band( bit.rshift( codedByte, 4 ), 0xF )
             end
 
-            debugText = debugText ..  "N" .. nibbleIndex .. ": " .. textUtils.Hex( string.char( codedSample ) )
-            if nibbleIndex == 1 then debugText = debugText .. " " end
+            -- For debugging
+            LIB.CurrentCodedSample = codedSample
 
-            local decodedSample = LIB.DecodeImaAdpcmByte( codedSample, state )
+            local decodedSample = LIB.DecodeImaAdpcmNibble( codedSample, state )
 
             local decodedLowByte = bit.band( decodedSample, 0xFF )
             local decodedHighByte = bit.band( bit.rshift( decodedSample, 8 ), 0xFF )
             outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
         end
-
-        debugText = debugText
-        .. ") -> "
-        .. textUtils.Hex( outputBuffer[#outputBuffer - 1] )
-        .. " "
-        .. textUtils.Hex( outputBuffer[#outputBuffer - 0] )
-        section.PrintWhen( shouldPrintCodedIndex, debugText )
-        section.PrintWhen( codedByteIndex == 6, "..." )
     end
 
-    section.Print()
+    -- section.Print()
 
 	return table.concat( outputBuffer )
 end
@@ -288,7 +295,7 @@ end
 --- @private
 --- @param code integer The 4-bit ADPCM data in sign-magnitude format
 --- @param state ImaAdpcmDecoderState The previous values of the predicted sample and quantizer step size index
-function LIB.DecodeImaAdpcmByte( code, state )
+function LIB.DecodeImaAdpcmNibble( code, state )
     local predictedSample = state.previousPredictedSample
     local index = state.previousStepSizeIndex
 
@@ -297,13 +304,15 @@ function LIB.DecodeImaAdpcmByte( code, state )
     local difference = bit.rshift( step, 3 )
     if tobool( bit.band( code, 4 ) ) then
         difference = difference + step
+
     elseif tobool( bit.band( code, 2 ) ) then
         difference = difference + bit.rshift( step, 1 )
+
     elseif tobool( bit.band( code, 1 ) ) then
         difference = difference + bit.rshift( step, 2 )
     end
 
-    if tobool( bit.band( code, 8 ) ) then
+    if bit.band( code, 8 ) ~= 0 then
         predictedSample = predictedSample - difference
     else
         predictedSample = predictedSample + difference
@@ -315,7 +324,7 @@ function LIB.DecodeImaAdpcmByte( code, state )
         predictedSample = -32768
     end
 
-    index = index + LIB.IndexTable[ code + 1 ]
+    index = index + LIB.IndexTable[code + 1]
 
     if index < 0 then
         index = 0
