@@ -226,6 +226,8 @@ function STATIC.OpenTool()
         STATIC.Height = STATIC.Frame:GetTall()
     end
 
+    STATIC.LoadFile( STATIC.FileName )
+
     return STATIC.Frame
 end
 
