@@ -123,9 +123,11 @@ function LIB.Import( path )
         end
 
         -- Call the post-load static constructor
-        if LIB.RunStaticConstructors[path] == nil and isfunction( tbl.StaticConstructor ) then
+        local staticConstructor = rawget( tbl, "StaticConstructor" )
+        if staticConstructor ~= nil and LIB.RunStaticConstructors[path] == nil and isfunction( staticConstructor ) then
             LIB.RunStaticConstructors[path] = true
-            tbl.StaticConstructor()
+
+            staticConstructor()
         end
     end
 
