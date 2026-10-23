@@ -30,9 +30,6 @@ STATIC.DefaultEntityDefinitions = {
     { PrintName = "Level 1 Keycard", ClassName = "p_key1", DefinitionId = 81950037 },
     { PrintName = "Level 2 Keycard", ClassName = "p_key2", DefinitionId = 81950038 },
     { PrintName = "Level 3 Keycard", ClassName = "p_key3", DefinitionId = 81950039 },
-
-    -- Special
-    -- { PrintName = "Data Disc", ClassName = "p_disc", DefinitionId = 81950099 }, -- Requires some kind of special vertex material mapper
 }
 
 --- @param printName string
