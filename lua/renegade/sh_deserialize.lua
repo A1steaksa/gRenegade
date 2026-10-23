@@ -75,6 +75,7 @@ STATIC.FundamentalDataTypeRegistry = STATIC.FundamentalDataTypeRegistry or {}
 --- @field Name string The name that will be used to reference to this data type
 --- @field Schema ComplexDataTypeSchema The layout of the complex data type
 --- @field Size integer The size, in bytes, of this data type
+--- @field PostLoadTransformationCallback (fun( name: string, loadedData: table ): any)? The callback used to transform this data type after it has loaded.  Returned values will replace the loaded data.
 
 --- @type table<string, ComplexDataTypeInfo>
 STATIC.ComplexDataTypeRegistry = STATIC.ComplexDataTypeRegistry or {}
@@ -93,11 +94,16 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
     STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,     0, 4,  STATIC.DeserializeUInt32  )
 
-    STATIC.RegisterComplexDataType( "Vector", {
-        { Name = "X", DataType = fundamentalDataTypeEnum.Float },
-        { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
-        { Name = "Z", DataType = fundamentalDataTypeEnum.Float },
-    } )
+    STATIC.RegisterComplexDataType( "Vector3",
+        {
+            { Name = "X", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "Z", DataType = fundamentalDataTypeEnum.Float },
+        },
+        function( name, loadedData )
+            return Vector( loadedData.X, loadedData.Y, loadedData.Z )
+        end
+    )
 end
 
 
@@ -120,13 +126,15 @@ end
 
     --- @param name string
     --- @param schema ComplexDataTypeSchema
-    function STATIC.RegisterComplexDataType( name, schema )
+    --- @param postLoadTransformationCallback ( fun( name: string, loadedData: table ): any )?
+    function STATIC.RegisterComplexDataType( name, schema, postLoadTransformationCallback )
         local size = STATIC.CalculateSchemaSize( schema )
 
         STATIC.ComplexDataTypeRegistry[name] = {
-            Name     = name,
-            Schema   = schema,
-            Size     = size
+            Name                           = name,
+            Schema                         = schema,
+            Size                           = size,
+            PostLoadTransformationCallback = postLoadTransformationCallback
         }
     end
 
@@ -402,6 +410,13 @@ end
 
                     result[schemaField.Name] = STATIC.Deserialize( schemaField.DataType, extractedBytes )
                 end
+            end
+        end
+
+        if registeryEntry.PostLoadTransformationCallback ~= nil then
+            local returnedResult = registeryEntry.PostLoadTransformationCallback( registeryEntry.Name, result )
+            if returnedResult ~= nil then
+                result = returnedResult
             end
         end
 
