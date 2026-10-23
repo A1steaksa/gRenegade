@@ -1,18 +1,20 @@
--- Based on SoundSceneObjClass within Code/WWAudio/SoundSceneObj.h
+-- Based on SoundSceneObjClass within Code/WWAudio/SoundScene.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
+--- @type PersistClass
+local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
 
---- @class SoundSceneObjectClass
+--- @class SoundSceneObjectClass : PersistClass
 --- @field Instance SoundSceneObjectInstance The metatable used by SoundSceneObjectInstance
 local STATIC = CNC.CreateExport()
 local isHotload = not table.IsEmpty( STATIC )
 STATIC.Class = "SoundSceneObjectClass"
 
---- @class SoundSceneObjectInstance
+--- @class SoundSceneObjectInstance : PersistInstance
 --- @field Static SoundSceneObjectClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_SoundSceneObject" )
+local INSTANCE = robustclass.Register( "Renegade_SoundSceneObject : Renegade_Persist" )
 INSTANCE.Class = "SoundSceneObjectInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
@@ -22,17 +24,49 @@ INSTANCE.IsSoundSceneObject = true
 --#endregion
 
 --#region Imports
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type PersistClass
+	local persistClass = CNC.Import( "code/wwsaveload/persist.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
+
+
+--[[ Chunk IDs ]] do
+
+	local enumBuilder = enumBuilderClass.New()
+
+	STATIC.ChunkIds = {
+		CHUNKID_VARIABLES	= enumBuilder:Set( 0x03270459 ),
+		CHUNKID_BASE_CLASS	= enumBuilder:Next(),
+	}
+
+	STATIC.VarIds = {
+		VARID_ATTACHED_OBJ	= enumBuilder:Set( 0x01 ),
+		VARID_ATTACHED_BONE	= enumBuilder:Next(),
+		VARID_USER_DATA		= enumBuilder:Next(),
+		VARID_USER_OBJ		= enumBuilder:Next(),
+		VARID_ID			= enumBuilder:Next(),
+	}
+end
+
 
 --[[ Static Functions and Variables ]] do
 
     --- @class SoundSceneObjectClass
-	--- @field MGlobalSoundList SoundSceneObjectInstance[]
-	--- @field MNextAvailableID Uint32Instance
-	--- @field MIdListMutex CriticalSectionInstance
+	--- @field GlobalSoundList SoundSceneObjectInstance[]
 
     --- Creates a new SoundSceneObjectInstance
     --- @return SoundSceneObjectInstance
@@ -66,9 +100,7 @@ end
 
 
 --- @class SoundSceneObjectInstance
---- @field Scene SoundSceneInstance
---- @field PhysicsWrapper SoundCullObjectInstance
---- @field PCallback AudioCallbackInstance
+--- @field Callback AudioCallbackInstance
 --- @field RegisteredEvents AudioCallbackClassEVENTSInstance
 --- @field Id integer
 --- @field AttachedObject RenderObjectInstance
@@ -104,13 +136,19 @@ function INSTANCE:AsAudibleSoundClass()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetId()
-	typecheck.NotImplementedError()
+--[[ Identification Methods ]] do
+
+	--- @return integer
+	function INSTANCE:GetId()
+		return self.Id
+	end
+
+	--- @param id integer
+	function INSTANCE:SetId( id )
+		typecheck.NotImplementedError()
+	end
 end
 
-function INSTANCE:SetId()
-	typecheck.NotImplementedError()
-end
 
 function INSTANCE:OnFrameUpdate()
 	typecheck.NotImplementedError()
@@ -128,7 +166,8 @@ function INSTANCE:RemoveCallback()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetPosition()
+--- @param pos Vector
+function INSTANCE:SetPosition( pos )
 	typecheck.NotImplementedError()
 end
 
@@ -215,8 +254,45 @@ function INSTANCE:Save()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Load()
-	typecheck.NotImplementedError()
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:Load( cload )
+	local varTable = { id = 0 }
+
+	while cload:OpenChunk() do
+
+		local id = cload:CurChunkId()
+
+		if id == STATIC.ChunkIds.CHUNKID_BASE_CLASS then
+			persistClass.Instance.Load( self, cload )
+
+		elseif id == STATIC.ChunkIds.CHUNKID_VARIABLES then
+			-- "Read all the variables from their micro-chunks"
+			while cload:OpenMicroChunk() do
+				local microChunkId = cload:CurMicroChunkId()
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_ATTACHED_OBJ, fundamentalDataTypeEnum.Pointer, self, "AttachedObject" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_ATTACHED_BONE, fundamentalDataTypeEnum.Int, self, "AttachedBone" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_USER_DATA, fundamentalDataTypeEnum.UInt32, self, "UserData" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_USER_OBJ, fundamentalDataTypeEnum.Pointer, self, "UserObject" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_ID, fundamentalDataTypeEnum.UInt32, self, "Id" )
+				cload:CloseMicroChunk()
+			end
+		end
+		cload:CloseChunk()
+	end
+
+	-- "Set the ID (this will cause the sound object to be re-inserted in the master sorted list)"
+	if varTable.id ~= 0 then
+		self:SetId( varTable.id )
+	end
+
+	-- Ommit setting an ID
+
+	if self.AttachedObject ~= nil then
+		typecheck.NotImplementedError()
+	end
+
+	return true
 end
 
 function INSTANCE:PeekCullableWrapper()

@@ -24,10 +24,83 @@ INSTANCE.IsAudibleSoundDefinition = true
 --#endregion
 
 --#region Imports
+
+	--- @type WWAudioClass
+	local wWAudioClass = CNC.Import( "code/wwaudio/ww-audio.lua" )
+
+	--- @type TextUtils
+	local textUtils = CNC.Import( "sh_text-utils.lua" )
+
+	--- @type SimplePersistFactoryClass
+	local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
+
+	--- @type SimpleDefinitionFactoryClass
+	local simpleDefinitionFactoryClass = CNC.Import( "code/wwsaveload/simple-definition-factory.lua" )
+
+	--- @type SoundChunkIds
+	local soundChunkIds = CNC.Import( "code/wwaudio/sound-chunk-ids.lua" )
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type AudibleSoundClass
+	local audibleSoundClass = CNC.Import( "code/wwaudio/audible-sound.lua" )
+
+	--- @type RenderObjectClass
+	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_IDS
+	local soundTypeEnum = audibleSoundClass.SOUND_TYPE
+	local renderObjectClassIdEnum = renderObjectClass.RENDER_OBJECT_CLASS_ID
+	local soundClassIdEnum = wWAudioClass.SOUND_CLASSID
 --#endregion
+
+
+--[[ Chunk IDs ]] do
+
+	local enumBuilder = enumBuilderClass.New()
+
+	STATIC.ChunkIds = {
+		CHUNKID_VARIABLES	= 0x00000100,
+		CHUNKID_BASE_CLASS	= 0x00000200,
+	}
+
+	STATIC.VarIds = {
+	VARID_UNUSED1			= enumBuilder:Set( 0x01 ),
+	VARID_UNUSED2			= enumBuilder:Next(),
+	VARID_PRIORITY			= enumBuilder:Next(),
+	VARID_VOLUME			= enumBuilder:Next(),
+	VARID_PAN				= enumBuilder:Next(),
+	VARID_LOOP_COUNT		= enumBuilder:Next(),
+	VARID_DROP_OFF			= enumBuilder:Next(),
+	VARID_MAX_VOL			= enumBuilder:Next(),
+	VARID_TYPE				= enumBuilder:Next(),
+	VARID_IS3D				= enumBuilder:Next(),
+	VARID_FILENAME			= enumBuilder:Next(),
+	VARID_DISPLAY_TEXT		= enumBuilder:Next(),
+	VARID_LOGICAL_MASK		= enumBuilder:Next(),
+	VARID_LOGICAL_DELAY		= enumBuilder:Next(),
+	VARID_CREATE_LOGICAL	= enumBuilder:Next(),
+	VARID_LOGICAL_DROP_OFF	= enumBuilder:Next(),
+	VARID_SPHERE_COLOR		= enumBuilder:Next(),
+	VARID_START_OFFSET		= enumBuilder:Next(),
+	VARID_PITCH_FACTOR		= enumBuilder:Next(),
+	VARID_PITCH_FACTOR_RND	= enumBuilder:Next(),
+	VARID_VOLUME_RND		= enumBuilder:Next(),
+	VARID_VIRTUAL_CHANNEL	= enumBuilder:Next(),
+	}
+end
+
 
 --[[ Static Functions and Variables ]] do
 
@@ -49,6 +122,11 @@ INSTANCE.IsAudibleSoundDefinition = true
     end
 
     typecheck.RegisterType( "AudibleSoundDefinitionInstance", STATIC.IsAudibleSoundDefinition )
+
+	function STATIC.StaticConstructor()
+        STATIC.AudibleSoundDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, soundChunkIdEnum.CHUNKID_SOUND_DEF, "Sound" )
+        STATIC.AudibleSoundDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, soundChunkIds.CLASSID_SOUND_DEF )
+    end
 end
 
 
@@ -63,7 +141,7 @@ end
 --- @field MaxVolRadius number
 --- @field Is3d boolean
 --- @field Filename string
---- @field Type integer
+--- @field Type SoundType
 --- @field DisplayText string
 --- @field StartOffset number
 --- @field PitchFactor number
@@ -75,45 +153,111 @@ end
 --- @field AttenuationSphereColor Vector
 
 function INSTANCE:Renegade_AudibleSoundDefinition()
-	typecheck.NotImplementedError()
+	self.Priority = 0.5
+	self.Volume = 1.0
+	self.Pan = 0.5
+	self.LoopCount = 1
+	self.DropOffRadius = 40.0
+	self.LogicalDropOffRadius = -1.0
+	self.MaxVolRadius = 20.0
+	self.Is3d = true
+	self.Type = soundTypeEnum.TYPE_SOUND_EFFECT
+	self.LogicalTypeMask = 0
+	self.LogicalNotifyDelay = 2
+	self.CreateLogical = false
+	self.AttenuationSphereColor = Vector( 0, 0.75, 0.75 )
+	self.StartOffset = 0
+	self.PitchFactor = 1.0
+	self.PitchFactorRandomizer = 0.0
+	self.VolumeRandomizer = 0.0
+	self.VirtualChannel = 0
 end
 
 function INSTANCE:_Renegade_AudibleSoundDefinition()
 	typecheck.NotImplementedError()
 end
 
+--- @return RenderObjectClassId
 function INSTANCE:GetClassId()
-	typecheck.NotImplementedError()
+	return renderObjectClassIdEnum.CLASSID_SOUND
 end
 
+--- @return PersistFactoryInstance
 function INSTANCE:GetFactory()
-	typecheck.NotImplementedError()
+	return STATIC.AudibleSoundDefinitionPersistFactory
 end
 
 function INSTANCE:Save()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Load()
-	typecheck.NotImplementedError()
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:Load( cload )
+	local returnValue = true
+
+	while cload:OpenChunk() do
+		local id = cload:CurChunkId()
+		if id == STATIC.ChunkIds.CHUNKID_VARIABLES then
+			returnValue = returnValue and self:LoadVariables( cload )
+		elseif id == STATIC.ChunkIds.CHUNKID_BASE_CLASS then
+			returnValue = returnValue and definitionClass.Instance.Load( self, cload )
+		end
+		cload:CloseChunk()
+	end
+
+	return returnValue
 end
 
+--- @return PersistInstance
 function INSTANCE:Create()
-	typecheck.NotImplementedError()
+	return self:CreateSound( soundClassIdEnum.CLASSID_3D )
 end
 
---- @param classIdHint integer
+--- @param classIdHint SoundClassId
 --- @return AudibleSoundInstance
 function INSTANCE:CreateSound( classIdHint )
-	typecheck.NotImplementedError()
+	local newSound
+
+	-- "If this is a relative path, strip it off and assume the current directory is set correctly."
+	local fileName = self.Filename
+	local slashIndex = textUtils.LastIndexOf( self.Filename, "\\" )
+	if slashIndex and #fileName > 2 and fileName:sub( 2, 2 ) == ":" then
+		fileName = fileName:sub( slashIndex + 1 )
+	end
+
+	-- "Should we create a 2D or 3D sound?"
+	if self.Is3d and classIdHint ~= soundClassIdEnum.CLASSID_2D then
+		newSound = wWAudioClass.GetInstance():Create3dSound( fileName, classIdHint )
+	else
+		newSound = wWAudioClass.GetInstance():CreateSoundEffect( fileName )
+	end
+
+	-- "Did we successfully create the sound?"
+	if newSound ~= nil then
+
+		-- "Configure the sound"
+		newSound:SetType( self.Type --[[@as SoundType]] )
+		newSound:SetPriority( self.Priority )
+
+		-- "Randomize the volume and pitch as necessary"
+
+		-- "Set the volume and pitch"
+
+
+		typecheck.NotImplementedError()
+	end
+
+	return newSound
 end
 
 function INSTANCE:InitializeFromSound()
 	typecheck.NotImplementedError()
 end
 
+--- @return string
 function INSTANCE:GetFilename()
-	typecheck.NotImplementedError()
+	return self.Filename
 end
 
 function INSTANCE:GetDisplayText()
@@ -196,6 +340,37 @@ function INSTANCE:SaveVariables()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:LoadVariables()
-	typecheck.NotImplementedError()
+--- @param cload ChunkLoadInstance
+--- @return boolean
+function INSTANCE:LoadVariables( cload )
+
+	-- "Loop through all the microchunks that define the variables"
+	while cload:OpenMicroChunk() do
+		local id = cload:CurMicroChunkId()
+
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PRIORITY, fundamentalDataTypeEnum.Float, self, "Priority" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_VOLUME, fundamentalDataTypeEnum.Float, self, "Volume" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PAN, fundamentalDataTypeEnum.Float, self, "Pan" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOOP_COUNT, fundamentalDataTypeEnum.Int, self, "LoopCount" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_DROP_OFF, fundamentalDataTypeEnum.Float, self, "DropOffRadius" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_MAX_VOL, fundamentalDataTypeEnum.Float, self, "MaxVolRadius" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_TYPE, fundamentalDataTypeEnum.Int, self, "Type" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_IS3D, fundamentalDataTypeEnum.Boolean, self, "Is3d" )
+		chunkIOClass.ReadMicroChunkString( cload, STATIC.VarIds.VARID_FILENAME, self, "Filename" )
+		chunkIOClass.ReadMicroChunkString( cload, STATIC.VarIds.VARID_DISPLAY_TEXT, self, "DisplayText" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_MASK, fundamentalDataTypeEnum.Int, self, "LogicalTypeMask" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_DELAY, fundamentalDataTypeEnum.Float, self, "LogicalNotifyDelay" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_CREATE_LOGICAL, fundamentalDataTypeEnum.Boolean, self, "CreateLogical" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_DROP_OFF, fundamentalDataTypeEnum.Float, self, "LogicalDropOffRadius" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_SPHERE_COLOR, "Vector", self, "AttenuationSphereColor" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_START_OFFSET, fundamentalDataTypeEnum.Float, self, "StartOffset" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PITCH_FACTOR, fundamentalDataTypeEnum.Float, self, "PitchFactor" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PITCH_FACTOR_RND, fundamentalDataTypeEnum.Float, self, "PitchFactorRandomizer" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_VOLUME_RND, fundamentalDataTypeEnum.Float, self, "VolumeRandomizer" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_VIRTUAL_CHANNEL, fundamentalDataTypeEnum.Int, self, "VirtualChannel" )
+
+		cload:CloseMicroChunk()
+	end
+
+	return true
 end

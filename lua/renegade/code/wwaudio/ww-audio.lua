@@ -18,6 +18,7 @@ INSTANCE.Static = STATIC
 INSTANCE.IsWWAudio = true
 
 --#region Exported Enums
+
 	--- @type EnumBuilderClass
 	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
@@ -37,6 +38,14 @@ INSTANCE.IsWWAudio = true
 	}
 	local soundClassIdEnum = STATIC.SOUND_CLASSID
 
+	--- @enum SoundPage
+	STATIC.SOUND_PAGE = {
+		PAGE_PRIMARY 	= enumBuilder:Set( 0 ),
+		PAGE_SECONDARY	= enumBuilder:Next(),
+		PAGE_TERTIARY	= enumBuilder:Next(),
+		PAGE_COUNT		= enumBuilder:Next(),
+	}
+	local soundPageEnum = STATIC.SOUND_PAGE
 --#endregion
 
 --#region Imports
@@ -46,11 +55,31 @@ INSTANCE.IsWWAudio = true
 
 	--- @type DefinitionClassIds
 	local definitionClassIds = CNC.Import( "code/wwsaveload/definition-class-ids.lua" )
+
+	--- @type AudibleSoundClass
+	local audibleSoundClass = CNC.Import( "code/wwaudio/audible-sound.lua" )
+
+	--- @type SoundBufferClass
+	local soundBufferClass = CNC.Import( "code/wwaudio/sound-buffer.lua" )
+
+	--- @type UnitConversionLib
+	local unitConversionLib = CNC.Import( "sh_unit-conversion.lua" )
+
+	--- @type SoundLib
+	local soundLib = CNC.Import( "sh_sound.lua" )
+
+	--- @type SoundSceneClass
+	local soundSceneClass = CNC.Import( "code/wwaudio/sound-scene.lua" )
+
+	--- @type ClassUtils
+	local classUtils = CNC.Import( "sh_class-utils.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local classIdEnum = definitionClassIds.CLASS_ID
+	local fadeTypeEnum = audibleSoundClass.FADE_TYPE
+	local soundTypeEnum = audibleSoundClass.SOUND_TYPE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -58,6 +87,23 @@ INSTANCE.IsWWAudio = true
     --- @class WWAudioClass
 	--- @field TheInstance WWAudioInstance
 	--- @field TimerSyncEvent HandleInstance
+
+	--- @type {[string]: SoundBufferInstance}
+	STATIC.LoadedSoundBuffers = {}
+
+	--[[ Default Values ]] do
+
+		STATIC.DEF_2D_SAMPLE_COUNT		= 16
+		STATIC.DEF_3D_SAMPLE_COUNT		= 16
+		STATIC.DEF_MUSIC_VOL			= 1.0
+		STATIC.DEF_SFX_VOL				= 1.0
+		STATIC.DEF_DIALOG_VOL			= 1.0
+		STATIC.DEF_CINEMATIC_VOL		= 1.0
+		STATIC.DEF_FADE_TIME			= 0.5
+		STATIC.DEF_CACHE_SIZE			= 1024
+		STATIC.DEF_MAX_2D_BUFFER_SIZE	= 20000
+		STATIC.DEF_MAX_3D_BUFFER_SIZE	= 100000
+	end
 
     --- Creates a new WWAudioInstance
     --- @return WWAudioInstance
@@ -75,6 +121,10 @@ INSTANCE.IsWWAudio = true
     end
 
     typecheck.RegisterType( "WWAudioInstance", STATIC.IsWWAudio )
+
+	function STATIC.StaticConstructor()
+		STATIC.TheInstance = STATIC.New()
+	end
 
 	--- @return WWAudioInstance
 	function STATIC.GetInstance()
@@ -100,66 +150,129 @@ end
 
 
 --- @class WWAudioInstance
---- @field MPlaybackRate integer
---- @field MPlaybackBits integer
---- @field MPlaybackStereo boolean
---- @field MMusicVolume number
---- @field MSoundVolume number
---- @field MRealMusicVolume number
---- @field MRealSoundVolume number
---- @field MDialogVolume number
---- @field MCinematicVolume number
---- @field MMax2dsAmples integer
---- @field MMax3dsAmples integer
---- @field MMax2dbUfferSize integer
---- @field MMax3dbUfferSize integer
---- @field MUpdateTimer HtimerInstance
---- @field MIsMusicEnabled boolean
---- @field MIsDialogEnabled boolean
---- @field MIsCinematicSoundEnabled boolean
---- @field MAreSoundEffectsEnabled boolean
---- @field MAreNewSoundsEnabled boolean
---- @field MFileFactory FileFactoryInstance
---- @field MBackgroundMusic AudibleSoundInstance
---- @field MBackgroundMusicName string
---- @field MCachedIsMusicEnabled boolean
---- @field MCachedIsDialogEnabled boolean
---- @field MCachedIsCinematicSoundEnabled boolean
---- @field MCachedAreSoundEffectsEnabled boolean
---- @field MEosCallbackList AudioCallbackListClassLPFNEOSCALLBACKInstance
---- @field MTextCallbackList AudioCallbackListClassLPFNTEXTCALLBACKInstance
---- @field MSoundScene SoundSceneInstance
---- @field MCurrPage SoundPageInstance
---- @field MPageStack SoundPageInstance[]
---- @field MDriver2d HdigdriverInstance
---- @field MDriver3d HproviderInstance
---- @field MDriver3dpSeudo HproviderInstance
---- @field MReverbFilter HproviderInstance
---- @field MDriver3dlIst DriverInfoStructInstance[]
---- @field MDriver3dnAme string
---- @field MSpeakerType integer
+--- @field PlaybackRate integer
+--- @field PlaybackBits integer
+--- @field PlaybackStereo boolean
+--- @field MusicVolume number
+--- @field SoundVolume number
+--- @field RealMusicVolume number
+--- @field RealSoundVolume number
+--- @field DialogVolume number
+--- @field CinematicVolume number
+--- @field Max2dSamples integer
+--- @field Max3dSamples integer
+--- @field Max2dbUfferSize integer
+--- @field Max3dBufferSize integer
+--- @field UpdateTimer HtimerInstance
+--- @field IsMusicEnabled boolean
+--- @field IsDialogEnabled boolean
+--- @field IsCinematicSoundEnabled boolean
+--- @field _AreSoundEffectsEnabled boolean
+--- @field AreNewSoundsEnabled boolean
+--- @field FileFactory FileFactoryInstance
+--- @field BackgroundMusic AudibleSoundInstance?
+--- @field BackgroundMusicName string?
+--- @field CachedIsMusicEnabled boolean
+--- @field CachedIsDialogEnabled boolean
+--- @field CachedIsCinematicSoundEnabled boolean
+--- @field CachedAreSoundEffectsEnabled boolean
+--- @field EosCallbackList {[integer]: fun( soundObject: SoundSceneObjectInstance, userParameters: integer )}
+--- @field TextCallbackList AudioCallbackListClassLPFNTEXTCALLBACKInstance
+--- @field SoundScene SoundSceneInstance
+--- @field CurrPage SoundPage
+--- @field PageStack SoundPage[]
+--- @field Driver2d HdigdriverInstance
+--- @field Driver3d HproviderInstance
+--- @field Driver3dpSeudo HproviderInstance
+--- @field ReverbFilter HproviderInstance
+--- @field Driver3dlIst DriverInfoStructInstance[]
+--- @field Driver3dnAme string
+--- @field SpeakerType integer
 --- @field M2dsAmpleHandles HsampleInstance[]
 --- @field M3dsAmpleHandles H3dsampleInstance[]
---- @field MPlaylist AudibleSoundInstance[]
---- @field MCompletedSounds AudibleSoundInstance[]
---- @field MVirtualChannels AudibleSoundInstance[]
---- @field MCachedBuffers CacheEntryStructInstance[]
---- @field MMaxCacheSize integer
---- @field MCurrentCacheSize integer
---- @field MLogicalTypes LogicalTypeStructInstance[]
---- @field MEffectsLevel number
---- @field MReverbRoomType integer
---- @field MNonDialogFadeTime number
---- @field MFadeType FadeTypeInstance
---- @field MFadeTimer number
+--- @field Playlist AudibleSoundInstance[][]
+--- @field CompletedSounds AudibleSoundInstance[]
+--- @field VirtualChannels AudibleSoundInstance[]
+--- @field CachedBuffers {[string]: SoundBufferInstance}
+--- @field MaxCacheSize integer
+--- @field CurrentCacheSize integer
+--- @field LogicalTypes LogicalTypeStructInstance[]
+--- @field EffectsLevel number
+--- @field ReverbRoomType integer
+--- @field NonDialogFadeTime number
+--- @field FadeType FadeType
+--- @field FadeTimer number
 --- @field AudioIni IniInstance
---- @field MForceDisable boolean
+--- @field ForceDisable boolean
 
 --- @param lite boolean? [Default: `false`]
 function INSTANCE:Renegade_WWAudio( lite )
 	if lite == nil then lite = false end
 
-	typecheck.NotImplementedError()
+	self.Driver2d = nil
+	self.Driver3d = nil
+	self.PlaybackRate = 44100
+	self.PlaybackBits = 16
+	self.PlaybackStereo = true
+	self.SpeakerType = 0
+	self.ReverbFilter = nil
+	self.UpdateTimer = -1
+	self.Driver3dpSeudo = nil
+	self.MusicVolume = STATIC.DEF_MUSIC_VOL
+	self.SoundVolume = STATIC.DEF_SFX_VOL
+	self.RealMusicVolume = STATIC.DEF_MUSIC_VOL
+	self.RealSoundVolume = STATIC.DEF_SFX_VOL
+	self.MaxCacheSize = STATIC.DEF_CACHE_SIZE * 1024
+	self.CurrentCacheSize = 0
+	self.Max2dSamples = STATIC.DEF_2D_SAMPLE_COUNT
+	self.Max3dSamples = STATIC.DEF_3D_SAMPLE_COUNT
+	self.Max2dbUfferSize = STATIC.DEF_MAX_2D_BUFFER_SIZE
+	self.Max3dBufferSize = STATIC.DEF_MAX_3D_BUFFER_SIZE
+	self.SoundScene = nil
+	self.IsMusicEnabled = true
+	self.IsDialogEnabled = true
+	self.IsCinematicSoundEnabled = true
+	self._AreSoundEffectsEnabled = true
+	self.FileFactory = nil
+	self.EffectsLevel = 0
+	self.CurrPage = soundPageEnum.PAGE_PRIMARY
+	self.AreNewSoundsEnabled = true
+	self.BackgroundMusic = nil
+	self.ReverbRoomType = ENVIRONMENT_GENERIC
+	self.NonDialogFadeTime = STATIC.DEF_FADE_TIME
+	self.FadeType = fadeTypeEnum.FADE_NONE
+	self.FadeTimer = 0
+	self.CachedIsMusicEnabled = true
+	self.CachedIsDialogEnabled = true
+	self.CachedIsCinematicSoundEnabled = true
+	self.CachedAreSoundEffectsEnabled = true
+	self.AudioIni = nil
+
+	self.Playlist = {}
+	for i = 1, soundPageEnum.PAGE_COUNT do
+		self.Playlist[i] = {}
+	end
+
+	self.ForceDisable = lite
+
+	-- Omitting Miles startup
+
+	STATIC.TheInstance = self
+	-- Omitted timer sync event
+
+	-- "Set some default values"
+	self:SetSoundEffectsVolume()
+	self:SetMusicVolume()
+
+	-- "Allocate the virtual channels"
+	self.VirtualChannels = {}
+
+	-- "Create a new sound scene to manage our 3D sounds..."
+	if not lite then
+		self.SoundScene = soundSceneClass.New()
+	end
+
+	self.Max3dBufferSize = self.Max3dBufferSize * 2.0
 end
 
 function INSTANCE:_Renegade_WWAudio()
@@ -183,7 +296,8 @@ function INSTANCE:Initialize( ... )
 
 	-- ( registrySubkeyName: string )
 	if isstring( args[1] ) then
-		typecheck.NotImplementedError()
+
+		-- I don't think any of this actually applies to Lua...
 
 	-- ( stereo: boolean?, bits: integer?, hertz: integer? )
 	else
@@ -191,7 +305,7 @@ function INSTANCE:Initialize( ... )
 		local bits   = args[2] or 16
 		local hertz  = args[3] or 44100
 
-		typecheck.NotImplementedError()
+		-- I don't think any of this actually applies to Lua...
 	end
 end
 
@@ -323,16 +437,30 @@ function INSTANCE:SetReverbRoomType()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetSoundEffectsVolume()
-	typecheck.NotImplementedError()
+--- @param volume number? [Default: `STATIC.DEF_SFX_VOL`]
+function INSTANCE:SetSoundEffectsVolume( volume )
+	if volume == nil then volume = STATIC.DEF_SFX_VOL end
+
+	self.RealSoundVolume = volume
+	self.RealSoundVolume = math.min( 1.0, self.RealSoundVolume )
+	self.RealSoundVolume = math.max( 0.0, self.RealSoundVolume )
+
+	self:InternalSetSoundEffectsVolume( self.RealSoundVolume )
 end
 
 function INSTANCE:GetSoundEffectsVolume()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetMusicVolume()
-	typecheck.NotImplementedError()
+--- @param volume number? [Default: `STATIC.DEF_MUSIC_VOL`]
+function INSTANCE:SetMusicVolume( volume )
+	if volume == nil then volume = STATIC.DEF_MUSIC_VOL end
+
+	self.RealMusicVolume = volume
+	self.RealMusicVolume = math.min( 1.0, self.RealMusicVolume )
+	self.RealMusicVolume = math.max( 0.0, self.RealMusicVolume )
+
+	self:InternalSetMusicVolume( self.RealMusicVolume )
 end
 
 function INSTANCE:GetMusicVolume()
@@ -427,37 +555,67 @@ function INSTANCE:IsSoundCached()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:CreateSoundEffect()
-	typecheck.NotImplementedError()
+--- @param file FileInstance
+--- @param stringId string
+--- @return AudibleSoundInstance
+function INSTANCE:CreateSoundEffect( file, stringId )
+
+	-- "Create a new sound object"
+	local soundObject = audibleSoundClass.New()
+	if self:IsDisabled() == false then
+		-- "Try to find the buffer in our cache, otherwise create a new buffer."
+		local buffer = self:GetSoundBuffer( file, stringId, false )
+
+		-- "Pass the actual sound data onto the sound object"
+	end
+
+	-- "Return a pointer to the sound effect"
+	return soundObject
 end
 
-function INSTANCE:CreateSoundEffect()
-	typecheck.NotImplementedError()
-end
 
+--- @return Sound3dInstance
 function INSTANCE:Create3dSound()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Create3dSound()
-	typecheck.NotImplementedError()
+--[[ Background Music Support ]] do
+
+	--- @param fileName string?
+	function INSTANCE:SetBackgroundMusic( fileName )
+		if self.BackgroundMusic ~= nil then
+			self.BackgroundMusic:Stop()
+		end
+
+		self.BackgroundMusicName = fileName
+		if fileName ~= nil then
+			-- "Create the sound"
+			self.BackgroundMusic = self:CreateSoundEffect( fileName )
+			if self.BackgroundMusic ~= nil then
+				-- "Configure the sound and start playing it"
+				self.BackgroundMusic:SetPriority( 1.0 )
+				self.BackgroundMusic:SetRuntimePriority( 1.0 )
+				self.BackgroundMusic:SetLoopCount( INFINITE_LOOPS )
+				self.BackgroundMusic:SetType( audibleSoundClass.SOUND_TYPE.TYPE_MUSIC )
+				self.BackgroundMusic:CullSound( false )
+				self.BackgroundMusic:Play()
+			end
+		end
+	end
+
+	function INSTANCE:FadeBackgroundMusic()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:GetBackgroundMusicName()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:PeekBackgroundMusic()
+		typecheck.NotImplementedError()
+	end
 end
 
-function INSTANCE:SetBackgroundMusic()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:FadeBackgroundMusic()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetBackgroundMusicName()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:PeekBackgroundMusic()
-	typecheck.NotImplementedError()
-end
 
 function INSTANCE:CreateLogicalSound()
 	typecheck.NotImplementedError()
@@ -483,20 +641,76 @@ function INSTANCE:GetLogicalType()
 	typecheck.NotImplementedError()
 end
 
---- @param definitionId integer
---- @param transformationMatrix Matrix3dInstance
+--- @param definitionId integer|string
+--- @param transform Matrix3dInstance|Vector
 --- @param userObject any
 --- @param userData integer
 --- @param classIdHint integer
-function INSTANCE:CreateInstantSound( definitionId, transformationMatrix, userObject, userData, classIdHint )
-	
-	local soundId = 0
+function INSTANCE:CreateInstantSound( definitionId, transform, userObject, userData, classIdHint )
 
-	-- "Create an instance of the sound and play it"
-	local sound = self:CreateSound( definitionId, userObject, userData, classIdHint )
-	if sound ~= nil then
-		
+	-- Omitting this function's original contents to try to use Source's audio system early
+
+	section.Print( "Creating sound for ", type( definitionId ), " definition ID ", definitionId )
+
+	local definition
+	if isstring( definition ) then
+		--- @cast definitionId string
+		definition = definitionManagerClass.FindTypedDefinition( definitionId, classIdEnum.SOUND, true )
+	else
+		--- @cast definitionId integer
+		definition = definitionManagerClass.FindDefinition( definitionId )
 	end
+	assert( definition ~= nil )
+
+	local pos
+	if isvector( transform ) then
+		--- @cast transform Vector
+		pos = transform
+	else
+		--- @cast transform Matrix3dInstance
+		pos = transform:GetTranslation()
+	end
+
+	if SERVER then
+		soundLib.PlaySound( definition.Id, pos, classIdHint )
+	else
+		-- "Make sure this is really a sound definition"
+		assert( definition:GetClassId() == classIdEnum.SOUND )
+		if definition:GetClassId() == classIdEnum.SOUND then
+			local soundDefinition = definition --[[@as AudibleSoundDefinitionInstance]]
+
+			local fileName = soundDefinition:GetFilename()
+			local soundName = "Renegade_" .. fileName
+
+			if STATIC.LoadedSoundBuffers[fileName] == nil then
+				local soundBuffer = soundBufferClass.New()
+				soundBuffer:LoadFromFile( fileName )
+				STATIC.LoadedSoundBuffers[fileName] = soundBuffer
+				sound.Generate( soundName, soundBuffer.Rate, soundBuffer.Duration, soundBuffer.DecodedSamples )
+			end
+
+			-- How far the sound should be heard in decibels
+			-- Needs some kind of 
+			local level = math.Clamp(
+				soundDefinition.DropOffRadius * unitConversionLib.MetersToSource,
+				20, 180
+			)
+
+			section.Print( "Level is ", level )
+
+			local pitch = 100 --soundDefinition:GetPitchFactor()
+			local volume = 1 --soundDefinition:GetVolume()
+			local dsp = 0
+
+			sound.Play( soundName, pos, level, pitch, volume, dsp )
+		end
+	end
+
+	if definition ~= nil then
+	end
+
+	-- Omitting return value here because nothing seems to really be using it
+	-- Scripts may use it, but nothing else does at this point and a return value here complicates the Renegade -> Source step
 end
 
 function INSTANCE:CreateContinuousSound()
@@ -546,25 +760,30 @@ function INSTANCE:FindSoundObject()
 	typecheck.NotImplementedError()
 end
 
+--- @return SoundSceneInstance
 function INSTANCE:GetSoundScene()
-	typecheck.NotImplementedError()
+	return self.SoundScene
 end
 
-function INSTANCE:SetCacheSize()
-	typecheck.NotImplementedError()
+--[[ Cache Methods ]] do
+
+	function INSTANCE:SetCacheSize()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:GetCacheSize()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:GetCurrentCacheSize()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:FlushCache()
+		typecheck.NotImplementedError()
+	end
 end
 
-function INSTANCE:GetCacheSize()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetCurrentCacheSize()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:FlushCache()
-	typecheck.NotImplementedError()
-end
 
 function INSTANCE:SetMax2dSoundBuffer()
 	typecheck.NotImplementedError()
@@ -582,8 +801,34 @@ function INSTANCE:AddToPlaylist()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:RemoveFromPlaylist()
-	typecheck.NotImplementedError()
+--- @param soundObject AudibleSoundInstance
+--- @return boolean
+function INSTANCE:RemoveFromPlaylist( soundObject )
+	local returnValue = false
+
+	if soundObject ~= nil then
+		-- "Loop through all the entries in the playlist"
+		for page = 1, soundPageEnum.PAGE_COUNT do
+			if returnValue == true then break end
+
+			for index = 1, #self.Playlist[page] do
+				if returnValue == true then break end
+				-- "Is this the entry we are looking for?"
+				if tobool( soundObject == self.Playlist[page][index] ) then
+					-- "Add this sound to the 'completed' list"
+					self.CompletedSounds[#self.CompletedSounds + 1] = soundObject
+					returnValue = true
+				end
+			end
+		end
+
+		-- "Notify any callbacks that this sound is ending..."
+		if soundObject:GetLoopCount() ~= audibleSoundClass.INFINITE_LOOPS then
+			typecheck.NotImplementedError()
+		end
+	end
+
+	return returnValue
 end
 
 function INSTANCE:GetPlaylistCount()
@@ -646,8 +891,19 @@ function INSTANCE:GetDigitalCpuPercent()
 	typecheck.NotImplementedError()
 end
 
+--- @return boolean
 function INSTANCE:IsDisabled()
-	typecheck.NotImplementedError()
+	STATIC._FirstTime = STATIC._FirstTime or true
+	STATIC._Disabled = STATIC._Disabled or false
+
+	if STATIC._FirstTime then
+		STATIC._FirstTime = false
+
+		-- "Read the disabled key from the registry"
+		-- Omitted reading from registry
+	end
+
+	return ( STATIC._Disabled or self.ForceDisable )
 end
 
 function INSTANCE:Get2dSampleCount()
@@ -746,23 +1002,54 @@ function INSTANCE:UpdateFade()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:InternalSetSoundEffectsVolume()
+--- @param volume number
+function INSTANCE:InternalSetSoundEffectsVolume( volume )
+	self.SoundVolume = math.Clamp( volume, 0.0, 1.0 )
+
+	-- "Update all the currently playing 'Sound Effects' to reflect this new volume"
+	for index = 1, #self.Playlist[self.CurrPage + 1] do
+		local soundObject = self.Playlist[self.CurrPage][index] --[[@as AudibleSoundInstance]]
+		if soundObject:GetType() == soundTypeEnum.TYPE_SOUND_EFFECT then
+			soundObject:UpdateVolume()
+		end
+	end
+end
+
+--- @param volume number
+function INSTANCE:InternalSetMusicVolume( volume )
+	self.MusicVolume = math.Clamp( volume, 0.0, 1.0 )
+
+	-- "Update all currently playing music to reflect this new volume"
+	for index = 1, #self.Playlist[self.CurrPage + 1] do
+		local soundObject = self.Playlist[self.CurrPage][index] --[[@as AudibleSoundInstance]]
+		if soundObject:GetType() == soundTypeEnum.TYPE_MUSIC then
+			soundObject:UpdateVolume()
+		end
+	end
+end
+
+--- @param file FileInstance
+--- @param stringId string
+--- @param is3d boolean
+--- @return SoundBufferInstance
+function INSTANCE:GetSoundBuffer( file, stringId, is3d )
+	-- "Try to find the buffer in our cache, otherwise create a new buffer."
+	local buffer = self:FindCachedBuffer( stringId )
+	if buffer == nil then
+		buffer = self:CreateSoundBuffer( file, stringId, is3d )
+	end
+
+	return buffer
+end
+
+--- @param stringId string
+--- @return SoundBufferInstance?
+function INSTANCE:FindCachedBuffer( stringId )
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:InternalSetMusicVolume()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetSoundBuffer()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:FindCachedBuffer()
-	typecheck.NotImplementedError()
-end
-
-function INSTANCE:CreateSoundBuffer()
+--- @return SoundBufferInstance
+function INSTANCE:CreateSoundBuffer(  )
 	typecheck.NotImplementedError()
 end
 

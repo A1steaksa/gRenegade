@@ -21,17 +21,65 @@ INSTANCE.Static = STATIC
 INSTANCE.IsAudibleSound = true
 
 --#region Exported Enums
+
+	--- @type EnumBuilderClass
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+
+	local enumBuilder = enumBuilderClass.New()
+
+	--- @enum SoundType
+	STATIC.SOUND_TYPE = {
+		TYPE_MUSIC 			= enumBuilder:Set( 0 ),
+		TYPE_SOUND_EFFECT	= enumBuilder:Next(),
+		TYPE_DIALOG			= enumBuilder:Next(),
+		TYPE_CINEMATIC		= enumBuilder:Next(),
+		TYPE_COUNT 			= enumBuilder:Next(),
+	}
+	local soundTypeEnum = STATIC.SOUND_TYPE
+
+	--- @enum SoundState
+	STATIC.SOUND_STATE = {
+		STATE_STOPPED 	= enumBuilder:Set( 0 ),
+		STATE_PLAYING	= enumBuilder:Next(),
+		STATE_PAUSED	= enumBuilder:Next(),
+		STATE_COUNT		= enumBuilder:Next(),
+	}
+	local soundStateEnum = STATIC.SOUND_STATE
+
+	--- @enum FadeType
+	STATIC.FADE_TYPE = {
+		FADE_NONE = enumBuilder:Set( 0 ),
+		FADE_IN = enumBuilder:Next(),
+		FADE_OUT = enumBuilder:Next(),
+	}
+	local fadeTypeEnum = STATIC.FADE_TYPE
 --#endregion
 
 --#region Imports
+
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+
+	--- @type WWAudioClass
+	local wWAudioClass = CNC.Import( "code/wwaudio/ww-audio.lua" )
+
+	--- @type SimplePersistFactoryClass
+	local simplePersistFactoryClass = CNC.Import( "code/wwsaveload/simple-persist-factory.lua" )
+
+	--- @type SoundChunkIds
+	local soundChunkIds = CNC.Import( "code/wwaudio/sound-chunk-ids.lua" )
 --#endregion
 
 --#region Imported Enums
+
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_IDS
 --#endregion
 
 --[[ Static Functions and Variables ]] do
 
     --- @class AudibleSoundClass
+
+	STATIC.INFINITE_LOOPS = 0
 
     --- Creates a new AudibleSoundInstance
     --- @return AudibleSoundInstance
@@ -49,42 +97,78 @@ INSTANCE.IsAudibleSound = true
     end
 
     typecheck.RegisterType( "AudibleSoundInstance", STATIC.IsAudibleSound )
+
+	function STATIC.StaticConstructor()
+        STATIC.AudibleSoundPersistFactory = simplePersistFactoryClass.New( STATIC, soundChunkIdEnum.CHUNKID_AUDIBLE_SOUND )
+    end
 end
 
-
 --- @class AudibleSoundInstance
---- @field MSoundHandle SoundHandleInstance
---- @field MTimestamp integer
---- @field MState SoundStateInstance
---- @field MType SoundTypeInstance
---- @field MFadeType FadeTypeInstance
---- @field MFadeTimer integer
---- @field MFadeTime integer
---- @field MVirtualChannel integer
---- @field MBuffer SoundBufferInstance
---- @field MRuntimePriority number
---- @field MPriority number
---- @field MVolume number
---- @field MRealVolume number
---- @field MPan number
---- @field MLoopCount integer
---- @field MLoopsLeft integer
---- @field MLength integer
---- @field MCurrentPosition integer
---- @field MStartOffset number
---- @field MPitchFactor number
---- @field MListenerTransform Matrix3dInstance
---- @field MTransform Matrix3dInstance
---- @field MPreviousTransform Matrix3dInstance
---- @field MIsCulled boolean
---- @field MBDirty boolean
---- @field MDropOffRadius number
---- @field MPConvertedFormat AudibleSoundInstance
---- @field MDefinition AudibleSoundDefinitionInstance
---- @field MLogicalSound LogicalSoundInstance
+--- @field SoundHandle CSoundPatch
+--- @field Timestamp integer
+--- @field State SoundState
+--- @field Type SoundType
+--- @field FadeType FadeType
+--- @field FadeTimer integer
+--- @field FadeTime integer
+--- @field VirtualChannel integer
+--- @field Buffer SoundBufferInstance
+--- @field RuntimePriority number
+--- @field Priority number
+--- @field Volume number
+--- @field RealVolume number
+--- @field Pan number
+--- @field LoopCount integer
+--- @field LoopsLeft integer
+--- @field Length integer
+--- @field CurrentPosition integer
+--- @field StartOffset number
+--- @field PitchFactor number
+--- @field ListenerTransform Matrix3dInstance
+--- @field Transform Matrix3dInstance
+--- @field PreviousTransform Matrix3dInstance
+--- @field IsCulled boolean
+--- @field Dirty boolean
+--- @field DropOffRadius number
+--- @field ConvertedFormat AudibleSoundInstance
+--- @field Definition AudibleSoundDefinitionInstance
+--- @field LogicalSound LogicalSoundInstance
 
-function INSTANCE:Renegade_AudibleSound()
-	typecheck.NotImplementedError()
+--- @param src AudibleSoundInstance?
+function INSTANCE:Renegade_AudibleSound( src )
+	self.Priority = 0.5
+	self.RuntimePriority = 0
+	self.SoundHandle = nil
+	self.Length = 0
+	self.CurrentPosition = 0
+	self.Timestamp = 0
+	self.State = soundStateEnum.STATE_STOPPED
+	self.Buffer = nil
+	self.Volume = 1.0
+	self.RealVolume = 1.0
+	self.Pan = 0.5
+	self.LoopCount = 1
+	self.LoopsLeft = 0
+	self.Type = soundTypeEnum.TYPE_SOUND_EFFECT
+	self.FadeType = fadeTypeEnum.FADE_NONE
+	self.FadeTimer = 0
+	self.FadeTime = 0
+	self.VirtualChannel = 0
+	self.Dirty = true
+	self.DropOffRadius = 1
+	self.IsCulled = true
+	self.ConvertedFormat = nil
+	self.PreviousTransform = matrix3dClass.New( true )
+	self.Transform = matrix3dClass.New( true )
+	self.ListenerTransform = matrix3dClass.New( true )
+	self.Definition = nil
+	self.LogicalSound = nil
+	self.StartOffset = 0
+	self.PitchFactor = 1.0
+
+	if src then
+		typecheck.NotImplementedError()
+	end
 end
 
 function INSTANCE:_Renegade_AudibleSound()
@@ -95,12 +179,14 @@ function INSTANCE:GetClassId()
 	typecheck.NotImplementedError()
 end
 
+--- @return SoundType
 function INSTANCE:GetType()
-	typecheck.NotImplementedError()
+	return self.Type
 end
 
-function INSTANCE:SetType()
-	typecheck.NotImplementedError()
+--- @param type SoundType
+function INSTANCE:SetType( type )
+	self.Type = type
 end
 
 function INSTANCE:AsAudibleSoundClass()
@@ -123,8 +209,36 @@ function INSTANCE:Resume()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:Stop()
-	typecheck.NotImplementedError()
+--- @param removeFromPlaylist boolean? [Default: `true`]
+function INSTANCE:Stop( removeFromPlaylist )
+	if removeFromPlaylist == nil then removeFromPlaylist = true end
+
+	-- "Assume failure"
+	local returnValue = false
+
+	if self.State == soundStateEnum.STATE_PAUSED or self.State == soundStateEnum.STATE_PLAYING then
+		-- "Actually stop the sample from playing"
+		if self.SoundHandle ~= nil then
+			self.SoundHandle:Stop()
+		end
+
+		-- "Free up the handle we have been using"
+		self:FreeMilesHandle()
+		self.State = soundStateEnum.STATE_STOPPED
+		returnValue = true
+
+		-- "Reset some of the playing attributes"
+		self.Timestamp = 0
+		self.CurrentPosition = 0
+
+		-- "Remove the sound from the current playlist"
+		if removeFromPlaylist then
+			wWAudioClass.GetInstance():RemoveFromPlaylist( self )
+		end
+
+	end
+
+	return returnValue
 end
 
 function INSTANCE:Seek()
@@ -191,8 +305,13 @@ function INSTANCE:GetLoopsLeft()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetLoopCount()
-	typecheck.NotImplementedError()
+--- @param count integer
+function INSTANCE:SetLoopCount( count )
+
+	-- "Cache the loop count"
+	self.LoopCount = count
+
+	-- Omitted setting the loop count in Miles
 end
 
 function INSTANCE:GetPriority()
@@ -263,23 +382,38 @@ function INSTANCE:SetListenerTransform()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetTransform()
-	typecheck.NotImplementedError()
+--- @param transform Matrix3dInstance
+function INSTANCE:SetTransform( transform )
+	-- "Update our internal transform"
+	self.PreviousTransform = self.Transform
+	self.Transform = transform
+	self:SetDirty()
 end
 
 function INSTANCE:GetTransform()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:CullSound()
-	typecheck.NotImplementedError()
+--- @param culled boolean
+function INSTANCE:CullSound( culled )
+	-- "Is our state changing?"
+	if culled ~= self.IsCulled then
+		self.IsCulled = culled
+
+		if self.IsCulled then
+			self:FreeMilesHandle()
+		else
+			self:AllocateMilesHandle()
+		end
+	end
 end
 
 function INSTANCE:IsSoundCulled()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:AddToScene()
+--- @param startPlaying boolean
+function INSTANCE:AddToScene( startPlaying )
 	typecheck.NotImplementedError()
 end
 
@@ -295,20 +429,29 @@ function INSTANCE:GetDropOffRadius()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetDirty()
-	typecheck.NotImplementedError()
+--[[ Update Methods ]] do
+
+	--- @param dirty boolean? [Default: `true`]
+	function INSTANCE:SetDirty( dirty )
+		if dirty == nil then dirty = true end
+
+		self.Dirty = dirty
+	end
+
+	--- @return boolean
+	function INSTANCE:IsDirty()
+		return self.Dirty
+	end
 end
 
-function INSTANCE:IsDirty()
-	typecheck.NotImplementedError()
-end
 
 function INSTANCE:SetDefinition()
 	typecheck.NotImplementedError()
 end
 
+--- @return AudibleSoundDefinitionInstance
 function INSTANCE:GetDefinition()
-	typecheck.NotImplementedError()
+	return self.Definition
 end
 
 function INSTANCE:ReSync()
@@ -375,16 +518,41 @@ function INSTANCE:AllocateMilesHandle()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetBuffer()
-	typecheck.NotImplementedError()
-end
+--[[ Buffer Information ]] do
 
-function INSTANCE:PeekBuffer()
-	typecheck.NotImplementedError()
-end
+	--- @return SoundBufferInstance
+	function INSTANCE:GetBuffer()
+		return self.Buffer
+	end
 
-function INSTANCE:SetBuffer()
-	typecheck.NotImplementedError()
+	--- @return SoundBufferInstance
+	function INSTANCE:PeekBuffer()
+		return self.Buffer
+	end
+
+	--- @param buffer SoundBufferInstance
+	function INSTANCE:SetBuffer( buffer )
+		self.Buffer = buffer
+
+		-- "Stop playing if necessary"
+		local resume = false
+		if self.State == soundStateEnum.STATE_PLAYING then
+			resume = self:Stop( false )
+		end
+
+		-- "Get the time (in ms) that this buffer will play for..."
+		if self.Buffer ~= nil then
+			self.Length = self.Buffer:GetDuration()
+		end
+
+		-- "Reinitialize the handle with this new data"
+		self:InitializeMilesHandle()
+
+		-- "Resume playing if necessary"
+		if resume then
+			self:Play()
+		end
+	end
 end
 
 function INSTANCE:RestartLoop()
