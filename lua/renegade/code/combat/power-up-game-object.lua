@@ -65,11 +65,11 @@ INSTANCE.IsPowerUpGameObject = true
 	--- @type Ww3dAssetManagerClass
 	local ww3dAssetManagerClass = CNC.Import( "code/ww3d2/ww3d-asset-manager.lua" )
 
-	--- @type SaveLoadSystemClass
-	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
-
 	--- @type GameObjectObserverClass
 	local gameObjectObserverClass = CNC.Import( "code/combat/game-object-observer.lua" )
+
+	--- @type WWAudioClass
+	local wWAudioClass = CNC.Import( "code/wwaudio/ww-audio.lua" )
 --#endregion
 
 
@@ -313,7 +313,7 @@ function INSTANCE:SetState( state )
 
             -- "Play the grant sound (if exists)"
             if self:GetDefinition().GrantSoundId ~= 0 then
-                -- wwAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
+                wWAudioClass.GetInstance():CreateInstantSound( self:GetDefinition().GrantSoundId, self:GetTransform() )
             end
 
             -- "Play the grant animation (if exists)"
@@ -337,7 +337,7 @@ function INSTANCE:UpdateState()
         -- "Start playing the idle sound"
         if self:GetDefinition().IdleSoundId ~= 0 then
             if self.IdleSoundObject == nil then
-                self.IdleSoundObject = wwAudioClass:GetInstance():CreateContinuousSound( self:GetDefinition().IdleSoundId )
+                self.IdleSoundObject = wWAudioClass:GetInstance():CreateContinuousSound( self:GetDefinition().IdleSoundId )
             end
             if self.IdleSoundObject ~= nil then
                 self.IdleSoundObject:SetTransform( self:GetTransform() )
