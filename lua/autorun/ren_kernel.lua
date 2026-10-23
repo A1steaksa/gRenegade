@@ -75,6 +75,7 @@ end
     include( "renegade/sh_convars.lua" )
     include( "renegade/sh_class-utils.lua" )
     include( "renegade/sh_entity-loader.lua" )
+    include( "renegade/sh_sound.lua" )
 
     -- Manually run some files that add to existing metatables
     include( "renegade/code/wwmath/vector3.lua" )
