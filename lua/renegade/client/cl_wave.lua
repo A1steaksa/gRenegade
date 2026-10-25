@@ -241,140 +241,183 @@ function LIB.InterleaveStereo( leftChannelSamples, rightChannelSamples )
     return table.concat( output )
 end
 
---- @param waveFile WaveFile
---- @return string
-function LIB.DecodeWave( waveFile )
-    local format = waveFile.FormatChunk.AudioFormat
-    if format == waveFormatEnum.WAVE_FORMAT_IMA_ADPCM then
-        return LIB.DecodeImaAdpcmWaveFile( waveFile --[[@as ImaAdpcmWaveFile]] )
-    elseif format == waveFormatEnum.WAVE_FORMAT_PCM then
-        typecheck.NotImplementedError()
-    else
-        section.Error( "Format ", format, " is not yet supported." )
-    end
-end
+--[[ Decoding Samples ]] do
 
---- @param waveFile ImaAdpcmWaveFile
---- @return string
-function LIB.DecodeImaAdpcmWaveFile( waveFile )
-    local channelCount = waveFile.FormatChunk.ChannelCount
-    if channelCount ~= 1 and channelCount ~= 2 then
-        section.Error( "Only mono and stereo WAVE files are supported.  Channel count was: ", channelCount )
-    end
-
-    local outputBuffer = {}
-
-    for blockIndex, block in ipairs( waveFile.DataChunk.Blocks ) do
-        -- Mono
-        if channelCount == 1 then
-            outputBuffer[#outputBuffer + 1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
-
-        -- Stereo
+    --- @param waveFile WaveFile
+    --- @return string
+    function LIB.DecodeWave( waveFile )
+        local format = waveFile.FormatChunk.AudioFormat
+        if format == waveFormatEnum.WAVE_FORMAT_IMA_ADPCM then
+            return LIB.DecodeImaAdpcmWaveFile( waveFile --[[@as ImaAdpcmWaveFile]] )
+        elseif format == waveFormatEnum.WAVE_FORMAT_PCM then
+            return LIB.DecodePcmWaveFile( waveFile --[[@as PcmWaveFile]] )
         else
-            -- Pull channels apart
-            local leftEncodedSamples, rightEncodedSamples = LIB.DeinterleaveImaData( block.Samples )
-
-            -- Decode channels
-            local leftDecodedSamples = LIB.DecodeImaAdpcmSamples( leftEncodedSamples, block.InitialPredictor, block.InitialIndex )
-            local rightDecodedSamples = LIB.DecodeImaAdpcmSamples( rightEncodedSamples, block.InitialPredictor, block.InitialIndex )
-
-            -- Put channels back together
-            local interleavedDecodedSamples = LIB.InterleaveStereo( leftDecodedSamples, rightDecodedSamples )
-
-            outputBuffer[#outputBuffer + 1] = interleavedDecodedSamples
+            section.Error( "Format ", format, " is not yet supported." )
         end
     end
 
-    local decodedSamples = table.concat( outputBuffer )
-    return decodedSamples
-end
+    --[[ PCM ]] do
 
---- @private
---- @param sampleBytes string
---- @param initialPredictor integer
---- @param initialIndex integer
---- @return string
-function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex )
-    local outputBuffer = {}
-
-    --- @type ImaAdpcmDecoderState
-    local state = {
-        previousPredictedSample = initialPredictor,
-        previousStepSizeIndex = initialIndex
-    }
-
-    do -- The initial predictor is itself a sample so we need to add that to the output buffer 
-        local decodedLowByte = bit.band( initialPredictor, 0xFF )
-        local decodedHighByte = bit.band( bit.rshift( initialPredictor, 8 ), 0xFF )
-        outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
-    end
-
-    for codedByteIndex = 1, sampleBytes:len() do
-        local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
-
-        for nibbleIndex = 1, 2 do
-            -- Get the coded 4 bit sample from this coded sample
-            -- Note that nibble order here is: n1n0 n3n2 n5n4 ...
-            local codedSample
-            if nibbleIndex == 1 then
-                codedSample = bit.band( codedByte, 0xF )
-            else
-                codedSample = bit.band( bit.rshift( codedByte, 4 ), 0xF )
+        --- @param waveFile PcmWaveFile
+        --- @return string
+        function LIB.DecodePcmWaveFile( waveFile )
+            local channelCount = waveFile.FormatChunk.ChannelCount
+            if channelCount ~= 1 and channelCount ~= 2 then
+                section.Error( "Only mono and stereo WAVE files are supported.  Channel count was: ", channelCount )
             end
 
-            local decodedSample = LIB.DecodeImaAdpcmNibble( codedSample, state )
+            -- 16 bit chunks are already in the format we need them in
+            if waveFile.FormatChunk.BitsPerSample == 16 then
+                return waveFile.DataChunk.Data
+            end
 
-            local decodedLowByte = bit.band( decodedSample, 0xFF )
-            local decodedHighByte = bit.band( bit.rshift( decodedSample, 8 ), 0xFF )
-            outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
+            local outputBuffer = {}
+
+            local data = waveFile.DataChunk.Data
+
+            for byteIndex = 1, #data do
+                local byteString = data:sub( byteIndex, byteIndex )
+                local unsignedByte = deserializeLib.DeserializeUInt8( byteString )
+                local signedSample = bit.lshift( ( unsignedByte - 0x80 ), 8 )
+
+                local decodedLowByte = bit.band( signedSample, 0xFF )
+                local decodedHighByte = bit.band( bit.rshift( signedSample, 8 ), 0xFF )
+                outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
+            end
+
+            local decodedSamples = table.concat( outputBuffer )
+            return decodedSamples
+        end
+
+    end
+
+
+    --[[ IMA ADPCM ]] do
+
+        --- @param waveFile ImaAdpcmWaveFile
+        --- @return string
+        function LIB.DecodeImaAdpcmWaveFile( waveFile )
+            local channelCount = waveFile.FormatChunk.ChannelCount
+            if channelCount ~= 1 and channelCount ~= 2 then
+                section.Error( "Only mono and stereo WAVE files are supported.  Channel count was: ", channelCount )
+            end
+
+            local outputBuffer = {}
+
+            for blockIndex, block in ipairs( waveFile.DataChunk.Blocks ) do
+                -- Mono
+                if channelCount == 1 then
+                    outputBuffer[#outputBuffer + 1] = LIB.DecodeImaAdpcmSamples( block.Samples, block.InitialPredictor, block.InitialIndex )
+
+                -- Stereo
+                else
+                    -- Pull channels apart
+                    local leftEncodedSamples, rightEncodedSamples = LIB.DeinterleaveImaData( block.Samples )
+
+                    -- Decode channels
+                    local leftDecodedSamples = LIB.DecodeImaAdpcmSamples( leftEncodedSamples, block.InitialPredictor, block.InitialIndex )
+                    local rightDecodedSamples = LIB.DecodeImaAdpcmSamples( rightEncodedSamples, block.InitialPredictor, block.InitialIndex )
+
+                    -- Put channels back together
+                    local interleavedDecodedSamples = LIB.InterleaveStereo( leftDecodedSamples, rightDecodedSamples )
+
+                    outputBuffer[#outputBuffer + 1] = interleavedDecodedSamples
+                end
+            end
+
+            local decodedSamples = table.concat( outputBuffer )
+            return decodedSamples
+        end
+
+        --- @private
+        --- @param sampleBytes string
+        --- @param initialPredictor integer
+        --- @param initialIndex integer
+        --- @return string
+        function LIB.DecodeImaAdpcmSamples( sampleBytes, initialPredictor, initialIndex )
+            local outputBuffer = {}
+
+            --- @type ImaAdpcmDecoderState
+            local state = {
+                previousPredictedSample = initialPredictor,
+                previousStepSizeIndex = initialIndex
+            }
+
+            do -- The initial predictor is itself a sample so we need to add that to the output buffer 
+                local decodedLowByte = bit.band( initialPredictor, 0xFF )
+                local decodedHighByte = bit.band( bit.rshift( initialPredictor, 8 ), 0xFF )
+                outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
+            end
+
+            for codedByteIndex = 1, sampleBytes:len() do
+                local codedByte = sampleBytes:byte( codedByteIndex, codedByteIndex )
+
+                for nibbleIndex = 1, 2 do
+                    -- Get the coded 4 bit sample from this coded sample
+                    -- Note that nibble order here is: n1n0 n3n2 n5n4 ...
+                    local codedSample
+                    if nibbleIndex == 1 then
+                        codedSample = bit.band( codedByte, 0xF )
+                    else
+                        codedSample = bit.band( bit.rshift( codedByte, 4 ), 0xF )
+                    end
+
+                    local decodedSample = LIB.DecodeImaAdpcmNibble( codedSample, state )
+
+                    local decodedLowByte = bit.band( decodedSample, 0xFF )
+                    local decodedHighByte = bit.band( bit.rshift( decodedSample, 8 ), 0xFF )
+                    outputBuffer[#outputBuffer + 1] = string.char( decodedLowByte, decodedHighByte )
+                end
+            end
+
+            -- section.Print()
+
+            return table.concat( outputBuffer )
+        end
+
+        --- Credit to: https://gist.github.com/aquagoose/526a2d6bc829f39a01d29dc2de0b8146
+        --- @private
+        --- @param nibble integer The 4-bit ADPCM data in sign-magnitude format
+        --- @param state ImaAdpcmDecoderState The previous values of the predicted sample and quantizer step size index
+        function LIB.DecodeImaAdpcmNibble( nibble, state )
+            local predictedSample = state.previousPredictedSample
+            local index = state.previousStepSizeIndex
+
+            local step = LIB.StepSizeTable[index + 1]
+
+            local sign = bit.band( nibble, 8 )
+            local delta = bit.band( nibble, 7 )
+            local diff = bit.rshift( step, 3 )
+
+            if bit.band( delta, 4 ) == 4 then
+                diff = diff + step
+            end
+            if bit.band( delta, 2 ) == 2 then
+                diff = diff + bit.rshift( step, 1 )
+            end
+            if bit.band( delta, 1 ) == 1 then
+                diff = diff + bit.rshift( step, 2 )
+            end
+
+            if sign ~= 0 then
+                predictedSample = predictedSample - diff
+            else
+                predictedSample = predictedSample + diff
+            end
+
+            predictedSample = math.Clamp( predictedSample, -32768, 32767 )
+
+            index = index + LIB.IndexTable[nibble + 1]
+            index = math.Clamp( index, 0, 88 )
+
+            state.previousPredictedSample = predictedSample
+            state.previousStepSizeIndex = index
+
+            return predictedSample
         end
     end
-
-    -- section.Print()
-
-	return table.concat( outputBuffer )
 end
 
---- Credit to: https://gist.github.com/aquagoose/526a2d6bc829f39a01d29dc2de0b8146
---- @private
---- @param nibble integer The 4-bit ADPCM data in sign-magnitude format
---- @param state ImaAdpcmDecoderState The previous values of the predicted sample and quantizer step size index
-function LIB.DecodeImaAdpcmNibble( nibble, state )
-    local predictedSample = state.previousPredictedSample
-    local index = state.previousStepSizeIndex
-
-    local step = LIB.StepSizeTable[index + 1]
-
-    local sign = bit.band( nibble, 8 )
-    local delta = bit.band( nibble, 7 )
-    local diff = bit.rshift( step, 3 )
-
-    if bit.band( delta, 4 ) == 4 then
-        diff = diff + step
-    end
-    if bit.band( delta, 2 ) == 2 then
-        diff = diff + bit.rshift( step, 1 )
-    end
-    if bit.band( delta, 1 ) == 1 then
-        diff = diff + bit.rshift( step, 2 )
-    end
-
-    if sign ~= 0 then
-        predictedSample = predictedSample - diff
-    else
-        predictedSample = predictedSample + diff
-    end
-
-    predictedSample = math.Clamp( predictedSample, -32768, 32767 )
-
-    index = index + LIB.IndexTable[nibble + 1]
-    index = math.Clamp( index, 0, 88 )
-
-    state.previousPredictedSample = predictedSample
-    state.previousStepSizeIndex = index
-
-    return predictedSample
-end
 
 
 --- @param bytes string
