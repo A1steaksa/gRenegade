@@ -55,116 +55,143 @@ LIB.StepSizeTable = {
 
 function LIB.StaticConstructor()
 
-    --- @class WaveFile
-    --- @field RiffHeader WaveHeaderChunk
-    --- @field FormatChunk WaveFormatChunk
+    --[[ WAVE File ]] do
 
-    --- "The header used by every chunk within a RIFF file (including the root chunk)"
-    --- @class ChunkHeader
-    --- @field ChunkId integer
-    --- @field ChunkSize integer
-    deserializeLib.RegisterComplexDataType( "ChunkHeader", {
-        { Name = "ChunkId", DataType = fundamentalDataTypeEnum.UInt32 },
-        { Name = "ChunkSize", DataType = fundamentalDataTypeEnum.UInt32 },
-    } )
+        --- @class WaveFile
+        --- @field RiffHeader WaveHeaderChunk
+        --- @field FormatChunk WaveFormatChunk|WaveFormatExChunk
 
-    --- @class WaveHeaderChunk
-    --- @field Header ChunkHeader
-    --- @field FileTypeChunkId integer
-    deserializeLib.RegisterComplexDataType( "WaveHeaderChunk", {
-        { Name = "Header", 			DataType = "ChunkHeader" },
-        { Name = "FileTypeChunkId", DataType = fundamentalDataTypeEnum.UInt32 }
-    } )
+        --- "The header used by every chunk within a RIFF file (including the root chunk)"
+        --- @class ChunkHeader
+        --- @field ChunkId integer
+        --- @field ChunkSize integer
+        deserializeLib.RegisterComplexDataType( "ChunkHeader", {
+            { Name = "ChunkId", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "ChunkSize", DataType = fundamentalDataTypeEnum.UInt32 },
+        } )
 
-    --- Credit: https://web.archive.org/web/20260116114137/https://wiki.multimedia.cx/index.php/WAVEFORMAT
-    --- @class WaveFormat
-    --- @field AudioFormat integer
-    --- @field ChannelCount integer
-    --- @field Frequency integer
-    --- @field BytesPerSecond integer
-    --- @field BytesPerBlock integer
-    --- @field BitsPerSample integer
-    deserializeLib.RegisterComplexDataType( "WaveFormat", {
-        -- Common Fields
-        { Name = "AudioFormat",    DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "ChannelCount",   DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "Frequency", 	  DataType = fundamentalDataTypeEnum.UInt32 },
-        { Name = "BytesPerSecond", DataType = fundamentalDataTypeEnum.UInt32 },
-        { Name = "BytesPerBlock",  DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "BitsPerSample",  DataType = fundamentalDataTypeEnum.UInt16 },
-    } )
+        --- @class WaveHeaderChunk
+        --- @field Header ChunkHeader
+        --- @field FileTypeChunkId integer
+        deserializeLib.RegisterComplexDataType( "WaveHeaderChunk", {
+            { Name = "Header", 			DataType = "ChunkHeader" },
+            { Name = "FileTypeChunkId", DataType = fundamentalDataTypeEnum.UInt32 }
+        } )
 
-    --- Credit: https://web.archive.org/web/20260116114137/https://wiki.multimedia.cx/index.php/WAVEFORMATEX
-    --- @class WaveFormatEx
-    --- @field AudioFormat integer
-    --- @field ChannelCount integer
-    --- @field Frequency integer
-    --- @field BytesPerSecond integer
-    --- @field BytesPerBlock integer
-    --- @field BitsPerSample integer
-    --- @field ExtraDataSize integer
-    --- @field ExtraData string
-    deserializeLib.RegisterComplexDataType( "WaveFormatEx", {
-        -- Common Fields
-        { Name = "AudioFormat",    DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "ChannelCount",   DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "Frequency", 	  DataType = fundamentalDataTypeEnum.UInt32 },
-        { Name = "BytesPerSecond", DataType = fundamentalDataTypeEnum.UInt32 },
-        { Name = "BytesPerBlock",  DataType = fundamentalDataTypeEnum.UInt16 },
-        { Name = "BitsPerSample",  DataType = fundamentalDataTypeEnum.UInt16 },
+        --- Credit: https://web.archive.org/web/20260116114137/https://wiki.multimedia.cx/index.php/WAVEFORMAT
+        --- @class WaveFormatChunk
+        --- @field Header ChunkHeader
+        --- @field AudioFormat integer
+        --- @field ChannelCount integer
+        --- @field Frequency integer
+        --- @field BytesPerSecond integer
+        --- @field BytesPerBlock integer
+        --- @field BitsPerSample integer
+        deserializeLib.RegisterComplexDataType( "WaveFormatChunk", {
+            { Name = "Header", DataType = "ChunkHeader" },
 
-        -- Format-Specific Fields
-        { Name = "ExtraDataSize",  DataType = fundamentalDataTypeEnum.UInt16 }
-        -- ExtraData field is omitted as its length is not fixed
-    } )
+            -- Common Fields
+            { Name = "AudioFormat",    DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "ChannelCount",   DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "Frequency", 	  DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "BytesPerSecond", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "BytesPerBlock",  DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "BitsPerSample",  DataType = fundamentalDataTypeEnum.UInt16 },
+        } )
+
+        --- Credit: https://web.archive.org/web/20260116114137/https://wiki.multimedia.cx/index.php/WAVEFORMATEX
+        --- @class WaveFormatExChunk
+        --- @field Header ChunkHeader
+        --- @field AudioFormat integer
+        --- @field ChannelCount integer
+        --- @field Frequency integer
+        --- @field BytesPerSecond integer
+        --- @field BytesPerBlock integer
+        --- @field BitsPerSample integer
+        --- @field ExtraDataSize integer
+        --- @field ExtraData string
+        deserializeLib.RegisterComplexDataType( "WaveFormatExChunk", {
+            { Name = "Header", DataType = "ChunkHeader" },
+
+            -- Common Fields
+            { Name = "AudioFormat",    DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "ChannelCount",   DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "Frequency", 	  DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "BytesPerSecond", DataType = fundamentalDataTypeEnum.UInt32 },
+            { Name = "BytesPerBlock",  DataType = fundamentalDataTypeEnum.UInt16 },
+            { Name = "BitsPerSample",  DataType = fundamentalDataTypeEnum.UInt16 },
+
+            -- Format-Specific Fields
+            { Name = "ExtraDataSize",  DataType = fundamentalDataTypeEnum.UInt16 }
+            -- ExtraData field is omitted as its length is not fixed
+        } )
+    end
+
+
+    --[[ IMA ADPCM WAVE File ]] do
+
+        --- @class WaveFactChunk
+        --- @field Header ChunkHeader
+        --- @field SampleCount integer
+        deserializeLib.RegisterComplexDataType( "WaveFactChunk", {
+            { Name = "Header", 		DataType = "ChunkHeader" },
+            { Name = "SampleCount", DataType = fundamentalDataTypeEnum.UInt32 }
+        } )
+
+        --- @class ImaAdpcmEncodedDataBlock
+        --- @field InitialPredictor integer
+        --- @field InitialIndex integer
+        --- @field Reserved integer
+        --- @field Samples string
+        deserializeLib.RegisterComplexDataType( "ImaAdpcmEncodedDataBlock", {
+            { Name = "InitialPredictor", DataType = fundamentalDataTypeEnum.Int16 },
+            { Name = "InitialIndex",     DataType = fundamentalDataTypeEnum.UInt8 },
+            { Name = "Reserved",         DataType = fundamentalDataTypeEnum.UInt8 },
+            -- Samples field is omitted as its length is not fixed
+        } )
+
+        --- @class ImaAdpcmWaveDataChunk
+        --- @field Header ChunkHeader
+        --- @field Blocks ImaAdpcmEncodedDataBlock[]
+        deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveDataChunk", {
+            { Name = "Header",	DataType = "ChunkHeader" },
+            -- Blocks field is omitted as its length is not fixed
+        } )
+
+        --- @class ImaAdpcmWaveFile : WaveFile
+        --- @field FactChunk WaveFactChunk
+        --- @field DataChunk ImaAdpcmWaveDataChunk
+        deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveFile", {
+            { Name = "WaveHeader",	DataType = "WaveHeaderChunk" },
+            { Name = "FormatChunk",	DataType = "WaveFormatExChunk" },
+            { Name = "FactChunk",	DataType = "WaveFactChunk" },
+            { Name = "DataChunk",	DataType = "ImaAdpcmWaveDataChunk" },
+        } )
+    end
+
+    --[[ PCM WAVE File ]] do
+
+        --- @class PcmWaveDataChunk
+        --- @field Header ChunkHeader
+        --- @field Data string
+        deserializeLib.RegisterComplexDataType( "PcmWaveDataChunk", {
+            { Name = "Header",	DataType = "ChunkHeader" },
+            -- Data field is omitted as its length is not fixed
+        } )
+
+        --- @class PcmWaveFile : WaveFile
+        --- @field DataChunk PcmWaveDataChunk
+        deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveFile", {
+            { Name = "WaveHeader",	DataType = "WaveHeaderChunk" },
+            { Name = "FormatChunk",	DataType = "WaveFormatChunk" },
+            { Name = "DataChunk",	DataType = "PcmWaveDataChunk" },
+        } )
+
+    end
 
 
 
-    --- @class WaveFormatChunk
-    --- @field Header ChunkHeader
-    --- @field Format WaveFormatEx
-    deserializeLib.RegisterComplexDataType( "WaveFormatChunk", {
-        { Name = "Header", DataType = "ChunkHeader" },
-        -- Format field is omitted as its length is not fixed
-    } )
 
-    --- @class WaveFactChunk
-    --- @field Header ChunkHeader
-    --- @field SampleCount integer
-    deserializeLib.RegisterComplexDataType( "WaveFactChunk", {
-        { Name = "Header", 		DataType = "ChunkHeader" },
-        { Name = "SampleCount", DataType = fundamentalDataTypeEnum.UInt32 }
-    } )
-
-    --- @class ImaAdpcmEncodedDataBlock
-    --- @field InitialPredictor integer
-    --- @field InitialIndex integer
-    --- @field Reserved integer
-    --- @field Samples string
-    deserializeLib.RegisterComplexDataType( "ImaAdpcmEncodedDataBlock", {
-        { Name = "InitialPredictor", DataType = fundamentalDataTypeEnum.Int16 },
-        { Name = "InitialIndex",     DataType = fundamentalDataTypeEnum.UInt8 },
-        { Name = "Reserved",         DataType = fundamentalDataTypeEnum.UInt8 },
-        -- Samples field is omitted as its length is not fixed
-    } )
-
-    --- @class ImaAdpcmWaveDataChunk
-    --- @field Header ChunkHeader
-    --- @field Blocks ImaAdpcmEncodedDataBlock[]
-    deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveDataChunk", {
-        { Name = "Header",	DataType = "ChunkHeader" },
-        -- Blocks field is omitted as its length is not fixed
-    } )
-
-    --- @class ImaAdpcmWaveFile : WaveFile
-    --- @field FactChunk WaveFactChunk
-    --- @field DataChunk ImaAdpcmWaveDataChunk
-    deserializeLib.RegisterComplexDataType( "ImaAdpcmWaveFile", {
-        { Name = "WaveHeader",	DataType = "WaveHeaderChunk" },
-        { Name = "FormatChunk",	DataType = "WaveFormatChunk" },
-        { Name = "FactChunk",	DataType = "WaveFactChunk" },
-        { Name = "DataChunk",	DataType = "ImaAdpcmWaveDataChunk" },
-    } )
 end
 
 --- @private
@@ -214,14 +241,23 @@ function LIB.InterleaveStereo( leftChannelSamples, rightChannelSamples )
     return table.concat( output )
 end
 
---- @param waveFile ImaAdpcmWaveFile
+--- @param waveFile WaveFile
 --- @return string
 function LIB.DecodeWave( waveFile )
-    if waveFile.FormatChunk.Format.AudioFormat ~= 0x11 then
-        section.Error( "Only format 0x11 (17) IMA ADPCM WAV is supported." )
+    local format = waveFile.FormatChunk.AudioFormat
+    if format == waveFormatEnum.WAVE_FORMAT_IMA_ADPCM then
+        return LIB.DecodeImaAdpcmWaveFile( waveFile --[[@as ImaAdpcmWaveFile]] )
+    elseif format == waveFormatEnum.WAVE_FORMAT_PCM then
+        typecheck.NotImplementedError()
+    else
+        section.Error( "Format ", format, " is not yet supported." )
     end
+end
 
-    local channelCount = waveFile.FormatChunk.Format.ChannelCount
+--- @param waveFile ImaAdpcmWaveFile
+--- @return string
+function LIB.DecodeImaAdpcmWaveFile( waveFile )
+    local channelCount = waveFile.FormatChunk.ChannelCount
     if channelCount ~= 1 and channelCount ~= 2 then
         section.Error( "Only mono and stereo WAVE files are supported.  Channel count was: ", channelCount )
     end
@@ -342,8 +378,11 @@ end
 
 
 --- @param bytes string
---- @return ImaAdpcmWaveFile
+--- @return WaveFile
 function LIB.DeserializeWaveFile( bytes )
+
+    file.Write( "wave_bytes.txt", bytes )
+
     local format = deserializeLib.DeserializeFundamentalDataType( fundamentalDataTypeEnum.UInt16, bytes:sub( 21, 22 ) )
 
     if format == waveFormatEnum.WAVE_FORMAT_IMA_ADPCM then
@@ -358,12 +397,6 @@ end
 --- @param bytes string
 --- @return PcmWaveFile
 function LIB.DeserializePcmWaveFile( bytes )
-    typecheck.NotImplementedError()
-end
-
---- @param bytes string
---- @return ImaAdpcmWaveFile
-function LIB.DeserializeImaAdpcmWaveFile( bytes )
     -- Wave Header Chunk
     local waveHeaderLength = deserializeLib.GetComplexDataTypeSize( "WaveHeaderChunk" )
     local waveHeaderBytes = bytes:sub( 1, waveHeaderLength )
@@ -378,18 +411,46 @@ function LIB.DeserializeImaAdpcmWaveFile( bytes )
     local formatChunk = deserializeLib.DeserializeComplexDataType( "WaveFormatChunk", formatChunkBytes )
     assert( formatChunk ~= nil )
 
-    -- Wave Format Chunk - Wave Format Ex
-    local waveFormatExLength = deserializeLib.GetComplexDataTypeSize( "WaveFormatEx" )
-    local waveFormatExBytes = bytes:sub( 1, waveFormatExLength )
-    bytes = bytes:sub( waveFormatExLength + 1 )
-    local waveFormatEx = deserializeLib.DeserializeComplexDataType( "WaveFormatEx", waveFormatExBytes )
-    assert( waveFormatEx ~= nil )
-    formatChunk.Format = waveFormatEx
+    -- PCM Wave Data Chunk
+    local dataChunkLength = deserializeLib.GetComplexDataTypeSize( "PcmWaveDataChunk" )
+    local dataChunkBytes = bytes:sub( 1, dataChunkLength )
+    bytes = bytes:sub( dataChunkLength + 1 )
+    local dataChunk = deserializeLib.DeserializeComplexDataType( "PcmWaveDataChunk", dataChunkBytes )
+    assert( dataChunk ~= nil )
 
-    -- Wave Format Chunk - Wave Format Ex - ExtraData
-    local extraData = bytes:sub( 1, waveFormatEx.ExtraDataSize )
-    bytes = bytes:sub( waveFormatEx.ExtraDataSize + 1 )
-    waveFormatEx.ExtraData = extraData
+    dataChunk.Data = bytes:sub( 1, dataChunk.Header.ChunkSize )
+
+    --- @type PcmWaveFile
+    local waveFile = {
+        RiffHeader = waveHeader,
+        FormatChunk = formatChunk,
+        DataChunk = dataChunk
+    }
+
+    return waveFile
+end
+
+--- @param bytes string
+--- @return ImaAdpcmWaveFile
+function LIB.DeserializeImaAdpcmWaveFile( bytes )
+    -- Wave Header Chunk
+    local waveHeaderLength = deserializeLib.GetComplexDataTypeSize( "WaveHeaderChunk" )
+    local waveHeaderBytes = bytes:sub( 1, waveHeaderLength )
+    bytes = bytes:sub( waveHeaderLength + 1 )
+    local waveHeader = deserializeLib.DeserializeComplexDataType( "WaveHeaderChunk", waveHeaderBytes )
+    assert( waveHeader ~= nil )
+
+    -- Wave Format Ex Chunk
+    local formatExChunkLength = deserializeLib.GetComplexDataTypeSize( "WaveFormatExChunk" )
+    local formatExChunkBytes = bytes:sub( 1, formatExChunkLength )
+    bytes = bytes:sub( formatExChunkLength + 1 )
+    local formatExChunk = deserializeLib.DeserializeComplexDataType( "WaveFormatExChunk", formatExChunkBytes )
+    assert( formatExChunk ~= nil )
+
+    -- Wave Format Ex Chunk - Wave Format Ex - ExtraData
+    local extraData = bytes:sub( 1, formatExChunk.ExtraDataSize )
+    bytes = bytes:sub( formatExChunk.ExtraDataSize + 1 )
+    formatExChunk.ExtraData = extraData
 
     -- Wave Fact Chunk
     local factChunkLength = deserializeLib.GetComplexDataTypeSize( "WaveFactChunk" )
@@ -408,7 +469,7 @@ function LIB.DeserializeImaAdpcmWaveFile( bytes )
     -- Wave Data Chunk - Blocks
     local encodedDataBlockLengthWithoutSamples = deserializeLib.GetComplexDataTypeSize( "ImaAdpcmEncodedDataBlock" )
     -- "Samples" field isn't included in the calculated size and needs to be added
-    local encodedDataBlockByteCount = formatChunk.Format.BytesPerBlock - 4
+    local encodedDataBlockByteCount = formatExChunk.BytesPerBlock - 4
     local encodedDataBlockLengthWithSamples = encodedDataBlockLengthWithoutSamples + encodedDataBlockByteCount
     local encodedDataBlockCount = dataChunk.Header.ChunkSize / encodedDataBlockLengthWithSamples
 
@@ -431,7 +492,7 @@ function LIB.DeserializeImaAdpcmWaveFile( bytes )
     --- @type ImaAdpcmWaveFile
     local waveFile = {
         RiffHeader = waveHeader,
-        FormatChunk = formatChunk,
+        FormatChunk = formatExChunk,
         FactChunk = factChunk,
         DataChunk = dataChunk
     }
