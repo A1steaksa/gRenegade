@@ -222,9 +222,11 @@ function INSTANCE:CreateSound( classIdHint )
 	-- "If this is a relative path, strip it off and assume the current directory is set correctly."
 	local fileName = self.Filename
 	local slashIndex = textUtils.LastIndexOf( self.Filename, "\\" )
-	if slashIndex and #fileName > 2 and fileName:sub( 2, 2 ) == ":" then
+	if slashIndex and #fileName > 2 then
 		fileName = fileName:sub( slashIndex + 1 )
 	end
+
+	section.Print( "Creating audible sound for file '", fileName, "'" )
 
 	-- "Should we create a 2D or 3D sound?"
 	if self.Is3d and classIdHint ~= soundClassIdEnum.CLASSID_2D then
@@ -239,13 +241,31 @@ function INSTANCE:CreateSound( classIdHint )
 		-- "Configure the sound"
 		newSound:SetType( self.Type --[[@as SoundType]] )
 		newSound:SetPriority( self.Priority )
+		newSound:SetLoopCount( self.LoopCount )
+		newSound:SetDropOffRadius( self.DropOffRadius )
+		newSound:SetDefinition( self )
+		newSound:SetStartOffset( self.StartOffset )
+		newSound:SetVirtualChannel( self.VirtualChannel )
 
 		-- "Randomize the volume and pitch as necessary"
+		local volume = self.Volume
+		if self.VolumeRandomizer ~= 0 then
+			volume = volume + math.Rand( -self.VolumeRandomizer, self.VolumeRandomizer )
+		end
+
+		local pitchFactor = self.PitchFactor
+		if self.PitchFactor ~= 0 then
+			pitchFactor = pitchFactor + math.Rand( -self.PitchFactorRandomizer, self.PitchFactorRandomizer )
+		end
 
 		-- "Set the volume and pitch"
+		newSound:SetVolume( volume )
+		newSound:SetPitchFactor( pitchFactor )
 
-
-		typecheck.NotImplementedError()
+		if newSound:AsSound3dClass() then
+			--- @cast newSound Sound3dInstance
+			newSound:SetMaxVolRadius( self.MaxVolRadius )
+		end
 	end
 
 	return newSound
