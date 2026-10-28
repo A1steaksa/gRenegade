@@ -124,8 +124,8 @@ end
     typecheck.RegisterType( "AudibleSoundDefinitionInstance", STATIC.IsAudibleSoundDefinition )
 
 	function STATIC.StaticConstructor()
-        STATIC.AudibleSoundDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, soundChunkIdEnum.CHUNKID_SOUND_DEF, "Sound" )
-        STATIC.AudibleSoundDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, soundChunkIds.CLASSID_SOUND_DEF )
+        STATIC.AudibleSoundDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, soundChunkIds.CLASSID_SOUND_DEF, "Sound" )
+        STATIC.AudibleSoundDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, soundChunkIdEnum.CHUNKID_SOUND_DEF )
     end
 end
 
