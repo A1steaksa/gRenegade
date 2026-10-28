@@ -149,7 +149,7 @@ end
 --- @field LogicalTypeMask integer
 --- @field LogicalNotifyDelay number
 --- @field LogicalDropOffRadius number
---- @field CreateLogical boolean
+--- @field _CreateLogical boolean
 --- @field AttenuationSphereColor Vector
 
 function INSTANCE:Renegade_AudibleSoundDefinition()
@@ -164,7 +164,7 @@ function INSTANCE:Renegade_AudibleSoundDefinition()
 	self.Type = soundTypeEnum.TYPE_SOUND_EFFECT
 	self.LogicalTypeMask = 0
 	self.LogicalNotifyDelay = 2
-	self.CreateLogical = false
+	self._CreateLogical = false
 	self.AttenuationSphereColor = Vector( 0, 0.75, 0.75 )
 	self.StartOffset = 0
 	self.PitchFactor = 1.0
@@ -360,7 +360,7 @@ function INSTANCE:LoadVariables( cload )
 		chunkIOClass.ReadMicroChunkString( cload, STATIC.VarIds.VARID_DISPLAY_TEXT, self, "DisplayText" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_MASK, fundamentalDataTypeEnum.Int, self, "LogicalTypeMask" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_DELAY, fundamentalDataTypeEnum.Float, self, "LogicalNotifyDelay" )
-		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_CREATE_LOGICAL, fundamentalDataTypeEnum.Boolean, self, "CreateLogical" )
+		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_CREATE_LOGICAL, fundamentalDataTypeEnum.Boolean, self, "_CreateLogical" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_LOGICAL_DROP_OFF, fundamentalDataTypeEnum.Float, self, "LogicalDropOffRadius" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_SPHERE_COLOR, "Vector3", self, "AttenuationSphereColor" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_START_OFFSET, fundamentalDataTypeEnum.Float, self, "StartOffset" )
