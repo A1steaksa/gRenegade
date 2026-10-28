@@ -199,7 +199,7 @@ function INSTANCE:Load( cload )
 	while cload:OpenChunk() do
 		local id = cload:CurChunkId()
 		if id == STATIC.ChunkIds.CHUNKID_VARIABLES then
-			returnValue = returnValue and self:LoadVariables( cload )
+			returnValue = returnValue and INSTANCE.LoadVariables( self, cload )
 		elseif id == STATIC.ChunkIds.CHUNKID_BASE_CLASS then
 			returnValue = returnValue and definitionClass.Instance.Load( self, cload )
 		end
