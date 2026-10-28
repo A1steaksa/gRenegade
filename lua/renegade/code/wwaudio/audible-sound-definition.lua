@@ -332,8 +332,15 @@ function INSTANCE:SetVirtualChannel()
 	typecheck.NotImplementedError()
 end
 
+--- @return LogicalSoundInstance?
 function INSTANCE:CreateLogical()
-	typecheck.NotImplementedError()
+	local logicalSound
+
+	if self._CreateLogical then
+		typecheck.NotImplementedError()
+	end
+
+	return logicalSound
 end
 
 function INSTANCE:SaveVariables()
