@@ -14,8 +14,11 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
-	--- @type CombatChunkIdClass
-	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
+	--- @type PointerRemapClass
+	local pointerRemapClass = CNC.Import( "code/wwsaveload/pointer-remap.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 
@@ -40,6 +43,10 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type table<integer, PersistFactoryInstance>
     STATIC.IdToFactory = {}
+
+    function STATIC.StaticConstructor()
+        STATIC.PointerRemapper = pointerRemapClass.New()
+    end
 
     --[[ Save-Load Interface ]] do
         -- "  
@@ -68,13 +75,14 @@ local isHotload = not table.IsEmpty( STATIC )
         --- @param autoPostLoad boolean
         --- @return boolean
         function STATIC.Load( cload, autoPostLoad )
-            --STATIC.PointerRemapper:Reset()
+            STATIC.PointerRemapper:Reset()
 
             local ok = true
 
             -- "Load each chunk we encounter and link the manager into the PostLaod list"
             while cload:OpenChunk() do
-                local sys = STATIC.FindSubSystem( cload:CurChunkId() )
+                local chunkId = cload:CurChunkId()
+                local sys = STATIC.FindSubSystem( chunkId )
 
                 if sys then
                     ok = ok and sys:Load( cload )
@@ -89,8 +97,8 @@ local isHotload = not table.IsEmpty( STATIC )
             end
 
             -- "Process all of the pointer remap requests"
-            --STATIC.PointerRemapper:Process()
-            --STATIC.PointerRemapper:Reset()
+            -- STATIC.PointerRemapper:Process()
+            STATIC.PointerRemapper:Reset()
 
             -- "Call PostLoad on each PersistClass that wanted post-load"
             if autoPostLoad then
