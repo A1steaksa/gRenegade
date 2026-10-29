@@ -200,15 +200,9 @@ function INSTANCE:Render( renderInfo, transform, bones)
             self:SetLightingEnvironment( renderInfo.LightEnvironment )
         end
 
-        local frustum = renderInfo.Camera:GetFrustum()
-
+        -- Omitted frustum vs bounding box check as it craters framerate without providing any benefit
         local isSkinned = tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
-
-        local boundingBox = self:GetBoundingBox()
-        local overlapResult = collisionMathClass.OverlapTest( frustum, boundingBox )
-        local isOnScreen = overlapResult ~= overlapTypeEnum.OUTSIDE
-
-        if( isSkinned or isOnScreen ) then
+        if isSkinned then
             local renderedSomething = false
 
             -- "If this mesh model has never been rendered, we need to generate the DX8 datastructures"
