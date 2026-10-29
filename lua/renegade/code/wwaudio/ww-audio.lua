@@ -73,6 +73,12 @@ INSTANCE.IsWWAudio = true
 
 	--- @type ClassUtils
 	local classUtils = CNC.Import( "sh_class-utils.lua" )
+
+	--- @type FileFactoryClass
+	local fileFactoryClass = CNC.Import( "code/wwlib/file-factory.lua" )
+
+	--- @type Sound3dClass
+	local sound3dClass = CNC.Import( "code/wwaudio/sound-3d.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -252,6 +258,7 @@ function INSTANCE:Renegade_WWAudio( lite )
 	for i = 1, soundPageEnum.PAGE_COUNT do
 		self.Playlist[i] = {}
 	end
+	self.CachedBuffers = {}
 
 	self.ForceDisable = lite
 
@@ -288,8 +295,8 @@ end
 --- driver and a RSX 3D provider.  If RSX isn't available, it trys A3D, then
 ---	EAX, then D3DSound, then whatever driver is first available.
 --- "  
---- @overload fun( stereo: boolean?, bits: integer?, hertz: integer? )
---- @overload fun( registrySubkeyName: string )
+--- @overload fun( self, stereo: boolean?, bits: integer?, hertz: integer? )
+--- @overload fun( self, registrySubkeyName: string )
 function INSTANCE:Initialize( ... )
 	local args = { ... }
 	local argCount = select( "#", args )
@@ -574,9 +581,82 @@ function INSTANCE:CreateSoundEffect( file, stringId )
 end
 
 
---- @return Sound3dInstance
-function INSTANCE:Create3dSound()
-	typecheck.NotImplementedError()
+--- @overload fun( stringId: string, rawWaveData: string, bytes: integer, classIdHint: integer? ): AudibleSoundInstance?
+--- @overload fun( fileName: string, classIdHint: integer? ): Sound3dInstance?
+--- @overload fun( file: FileInstance, stringId: string, classIdHint: integer? ): Sound3dInstance?
+function INSTANCE:Create3dSound( ... )
+	local args = { ... }
+	local argCount = select( "#", ... )
+
+	local arg1 = args[1]
+	typecheck.AssertArgType( INSTANCE.Class, 1, arg1, { "string", "FileInstance" } )
+
+	if isstring( arg1 ) then
+		local arg2 = args[2]
+
+		-- (fileName: string, classIdHint: integer?): Sound3dInstance
+		if arg2 == nil or isnumber( arg2 ) then
+			local fileName 		= arg1 --[[@as string]]
+			local classIdHint	= ( arg2 --[[@as integer]] or soundClassIdEnum.CLASSID_3D )
+
+			local soundObject
+			if self:IsDisabled() == false then
+				-- "Param OK?"
+				assert( fileName ~= nil )
+				-- "Try to find the buffer in our cache, otherwise create a new buffer."
+				local buffer = self:GetSoundBuffer( fileName, true )
+
+				-- Omitting pseudo 3d 
+
+				soundObject = sound3dClass.New()
+				soundObject:SetBuffer( buffer )
+			end
+
+			-- "Return a pointer to the sound effect"
+			return soundObject
+
+		-- (stringId: string, rawWaveData: string, bytes: integer, classIdHint: integer?): Sound3dInstance?
+		else
+			local stringId		= arg1 --[[@as string]]
+			local rawWaveData	= arg2 --[[@as string]]
+			local bytes			= args[3] --[[@as integer]]
+			local classIdHint	= ( args[4] --[[@as integer]] or soundClassIdEnum.CLASSID_3D )
+
+			local soundObject = audibleSoundClass.New()
+			if self:IsDisabled() == false then
+				-- "Try to find the buffer in our cache, otherwise create a new buffer."
+				local buffer = self:GetSoundBuffer( stringId )
+				if buffer == nil then
+					buffer = self:CreateSoundBuffer( rawWaveData, bytes, stringId, false )
+				end
+
+				soundObject:SetBuffer( buffer )
+			end
+
+			-- "Return a pointer to the sound effect"
+			return soundObject
+		end
+
+	-- (file: FileInstance, stringId: string, classIdHint: integer?): Sound3dInstance?
+	else
+		local file			= arg1--[[@as FileInstance]]
+		local stringId 		= args[2] --[[@as string]]
+		local classIdHint	= ( args[3] --[[@as integer]] or soundClassIdEnum.CLASSID_3D )
+
+		local soundObject
+		if self:IsDisabled() == false then
+			-- "Try to find the buffer in our cache, otherwise create a new buffer."
+			local buffer = self:GetSoundBuffer( file, stringId, true )
+
+			-- We're going to ignore pseudo 3d for now
+
+			soundObject = sound3dClass.New()
+			soundObject:SetBuffer( buffer )
+		end
+
+		-- "Return a pointer to the sound effect"
+		return soundObject
+	end
 end
 
 --[[ Background Music Support ]] do
@@ -588,7 +668,7 @@ end
 		end
 
 		self.BackgroundMusicName = fileName
-		if fileName ~= nil then
+		if fileName ~= nil and #fileName ~= 0 then
 			-- "Create the sound"
 			self.BackgroundMusic = self:CreateSoundEffect( fileName )
 			if self.BackgroundMusic ~= nil then
@@ -643,14 +723,16 @@ end
 
 --- @param definitionId integer|string
 --- @param transform Matrix3dInstance|Vector
---- @param userObject any
---- @param userData integer
---- @param classIdHint integer
+--- @param userObject any? [Default: `nil`]
+--- @param userData integer? [Default: `0`]
+--- @param classIdHint integer? [Default: `CLASSID_3D`]
 function INSTANCE:CreateInstantSound( definitionId, transform, userObject, userData, classIdHint )
 
 	-- Omitting this function's original contents to try to use Source's audio system early
 
 	section.Print( "Creating sound for ", type( definitionId ), " definition ID ", definitionId )
+
+	typecheck.AssertArgType( INSTANCE.Class, 1, definitionId, { "string", "number" }  )
 
 	local definition
 	if isstring( definition ) then
@@ -674,39 +756,17 @@ function INSTANCE:CreateInstantSound( definitionId, transform, userObject, userD
 	if SERVER then
 		soundLib.PlaySound( definition.Id, pos, classIdHint )
 	else
-		-- "Make sure this is really a sound definition"
-		assert( definition:GetClassId() == classIdEnum.SOUND )
-		if definition:GetClassId() == classIdEnum.SOUND then
-			local soundDefinition = definition --[[@as AudibleSoundDefinitionInstance]]
+		local soundDefinition = definition --[[@as AudibleSoundDefinitionInstance]]
 
-			local fileName = soundDefinition:GetFilename()
-			local soundName = "Renegade_" .. fileName
-
-			if STATIC.LoadedSoundBuffers[fileName] == nil then
-				local soundBuffer = soundBufferClass.New()
-				soundBuffer:LoadFromFile( fileName )
-				STATIC.LoadedSoundBuffers[fileName] = soundBuffer
-				sound.Generate( soundName, soundBuffer.Rate, soundBuffer.Duration, soundBuffer.DecodedSamples )
-			end
-
-			-- How far the sound should be heard in decibels
-			-- Needs some kind of 
-			local level = math.Clamp(
-				soundDefinition.DropOffRadius * unitConversionLib.MetersToSource,
-				20, 180
-			)
-
-			section.Print( "Level is ", level )
-
-			local pitch = 100 --soundDefinition:GetPitchFactor()
-			local volume = 1 --soundDefinition:GetVolume()
-			local dsp = 0
-
-			sound.Play( soundName, pos, level, pitch, volume, dsp )
+		local sound = self:CreateSound( definitionId, userObject, userData, classIdHint )
+		if sound == nil then
+			section.Error( "Failed to create sound for definition ID ", definitionId )
 		end
-	end
+		--- @cast sound AudibleSoundInstance
 
-	if definition ~= nil then
+		sound:SetPosition( pos )
+
+		sound:Play()
 	end
 
 	-- Omitting return value here because nothing seems to really be using it
@@ -741,6 +801,7 @@ function INSTANCE:CreateSound( definitionId, userObject, userData, classIdHint )
 
 	if definition ~= nil then
 		-- "Make sure this is really a sound definition"
+		section.Print( "Definition Class ID: ", definition:GetClassId(), ", Expected ID (SOUND): ", classIdEnum.SOUND )
 		assert( definition:GetClassId() == classIdEnum.SOUND )
 		if definition:GetClassId() == classIdEnum.SOUND then
 			local soundDefinition = definition --[[@as AudibleSoundDefinitionInstance]]
@@ -797,8 +858,27 @@ function INSTANCE:SimplePlay2dSoundEffect()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:AddToPlaylist()
-	typecheck.NotImplementedError()
+--- @param sound AudibleSoundInstance
+function INSTANCE:AddToPlaylist( sound )
+	local returnValue = false
+
+	assert( sound ~= nil )
+	if sound ~= nil then
+		-- "Loop through all the entries in the playlist"
+		local alreadyAdded = false
+		for index = 1, #self.Playlist[self.CurrPage + 1] do
+			if alreadyAdded then break end
+
+			alreadyAdded = ( sound == self.Playlist[self.CurrPage + 1][index] )
+		end
+
+		-- "Add this sound to our playlist"
+		if alreadyAdded == false then
+			self.Playlist[self.CurrPage + 1][#self.Playlist[self.CurrPage + 1] + 1] = sound
+		end
+	end
+
+	return returnValue
 end
 
 --- @param soundObject AudibleSoundInstance
@@ -942,12 +1022,18 @@ function INSTANCE:Validate3dSoundBuffer()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:GetFile()
-	typecheck.NotImplementedError()
-end
+--- @param fileName string
+--- @return FileInstance
+function INSTANCE:GetFile( fileName )
+	local file
+	if self.FileFactory ~= nil then
+		file = self.FileFactory:GetFile( fileName )
+	else
+		file = fileFactoryClass.TheFileFactory:GetFile( fileName )
+	end
 
-function INSTANCE:ReturnFile()
-	typecheck.NotImplementedError()
+	-- "Return a pointer to the file"
+	return file
 end
 
 function INSTANCE:Allocate2dHandles()
@@ -1028,33 +1114,142 @@ function INSTANCE:InternalSetMusicVolume( volume )
 	end
 end
 
---- @param file FileInstance
---- @param stringId string
---- @param is3d boolean
---- @return SoundBufferInstance
-function INSTANCE:GetSoundBuffer( file, stringId, is3d )
-	-- "Try to find the buffer in our cache, otherwise create a new buffer."
-	local buffer = self:FindCachedBuffer( stringId )
-	if buffer == nil then
-		buffer = self:CreateSoundBuffer( file, stringId, is3d )
-	end
 
-	return buffer
+--- @overload fun( self, fileName: string, is3d: boolean ): SoundBufferInstance?
+--- @overload fun( self, file: FileInstance, stringId: string, is3d: boolean ): SoundBufferInstance?
+function INSTANCE:GetSoundBuffer( ... )
+	local args = { ... }
+	local argCount = select( "#", ... )
+	typecheck.AssertArgCount( INSTANCE.Class, argCount, { 2, 3 } )
+
+	-- ( fileName: string, is3d: boolean )
+	if argCount == 2 then
+		local fileName	= args[1] --[[@as string]]
+		local is3d		= args[2] --[[@as boolean]]
+
+		-- "Try to find the buffer in our cache, otherwise create a new buffer."
+		local buffer = self:FindCachedBuffer( fileName )
+		if buffer == nil then
+			local file = self:GetFile( fileName )
+			if file ~= nil and file:IsAvailable() then
+				buffer = self:CreateSoundBuffer( file, fileName, is3d )
+			else
+				STATIC.MissingFileCount = STATIC.MissingFileCount or 0
+				if STATIC.MissingFileCount < 10 then
+					section.Warn( "Sound not found: ", fileName )
+				end
+
+				STATIC.MissingFileCount = STATIC.MissingFileCount + 1
+			end
+
+			-- Omitted returning file
+		end
+
+		return buffer
+
+	-- ( file: FileInstance, stringId: string, is3d: boolean )
+	else
+		local file 		= args[1] --[[@as FileInstance]]
+		local stringId  = args[2] --[[@as string]]
+		local is3d 		= args[3] --[[@as boolean]]
+
+		-- "Try to find the buffer in our cache, otherwise create a new buffer."
+		local buffer = self:FindCachedBuffer( stringId )
+		if buffer == nil then
+			buffer = self:CreateSoundBuffer( file, stringId, is3d )
+		end
+
+		return buffer
+	end
 end
 
 --- @param stringId string
 --- @return SoundBufferInstance?
 function INSTANCE:FindCachedBuffer( stringId )
-	typecheck.NotImplementedError()
+	return self.CachedBuffers[stringId]
 end
 
---- @return SoundBufferInstance
-function INSTANCE:CreateSoundBuffer(  )
-	typecheck.NotImplementedError()
+--- @overload fun( self, file: FileInstance, stringId: string, is3d: boolean ): SoundBufferInstance
+--- @overload fun( self, fileImage: string, bytes: integer, stringId: string, is3d: boolean ): SoundBufferInstance
+function INSTANCE:CreateSoundBuffer( ... )
+	local args = { ... }
+	local argCount = select( "#", ... )
+	typecheck.AssertArgCount( INSTANCE.Class, argCount, { 3, 4 } )
+
+	-- ( file: FileInstance, stringId: string, is3d: boolean )
+	if argCount == 3 then
+		local file		= args[1] --[[@as FileInstance]]
+		local stringId	= args[2] --[[@as string]]
+		local is3d		= args[3] --[[@as boolean]]
+
+		local soundBuffer = soundBufferClass.New()
+
+		-- Omitted checking buffer size and streaming sounds
+
+		-- "Create a new sound buffer from the provided file"
+		local success = soundBuffer:LoadFromFile( file )
+		soundBuffer:SetFilename( stringId )
+		assert( success )
+
+		-- "If we were successful in creating the sound buffer, then try to cache it as well, otherwise free the buffer and return NULL."
+		if success and ( stringId ~= nil ) then
+			self:CacheBuffer( soundBuffer, stringId )
+		end
+
+		-- "Return a pointer to the new sound buffer"
+		return soundBuffer
+
+	-- ( fileImage: string, bytes: integer, stringId: string, is3d: boolean )
+	else
+		local fileImage	= args[1] --[[@as string]]
+		local bytes		= args[2] --[[@as integer]]
+		local stringId	= args[3] --[[@as string]]
+		local is3d		= args[4] --[[@as boolean]]
+
+		-- "Create a new sound buffer from the provided file"
+		local soundBuffer = soundBufferClass.New()
+
+		-- "Initialize the sound from this piece of memory"
+		local success = soundBuffer:LoadFromMemory( fileImage, bytes )
+		soundBuffer:SetFilename( stringId )
+		assert( success )
+
+		-- "  
+		-- If we were successful in creating the sound buffer, then try to cache it as well,
+		-- otherwise free the buffer and return [nil]  
+		-- "
+		if success and ( stringId ~= nil ) then
+			self:CacheBuffer( soundBuffer, stringId )
+		end
+
+		-- "Return a pointer to the new sound buffer"
+		return soundBuffer
+	end
+
 end
 
-function INSTANCE:CacheBuffer()
-	typecheck.NotImplementedError()
+--- @param buffer SoundBufferInstance
+--- @param stringId string
+--- @return boolean
+function INSTANCE:CacheBuffer( buffer, stringId )
+	-- "Assume failure"
+	local returnValue = false
+
+	-- "Params OK?"
+	assert( buffer ~= nil )
+	assert( stringId ~= nil )
+	if buffer ~= nil and stringId ~= nil then
+		self.CachedBuffers[stringId] = buffer
+
+		returnValue = true
+	end
+
+	if returnValue == false then
+		section.Warn( "Unable to cache sound: ", stringId )
+	end
+
+	-- "Return the true/false result code"
+	return returnValue
 end
 
 function INSTANCE:FreeCacheSpace()

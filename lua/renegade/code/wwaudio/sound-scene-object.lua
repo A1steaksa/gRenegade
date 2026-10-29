@@ -1,4 +1,4 @@
--- Based on SoundSceneObjClass within Code/WWAudio/SoundScene.h
+-- Based on SoundSceneObjClass within Code/WWAudio/SoundSceneObj.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
@@ -36,11 +36,18 @@ INSTANCE.IsSoundSceneObject = true
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type SaveLoadSystemClass
+	local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
+
+	--- @type AudioCallbackClass
+	local audioCallbackClass = CNC.Import( "code/wwaudio/audio-callback.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
+	local audioCallbackEventEnum = audioCallbackClass.AUDIO_CALLBACK_EVENT
 --#endregion
 
 
@@ -68,6 +75,8 @@ end
     --- @class SoundSceneObjectClass
 	--- @field GlobalSoundList SoundSceneObjectInstance[]
 
+	STATIC.NextAvailableId = 1000000000
+
     --- Creates a new SoundSceneObjectInstance
     --- @return SoundSceneObjectInstance
     function STATIC.New()
@@ -85,23 +94,42 @@ end
 
     typecheck.RegisterType( "SoundSceneObjectInstance", STATIC.IsSoundSceneObject )
 
-	function STATIC.RegisterSoundObject()
-		typecheck.NotImplementedError()
+	function STATIC.StaticConstructor()
+		STATIC.GlobalSoundList = {}
+	end
+
+	--- @param soundObject SoundSceneObjectInstance
+	function STATIC.RegisterSoundObject( soundObject )
+		local id = soundObject.Id
+
+		-- "Special case a non-ID"
+		if id == 0 then
+			STATIC.GlobalSoundList[1] = soundObject
+		else
+			-- Check to ensure the object isn't already in the list
+			local existingKey = table.KeyFromValue( STATIC.GlobalSoundList, soundObject )
+			if existingKey == nil then
+				-- "Insert the object into the list"
+				STATIC.GlobalSoundList[#STATIC.GlobalSoundList] = soundObject
+			end
+		end
 	end
 
 	function STATIC.UnregisterSoundObject()
 		typecheck.NotImplementedError()
 	end
 
-	function STATIC.FindSoundObject()
+	function STATIC.FindSoundObject( id )
 		typecheck.NotImplementedError()
 	end
 end
 
 
 --- @class SoundSceneObjectInstance
+--- @field Scene SoundSceneInstance
+--- @field PhysicsWrapper SoundCullObjectInstance
 --- @field Callback AudioCallbackInstance
---- @field RegisteredEvents AudioCallbackClassEVENTSInstance
+--- @field RegisteredEvents AudioCallbackEvent
 --- @field Id integer
 --- @field AttachedObject RenderObjectInstance
 --- @field AttachedBone integer
@@ -109,15 +137,28 @@ end
 --- @field UserObject any
 
 function INSTANCE:Renegade_SoundSceneObject()
-	typecheck.NotImplementedError()
+	self.Scene = nil
+	self.PhysicsWrapper = nil
+	self.Callback = nil
+	self.AttachedObject = nil
+	self.UserData = 0
+	self.UserObject = nil
+	self.Id = 0
+	self.RegisteredEvents = nil
+
+	self.Id = STATIC.NextAvailableId
+	STATIC.NextAvailableId = STATIC.NextAvailableId + 1
+
+	STATIC.RegisterSoundObject( self )
 end
 
 function INSTANCE:_Renegade_SoundSceneObject()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:AsSound3dcLass()
-	typecheck.NotImplementedError()
+--- @return Sound3dInstance?
+function INSTANCE:AsSound3dClass()
+	return nil
 end
 
 function INSTANCE:AsSoundPseudo3dcLass()
@@ -154,8 +195,19 @@ function INSTANCE:OnFrameUpdate()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:OnEvent()
-	typecheck.NotImplementedError()
+--- @param event AudioCallbackEvent
+--- @param param1 integer
+--- @param param2 integer
+function INSTANCE:OnEvent( event, param1, param2 )
+	if self.Callback ~= nil and tobool( bit.band( self.RegisteredEvents, event ) ) then
+		if event == audioCallbackEventEnum.EVENT_SOUND_STARTED then
+			self.Callback:OnSoundStarted( self )
+		elseif event == audioCallbackEventEnum.EVENT_SOUND_ENDED then
+			self.Callback:OnSoundEnded( self )
+		elseif event == audioCallbackEventEnum.EVENT_LOGICAL_HEARD then
+			self.Callback:OnLogicalHeard( param1, param2 )
+		end
+	end
 end
 
 function INSTANCE:RegisterCallback()
@@ -288,8 +340,8 @@ function INSTANCE:Load( cload )
 
 	-- Ommit setting an ID
 
-	if self.AttachedObject ~= nil then
-		typecheck.NotImplementedError()
+	if self.AttachedObject ~= nil and self.AttachedObject ~= 0 then
+		saveLoadSystemClass.RequestRefCountedPointerRemap( self.AttachedObject )
 	end
 
 	return true
