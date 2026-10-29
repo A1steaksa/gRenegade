@@ -200,84 +200,76 @@ function INSTANCE:Render( renderInfo, transform, bones)
             self:SetLightingEnvironment( renderInfo.LightEnvironment )
         end
 
-        local frustum = renderInfo.Camera:GetFrustum()
+        -- Omitted frustum vs bounding box check as it craters framerate without providing any benefit
+        local renderedSomething = false
 
-        local isSkinned = tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
+        -- "If this mesh model has never been rendered, we need to generate the DX8 datastructures"
+        if self.Model.SourceMesh == nil then
+            self.Model:RegisterForRendering()
+            self.Model:CreateSourceMesh()
+            -- Omitted registering mesh type with TheDX8MeshRenderer
+        end
 
-        local boundingBox = self:GetBoundingBox()
-        local overlapResult = collisionMathClass.OverlapTest( frustum, boundingBox )
-        local isOnScreen = overlapResult ~= overlapTypeEnum.OUTSIDE
+        -- Look up the FVF container that this mesh is in
+        -- Omitted FVF container lookup
 
-        if( isSkinned or isOnScreen ) then
-            local renderedSomething = false
+        -- "
+        -- Check if we should render the base passes.
+        -- One special case here:
+        -- If the mesh is translucent (alpha) and the base passes are disabled but we are rendering a shadow,
+        -- we go ahead and render the base pass.
+        -- This is an ugly way to get our tree shadows and other alpha textured shadows to work.
+        -- "
+        local renderBasePasses = ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 )
+        local isAlpha = (
+               self.Model:GetSingleShader():GetAlphaTest() == shaderClass.ALPHA_TEST.Enable
+            or self.Model:GetSingleShader():GetSrcBlendFunc() == srcBlendFuncEnum.SrcAlpha
+        )
 
-            -- "If this mesh model has never been rendered, we need to generate the DX8 datastructures"
-            if self.Model.SourceMesh == nil then
-                self.Model:RegisterForRendering()
-                self.Model:CreateSourceMesh()
-                -- Omitted registering mesh type with TheDX8MeshRenderer
+        if (
+            tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_SHADOW_RENDERING ) )
+            and ( isAlpha == true )
+        ) then
+            renderBasePasses = true
+        end
+
+        if renderBasePasses then
+            -- "Link each polygon renderer for this mesh into the visible list"
+            -- Omitted polygon renderers with the visible list
+
+            local isSkinned = tobool( self.Model:GetFlag( meshGeometryFlagsTypeEnum.SKIN ) )
+            if isSkinned then
+                self.Model:RenderSourceMesh( bones )
+            else
+                self.Model:RenderSourceMesh( transform )
             end
 
-            -- Look up the FVF container that this mesh is in
-            -- Omitted FVF container lookup
+            renderedSomething = true
+        end
 
-            -- "
-            -- Check if we should render the base passes.
-            -- One special case here:
-            -- If the mesh is translucent (alpha) and the base passes are disabled but we are rendering a shadow,
-            -- we go ahead and render the base pass.
-            -- This is an ugly way to get our tree shadows and other alpha textured shadows to work.
-            -- "
-            local renderBasePasses = ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 )
-            local isAlpha = (
-                   self.Model:GetSingleShader():GetAlphaTest() == shaderClass.ALPHA_TEST.Enable
-                or self.Model:GetSingleShader():GetSrcBlendFunc() == srcBlendFuncEnum.SrcAlpha
-            )
+        -- "If the rendering context specifies procedural material passes, register them for rendering"
+        for passNumber = 1, renderInfo:AdditionalPassCount() do
+            local materialPass = renderInfo:PeekAdditionalPass( passNumber )
 
-            if (
-                tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_SHADOW_RENDERING ) )
-                and ( isAlpha == true )
-            ) then
-                renderBasePasses = true
-            end
+            if not self:IsTranslucent() or materialPass:IsEnabledOnTranslucentMeshes() then
 
-            if renderBasePasses then
-                -- "Link each polygon renderer for this mesh into the visible list"
-                -- Omitted polygon renderers with the visible list
-
-                if isSkinned then
-                    self.Model:RenderSourceMesh( bones )
+                -- "  
+                -- If the base pass for this mesh has been disabled, we have to make sure the procedural material pass
+                -- is rendered after everything else has rendered  
+                -- "
+                if tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY  ) ) then
+                    typecheck.NotImplementedError()
                 else
-                    self.Model:RenderSourceMesh( transform )
+                    typecheck.NotImplementedError()
                 end
 
                 renderedSomething = true
             end
+        end
 
-            -- "If the rendering context specifies procedural material passes, register them for rendering"
-            for passNumber = 1, renderInfo:AdditionalPassCount() do
-                local materialPass = renderInfo:PeekAdditionalPass( passNumber )
-
-                if not self:IsTranslucent() or materialPass:IsEnabledOnTranslucentMeshes() then
-
-                    -- "  
-                    -- If the base pass for this mesh has been disabled, we have to make sure the procedural material pass
-                    -- is rendered after everything else has rendered  
-                    -- "
-                    if tobool( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY  ) ) then
-                        typecheck.NotImplementedError()
-                    else
-                        typecheck.NotImplementedError()
-                    end
-
-                    renderedSomething = true
-                end
-            end
-
-            -- "If we have a decal mesh, link it into the mesh rendering system"
-            if ( self.DecalMesh ~= nil ) and ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 ) then
-                typecheck.NotImplementedError()
-            end
+        -- "If we have a decal mesh, link it into the mesh rendering system"
+        if ( self.DecalMesh ~= nil ) and ( bit.band( renderInfo:CurrentOverrideFlags(), renderInfoOverrideFlagsEnum.RINFO_OVERRIDE_ADDITIONAL_PASSES_ONLY ) == 0 ) then
+            typecheck.NotImplementedError()
         end
     end
 end
