@@ -243,18 +243,49 @@ function LIB.PrivatePrint( ... )
 
     local currentColor = LIB.DefaultMessageColor
 
-    for k, v in pairs( {...} ) do
-        if IsColor( v ) then
-            currentColor = v
+    local string
+    for _, arg in pairs( {...} ) do
+
+        -- Let's try not hiding nils
+        if arg == nil then
+            string = "nil"
+
+        -- Colors aren't printed
+        elseif IsColor( arg ) then
+            currentColor = arg
             continue
+
+        -- Custom tostring for Vectors
+        elseif isvector( arg ) then
+            --- @cast arg Vector
+            string = "(" .. math.Round( arg.x, 2 ) .. " " .. math.Round( arg.y, 2 ) .. " " .. math.Round( arg.z, 2 ) .. ")"
+
+        -- Everything else
+        else
+            string = tostring( arg )
         end
 
-        MsgC( currentColor, tostring( v ) or "nil" )
+        MsgC( currentColor, string )
     end
 
     Msg( "\n" )
 
     LIB.JustEndedSection = false
+end
+
+--- @param condition boolean
+--- @vararg any
+function LIB.PrintWhen( condition, ... )
+    if not LIB.IsEnabled then return end
+    if LIB.HasHitMaxDepth() then return end
+    if LIB.SectionLabelFilter then
+        if #LIB.SectionStack == 0 then
+            return
+        end
+    end
+    if not tobool( condition ) then return end
+
+    LIB.PrivatePrint( ... )
 end
 
 --- @vararg any

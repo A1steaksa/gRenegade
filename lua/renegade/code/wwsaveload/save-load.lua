@@ -14,8 +14,11 @@ local isHotload = not table.IsEmpty( STATIC )
 
 --#region Imports
 
-	--- @type CombatChunkIdClass
-	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
+	--- @type PointerRemapClass
+	local pointerRemapClass = CNC.Import( "code/wwsaveload/pointer-remap.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 
@@ -40,6 +43,10 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --- @type table<integer, PersistFactoryInstance>
     STATIC.IdToFactory = {}
+
+    function STATIC.StaticConstructor()
+        STATIC.PointerRemapper = pointerRemapClass.New()
+    end
 
     --[[ Save-Load Interface ]] do
         -- "  
@@ -68,26 +75,30 @@ local isHotload = not table.IsEmpty( STATIC )
         --- @param autoPostLoad boolean
         --- @return boolean
         function STATIC.Load( cload, autoPostLoad )
-            --STATIC.PointerRemapper:Reset()
+            STATIC.PointerRemapper:Reset()
 
             local ok = true
 
             -- "Load each chunk we encounter and link the manager into the PostLaod list"
             while cload:OpenChunk() do
-                local sys = STATIC.FindSubSystem( cload:CurChunkId() )
+                local chunkId = cload:CurChunkId()
+                local sys = STATIC.FindSubSystem( chunkId )
 
                 if sys then
                     ok = ok and sys:Load( cload )
                 else
-                    section.Warn( "Ignoring chunk ID ", cload:CurChunkId(), " due to no registered sub system handling it" )
+
+                    local chunkName = chunkIOClass.GetChunkIdName( chunkId )
+
+                    section.Warn( "Ignoring chunk ID ", chunkId, " (", chunkName, ") due to no registered sub system handling it" )
                 end
 
                 cload:CloseChunk()
             end
 
             -- "Process all of the pointer remap requests"
-            --STATIC.PointerRemapper:Process()
-            --STATIC.PointerRemapper:Reset()
+            -- STATIC.PointerRemapper:Process()
+            STATIC.PointerRemapper:Reset()
 
             -- "Call PostLoad on each PersistClass that wanted post-load"
             if autoPostLoad then
@@ -128,20 +139,22 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --[[ Pointer Remapping Interface ]] do
 
-        --- @param oldPointer any
-        --- @param newPointer any
+        --- @param oldPointer integer
+        --- @param newPointer table
         function STATIC.RegisterPointer( oldPointer, newPointer )
-            section.Warn( STATIC.Class, " - RegisterPointer - Skipping registering ('", oldPointer, "' => '", newPointer, "')" )
+            STATIC.PointerRemapper:RegisterPointer( oldPointer, newPointer )
         end
 
-        --- @param pointerToConvert any
+        --- @param pointerToConvert integer
+        --- @return table
         function STATIC.RequestPointerRemap( pointerToConvert )
-            section.Warn( STATIC.Class, " - RequestPointerRemap - Skipping remapping ", pointerToConvert )
+            return STATIC.PointerRemapper:RequestPointerRemap( pointerToConvert )
         end
 
-        --- @param pointerToConvert any
+        --- @param pointerToConvert integer
+        --- @return table
         function STATIC.RequestRefCountedPointerRemap( pointerToConvert )
-            section.Warn( STATIC.Class, " - RequestRefCountedPointerRemap - Skipping remapping ", pointerToConvert )
+            return STATIC.PointerRemapper:RequestPointerRemap( pointerToConvert )
         end
     end
 
@@ -183,9 +196,9 @@ local isHotload = not table.IsEmpty( STATIC )
         function STATIC.RegisterPersistFactory( factory )
 
             local chunkId = factory:ChunkId()
-            local chunkName = table.KeyFromValue( combatChunkIdClass, chunkId )
+            local chunkName = chunkIOClass.GetChunkIdName( chunkId )
 
-            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", chunkId, " (", chunkName, ")" )
+            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", chunkId, " (", ( chunkName or "UNKNOWN" ), ")" )
 
             STATIC.LinkFactory( factory )
         end
@@ -229,7 +242,7 @@ local isHotload = not table.IsEmpty( STATIC )
                 section.Error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
             end
 
-            if STATIC.IdToFactory[chunkId] then
+            if STATIC.IdToFactory[chunkId] ~= nil then
                 section.Error( "Persist Factory chunk ID re-use detected!" )
             end
 

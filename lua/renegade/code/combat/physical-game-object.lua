@@ -223,8 +223,7 @@ local HIBERNATION_DELAY = 30
 
     function INSTANCE:_Renegade_PhysicalGameObject()
         if self.PhysicsObject then
-            -- Omitted removing physical game object from the physics scene
-            -- combatManagerClass.GetScene():RemoveObject( self.PhysicsObject )
+            combatManagerClass.GetScene():RemoveObject( self.PhysicsObject )
         end
     end
 end

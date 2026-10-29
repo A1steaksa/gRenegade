@@ -98,12 +98,16 @@ local frame = vgui.Create( "HotloadableDFrame" )
                             local definition = definitionManagerClass.FindDefinition( definition.Id )
                             if definition == nil then return end
 
-                            if definition.Class ~= "SoldierGameObjectDefinitionInstance" then
-                                return
+                            if definition.Class == "SoldierGameObjectDefinitionInstance" then
+                                --- @cast definition SoldierGameObjectDefinitionInstance
+                                soldier:ReInit( definition )
                             end
 
-                            --- @cast definition SoldierGameObjectDefinitionInstance
-                            soldier:ReInit( definition )
+                            if definition.Class == "PowerUpGameObjectDefinitionInstance" then
+                                --- @cast definition PowerUpGameObjectDefinitionInstance
+                                SetClipboardText( tostring( definition.Id ) )
+                            end
+
                         end
                     end
                 end

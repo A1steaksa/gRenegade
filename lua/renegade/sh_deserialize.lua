@@ -21,6 +21,7 @@ STATIC.Class = "DeserializeLib"
         UInt16  = enumBuilder:Next(),
         UInt8   = enumBuilder:Next(),
         Int     = enumBuilder:Next(),
+        Int16   = enumBuilder:Next(),
         ULong   = enumBuilder:Next(),
         Long    = enumBuilder:Next(),
         Float   = enumBuilder:Next(),
@@ -74,6 +75,7 @@ STATIC.FundamentalDataTypeRegistry = STATIC.FundamentalDataTypeRegistry or {}
 --- @field Name string The name that will be used to reference to this data type
 --- @field Schema ComplexDataTypeSchema The layout of the complex data type
 --- @field Size integer The size, in bytes, of this data type
+--- @field PostLoadTransformationCallback ( fun( name: string, loadedData: table, bytes: string ): any? )? The callback used to transform this data type after it has loaded.  Returned values will replace the loaded data.
 
 --- @type table<string, ComplexDataTypeInfo>
 STATIC.ComplexDataTypeRegistry = STATIC.ComplexDataTypeRegistry or {}
@@ -84,18 +86,28 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "UInt16",  fundamentalDataTypeEnum.UInt16,      0, 2,  STATIC.DeserializeUInt16  )
     STATIC.RegisterFundamentalDataType( "UInt8",   fundamentalDataTypeEnum.UInt8,       0, 1,  STATIC.DeserializeUInt8   )
     STATIC.RegisterFundamentalDataType( "Int",     fundamentalDataTypeEnum.Int,         0, 4,  STATIC.DeserializeUInt32  )
+    STATIC.RegisterFundamentalDataType( "Int16",   fundamentalDataTypeEnum.Int16,       0, 2,  STATIC.DeserializeInt16   )
     STATIC.RegisterFundamentalDataType( "ULong",   fundamentalDataTypeEnum.ULong,       0, 4,  STATIC.DeserializeUInt32  )
     STATIC.RegisterFundamentalDataType( "Long",    fundamentalDataTypeEnum.Long,        0, 4,  STATIC.DeserializeInt32   )
     STATIC.RegisterFundamentalDataType( "Float",   fundamentalDataTypeEnum.Float,     0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Float32", fundamentalDataTypeEnum.Float32,   0.0, 4,  STATIC.DeserializeFloat   )
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
-    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,   0, 4,  STATIC.DeserializeUInt32 )
+    STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,     0, 4,  STATIC.DeserializeUInt32  )
 
-    STATIC.RegisterComplexDataType( "Vector", {
-        { Name = "X", DataType = fundamentalDataTypeEnum.Float },
-        { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
-        { Name = "Z", DataType = fundamentalDataTypeEnum.Float },
-    } )
+    --- @class Vector3
+    --- @field X number
+    --- @field Y number
+    --- @field Z number
+    STATIC.RegisterComplexDataType( "Vector3",
+        {
+            { Name = "X", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "Z", DataType = fundamentalDataTypeEnum.Float },
+        },
+        function( name, loadedData )
+            return Vector( loadedData.X, loadedData.Y, loadedData.Z )
+        end
+    )
 end
 
 
@@ -116,15 +128,18 @@ end
         }
     end
 
-    --- @param name string
+    --- @generic T
+    --- @param name `T`
     --- @param schema ComplexDataTypeSchema
-    function STATIC.RegisterComplexDataType( name, schema )
+    --- @param postLoadTransformationCallback ( fun( name: string, loadedData: `T`, bytes: string ): any? )?
+    function STATIC.RegisterComplexDataType( name, schema, postLoadTransformationCallback )
         local size = STATIC.CalculateSchemaSize( schema )
 
         STATIC.ComplexDataTypeRegistry[name] = {
-            Name     = name,
-            Schema   = schema,
-            Size     = size
+            Name                           = name,
+            Schema                         = schema,
+            Size                           = size,
+            PostLoadTransformationCallback = postLoadTransformationCallback
         }
     end
 
@@ -190,7 +205,6 @@ end
         return schemaSize
     end
 end
-
 
 --[[ Accessors ]] do
 
@@ -261,6 +275,22 @@ end
     end
 end
 
+--[[ Complex Data Type Stack ]] do
+
+    --- A stack of the tables being deserialized
+    --- @type table[]
+    STATIC.Stack = {}
+
+    --- @param dataType table
+    function STATIC.PushComplexDataType( dataType )
+        STATIC.Stack[#STATIC.Stack + 1] = dataType
+    end
+
+    --- @return table
+    function STATIC.PopComplexDataType()
+        return table.remove( STATIC.Stack, #STATIC.Stack )
+    end
+end
 
 --[[ Deserializers ]] do
 
@@ -271,6 +301,20 @@ end
     -- meet someday, and you think this stuff is worth it, you can
     -- buy me a beer in return.
     -- ----------------------------------------------------------------------------
+
+    --- @generic T
+    --- @param dataType `T`
+    --- @param bytes string
+    --- @return `T`, string remainingBytes
+    function STATIC.ReadComplexDataType( dataType, bytes )
+        local typeSize = STATIC.GetComplexDataTypeSize( dataType )
+        local typeBytes = bytes:sub( 1, typeSize )
+        bytes = bytes:sub( typeSize + 1 )
+        local readType = STATIC.DeserializeComplexDataType( dataType, typeBytes )
+        assert( readType ~= nil )
+
+        return readType, bytes
+    end
 
     --- @generic T
     --- @param dataType FundamentalDataType|`T`
@@ -338,6 +382,8 @@ end
             result = {}
         end
 
+        STATIC.PushComplexDataType( result )
+
         local schema = registeryEntry.Schema
         for schemaFieldIndex, schemaField in ipairs( schema ) do
 
@@ -395,13 +441,26 @@ end
                     local extractedBytes = bytes:sub( 1, bytesToRead )
                     bytes = bytes:sub( bytesToRead + 1 )
                     if extractedBytes:len() ~= bytesToRead then
-                        section.Error( "Tried to extract ", bytesToRead, " bytes but got ", extractedBytes:len(), " bytes instead" )
+                        section.Error(
+                            "While deserializing ComplexDataType '", registeryEntry.Name, "', the field '", schemaField.Name,
+                            "' of type '", deserializeLib.GetDataTypeName( schemaField.DataType ), "' only read ",
+                            extractedBytes:len(), " bytes instead of the expected ", bytesToRead, " bytes"
+                        )
                     end
 
                     result[schemaField.Name] = STATIC.Deserialize( schemaField.DataType, extractedBytes )
                 end
             end
         end
+
+        if registeryEntry.PostLoadTransformationCallback ~= nil then
+            local returnedResult = registeryEntry.PostLoadTransformationCallback( registeryEntry.Name, result, bytes )
+            if returnedResult ~= nil then
+                result = returnedResult
+            end
+        end
+
+        STATIC.PopComplexDataType()
 
         return result
     end
@@ -420,7 +479,7 @@ end
     end
 
     --- @param bytes string
-    --- @return boolean
+    --- @return integer
     function STATIC.DeserializeUInt32( bytes )
         local b1, b2, b3, b4 = bytes:byte( 1, 4 )
         return (
@@ -438,6 +497,16 @@ end
 
         if unsignedInt > 0x7FFFFFFF then
             return ( unsignedInt - 0x100000000 )
+        end
+
+        return unsignedInt
+    end
+
+    function STATIC.DeserializeInt16( bytes )
+        local unsignedInt = STATIC.DeserializeUInt16( bytes )
+
+        if unsignedInt > 0x7FFF then
+            return ( unsignedInt - 0x10000 )
         end
 
         return unsignedInt

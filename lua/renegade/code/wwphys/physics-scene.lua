@@ -122,9 +122,9 @@ end
 --- @field SunLight LightInstance
 --- @field DynamicPolyBudget integer
 --- @field StaticPolyBudget integer
---- @field ObjectList RefPhysicsListInstance
---- @field StaticObjectList RefPhysicsListInstance
---- @field StaticLightList RefPhysicsListInstance
+--- @field ObjectList PhysicsInstance[]
+--- @field StaticObjectList PhysicsInstance[]
+--- @field StaticLightList PhysicsInstance[]
 --- @field StaticProjectorList TexProjListInstance
 --- @field DynamicProjectorList TexProjListInstance
 --- @field DirtyCullList RefPhysicsListInstance
@@ -177,8 +177,23 @@ function INSTANCE:AddStaticLight()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:RemoveObject()
-	typecheck.NotImplementedError()
+--- @param object PhysicsInstance
+function INSTANCE:RemoveObject( object )
+
+	-- "NOTE: Sometimes the game tries to 'remove' objects that havent been added..."
+	if not self:Contains( object ) then return end
+
+	-- "Assert that the object is valid"
+	assert( object ~= nil )
+
+	-- "Notify the observer (if it has one)"
+	if object:GetObserver() ~= nil then
+		object:GetObserver():ObjectRemovedFromScene( object )
+	end
+
+
+	-- Omitting a bunch of things
+	table.RemoveByValue( self.ObjectList, object )
 end
 
 function INSTANCE:RemoveAll()

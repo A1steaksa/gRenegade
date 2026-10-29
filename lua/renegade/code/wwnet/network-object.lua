@@ -231,7 +231,8 @@ end
 
     function INSTANCE:SetDeletePending()
         self._IsDeletePending = true
-        networkObjectManagerClass.RegisterObject( self )
+
+        -- networkObjectManagerClass.RegisterObjectForDeletion( self )
     end
 
     --- "Override Delete in the subclass if you have a destructor there"

@@ -29,11 +29,29 @@ STATIC.Class = "InitClass"
     --- @type CommandoSaveLoadClass
     CNC.Import( "code/commando/commando-save-load.lua" )
 
+    --- @type StaticAudioSaveLoadClass
+    CNC.Import( "code/wwaudio/static-audio-save-load.lua" )
+
+    --- @type DynamicAudioSaveLoadClass
+    CNC.Import( "code/wwaudio/dynamic-audio-save-load.lua" )
+
     --- @type SoldierGameObjectClass
     CNC.Import( "code/combat/soldier-game-object-definition.lua" )
 
     --- @type HumanPhysicsDefinitionClass
     CNC.Import( "code/wwphys/human-physics-definition.lua" )
+
+    --- @type AudibleSoundDefinitionClass
+    CNC.Import( "code/wwaudio/audible-sound-definition.lua" )
+
+    --- @type AudibleSoundClass
+    CNC.Import( "code/wwaudio/audible-sound.lua" )
+
+    --- @type Sound3dClass
+    CNC.Import( "code/wwaudio/sound-3d.lua" )
+
+    --- @type Sound3dClass
+    CNC.Import( "code/wwaudio/sound-pseudo-3d.lua" )
 end
 
 --#region Imports

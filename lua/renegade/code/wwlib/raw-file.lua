@@ -25,14 +25,14 @@ INSTANCE.IsRawFile = true
 
 --#region Imports
 
-    --- @type FileClass
-    local fileClass = CNC.Import( "code/wwlib/file.lua" )
+	--- @type FileClass
+	local fileClass = CNC.Import( "code/wwlib/file.lua" )
 --#endregion
 
 --#region Imported Enums
 
-    local seekDirectionEnum = fileClass.SEEK_DIRECTION
-    local fileRightsEnum = fileClass.FILE_RIGHTS
+	local seekDirectionEnum = fileClass.SEEK_DIRECTION
+	local fileRightsEnum = fileClass.FILE_RIGHTS
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -82,7 +82,7 @@ function INSTANCE:Renegade_RawFile( fileName )
         self.Date = 0
         self.Time = 0
 
-    -- (): string
+    -- ()
     else
         fileClass.Instance.Renegade_File( self )
 
@@ -110,10 +110,13 @@ end
 --- @param fileName string "The filename to assign to this file object."
 --- @return string
 function INSTANCE:SetName( fileName )
-    -- Ensure that we look for files within the Garry's Mod data directory for this addon
-    if not fileName:StartsWith( "data/renegade" ) then
+    -- Ensure that we look for individual files on the disk within the Garry's Mod data directory for this addon
+    -- But try to avoid changing paths for files within MIX archives
+    if fileName:EndsWith( ".txt" ) then
         fileName = "data/renegade/" .. fileName
     end
+
+    fileName = fileName:Replace( "\\", "/" )
 
     self:Bias( 1 )
     self.Filename = fileName

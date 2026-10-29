@@ -18,14 +18,23 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 
 
--- #region Imports
+--#region Exported Enums
+--#endregion
 
-    --- @type Vector4Class
-    local vector4 = CNC.Import( "code/wwmath/vector4.lua" )
+--#region Imports
 
-    --- @type WWMathClass
-    local wwmath = CNC.Import( "code/wwmath/wwmath.lua" )
--- #endregion
+	--- @type Vector4Class
+	local vector4Class = CNC.Import( "code/wwmath/vector4.lua" )
+
+	--- @type WWMathClass
+	local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+--#endregion
+
+--#region Imported Enums
+--#endregion
 
 --[[
 	"Three important notes:
@@ -102,6 +111,19 @@ end
     end
 
     typecheck.RegisterType( "Matrix3dInstance", STATIC.IsMatrix3d )
+
+    function STATIC.StaticConstructor()
+        deserializeLib.RegisterComplexDataType( "Matrix3d", {
+            { Name = "Row", DataType = "Vector4", ArrayLength = 3 }
+        },
+        function( name, data, bytes )
+            local matrix = STATIC.New()
+            matrix.Row[1] = data.Row[1]
+            matrix.Row[2] = data.Row[2]
+            matrix.Row[3] = data.Row[3]
+            return matrix
+        end )
+    end
 
     --[[ Matrix Multiplication Without Temporaries ]] do
 
@@ -246,10 +268,10 @@ function INSTANCE:Renegade_Matrix3d( ... )
     typecheck.AssertArgCount( INSTANCE.Class, argCount, { 0, 1, 2, 3, 4, 12 } )
 
     self.Row = {
-        vector4.New(),
-        vector4.New(),
-        vector4.New(),
-        vector4.New()
+        vector4Class.New(),
+        vector4Class.New(),
+        vector4Class.New(),
+        vector4Class.New()
     }
 
     -- ()
@@ -789,21 +811,21 @@ end
     function INSTANCE:GetXRotation()
         local row = self.Row
 
-        return wwmath.Atan2( row[3][2], row[2][2] )
+        return wWMathClass.Atan2( row[3][2], row[2][2] )
     end
 
     --- "Approximates the rotation about the Y axis"
     --- @return number
     function INSTANCE:GetYRotation()
         local row = self.Row
-        return wwmath.Atan2( row[1][3], row[3][3] )
+        return wWMathClass.Atan2( row[1][3], row[3][3] )
     end
 
     --- "Approximates the rotation about the Z axis"
     --- @return number
     function INSTANCE:GetZRotation()
         local row = self.Row
-        return wwmath.Atan2( row[2][1], row[1][1] )
+        return wWMathClass.Atan2( row[2][1], row[1][1] )
     end
 end
 

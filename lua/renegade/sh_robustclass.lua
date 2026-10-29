@@ -403,10 +403,10 @@ end
 
 _ALIAS.Class = robustclass.Register
 
---- @param classname string
+--- @param className string
 --- @return boolean
-function robustclass.IsClassRegistered( classname )
-	return ( FindMetaTable( classname ) ~= nil )
+function robustclass.IsClassRegistered( className )
+	return ( FindMetaTable( className ) ~= nil )
 end
 
 --- Creates a new specific object

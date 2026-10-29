@@ -17,13 +17,38 @@ STATIC.Class = "ChunkIOClass"
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type SaveLoadIds
+	local saveLoadIds = CNC.Import( "code/wwsaveload/save-load-ids.lua" )
+
+	--- @type CommandoChunkIds
+	local commandoChunkIds = CNC.Import( "code/commando/commando-chunk-ids.lua" )
+
+	--- @type SoundChunkIds
+	local soundChunkIds = CNC.Import( "code/wwaudio/sound-chunk-ids.lua" )
+
+	--- @type CombatChunkIdClass
+	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 --#endregion
 
 
 --#region Imported Enums
+
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_ID
 --#endregion
 
 --- @class ChunkIOClass
+
+--- @param chunkId integer
+--- @return string
+function STATIC.GetChunkIdName( chunkId )
+    local chunkName = table.KeyFromValue( combatChunkIdClass, chunkId )
+    chunkName = chunkName or table.KeyFromValue( soundChunkIdEnum, chunkId )
+    chunkName = chunkName or table.KeyFromValue( commandoChunkIds.CHUNK_ID, chunkId )
+    chunkName = chunkName or table.KeyFromValue( saveLoadIds.ChunkIds, chunkId )
+
+    return ( chunkName == nil and "unknown" or chunkName )
+end
 
 
 -- These were originally macros in Code/wwlib/chunkio.cpp/h but for our purposes it makes more sense to include them here.
@@ -42,7 +67,7 @@ end
     --- If and only if the next micro-chunk's ID matches the provided ID, loads the micro-chunk as the provided data type and stores it in the provided key or subkey
     --- @param cload ChunkLoadInstance
     --- @param microChunkId integer
-    --- @param dataType FundamentalDataType
+    --- @param dataType FundamentalDataType|string
     --- @param storeTable any The table where the read value will be stored
     --- @param key any The key within the store table to store the data in
     --- @param subKey any? If the key is a table, the subkey is the key within that table to store data in
@@ -116,13 +141,13 @@ end
 
     --- If and only if the next micro-chunk's ID matches the provided ID, loads the micro-chunk as the provided data type and stores it in the provided key or subkey
     --- @param cload ChunkLoadInstance
-    --- @param dataType FundamentalDataType
+    --- @param dataType FundamentalDataType|string
     --- @param storeTable any The table where the read value will be stored
     --- @param key any The key within the store table to store the data in
     --- @param subKey any? If the key is a table, the subkey is the key within that table to store data in
     --- @return boolean # `true` if the current micro-chunk ID matched this ID, `false` if this function was skipped
     function STATIC.LoadMicroChunk( cload, dataType, storeTable, key, subKey )
-        local byteCount = deserializeLib.FundamentalDataTypeRegistry[dataType].Size
+        local byteCount = deserializeLib.GetDataTypeSize( dataType )
         if not byteCount then
             section.Error( "nil ByteCount during micro-chunk read of key:" .. ( key and key or "nil" ) )
         end
@@ -130,11 +155,11 @@ end
 
         local readByteCount, readByteString = cload:Read( byteCount )
         if readByteCount == 0 then
-            section.Error( "Failed to read micro chunk" )
+            section.Error( "Failed to read micro chunk of type '", deserializeLib.GetDataTypeName( dataType ), "' with an expected size of ", byteCount, " bytes due to only reading ", readByteCount, " bytes" )
         end
         --- @cast readByteString string
 
-        local convertedData = deserializeLib.DeserializeFundamentalDataType( dataType, readByteString )
+        local convertedData = deserializeLib.Deserialize( dataType, readByteString )
 
         if subKey ~= nil then
             local tbl
@@ -164,6 +189,8 @@ end
             section.Error( "Failed to read micro chunk string" )
         end
         --- @cast readByteString string
+
+        readByteString = readByteString:TrimRight( string.char( 0x00 ) )
 
         if subKey then
             local existingValue = key[subKey]

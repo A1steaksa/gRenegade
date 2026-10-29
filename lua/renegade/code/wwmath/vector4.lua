@@ -17,6 +17,19 @@ STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsVector4 = true
 
+--#region Exported Enums
+--#endregion
+
+--#region Imports
+
+	--- @type DeserializeLib
+	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+--#endregion
+
+--#region Imported Enums
+
+	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
+--#endregion
 
 --[[ Static Functions and Variables ]] do
 
@@ -40,6 +53,15 @@ INSTANCE.IsVector4 = true
     end
 
     typecheck.RegisterType( "Vector4Instance", STATIC.IsVector4 )
+
+    function STATIC.StaticConstructor()
+        deserializeLib.RegisterComplexDataType( "Vector4", {
+            { Name = "x", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "y", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "z", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "w", DataType = fundamentalDataTypeEnum.Float },
+        } )
+    end
 
     --- @param vector Vector4Instance
     --- @return Vector4Instance

@@ -38,26 +38,37 @@ end
 
 --- @class EnumBuilderInstance
 --- @field NextId integer The ID that will be assigned next
+--- @field PreviousId integer The ID that was most recently returned
 
 function INSTANCE:Renegade_EnumBuilder()
-    INSTANCE.NextId = 0
+    self.NextId = 0
+    self.PreviousId = 0
 end
 
 --- @return integer # The ID that should be used by the next enumeration
 function INSTANCE:Next()
-    local id = INSTANCE.NextId
-    INSTANCE.NextId = id + 1
+    local id = self.NextId
+    self.NextId = id + 1
+    self.PreviousId = id
     return id
 end
 
 --- @return integer # The ID that was used most recently
 function INSTANCE:Repeat()
-    return INSTANCE.NextId - 1
+    return self.PreviousId
+end
+
+--- @param offset integer The offset from the most recently used number to use. Passing `0` will repeat the previous number.
+function INSTANCE:Offset( offset )
+    return self.PreviousId + offset
 end
 
 --- @param newId integer The new starting ID
 --- @return integer # The new ID to allow for changing the next ID number and assigning that ID to an enumeration
 function INSTANCE:Set( newId )
-    INSTANCE.NextId = newId
-    return self:Next()
+    self.NextId = newId
+
+    local id = self:Next()
+    self.PreviousId = id
+    return id
 end

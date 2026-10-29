@@ -51,12 +51,12 @@ end
 Hex = LIB.Hex
 
 --- Converts a byte string into a printable binary string
---- @param byteString string
+--- @param bytes string
 --- @return string
-function LIB.Binary( byteString )
+function LIB.Binary( bytes )
     local outputBinaryString = ""
-    for i = 1, #byteString do
-        local char = string.byte( byteString, i, i )
+    for i = 1, #bytes do
+        local char = string.byte( bytes, i, i )
 
         local byteBinaryString = ""
         for j = 0, 7 do
