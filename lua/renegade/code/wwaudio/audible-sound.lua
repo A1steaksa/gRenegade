@@ -126,6 +126,7 @@ end
 --[[ Static Functions and Variables ]] do
 
     --- @class AudibleSoundClass
+    --- @field GeneratedSounds {[string]: boolean} To avoid trying to generate a sound twice
 
     STATIC.INFINITE_LOOPS = 0
 
@@ -147,6 +148,8 @@ end
     typecheck.RegisterType( "AudibleSoundInstance", STATIC.IsAudibleSound )
 
     function STATIC.StaticConstructor()
+        STATIC.GeneratedSounds = {}
+
         STATIC.AudibleSoundPersistFactory = simplePersistFactoryClass.New( STATIC, soundChunkIdEnum.CHUNKID_AUDIBLE_SOUND )
     end
 end
@@ -263,10 +266,33 @@ function INSTANCE:Play()
         self.Timestamp = CurTime()
         self.LoopsLeft = self.LoopCount
 
-        local fileName = self:GetFilename()
-        if fileName ~= nil and fileName ~= "" then
-            section.Print( "Dumping AudibleSound File: ", fileName )
-            file.Write( fileName --[[@as string]], self.Buffer.DecodedSamples )
+        --[[ Playing Source Engine Sound ]] do
+            if CLIENT then
+                local buffer = self.Buffer
+                if buffer == nil then
+                    section.Error()
+                end
+                --- @cast buffer SoundBufferInstance
+
+                local soundName = string.lower( "Renegade_" .. buffer:GetFilename() )
+
+                if STATIC.GeneratedSounds[soundName] == nil then
+                    STATIC.GeneratedSounds[soundName] = true
+
+                    sound.Generate( soundName, buffer.Rate, buffer.Duration, buffer.DecodedSamples )
+                end
+
+                local radius = self:GetDropOffRadius()
+
+                local level = 75
+                local pitch = self:GetPitchFactor() * 100
+                local volume = self:GetVolume()
+                local dsp = 0
+
+                local pos = self:GetPosition() + Vector( 0, 0, 1 )
+
+                sound.Play( soundName, pos, level, pitch, volume, dsp )
+            end
         end
 
         -- "If we have a valid handle, then start playing the sample"
