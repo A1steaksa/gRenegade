@@ -27,13 +27,15 @@ if SERVER then
 
     --- @param definitionId integer
     --- @param position Vector
-    --- @param classIdHint integer
+    --- @param classIdHint integer?
     function LIB.PlaySound( definitionId, position, classIdHint )
+        if classIdHint == nil then classIdHint = 0 end
+
         net.Start( "A1_Renegade_Sound" )
 
         net.WriteInt( definitionId, 32 )
         net.WriteVector( position )
-        net.WriteInt( classIdHint, 32 )
+        net.WriteInt( classIdHint or 0, 32 )
 
         net.Broadcast()
     end
