@@ -185,7 +185,7 @@ function INSTANCE:Load( cload )
         local chunkId = cload:CurChunkId()
 
         if chunkId == ids.CHUNKID_DIALOGUE_VARIABLES then
-            self:LoadVariables( cload )
+            INSTANCE.LoadVariables( self, cload )
 
         elseif chunkId == ids.CHUNKID_DIALOGUE_OPTION then
             -- "Create a new option object and add it to the list"

@@ -123,7 +123,7 @@ end
         while cload:OpenChunk() do
             local chunkId = cload:CurChunkId()
             if chunkId == STATIC.ChunkIds.CHUNKID_VARIABLES then
-                self:LoadVariables( cload )
+                INSTANCE.LoadVariables( self, cload )
             end
 
             cload:CloseChunk()
