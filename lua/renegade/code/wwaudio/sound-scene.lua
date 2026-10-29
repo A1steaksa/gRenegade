@@ -236,7 +236,7 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:LoadDynamic( cload )
-	typecheck.NotImplementedError()
+	return true
 end
 
 function INSTANCE:IsBatchMode()

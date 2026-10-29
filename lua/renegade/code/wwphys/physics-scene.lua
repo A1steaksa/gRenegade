@@ -177,8 +177,23 @@ function INSTANCE:AddStaticLight()
 	typecheck.NotImplementedError()
 end
 
-function INSTANCE:RemoveObject()
-	typecheck.NotImplementedError()
+--- @param object PhysicsInstance
+function INSTANCE:RemoveObject( object )
+
+	-- "NOTE: Sometimes the game tries to 'remove' objects that havent been added..."
+	if not self:Contains( object ) then return end
+
+	-- "Assert that the object is valid"
+	assert( object ~= nil )
+
+	-- "Notify the observer (if it has one)"
+	if object:GetObserver() ~= nil then
+		object:GetObserver():ObjectRemovedFromScene( object )
+	end
+
+
+	-- Omitting a bunch of things
+	table.RemoveByValue( self.ObjectList, object )
 end
 
 function INSTANCE:RemoveAll()

@@ -71,7 +71,7 @@ end
 --- @class SoundPseudo3DInstance
 
 function INSTANCE:Renegade_SoundPseudo3D()
-	typecheck.NotImplementedError()
+	-- Empty in the original code
 end
 
 function INSTANCE:_Renegade_SoundPseudo3D()
@@ -119,8 +119,9 @@ function INSTANCE:SetDropOffRadius()
 	typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetDropOffRadius()
-	typecheck.NotImplementedError()
+	return self.DropOffRadius
 end
 
 function INSTANCE:UpdatePseudoVolume()
