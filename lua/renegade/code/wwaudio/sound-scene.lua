@@ -211,8 +211,8 @@ function INSTANCE:LoadStatic( cload )
 			-- "Read all the variables from their micro-chunks"
 			while cload:OpenMicroChunk() do
 				local microId = cload:CurMicroChunkId()
-				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_MIN_DIM, "Vector", self, "MinExtents" )
-				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_MAX_DIM, "Vector", self, "MaxExtents" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_MIN_DIM, "Vector3", self, "MinExtents" )
+				chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_MAX_DIM, "Vector3", self, "MaxExtents" )
 
 				cload:CloseMicroChunk()
 			end
@@ -222,7 +222,13 @@ function INSTANCE:LoadStatic( cload )
 	end
 
 	self:RePartition( self.MinExtents, self.MaxExtents )
-	self:OnFrameUpdate( 0 )
+	
+	
+	
+	-- Omitted call to OnFrameUpdate
+	-- self:OnFrameUpdate( 0 )
+
+	
 	self._IsBatchMode = false
 	return true
 end
