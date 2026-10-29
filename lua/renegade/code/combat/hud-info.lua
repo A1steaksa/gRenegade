@@ -181,8 +181,13 @@ end
             else
                 if not IsValid( infoEntity ) then return end
 
-                local bounds = infoEntityLib.GetEntityWorldBoundingBox( infoEntity )
-                local shouldCullTarget = combatManagerClass:GetCamera():CullBox( bounds )
+                -- Hacky replacement for the original logic used to determine if the model is on-screen
+                -- because the original was extremely slow and caused noticeable FPS drops when targeting something
+                local camera = combatManagerClass:GetCamera()
+                local cameraForward = camera:GetTransform():GetXVector()
+                local diff = ( infoEntity:GetPos() - camera:GetTransform():GetTranslation() ):GetNormalized()
+                local shouldCullTarget = math.abs( cameraForward:Dot( diff ) ) > 0.8
+
                 if shouldCullTarget then
                     STATIC.InfoEntity = NULL
                 end
