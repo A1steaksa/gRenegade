@@ -128,20 +128,22 @@ local isHotload = not table.IsEmpty( STATIC )
 
     --[[ Pointer Remapping Interface ]] do
 
-        --- @param oldPointer any
-        --- @param newPointer any
+        --- @param oldPointer integer
+        --- @param newPointer table
         function STATIC.RegisterPointer( oldPointer, newPointer )
-            section.Warn( STATIC.Class, " - RegisterPointer - Skipping registering ('", oldPointer, "' => '", newPointer, "')" )
+            STATIC.PointerRemapper:RegisterPointer( oldPointer, newPointer )
         end
 
-        --- @param pointerToConvert any
+        --- @param pointerToConvert integer
+        --- @return table
         function STATIC.RequestPointerRemap( pointerToConvert )
-            section.Warn( STATIC.Class, " - RequestPointerRemap - Skipping remapping ", pointerToConvert )
+            return STATIC.PointerRemapper:RequestPointerRemap( pointerToConvert )
         end
 
-        --- @param pointerToConvert any
+        --- @param pointerToConvert integer
+        --- @return table
         function STATIC.RequestRefCountedPointerRemap( pointerToConvert )
-            section.Warn( STATIC.Class, " - RequestRefCountedPointerRemap - Skipping remapping ", pointerToConvert )
+            return STATIC.PointerRemapper:RequestPointerRemap( pointerToConvert )
         end
     end
 
