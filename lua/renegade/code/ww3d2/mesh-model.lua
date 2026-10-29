@@ -85,6 +85,7 @@ INSTANCE.IsMeshModel = true
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 	local dstBlendFuncEnum = shaderClass.DST_BLEND_FUNC
 	local alphaTestEnum = shaderClass.ALPHA_TEST
+	local cullModeEnum = shaderClass.CULL_MODE
 --#endregion
 
 --[[ Static Functions and Variables ]] do
@@ -307,6 +308,10 @@ end
         render.OverrideDepthEnable( true, true )
 		render.OverrideAlphaWriteEnable( true, true )
 		render.CullMode( MATERIAL_CULLMODE_CW )
+
+		if self.CurrentMaterialDescription.Shader[1].CullMode == cullModeEnum.Disable then
+			render.CullMode( MATERIAL_CULLMODE_NONE )
+		end
 
 		if istable( arg1 ) then
 			local bones = arg1 --[[@as VMatrix[] ]]
