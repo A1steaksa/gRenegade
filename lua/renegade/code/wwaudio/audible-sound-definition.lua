@@ -54,14 +54,16 @@ INSTANCE.IsAudibleSoundDefinition = true
 
 	--- @type RenderObjectClass
 	local renderObjectClass = CNC.Import( "code/ww3d2/render-object.lua" )
+
+	--- @type DefinitionClassIds
+	local definitionClassIds = CNC.Import( "code/wwsaveload/definition-class-ids.lua" )
 --#endregion
 
 --#region Imported Enums
 
 	local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
-	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_IDS
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_ID
 	local soundTypeEnum = audibleSoundClass.SOUND_TYPE
-	local renderObjectClassIdEnum = renderObjectClass.RENDER_OBJECT_CLASS_ID
 	local soundClassIdEnum = wWAudioClass.SOUND_CLASSID
 --#endregion
 
@@ -179,7 +181,7 @@ end
 
 --- @return RenderObjectClassId
 function INSTANCE:GetClassId()
-	return renderObjectClassIdEnum.CLASSID_SOUND
+	return definitionClassIds.CLASS_ID.SOUND
 end
 
 --- @return PersistFactoryInstance
@@ -370,11 +372,8 @@ end
 --- @param cload ChunkLoadInstance
 --- @return boolean
 function INSTANCE:LoadVariables( cload )
-
 	-- "Loop through all the microchunks that define the variables"
 	while cload:OpenMicroChunk() do
-		local id = cload:CurMicroChunkId()
-
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PRIORITY, fundamentalDataTypeEnum.Float, self, "Priority" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_VOLUME, fundamentalDataTypeEnum.Float, self, "Volume" )
 		chunkIOClass.ReadMicroChunk( cload, STATIC.VarIds.VARID_PAN, fundamentalDataTypeEnum.Float, self, "Pan" )
