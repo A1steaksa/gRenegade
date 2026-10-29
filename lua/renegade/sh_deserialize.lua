@@ -128,9 +128,10 @@ end
         }
     end
 
-    --- @param name string
+    --- @generic T
+    --- @param name `T`
     --- @param schema ComplexDataTypeSchema
-    --- @param postLoadTransformationCallback ( fun( name: string, loadedData: table ): any )?
+    --- @param postLoadTransformationCallback ( fun( name: string, loadedData: `T`, bytes: string ): any? )?
     function STATIC.RegisterComplexDataType( name, schema, postLoadTransformationCallback )
         local size = STATIC.CalculateSchemaSize( schema )
 
@@ -274,6 +275,22 @@ end
     end
 end
 
+--[[ Complex Data Type Stack ]] do
+
+    --- A stack of the tables being deserialized
+    --- @type table[]
+    STATIC.Stack = {}
+
+    --- @param dataType table
+    function STATIC.PushComplexDataType( dataType )
+        STATIC.Stack[#STATIC.Stack + 1] = dataType
+    end
+
+    --- @return table
+    function STATIC.PopComplexDataType()
+        return table.remove( STATIC.Stack, #STATIC.Stack )
+    end
+end
 
 --[[ Deserializers ]] do
 
@@ -284,6 +301,20 @@ end
     -- meet someday, and you think this stuff is worth it, you can
     -- buy me a beer in return.
     -- ----------------------------------------------------------------------------
+
+    --- @generic T
+    --- @param dataType `T`
+    --- @param bytes string
+    --- @return `T`, string remainingBytes
+    function STATIC.ReadComplexDataType( dataType, bytes )
+        local typeSize = STATIC.GetComplexDataTypeSize( dataType )
+        local typeBytes = bytes:sub( 1, typeSize )
+        bytes = bytes:sub( typeSize + 1 )
+        local readType = STATIC.DeserializeComplexDataType( dataType, typeBytes )
+        assert( readType ~= nil )
+
+        return readType, bytes
+    end
 
     --- @generic T
     --- @param dataType FundamentalDataType|`T`
@@ -350,6 +381,8 @@ end
         else
             result = {}
         end
+
+        STATIC.PushComplexDataType( result )
 
         local schema = registeryEntry.Schema
         for schemaFieldIndex, schemaField in ipairs( schema ) do
@@ -421,11 +454,13 @@ end
         end
 
         if registeryEntry.PostLoadTransformationCallback ~= nil then
-            local returnedResult = registeryEntry.PostLoadTransformationCallback( registeryEntry.Name, result )
+            local returnedResult = registeryEntry.PostLoadTransformationCallback( registeryEntry.Name, result, bytes )
             if returnedResult ~= nil then
                 result = returnedResult
             end
         end
+
+        STATIC.PopComplexDataType()
 
         return result
     end
