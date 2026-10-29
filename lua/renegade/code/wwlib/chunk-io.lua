@@ -17,13 +17,38 @@ STATIC.Class = "ChunkIOClass"
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type SaveLoadIds
+	local saveLoadIds = CNC.Import( "code/wwsaveload/save-load-ids.lua" )
+
+	--- @type CommandoChunkIds
+	local commandoChunkIds = CNC.Import( "code/commando/commando-chunk-ids.lua" )
+
+	--- @type SoundChunkIds
+	local soundChunkIds = CNC.Import( "code/wwaudio/sound-chunk-ids.lua" )
+
+	--- @type CombatChunkIdClass
+	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 --#endregion
 
 
 --#region Imported Enums
+
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_ID
 --#endregion
 
 --- @class ChunkIOClass
+
+--- @param chunkId integer
+--- @return string
+function STATIC.GetChunkIdName( chunkId )
+    local chunkName = table.KeyFromValue( combatChunkIdClass, chunkId )
+    chunkName = chunkName or table.KeyFromValue( soundChunkIdEnum, chunkId )
+    chunkName = chunkName or table.KeyFromValue( commandoChunkIds.CHUNK_ID, chunkId )
+    chunkName = chunkName or table.KeyFromValue( saveLoadIds.ChunkIds, chunkId )
+
+    return ( chunkName == nil and "unknown" or chunkName )
+end
 
 
 -- These were originally macros in Code/wwlib/chunkio.cpp/h but for our purposes it makes more sense to include them here.

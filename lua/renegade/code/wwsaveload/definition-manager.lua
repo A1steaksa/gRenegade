@@ -37,9 +37,6 @@ INSTANCE.IsDefinitionManager = true
     --- @type EnumBuilderClass
     local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    --- @type CombatChunkIdClass
-    local combatChunkId = CNC.Import( "code/combat/combat-chunk-id.lua" )
-
     --- @type SaveLoadSystemClass
     local saveLoadSystemClass = CNC.Import( "code/wwsaveload/save-load.lua" )
 
@@ -48,6 +45,9 @@ INSTANCE.IsDefinitionManager = true
 
     --- @type DefinitionClassIds
     local definitionClassIds = CNC.Import( "code/wwsaveload/definition-class-ids.lua" )
+
+    --- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 
@@ -265,6 +265,8 @@ end
         local retVal = true
 
         local loadedDefinitionCount = 0
+
+        --- @type {[integer]: { Pos: integer, FileName: string }}
         local chunkIdsWithoutFactories = {}
 
         section.Start( "Loading Definition Manager Objects" )
@@ -276,16 +278,16 @@ end
             if factory ~= nil then
                 local definition = factory:Load( cload )
                 loadedDefinitionCount = loadedDefinitionCount + 1
-                if definition then
-
-                    -- section.Print( "Loaded definition ID ", definition.Id, " for '", definition.Name, "'" )
-
+                if definition ~= nil then
                     -- "Add this definition to our array"
                     STATIC.IdToDefinition[definition:GetId()] = definition
                     STATIC.NameToDefinition[definition:GetName()] = definition
                 end
             else
-                chunkIdsWithoutFactories[cload:CurChunkId()] = true
+                chunkIdsWithoutFactories[cload:CurChunkId()] = {
+                    Pos = cload:Tell(),
+                    FileName = cload.File:FileName()
+                }
             end
 
             cload:CloseChunk()
@@ -298,8 +300,21 @@ end
         -- Omitted manager link for now
         section.End( "Loaded ", loadedDefinitionCount, " definitions" )
 
-        local text = table.concat(  table.GetKeys( chunkIdsWithoutFactories ), ", " )
-        section.Print( table.Count( chunkIdsWithoutFactories ), " total missing factories: ", text )
+
+        local doVerboseFactoryReport = true
+        if doVerboseFactoryReport then
+
+            for chunkId, info in pairs( chunkIdsWithoutFactories ) do
+                local chunkName = chunkIOClass.GetChunkIdName( chunkId )
+                section.Print( "Chunk ID ", chunkId, " (", chunkName, ") has no factory registered" )
+            end
+
+        else
+            local text = table.concat(  table.GetKeys( chunkIdsWithoutFactories ), ", " )
+            section.Print( table.Count( chunkIdsWithoutFactories ), " total missing factories: ", text )
+        end
+
+
 
         return retVal
     end
@@ -315,17 +330,11 @@ end
     function INSTANCE:LoadVariables( cload )
         local retVal = true
 
-        section.Start( "Loading Definition Manager Variables" )
-
-        local microChunksSkipped = 0
-
         -- "Loop through all the microchunks that define the variables"
         while cload:OpenMicroChunk() do
-            microChunksSkipped = microChunksSkipped + 1
+            -- Empty in the original code
             cload:CloseMicroChunk()
         end
-
-        section.End( "(Fake) Loaded ", microChunksSkipped, " variable microchunks" )
 
         return retVal
     end
