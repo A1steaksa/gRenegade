@@ -184,6 +184,8 @@ end
 
 --- @param src AudibleSoundInstance?
 function INSTANCE:Renegade_AudibleSound( src )
+    soundSceneObjectClass.Instance.Renegade_SoundSceneObject( self )
+
     self.Priority = 0.5
     self.RuntimePriority = 0
     self.SoundHandle = nil
@@ -220,6 +222,8 @@ function INSTANCE:Renegade_AudibleSound( src )
 end
 
 function INSTANCE:_Renegade_AudibleSound()
+    soundSceneObjectClass.Instance._Renegade_SoundSceneObject( self )
+
     typecheck.NotImplementedError()
 end
 
