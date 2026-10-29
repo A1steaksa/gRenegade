@@ -372,12 +372,14 @@ function INSTANCE:GetTimestamp()
     typecheck.NotImplementedError()
 end
 
+--- @return integer
 function INSTANCE:GetVirtualChannel()
-    typecheck.NotImplementedError()
+    return self.VirtualChannel
 end
 
-function INSTANCE:SetVirtualChannel()
-    typecheck.NotImplementedError()
+--- @param channel integer
+function INSTANCE:SetVirtualChannel( channel )
+    self.VirtualChannel = channel
 end
 
 --- @return string?
@@ -399,12 +401,14 @@ function INSTANCE:SetPan()
     typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetVolume()
-    typecheck.NotImplementedError()
+    return self.Volume
 end
 
-function INSTANCE:SetVolume()
-    typecheck.NotImplementedError()
+--- @param volume number
+function INSTANCE:SetVolume( volume )
+    self:InternalSetVolume( math.Clamp( volume, 0.0, 1.0 ) )
 end
 
 function INSTANCE:UpdateVolume()
@@ -428,25 +432,37 @@ function INSTANCE:SetLoopCount( count )
     -- Omitted setting the loop count in Miles
 end
 
-function INSTANCE:GetPriority()
-    typecheck.NotImplementedError()
+--[[ Priority Control ]] do
+
+    --- @return number
+    function INSTANCE:GetPriority()
+        return self.Priority
+    end
+
+    --- @return number
+    function INSTANCE:PeekPriority()
+        return self.Priority
+    end
+
+    --- @param priority number? [Default: `0.5`]
+    function INSTANCE:SetPriority( priority )
+        if priority == nil then priority = 0.5 end
+
+        -- "Cache the normalized priority"
+        self.Priority = math.Clamp( priority, 0, 1.0 )
+    end
+
+    --- @return number
+    function INSTANCE:GetRuntimePriority()
+        return self.RuntimePriority
+    end
+
+    --- @param priority number
+    function INSTANCE:SetRuntimePriority( priority )
+        self.RuntimePriority = priority
+    end
 end
 
-function INSTANCE:PeekPriority()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetPriority()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetRuntimePriority()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetRuntimePriority()
-    typecheck.NotImplementedError()
-end
 
 function INSTANCE:GetPlaybackRate()
     typecheck.NotImplementedError()
@@ -456,40 +472,60 @@ function INSTANCE:SetPlaybackRate()
     typecheck.NotImplementedError()
 end
 
+--- @return number
 function INSTANCE:GetPitchFactor()
-    typecheck.NotImplementedError()
+    return self.PitchFactor
 end
 
-function INSTANCE:SetPitchFactor()
-    typecheck.NotImplementedError()
+--- @param factor number
+function INSTANCE:SetPitchFactor( factor )
+    self.PitchFactor = factor
+
+    -- Omitted sound handle 
 end
 
-function INSTANCE:GetDuration()
-    typecheck.NotImplementedError()
+
+--[[ Buffer Position Manipulation ]] do
+
+    --- @return integer
+    function INSTANCE:GetDuration()
+        return self.Length
+    end
+
+    --- @return integer
+    function INSTANCE:GetPlayPosition()
+        return self.CurrentPosition
+    end
+
+    --- @param pos integer
+    function INSTANCE:SetPlayPosition( pos )
+        if pos <= 1 then
+            -- Assume it's a percentage float
+            self:Seek( pos * self.Length )
+        else
+            self:Seek( pos )
+        end
+    end
+
+    --- @param offset number
+    function INSTANCE:SetStartOffset( offset )
+        self.StartOffset = offset
+    end
+
+    --- @return number
+    function INSTANCE:GetStartOffset()
+        return self.StartOffset
+    end
 end
 
-function INSTANCE:GetPlayPosition()
-    typecheck.NotImplementedError()
+--- @param pos Vector
+function INSTANCE:SetPosition( pos )
+    self.Transform:SetTranslation( pos )
 end
 
-function INSTANCE:SetPlayPosition()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetStartOffset()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:GetStartOffset()
-    typecheck.NotImplementedError()
-end
-
-function INSTANCE:SetPosition()
-    typecheck.NotImplementedError()
-end
-
+--- @return Vector
 function INSTANCE:GetPosition()
-    typecheck.NotImplementedError()
+    return self.Transform:GetTranslation()
 end
 
 function INSTANCE:SetListenerTransform()
@@ -535,12 +571,17 @@ function INSTANCE:RemoveFromScene()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:SetDropOffRadius()
-    typecheck.NotImplementedError()
+--- @param radius number? [Default: `1`]
+function INSTANCE:SetDropOffRadius( radius )
+    if radius == nil then radius = 1 end
+
+    self.DropOffRadius = radius
+    self:SetDirty()
 end
 
+--- @return number
 function INSTANCE:GetDropOffRadius()
-    typecheck.NotImplementedError()
+    return self.DropOffRadius
 end
 
 --[[ Update Methods ]] do
@@ -559,14 +600,19 @@ end
 end
 
 
-function INSTANCE:SetDefinition()
-    typecheck.NotImplementedError()
+--[[ Definition Management ]] do
+
+    --- @param definition AudibleSoundDefinitionInstance
+    function INSTANCE:SetDefinition( definition )
+        self.Definition = definition
+    end
+
+    --- @return AudibleSoundDefinitionInstance
+    function INSTANCE:GetDefinition()
+        return self.Definition
+    end
 end
 
---- @return AudibleSoundDefinitionInstance
-function INSTANCE:GetDefinition()
-    return self.Definition
-end
 
 function INSTANCE:ReSync()
     typecheck.NotImplementedError()
@@ -657,8 +703,11 @@ function INSTANCE:DetermineRealVolume()
     typecheck.NotImplementedError()
 end
 
-function INSTANCE:InternalSetVolume()
-    typecheck.NotImplementedError()
+--- @param volume number
+function INSTANCE:InternalSetVolume( volume )
+    self.Volume = math.Clamp( volume, 0.0, 1.0 )
+
+    -- Omitted some Miles stuff
 end
 
 function INSTANCE:UpdateFade()
