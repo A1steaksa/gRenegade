@@ -82,7 +82,7 @@ end
 --- "From SaveLoadSubSystemClass"
 --- @return integer
 function INSTANCE:ChunkId()
-	return soundChunkIds.SOUND_CHUNK_IDS.CHUNKID_STATIC_SAVELOAD
+	return soundChunkIds.SOUND_CHUNK_ID.CHUNKID_STATIC_SAVELOAD
 end
 
 --- @return boolean
