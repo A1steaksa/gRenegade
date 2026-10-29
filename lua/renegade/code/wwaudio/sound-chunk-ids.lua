@@ -27,7 +27,7 @@ local STATIC = CNC.CreateExport()
     --- These are used when building the PersistFactoryClass's for definitions.
     --- "  
     --- @enum SoundChunkId
-    STATIC.SOUND_CHUNK_IDS = {
+    STATIC.SOUND_CHUNK_ID = {
         CHUNKID_SOUND_DEF        = enumBuilder:Set( saveLoadIds.ChunkIds.CHUNKID_WWAUDIO_BEGIN ),
         CHUNKID_AUDIBLE_SOUND    = enumBuilder:Next(),
         CHUNKID_FILTERED_SOUND   = enumBuilder:Next(),

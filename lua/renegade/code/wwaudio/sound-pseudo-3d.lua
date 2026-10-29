@@ -37,7 +37,7 @@ INSTANCE.IsSoundPseudo3D = true
 
 --#region Imported Enums
 
-	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_IDS
+	local soundChunkIdEnum = soundChunkIds.SOUND_CHUNK_ID
 	local soundClassIdEnum = wWAudioClass.SOUND_CLASSID
 --#endregion
 
