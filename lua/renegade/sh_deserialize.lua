@@ -75,7 +75,7 @@ STATIC.FundamentalDataTypeRegistry = STATIC.FundamentalDataTypeRegistry or {}
 --- @field Name string The name that will be used to reference to this data type
 --- @field Schema ComplexDataTypeSchema The layout of the complex data type
 --- @field Size integer The size, in bytes, of this data type
---- @field PostLoadTransformationCallback (fun( name: string, loadedData: table ): any)? The callback used to transform this data type after it has loaded.  Returned values will replace the loaded data.
+--- @field PostLoadTransformationCallback ( fun( name: string, loadedData: table, bytes: string ): any? )? The callback used to transform this data type after it has loaded.  Returned values will replace the loaded data.
 
 --- @type table<string, ComplexDataTypeInfo>
 STATIC.ComplexDataTypeRegistry = STATIC.ComplexDataTypeRegistry or {}
@@ -94,6 +94,10 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
     STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,     0, 4,  STATIC.DeserializeUInt32  )
 
+    --- @class Vector3
+    --- @field X number
+    --- @field Y number
+    --- @field Z number
     STATIC.RegisterComplexDataType( "Vector3",
         {
             { Name = "X", DataType = fundamentalDataTypeEnum.Float },
@@ -200,7 +204,6 @@ end
         return schemaSize
     end
 end
-
 
 --[[ Accessors ]] do
 
@@ -405,7 +408,11 @@ end
                     local extractedBytes = bytes:sub( 1, bytesToRead )
                     bytes = bytes:sub( bytesToRead + 1 )
                     if extractedBytes:len() ~= bytesToRead then
-                        section.Error( "Tried to extract ", bytesToRead, " bytes but got ", extractedBytes:len(), " bytes instead" )
+                        section.Error(
+                            "While deserializing ComplexDataType '", registeryEntry.Name, "', the field '", schemaField.Name,
+                            "' of type '", deserializeLib.GetDataTypeName( schemaField.DataType ), "' only read ",
+                            extractedBytes:len(), " bytes instead of the expected ", bytesToRead, " bytes"
+                        )
                     end
 
                     result[schemaField.Name] = STATIC.Deserialize( schemaField.DataType, extractedBytes )

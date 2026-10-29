@@ -49,10 +49,6 @@ INSTANCE.IsListener3D = true
     end
 
     typecheck.RegisterType( "Listener3dInstance", STATIC.IsListener3d )
-
-	function STATIC.StaticConstructor()
-		-- This function is here to hopefully prevent it from calling the static constructor function on the parent class during import
-	end
 end
 
 

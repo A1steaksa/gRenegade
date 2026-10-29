@@ -122,9 +122,9 @@ end
 --- @field SunLight LightInstance
 --- @field DynamicPolyBudget integer
 --- @field StaticPolyBudget integer
---- @field ObjectList RefPhysicsListInstance
---- @field StaticObjectList RefPhysicsListInstance
---- @field StaticLightList RefPhysicsListInstance
+--- @field ObjectList PhysicsInstance[]
+--- @field StaticObjectList PhysicsInstance[]
+--- @field StaticLightList PhysicsInstance[]
 --- @field StaticProjectorList TexProjListInstance
 --- @field DynamicProjectorList TexProjListInstance
 --- @field DirtyCullList RefPhysicsListInstance

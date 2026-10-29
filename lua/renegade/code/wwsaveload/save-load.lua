@@ -79,7 +79,10 @@ local isHotload = not table.IsEmpty( STATIC )
                 if sys then
                     ok = ok and sys:Load( cload )
                 else
-                    section.Warn( "Ignoring chunk ID ", cload:CurChunkId(), " due to no registered sub system handling it" )
+
+                    local chunkName = chunkIOClass.GetChunkIdName( chunkId )
+
+                    section.Warn( "Ignoring chunk ID ", chunkId, " (", chunkName, ") due to no registered sub system handling it" )
                 end
 
                 cload:CloseChunk()
@@ -185,9 +188,9 @@ local isHotload = not table.IsEmpty( STATIC )
         function STATIC.RegisterPersistFactory( factory )
 
             local chunkId = factory:ChunkId()
-            local chunkName = table.KeyFromValue( combatChunkIdClass, chunkId )
+            local chunkName = chunkIOClass.GetChunkIdName( chunkId )
 
-            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", chunkId, " (", chunkName, ")" )
+            section.Print( Color( 25, 255, 0 ), "Registering factory for Chunk ID ", chunkId, " (", ( chunkName or "UNKNOWN" ), ")" )
 
             STATIC.LinkFactory( factory )
         end
@@ -231,7 +234,7 @@ local isHotload = not table.IsEmpty( STATIC )
                 section.Error( "Persist Factory does not have a valid chunk ID: " .. ( chunkId ~= nil and chunkId or "nil" ) )
             end
 
-            if STATIC.IdToFactory[chunkId] then
+            if STATIC.IdToFactory[chunkId] ~= nil then
                 section.Error( "Persist Factory chunk ID re-use detected!" )
             end
 

@@ -179,11 +179,8 @@ end
         -- then we need to re-link ourselves back into the list
         -- "
         if self.DefinitionManagerLink ~= -1 then
-            section.Print( "Register definition!" )
             definitionManagerClass.UnregisterDefinition( self )
             definitionManagerClass.RegisterDefinition( self )
-        else
-            section.Print( "I'll never register a definition, dad!" )
         end
     end
 

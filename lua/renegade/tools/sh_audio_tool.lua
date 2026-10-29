@@ -60,8 +60,6 @@ function STATIC.LoadFile( fileName )
     STATIC.LoadedSound = soundBufferClass.New()
     STATIC.LoadedSound:LoadFromFile( STATIC.FileName )
 
-    file.Write( "my_decompressed.txt", STATIC.LoadedSound.DecodedSamples )
-
     STATIC.PopulateFileInfo()
 end
 

@@ -423,9 +423,6 @@ end
 --- @param bytes string
 --- @return WaveFile
 function LIB.DeserializeWaveFile( bytes )
-
-    file.Write( "wave_bytes.txt", bytes )
-
     local format = deserializeLib.DeserializeFundamentalDataType( fundamentalDataTypeEnum.UInt16, bytes:sub( 21, 22 ) )
 
     if format == waveFormatEnum.WAVE_FORMAT_IMA_ADPCM then

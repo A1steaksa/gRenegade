@@ -82,7 +82,7 @@ function INSTANCE:Renegade_RawFile( fileName )
         self.Date = 0
         self.Time = 0
 
-    -- (): string
+    -- ()
     else
         fileClass.Instance.Renegade_File( self )
 
