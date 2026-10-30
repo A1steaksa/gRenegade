@@ -52,7 +52,7 @@ INSTANCE.IsSimpleGameObjectDefinition = true
 
 --#region Imported Enums
 
-    local typeEnum = playerTerminalClass.TYPE
+    local playerTerminalTypeEnum = playerTerminalClass.PLAYER_TERMINAL_TYPE
     local fundamentalDataTypeEnum = deserializeLib.FUNDAMENTAL_DATA_TYPE
 --#endregion
 
@@ -109,7 +109,7 @@ function INSTANCE:Renegade_SimpleGameObjectDefinition()
 
     self.IsEditorObject = false
     self.IsHiddenObject = false
-    self.PlayerTerminalType = typeEnum.TYPE_NONE
+    self.PlayerTerminalType = playerTerminalTypeEnum.TYPE_NONE
 end
 
 --- @return integer

@@ -21,31 +21,31 @@ INSTANCE.IsPlayerTerminal = true
 --#region Exported Enums
 
     --- @type EnumBuilderClass
-    local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
+	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
 
-    local builder = enumBuilderClass.New()
+    local enumBuilder = enumBuilderClass.New()
 
     --- @enum PlayerTerminalType
-    STATIC.TYPE = {
-        TYPE_NONE   = builder:Set( -1 ),
-        TYPE_GDI    = builder:Set( 0 ),
-        TYPE_NOD    = builder:Next(),
-        TYPE_MUTANT = builder:Next(),
+    STATIC.PLAYER_TERMINAL_TYPE = {
+        TYPE_NONE   = enumBuilder:Set( -1 ),
+        TYPE_GDI    = enumBuilder:Set( 0 ),
+        TYPE_NOD    = enumBuilder:Next(),
+        TYPE_MUTANT = enumBuilder:Next()
     }
-    local typeEnum = STATIC.TYPE
+    local playerTerminalTypeEnum = STATIC.PLAYER_TERMINAL_TYPE
 --#endregion
 
 --#region Imports
 --#endregion
 
-
 --#region Imported Enums
 --#endregion
+
 
 --[[ Static Functions and Variables ]] do
 
     --- @class PlayerTerminalClass
-    --- @field TheInstance PlayerTerminalInstance
+	--- @field TheInstance PlayerTerminalInstance
 
     --- Creates a new PlayerTerminalInstance
     --- @return PlayerTerminalInstance
@@ -64,12 +64,13 @@ INSTANCE.IsPlayerTerminal = true
 
     typecheck.RegisterType( "PlayerTerminalInstance", STATIC.IsPlayerTerminal )
 
-    function STATIC.GetInstance()
-        if not STATIC.TheInstance then
-            STATIC.TheInstance = STATIC.New()
-        end
-        return STATIC.TheInstance
+    function STATIC.StaticConstructor()
+        STATIC.TheInstance = STATIC.New()
     end
+
+	function STATIC.GetInstance()
+        return STATIC.TheInstance
+	end
 end
 
 
@@ -79,17 +80,13 @@ function INSTANCE:_Renegade_PlayerTerminal()
     -- Empty in the original code
 end
 
---[[ Display Methods ]] do
-
-    --- @param player SoldierGameObjectInstance
-    --- @param type PlayerTerminalType
-    function INSTANCE:DisplayTerminal( player, type )
-        -- Empty in the original code
-    end
-
-    --- @param player SoldierGameObjectInstance
-    function INSTANCE:DisplayDefaultTerminalForPlayer( player )
-        -- Empty in the original code
-    end
+--- @param player SoldierGameObjectInstance
+--- @param type PlayerTerminalType
+function INSTANCE:DisplayTerminal( player, type )
+	-- Empty in the original code
 end
 
+--- @param player SoldierGameObjectInstance
+function INSTANCE:DisplayDefaultTerminalForPlayer( player )
+	-- Empty in the original code
+end
