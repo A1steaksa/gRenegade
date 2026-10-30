@@ -86,9 +86,6 @@ end
     --- @type table<integer, DefinitionInstance>
     STATIC.IdToDefinition = {}
 
-    --- @type table<string, DefinitionInstance>
-    STATIC.NameToDefinition = {}
-
     --- Creates a new DefinitionManagerInstance
     --- @return DefinitionManagerInstance
     function STATIC.New()
@@ -134,13 +131,9 @@ end
         --- @param twiddle boolean? [Default: `true`]
         --- @return DefinitionInstance?
         function STATIC.FindNamedDefinition( name, twiddle )
-            local definition = STATIC.NameToDefinition[name]
-
-            if twiddle then
-                typecheck.NotImplementedError()
+            for _, definition in pairs( STATIC.IdToDefinition ) do
+                if definition:GetName() == name then return definition end
             end
-
-            return definition
         end
 
         --- @param name string
@@ -193,7 +186,6 @@ end
 
     function STATIC.FreeDefinitions()
         STATIC.IdToDefinition = {}
-        STATIC.NameToDefinition = {}
     end
 end
 
@@ -281,7 +273,6 @@ end
                 if definition ~= nil then
                     -- "Add this definition to our array"
                     STATIC.IdToDefinition[definition:GetId()] = definition
-                    STATIC.NameToDefinition[definition:GetName()] = definition
                 end
             else
                 chunkIdsWithoutFactories[cload:CurChunkId()] = {
