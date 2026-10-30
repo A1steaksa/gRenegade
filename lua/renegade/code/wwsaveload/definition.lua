@@ -101,6 +101,10 @@ function INSTANCE:Renegade_Definition()
     self.DefinitionManagerLink = -1
 end
 
+function INSTANCE:_Renegade_Definition()
+    persistClass.Instance._Renegade_Persist( self )
+end
+
 --[[ Save & Load ]] do
 
     --- @param csave ChunkSaveInstance

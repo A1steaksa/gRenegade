@@ -65,6 +65,10 @@ function INSTANCE:Renegade_Persist()
     postLoadableClass.Instance.Renegade_PostLoadable( self )
 end
 
+function INSTANCE:_Renegade_Persist()
+    postLoadableClass.Instance._Renegade_PostLoadable( self )
+end
+
 --- @return PersistFactoryInstance?
 function INSTANCE:GetFactory()
 end

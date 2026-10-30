@@ -55,6 +55,10 @@ function INSTANCE:Renegade_PostLoadable()
     self._IsPostLoadRegistered = false
 end
 
+function INSTANCE:_Renegade_PostLoadable()
+    -- Intentionally empty for children to call
+end
+
 function INSTANCE:OnPostLoad()
 end
 
