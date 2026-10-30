@@ -60,9 +60,6 @@ INSTANCE.IsPurchaseSettingsDefinition = true
 	--- @type CombatChunkIdClass
 	local combatChunkIdClass = CNC.Import( "code/combat/combat-chunk-id.lua" )
 
-	--- @type ClassUtils
-	local classUtils = CNC.Import( "sh_class-utils.lua" )
-
 	--- @type ChunkIOClass
 	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 
@@ -134,7 +131,7 @@ end
 		STATIC.PurchaseDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkIdClass.CLASSID_GLOBAL_SETTINGS_DEF_PURCHASE, "Purchase Settings" )
 
 		STATIC.DefinitionArray = {}
-		for typeIndex = 1, purchaseSettingsTypeEnum.TYPE_COUNT do
+		for typeIndex = 0, purchaseSettingsTypeEnum.TYPE_COUNT do
 			STATIC.DefinitionArray[typeIndex] = {}
 		end
 	end
@@ -186,7 +183,14 @@ function INSTANCE:Renegade_PurchaseSettingsDefinition()
 	self.CostList				 = {}
 	self.DefinitionList 		 = {}
 	self.NameList 				 = {}
+	self.TextureList 			 = {}
+
 	self.AlternateDefinitionList = {}
+	self.AlternateTextureList	 = {}
+	for entryIndex = 0, STATIC.MAX_ENTRIES do
+		self.AlternateDefinitionList[entryIndex] = {}
+		self.AlternateTextureList[entryIndex] = {}
+	end
 
 	-- Omitted configuring editable system
 end
@@ -255,7 +259,7 @@ function INSTANCE:GetName( index )
 	local returnValue
 
 	-- "Return the translated string..."
-	if index >= 0 and index < STATIC.MAX_ENTRIES and self.NameList[index] ~= 0 then
+	if index >= 0 and index < STATIC.MAX_ENTRIES and self.NameList[index] ~= nil then
 		returnValue = translateDbClass.GetString( self.NameList[index] )
 	end
 
@@ -280,10 +284,17 @@ function INSTANCE:GetTexture( index )
 	return self.TextureList[index]
 end
 
+--- Implementation was in `/Code/Combat/teampurchasesettings.cpp` for some reason
 --- @param index integer
---- @return string
+--- @return string?
 function INSTANCE:GetEnlistedName( index )
-	typecheck.NotImplementedError()
+	local returnValue
+
+	if index >= 0 and index < STATIC.MAX_ENTRIES and self.NameList[index] ~= 0 then
+		returnValue = translateDbClass.GetString( self.NameList[index] )
+	end
+
+	return returnValue
 end
 
 --- @param index integer
@@ -312,12 +323,14 @@ end
 
 --- @param cload ChunkLoadInstance
 function INSTANCE:LoadVariables( cload )
-	--- @type {EntryIndex: integer, AltIndex: integer}
-	local indices = { EntryIndex = 0, AltIndex = 0 }
-
 	local varIds = STATIC.VarIds
 
+	--- @type {EntryIndex: integer, AltIndex: integer}
+	local indices = {}
+
 	while cload:OpenMicroChunk() do
+		local id = cload:CurMicroChunkId()
+
 		-- "Read the type and team information"
 		chunkIOClass.ReadMicroChunk( cload, varIds.VARID_TEAM, fundamentalDataTypeEnum.Int, self, "Team" )
 		chunkIOClass.ReadMicroChunk( cload, varIds.VARID_TYPE, fundamentalDataTypeEnum.Int, self, "Type" )
@@ -325,8 +338,6 @@ function INSTANCE:LoadVariables( cload )
 		-- "Read the current list entry"
 		chunkIOClass.ReadMicroChunk( cload, varIds.VARID_INDEX, 	fundamentalDataTypeEnum.Int, indices, "EntryIndex" )
 		chunkIOClass.ReadMicroChunk( cload, varIds.VARID_ALT_INDEX, fundamentalDataTypeEnum.Int, indices, "AltIndex" )
-
-		local id = cload:CurMicroChunkId()
 
 		if id == varIds.VARID_COST then
 			if indices.EntryIndex >= 0 and indices.EntryIndex < STATIC.MAX_ENTRIES then
@@ -338,7 +349,7 @@ function INSTANCE:LoadVariables( cload )
 			end
 		elseif id == varIds.VARID_NAME then
 			if indices.EntryIndex >= 0 and indices.EntryIndex < STATIC.MAX_ENTRIES then
-				chunkIOClass.LoadMicroChunk( cload, fundamentalDataTypeEnum.Int, self.TextureList, indices.EntryIndex )
+				chunkIOClass.LoadMicroChunk( cload, fundamentalDataTypeEnum.Int, self.NameList, indices.EntryIndex )
 			end
 		elseif id == varIds.VARID_TEXTURE_NAME then
 			if indices.EntryIndex >= 0 and indices.EntryIndex < STATIC.MAX_ENTRIES then
@@ -356,10 +367,8 @@ function INSTANCE:LoadVariables( cload )
 				indices.EntryIndex >= 0 and indices.EntryIndex < STATIC.MAX_ENTRIES and
 				indices.AltIndex >= 0 and indices.AltIndex < STATIC.MAX_ALTERNATES
 			then
-				chunkIOClass.LoadMicroChunkWWString( cload, self.AlternateDefinitionList[indices.EntryIndex], indices.AltIndex )
+				chunkIOClass.LoadMicroChunkWWString( cload, self.AlternateTextureList[indices.EntryIndex], indices.AltIndex )
 			end
-		else
-			section.Warn( "Unhandled micro chunk ID ", id )
 		end
 
 		cload:CloseMicroChunk()
