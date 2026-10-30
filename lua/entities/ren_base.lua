@@ -44,7 +44,7 @@ function ENT:Initialize()
         end
     end
 
-    if self.PowerUpGameObjectInstance == nil then
+    if self.GameObjectInstance == nil then
         local definition = definitionManagerClass.FindDefinition( self.DefinitionId ) --[[@as PhysicalGameObjectDefinitionInstance]]
         if definition == nil then
             section.Error( "Unable to find definition ID ", self.DefinitionId, " for ", self )
