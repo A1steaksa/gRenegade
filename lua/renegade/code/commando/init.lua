@@ -52,6 +52,12 @@ STATIC.Class = "InitClass"
 
     --- @type Sound3dClass
     CNC.Import( "code/wwaudio/sound-pseudo-3d.lua" )
+
+    --- @type TeamPurchaseSettingsDefinitionClass
+    CNC.Import( "code/combat/team-purchase-settings-definition.lua" )
+
+    --- @type PurchaseSettingsDefinitionInstance
+    CNC.Import( "code/combat/purchase-settings-definition.lua" )
 end
 
 --#region Imports
