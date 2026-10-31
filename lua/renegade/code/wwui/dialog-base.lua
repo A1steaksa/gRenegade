@@ -1,48 +1,51 @@
--- Based on DialogBaseClass within Code/wwui/dialogbase.cpp/h
+-- Based on DialogBaseClass within Code/wwui/dialogbase.h
 
 --- @class Renegade
 local CNC = CNC_RENEGADE
 
---- @class DialogBaseClass
---- @field instance DialogBaseInstance The metatable used by DialogBaseInstance
-local STATIC = CNC.CreateExport()
-STATIC.Class = "DialogBaseClass"
-local isHotload = not table.IsEmpty( STATIC )
+--- @type ControlAdviseSinkClass
+local controlAdviseSinkClass = CNC.Import( "code/wwui/control-advise-sink.lua" )
 
---- @class DialogBaseInstance
+--- @type NotifierClass
+local notifierClass = CNC.Import( "code/wwlib/notifier.lua" )
+
+--- @class DialogBaseClass : ControlAdviseSinkClass, NotifierClass
+--- @field Instance DialogBaseInstance The metatable used by DialogBaseInstance
+local STATIC = CNC.CreateExport( controlAdviseSinkClass, notifierClass )
+local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "DialogBaseClass"
+
+--- @class DialogBaseInstance : ControlAdviseSinkInstance, NotifierInstance
 --- @field Static DialogBaseClass The static table for this instance's class
-local INSTANCE = robustclass.Register( "Renegade_DialogBase" )
+local INSTANCE = robustclass.Register( "Renegade_DialogBase : Renegade_ControlAdviseSink, Renegade_Notifier" )
 INSTANCE.Class = "DialogBaseInstance"
 STATIC.Instance = INSTANCE
 INSTANCE.Static = STATIC
 INSTANCE.IsDialogBase = true
 
-
 --#region Exported Enums
 --#endregion
-
 
 --#region Imports
 --#endregion
 
-
 --#region Imported Enums
 --#endregion
 
+--- @alias DEFAULT_DLG_CMD_HANDLER fun( dialog: DialogBaseInstance, controlId: integer, messageId: integer, param: any ): boolean
 
 --[[ Static Functions and Variables ]] do
 
-    --- "  
-    --- These dialogs are analagous to Windows dialogs.  
-    --- They are initialized from an RC file, however the dialog template is only parsed - the window isn't actually created.  
-    --- "  
+	STATIC.RES_SCREEN_WIDTH  = 400
+	STATIC.RES_SCREEN_HEIGHT = 300
+
     --- @class DialogBaseClass
+	--- @field DefaultCmdHandler DEFAULT_DLG_CMD_HANDLER
 
     --- Creates a new DialogBaseInstance
-    --- @param resourceId integer
     --- @return DialogBaseInstance
-    function STATIC.New( resourceId )
-        return robustclass.New( "Renegade_DialogBase", resourceId )
+    function STATIC.New()
+        return robustclass.New( "Renegade_DialogBase" )
     end
 
     --- @param arg any
@@ -55,391 +58,369 @@ INSTANCE.IsDialogBase = true
     end
 
     typecheck.RegisterType( "DialogBaseInstance", STATIC.IsDialogBase )
+
+
+	--[[ Default Processing Support ]] do
+
+		--- @param pointer DEFAULT_DLG_CMD_HANDLER
+		function STATIC.SetDefaultCommandHandler( pointer )
+			STATIC.SetDefaultCommandHandler = pointer
+		end
+
+		--- @return DEFAULT_DLG_CMD_HANDLER
+		function STATIC.GetDefaultCommandHandler()
+			return STATIC.DefaultCmdHandler
+		end
+	end
 end
 
 
 --- @class DialogBaseInstance
---- @field protected Title string
---- @field protected Rect RectInstance
---- @field protected DialogResourceId integer
---- @field protected ControlList DialogControlInstance[]
---- @field protected ChildDialogList ChildDialogInstance[]
---- @field protected LastFocusControl DialogControlInstance
---- @field protected _IsVisible boolean
---- @field protected _AreControlsHidden boolean
---- @field protected _IsRunning boolean
---- @field protected LastMouseClickTime integer
+--- @field Title string
+--- @field Rect RectInstance
+--- @field DialogResourceID integer
+--- @field ControlList DialogControlInstance[]
+--- @field ChildDialogList ChildDialogInstance[]
+--- @field LastFocusControl DialogControlInstance
+--- @field _IsVisible boolean
+--- @field _AreControlsHidden boolean
+--- @field _IsRunning boolean
+--- @field LastMouseClickTime integer
 
---- Constructs a new DialogBaseInstance
 --- @param resourceId integer
 function INSTANCE:Renegade_DialogBase( resourceId )
-    self.DialogResourceId = resourceId
-    self._AreControlsHidden = false
-    self.LastFocusControl = nil
-    self.LastMouseClickTime = 0
-    self._IsVisible = true
-    self._IsRunning = false
+	self.DialogResourceID = resourceId
+	self._AreControlsHidden = false
+	self.LastFocusControl = nil
+	self.LastMouseClickTime = 0
+	self._IsVisible = true
+	self._IsRunning = false
 end
 
---[[ RITI ]] do
-
-    --- @return MenuDialogInstance
-    function INSTANCE:AsMenuDialogClass()
-        typecheck.NotImplementedError()
-    end
-
-    --- @return PopupDialogInstance
-    function INSTANCE:AsPopupDialogClass()
-        typecheck.NotImplementedError()
-    end
-
-    --- @return ChildDialogInstance
-    function INSTANCE:AsChildDialogClass()
-        typecheck.NotImplementedError()
-    end
+function INSTANCE:_Renegade_DialogBase()
+	self:FreeControls()
 end
+
+
+--[[ RTTI ]] do
+
+	function INSTANCE:AsMenuDialogClass()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:AsPopupDialogClass()
+		typecheck.NotImplementedError()
+	end
+
+	function INSTANCE:AsChildDialogClass()
+		typecheck.NotImplementedError()
+	end
+end
+
 
 --- @return integer
 function INSTANCE:GetDialogId()
-    return self.DialogResourceId
+	return self.DialogResourceID
 end
+
 
 --[[ Display Methods ]] do
 
-    function INSTANCE:Render()
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:Render()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param shouldBeVisible boolean
-    function INSTANCE:Show( shouldBeVisible )
-        self._IsVisible = shouldBeVisible
-    end
+	--- @param onOff boolean
+	function INSTANCE:Show( onOff )
+		self._IsVisible = onOff
+	end
 
-    --- @return boolean
-    function INSTANCE:IsVisible()
-        return self._IsVisible
-    end
+	--- @return boolean
+	function INSTANCE:IsVisible()
+		return self._IsVisible
+	end
 
-    --- @param isDirty boolean
-    function INSTANCE:SetDirty( isDirty )
-        typecheck.NotImplementedError()
-    end
+	--- @param onOff boolean? [Default: `true`]
+	function INSTANCE:SetDirty( onOff )
+		if onOff == nil then onOff = true end
+
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Position Control ]] do
 
-    --- @return RectInstance
-    function INSTANCE:GetRect()
-        return self.Rect
-    end
+	--- @return RectInstance
+	function INSTANCE:GetRect()
+		return self.Rect
+	end
 
-    --- @param rect RectInstance
-    function INSTANCE:SetRect( rect )
-        typecheck.NotImplementedError()
-    end
-
+	--- @param rect RectInstance
+	function INSTANCE:SetRect( rect )
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Flow Control ]] do
 
-    function INSTANCE:StartDialog()
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:StartDialog()
+		typecheck.NotImplementedError()
+	end
 
-    function INSTANCE:EndDialog()
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:EndDialog()
+		typecheck.NotImplementedError()
+	end
 
-    --- @return boolean
-    function INSTANCE:isRunning()
-        return self._IsRunning
-    end
+	--- @return boolean
+	function INSTANCE:IsRunning()
+		return self._IsRunning
+	end
 end
+
 
 --[[ Control Access ]] do
 
-    --- @param id integer
-    function INSTANCE:GetDialogItem( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:GetDialogItem()
+		typecheck.NotImplementedError()
+	end
 
-    function INSTANCE:FindControl( mousePos )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:FindControl()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param control DialogControlInstance
-    function INSTANCE:AddControl( control )
-        typecheck.NotImplementedError()
-    end
+	--- @param control DialogControlInstance
+	function INSTANCE:AddControl( control )
+		-- "Simply add the control to the list"
+		if table.KeyFromValue( self.ControlList, control ) == nil then
+			self.ControlList[#self.ControlList+1] = control
+			control:SetParent( self )
+			control:OnAddToDialog()
+		end
+	end
 
-    --- @param control DialogControlInstance
-    function INSTANCE:RemoveControl( control )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:RemoveControl()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param control DialogControlInstance
-    --- @param direction integer? [Default: `1`]
-    --- @return DialogControlInstance
-    function INSTANCE:FindNextControl( control, direction )
-        if not direction then direction = 1 end
+	--- @param control DialogControlInstance
+	--- @param direction integer? [Default: `1`]
+	function INSTANCE:FindNextControl( control, direction )
+		if direction == nil then direction = 1 end
 
-        typecheck.NotImplementedError()
-    end
+		typecheck.NotImplementedError()
+	end
 
-    --- @param control DialogControlInstance
-    --- @param direction integer? [Default: `1`]
-    --- @return DialogControlInstance
-    function INSTANCE:FindNextGroupControl( control, direction )
-        if not direction then direction = 1 end
+	--- @param control DialogControlInstance
+	--- @param direction integer? [Default: `1`]
+	function INSTANCE:FindNextGroupControl( control, direction )
+		if direction == nil then direction = 1 end
 
-        typecheck.NotImplementedError()
-    end
+		typecheck.NotImplementedError()
+	end
 
-    --- @return integer
-    function INSTANCE:GetControlCount()
-        return #self.ControlList
-    end
+	--- @return integer
+	function INSTANCE:GetControlCount()
+		return #self.ControlList
+	end
 
-    --- @param index integer
-    --- @return DialogControlInstance
-    function INSTANCE:GetControl( index )
-        return self.ControlList[index]
-    end
+	--- @param index integer?
+	--- @return DialogControlInstance?
+	function INSTANCE:GetControl( index )
+		return self.ControlList[index]
+	end
 end
+
 
 --[[ Control Enable State Access ]] do
 
-    --- @param id integer
-    --- @param shouldBeEnabled boolean
-    function INSTANCE:EnableDialogItem( id, shouldBeEnabled )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:EnableDialogItem()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @return boolean
-    function INSTANCE:IsDialogItemEnabled( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:IsDialogItemEnabled()
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Control Text Access ]] do
 
-    --- @param id integer
-    --- @return string
-    function INSTANCE:GetDialogItemText( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:GetDialogItemText()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @param text string
-    function INSTANCE:SetDialogItemText( id, text )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:SetDialogItemText()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @return integer
-    function INSTANCE:GetDialogItemInteger( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:GetDialogItemInt()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @param value integer
-    function INSTANCE:SetDialogItemInteger( id, value )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:SetDialogItemInt()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @return number
-    function INSTANCE:GetDialogItemFloat( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:GetDialogItemFloat()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @param value number
-    function INSTANCE:SetDialogItemFloat( id, value )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:SetDialogItemFloat()
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Control "Check" Access ]] do
 
-    --- @param id integer
-    --- @param shouldBeChecked boolean
-    function INSTANCE:CheckDialogButton( id, shouldBeChecked )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:CheckDialogButton()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param id integer
-    --- @return boolean
-    function INSTANCE:IsDialogButtonChecked( id )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:IsDialogButtonChecked()
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Child Dialog Access ]] do
 
-    --- @param child ChildDialogInstance
-    function INSTANCE:AddChildDialog( child )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:AddChildDialog()
+		typecheck.NotImplementedError()
+	end
 
-    --- @param child ChildDialogInstance
-    function INSTANCE:RemoveChildDialog( child )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:RemoveChildDialog()
+		typecheck.NotImplementedError()
+	end
 end
+
 
 --[[ Title Access ]] do
 
-    --- @return string
-    function INSTANCE:GetTitle()
-        return self.Title
-    end
+	--- @return string
+	function INSTANCE:GetTitle()
+		return self.Title
+	end
 
-    --- @param newTitle string
-    function INSTANCE:SetTitle( newTitle )
-        self.Title = newTitle
-    end
+	--- @param title string
+	function INSTANCE:SetTitle( title )
+		self.Title = title
+	end
 end
+
 
 --[[ Activation Access ]] do
 
-    --- @return boolean
-    function INSTANCE:IsActive()
-        typecheck.NotImplementedError()
-    end
+	--- @return boolean
+	function INSTANCE:IsActive()
+		typecheck.NotImplementedError()
+	end
 
-    --- @return boolean
-    function INSTANCE:WantsActivation()
-        return true
-    end
-
+	--- @return boolean
+	function INSTANCE:WantsActivation()
+		return true
+	end
 end
 
---[[ Transmission Control ]] do
 
-    --- @param previousDialog DialogBaseInstance
-    --- @return DialogTransitionInstance?
-    function INSTANCE:GetTransitionIn( previousDialog )
-        return nil
-    end
+--[[ Transition Control ]] do
 
-    --- @param nextDialog DialogBaseInstance
-    --- @return DialogTransitionInstance?
-    function INSTANCE:GetTransitionOut( nextDialog )
-        return nil
-    end
+	--- @param previousDialog DialogBaseInstance
+	--- @return DialogTransitionInstance?
+	function INSTANCE:GetTransitionIn( previousDialog )
+		return nil
+	end
 
-    --- @param shouldBeHidden boolean
-    function INSTANCE:SetControlsHidden( shouldBeHidden )
-        self.AreControlsHidden = shouldBeHidden
-    end
+	--- @param previousDialog DialogBaseInstance
+	--- @return DialogTransitionInstance?
+	function INSTANCE:GetTransitionOut( previousDialog )
+		return nil
+	end
 
-    --- @return boolean
-    function INSTANCE:AreControlsHidden()
-        return self._AreControlsHidden
-    end
+	--- @param onOff boolean
+	function INSTANCE:SetControlsHidden( onOff )
+		self._AreControlsHidden = onOff
+	end
+
+	--- @return boolean
+	function INSTANCE:AreControlsHidden()
+		return self._AreControlsHidden
+	end
 end
+
 
 --[[ Notifications ]] do
 
-    --- @param controlId integer
-    --- @param messageId integer
-    --- @param param any
-    function INSTANCE:OnCommand( controlId, messageId, param )
-        typecheck.NotImplementedError()
-    end
+	function INSTANCE:OnCommand()
+		typecheck.NotImplementedError()
+	end
 end
 
---[[ Default Processing Support ]] do
 
-    --- @param callback fun()
-    function STATIC.SetDefaultCommandHandler( callback )
-        STATIC.DefaultCommandHandler = callback
-    end
-
-    --- @return fun() callback
-    function STATIC.GetDefaultCommandHandler()
-        return STATIC.DefaultCommandHandler
-    end
+function INSTANCE:OnInitDialog()
+	typecheck.NotImplementedError()
 end
 
---[[ Protected Methods ]] do
-
-    function INSTANCE:OnInitDialog()
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:OnDestroy()
-        typecheck.NotImplementedError()
-    end
-
-    --- @param isActive boolean
-    function INSTANCE:OnActivate( isActive )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param keyId KEY
-    --- @param keyData integer
-    function INSTANCE:OnKeyDown( keyId, keyData )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param unicode string
-    function INSTANCE:OnUnicodeChar( unicode )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param direction integer
-    function INSTANCE:OnMouseWheel( direction )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param keyId KEY
-    function INSTANCE:OnKeyUp( keyId )
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:OnFrameUpdate()
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:OnPeriodic()
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:FreeControls()
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:UpdateMouseState()
-        typecheck.NotImplementedError()
-    end
-
-    --- @return integer
-    function INSTANCE:FindFocusControl()
-        typecheck.NotImplementedError()
-    end
-
-    --- @param control DialogControlInstance
-    --- @return integer
-    function INSTANCE:FindControlIndex( control )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param control DialogControlInstance
-    --- @param mousePos Vector
-    function INSTANCE:SendMouseInput( control, mousePos )
-        typecheck.NotImplementedError()
-    end
-
-    --- @param list DialogControlInstance[]
-    function INSTANCE:BuildControlList( list )
-        typecheck.NotImplementedError()
-    end
-
-    function INSTANCE:SetDefaultFocus()
-        typecheck.NotImplementedError()
-    end
+function INSTANCE:OnDestroy()
+	-- Empty in the original code
 end
 
+function INSTANCE:OnActivate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnKeyDown()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnUnicodeChar()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnMouseWheel()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnKeyUp()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnFrameUpdate()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:OnPeriodic()
+	-- Empty in the original code
+end
+
+function INSTANCE:FreeControls()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:UpdateMouseState()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:FindFocusControl()
+	typecheck.NotImplementedError()
+end
+
+--- @param control DialogControlInstance
+--- @return integer?
+function INSTANCE:FindControlIndex( control )
+	return table.KeyFromValue( self.ControlList, control )
+end
+
+function INSTANCE:SendMouseInput()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:BuildControlList()
+	typecheck.NotImplementedError()
+end
+
+function INSTANCE:SetDefaultFocus()
+	typecheck.NotImplementedError()
+end
