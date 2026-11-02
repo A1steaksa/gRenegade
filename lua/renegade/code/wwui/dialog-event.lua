@@ -46,9 +46,11 @@ INSTANCE.IsDialogEvent = true
     --- @class DialogEventClass
 
     --- Creates a new DialogEventInstance
+    --- @param event DialogEventID
+    --- @param dialog DialogBaseInstance
     --- @return DialogEventInstance
-    function STATIC.New()
-        return robustclass.New( "Renegade_DialogEvent" )
+    function STATIC.New( event, dialog )
+        return robustclass.New( "Renegade_DialogEvent", event, dialog )
     end
 
     --- @param arg any
