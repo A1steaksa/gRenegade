@@ -33,20 +33,31 @@ function LIB.LastIndexOf( haystack, needle )
 end
 
 --- Converts a byte string into a printable hex string
---- @param byteString string
+--- @param bytes string|integer
 --- @return string
-function LIB.Hex( byteString )
-    local byteStrings = {}
-    for byteIndex = 1, string.len( byteString ) do
-        local extractedByteString = string.byte( byteString, byteIndex, byteIndex )
-        local byteNumber = tonumber( extractedByteString )
+function LIB.Hex( bytes )
+    if isnumber( bytes ) then
+        local compactHex = string.format("%02X", bytes )
 
-        local hexByteString = string.format( "%02X", byteNumber )
+        local expandedHex = ""
+        for charIndex = 1, string.len( compactHex ), 2 do
+            expandedHex = expandedHex .. compactHex:sub( charIndex, charIndex + 1 ) .. " "
+        end
 
-        byteStrings[#byteStrings + 1] = hexByteString
+        return expandedHex:Trim()
+    else
+        local byteStrings = {}
+        for byteIndex = 1, string.len( bytes ) do
+            local extractedByteString = string.byte( bytes, byteIndex, byteIndex )
+            local byteNumber = tonumber( extractedByteString )
+
+            local hexByteString = string.format( "%02X", byteNumber )
+
+            byteStrings[#byteStrings + 1] = hexByteString
+        end
+
+        return table.concat( byteStrings, " " )
     end
-
-    return table.concat( byteStrings, " " )
 end
 Hex = LIB.Hex
 
