@@ -111,6 +111,9 @@ local isHotload = not table.IsEmpty( LIB )
 
 	--- @type DeserializeLib
 	local deserializeLib = CNC.Import( "sh_deserialize.lua" )
+
+	--- @type ChunkIOClass
+	local chunkIOClass = CNC.Import( "code/wwlib/chunk-io.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -130,23 +133,56 @@ local isHotload = not table.IsEmpty( LIB )
 
 
 --- @class ResourceLoaderLib
---- @field SectionHeaders SectionHeader[]
 --- @field FileBytes string
+
+--- @type ResourceTree
+LIB.ResourceTree = {}
+
+--- @type SECTION_TABLE_HEADER[]
+LIB.SectionHeaders = {}
 
 function LIB.StaticConstructor()
 
-	--- @class SectionHeader
-	--- @field Reserved integer
+	--- @class COFF_FILE_HEADER
+	--- @field Machine integer
+	--- @field NumberOfSections integer
+	--- @field TimeDateStamp integer
+	--- @field PointerToSymbolTable integer
+	--- @field NumberOfSymbols integer
+	--- @field SizeOfOptionalHeader integer
+	--- @field Characteristics integer
+	deserializeLib.RegisterComplexDataType( "COFF_FILE_HEADER", {
+		{ Name = "Machine", 				DataType = fundamentalDataTypeEnum.UInt16  },
+		{ Name = "NumberOfSections", 	DataType = fundamentalDataTypeEnum.UInt16 },
+		{ Name = "TimeDateStamp",		DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "PointerToSymbolTable",	DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "NumberOfSymbols",		DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "SizeOfOptionalHeader",	DataType = fundamentalDataTypeEnum.UInt16 },
+		{ Name = "Characteristics",		DataType = fundamentalDataTypeEnum.UInt16 },
+	} )
+
+	--- @class SECTION_TABLE_HEADER
+	--- @field Name string
 	--- @field VirtualSize integer
 	--- @field VirtualAddress integer
-	--- @field RawDataSize integer
-	--- @field RawDataPointer integer
-	deserializeLib.RegisterComplexDataType( "SectionHeader", {
-		{ Name = "Reserved", 		DataType = fundamentalDataTypeEnum.UInt8, 	ArrayLength = 3 },
-		{ Name = "VirtualSize", 		DataType = fundamentalDataTypeEnum.UInt32 },
-		{ Name = "VirtualAddress",	DataType = fundamentalDataTypeEnum.UInt32 },
-		{ Name = "RawDataSize",		DataType = fundamentalDataTypeEnum.UInt32 },
-		{ Name = "RawDataPointer",	DataType = fundamentalDataTypeEnum.UInt32 },
+	--- @field SizeOfRawData  integer
+	--- @field PointerToRawData  integer
+	--- @field PointerToRelocations integer
+	--- @field PointerToLineNumbers integer
+	--- @field NumberOfRelocations integer
+	--- @field NumberOfLineNumbers integer
+	--- @field Characteristics integer
+	deserializeLib.RegisterComplexDataType( "SECTION_TABLE_HEADER", {
+		{ Name = "Name",					DataType = fundamentalDataTypeEnum.String, Length = 8 },
+		{ Name = "VirtualSize", 			DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "VirtualAddress",			DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "SizeOfRawData",			DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "PointerToRawData",		DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "PointerToRelocations",	DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "PointerToLineNumbers",	DataType = fundamentalDataTypeEnum.UInt32 },
+		{ Name = "NumberOfRelocations",		DataType = fundamentalDataTypeEnum.UInt16 },
+		{ Name = "NumberOfLineNumbers",		DataType = fundamentalDataTypeEnum.UInt16 },
+		{ Name = "Characteristics",			DataType = fundamentalDataTypeEnum.UInt32 },
 	} )
 
 	--- @class IMAGE_RESOURCE_DIRECTORY
@@ -161,7 +197,7 @@ function LIB.StaticConstructor()
 		{ Name = "TimeDateStamp", 		DataType = fundamentalDataTypeEnum.UInt32 },
 		{ Name = "MajorVersion", 		DataType = fundamentalDataTypeEnum.UInt16 },
 		{ Name = "MinorVersion", 		DataType = fundamentalDataTypeEnum.UInt16 },
-		{ Name = "NumberOfNameEntries", DataType = fundamentalDataTypeEnum.UInt16 },
+		{ Name = "NumberOfNameEntries", 	DataType = fundamentalDataTypeEnum.UInt16 },
 		{ Name = "NumberOfIdEntries", 	DataType = fundamentalDataTypeEnum.UInt16 },
 	} )
 
@@ -239,124 +275,178 @@ function LIB.StaticConstructor()
 
 end
 
---- @type ResourceTree
-LIB.ResourceTree = {}
-
 function LIB.RunTest()
-	LIB.ParseExecutableResources( "data/renegade/game.exe.txt" )
+	LIB.ReadExecutable( "data/renegade/game.exe.txt" )
+	LIB.ParseSectionHeaders()
+	LIB.ParseResources()
 end
 
-
---- @param filePath string
---- @return ResourceTree
-function LIB.ParseExecutableResources( filePath )
-	typecheck.AssertArgType( LIB.Class, 1, filePath, "string" )
-
-	-- Read the executable into memory
-	LIB.FileBytes = file.Read( filePath, "THIRDPARTY" )
+function LIB.ReadExecutable( path )
+	LIB.FileBytes = file.Read( path, "THIRDPARTY" )
 	if LIB.FileBytes == nil then
-		section.Error( "Unable to read executable for resource parsing: '", filePath, "'" )
+		section.Error( "Unable to read executable for resource parsing: '", path, "'" )
+	end
+end
+
+function LIB.ParseSectionHeaders()
+	assert( LIB.FileBytes ~= nil )
+
+	local peSignatureAddress = 0x03C + 1 -- Immediately after the MS-DOS stub
+
+	-- This tells us where the PE header actually lives
+	local peStartAddress = LIB.ReadDataTypeFromAddress( peSignatureAddress, fundamentalDataTypeEnum.UInt32 ) + 1
+
+	-- Ignore 4 bytes of "PE\0\0" here because I don't want to deal with them right now
+	local coffHeaderAddress = peStartAddress + 4
+
+	-- Read the COFF file header
+	local coffHeader, optionalHeaderAddress = LIB.ReadDataTypeFromAddress( coffHeaderAddress, "COFF_FILE_HEADER" )
+
+	-- Skip the optional headers
+	local sectionTableAddress = optionalHeaderAddress + coffHeader.SizeOfOptionalHeader
+
+	-- Read section headers
+	local sectionHeader
+	local nextSectionAddress = sectionTableAddress
+	for sectionIndex = 1, coffHeader.NumberOfSections do
+		sectionHeader, nextSectionAddress = LIB.ReadDataTypeFromAddress( nextSectionAddress, "SECTION_TABLE_HEADER" )
+		LIB.SectionHeaders[sectionIndex] = sectionHeader
+	end
+end
+
+--[[ Getters ]] do
+
+	--- @param name string
+	--- @return SECTION_TABLE_HEADER?
+	function LIB.GetSectionHeader( name )
+		assert( LIB.SectionHeaders ~= nil and #LIB.SectionHeaders > 0 )
+
+		for _, sectionHeader in ipairs( LIB.SectionHeaders ) do
+			if sectionHeader.Name == name then
+				return sectionHeader
+			end
+		end
+	end
+end
+
+--[[ Utils ]] do
+
+
+	--- @param rva integer
+	--- @return integer
+	function LIB.RelativeVirtualAddressToFileOffset( rva )
+		assert( LIB.SectionHeaders ~= nil and #LIB.SectionHeaders > 0 )
+
+		for sectionIndex, sectionHeader in ipairs( LIB.SectionHeaders ) do
+			if ( rva >= sectionHeader.VirtualAddress ) and ( rva < ( sectionHeader.VirtualAddress + sectionHeader.VirtualSize ) ) then
+				return sectionHeader.PointerToRawData + ( rva - sectionHeader.VirtualAddress )
+			end
+		end
+
+		section.Error( "RVA does not appear to belong to any section: ", rva )
+		error()
 	end
 
-	local sectionHeaderSize = deserializeLib.GetComplexDataTypeSize( "SectionHeader" )
+	--- @generic T
+	--- @param address integer
+	--- @param dataType FundamentalDataType|`T`
+	--- @return T|any readDataType
+	--- @return integer addressAfterRead The address immediately after the loaded data
+	function LIB.ReadDataTypeFromAddress( address, dataType )
+		assert( LIB.FileBytes ~= nil )
+		assert( address > 0 and address <= #LIB.FileBytes )
 
-	-- Find and parse the resources section header
-	local resourceSectionHeaderStartIndex = textUtils.IndexOf( LIB.FileBytes, ".rsrc" ) + #".rsrc"
-	local resourceSectionHeaderBytes = LIB.FileBytes:sub(
-		resourceSectionHeaderStartIndex,
-		resourceSectionHeaderStartIndex + sectionHeaderSize
-	)
-	local resourceSectionHeader = deserializeLib.ReadComplexDataType( "SectionHeader", resourceSectionHeaderBytes )
+		local dataTypeSize = deserializeLib.GetDataTypeSize( dataType )
+		local dataTypeBytes = LIB.FileBytes:sub( address, address + dataTypeSize )
+		local dataTypeInstance = deserializeLib.Deserialize( dataType, dataTypeBytes )
 
-	-- Find and parse the data section header
-	local dataSectionHeaderStartIndex = textUtils.IndexOf( LIB.FileBytes, ".tls" ) + #".tls"
-	local dataSectionHeaderBytes = LIB.FileBytes:sub(
-		dataSectionHeaderStartIndex,
-		dataSectionHeaderStartIndex + sectionHeaderSize
-	)
-	local dataSectionHeader = deserializeLib.ReadComplexDataType( "SectionHeader", dataSectionHeaderBytes )
+		return dataTypeInstance, ( address + dataTypeSize )
+	end
 
-	local resourceTreeBaseAddress = resourceSectionHeader.RawDataPointer + 1
-	local dataBaseAddress = dataSectionHeader.RawDataPointer + 1
+	--- @param address integer
+	--- @param length integer? [Default: `32`]
+	--- @return string
+	function LIB.Sample( address, length )
+		assert( LIB.FileBytes ~= nil )
+		if length == nil then length = 32 end
+
+		return Hex( LIB.FileBytes:sub( address, address + length ) )
+	end
+end
+
+--- @return ResourceTree
+function LIB.ParseResources()
+	local resourceSectionHeader = LIB.GetSectionHeader( ".rsrc" )
+	assert( resourceSectionHeader ~= nil )
 
 	-- Read the root node of the resources tree
 	-- These IDs should correspond to ResourceType enums
-	local resourceTreeRoot = LIB.ReadResourceDirectory( resourceTreeBaseAddress, resourceSectionHeader.VirtualAddress + 1, dataBaseAddress, resourceTreeBaseAddress )
+	local resourceTreeRoot = LIB.ReadResourceDirectory( resourceSectionHeader.PointerToRawData )
 
-	-- section.Print( "Results:" )
-	-- PrintTable( resourceTreeRoot )
+	PrintTable( resourceTreeRoot )
 
 	return LIB.ResourceTree
 end
 
---- @param resourcesBaseAddress integer
---- @param dataBaseAddress integer
---- @param dataVirtualAddress integer
 --- @param directoryAddress integer
 --- @return IMAGE_RESOURCE_DIRECTORY_CONTENT
-function LIB.ReadResourceDirectory( resourcesBaseAddress, dataBaseAddress, dataVirtualAddress, directoryAddress )
+function LIB.ReadResourceDirectory( directoryAddress )
+	assert( LIB.SectionHeaders ~= nil and #LIB.SectionHeaders ~= 0 )
+
+	local resourceSectionHeader = LIB.GetSectionHeader( ".rsrc" )
+	assert( resourceSectionHeader ~= nil )
 
 	section.Start( "Reading directory at ", Hex( directoryAddress ) )
 
 	-- Read the directory's header
-	local directoryHeaderSize = deserializeLib.GetComplexDataTypeSize( "IMAGE_RESOURCE_DIRECTORY" )
-	local directoryHeaderBytes = LIB.FileBytes:sub( directoryAddress, directoryAddress + directoryHeaderSize )
-
-	local directoryHeader = deserializeLib.DeserializeComplexDataType( "IMAGE_RESOURCE_DIRECTORY", directoryHeaderBytes )
+	local directoryHeader, directoryEntriesAddress = LIB.ReadDataTypeFromAddress( directoryAddress + 1, "IMAGE_RESOURCE_DIRECTORY" )
 	assert( directoryHeader ~= nil )
 
 	-- Grab the directory's bytes
 	local nameDirectoryEntrySize = deserializeLib.GetComplexDataTypeSize( "IMAGE_RESOURCE_DIRECTORY_NAME_ENTRY" )
-	local idDirectoryEntrySize = deserializeLib.GetComplexDataTypeSize( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY" )
+	local idDirectoryEntrySize   = deserializeLib.GetComplexDataTypeSize( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY" )
 	local totalDirectoryContentSize = (
 		( nameDirectoryEntrySize * directoryHeader.NumberOfNameEntries )
-		+ ( idDirectoryEntrySize * directoryHeader.NumberOfIdEntries )
+	  + ( idDirectoryEntrySize * directoryHeader.NumberOfIdEntries )
 	)
+
 	local directoryContentBytes = LIB.FileBytes:sub(
-		directoryAddress + directoryHeaderSize,
-		directoryAddress + directoryHeaderSize + totalDirectoryContentSize
+		directoryEntriesAddress,
+		directoryEntriesAddress + totalDirectoryContentSize
 	)
+
+	local resourceSectionBasePointer = LIB.GetSectionHeader( ".rsrc" ).PointerToRawData
 
 	-- Read the directory's name entries
 	local nameDirectoryContents = {}
 	for _ = 1, directoryHeader.NumberOfNameEntries do
-		local entry
-		entry, directoryContentBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_NAME_ENTRY", directoryContentBytes )
-		nameDirectoryContents[#nameDirectoryContents + 1] = entry
+		typecheck.NotImplementedError()
 	end
 
 	-- Read the directory's ID entries
 	local idDirectoryContents = {}
-	for _ = 1, directoryHeader.NumberOfIdEntries do
+	for directoryIdEntryIndex = 1, directoryHeader.NumberOfIdEntries do
 		local entry
 		entry, directoryContentBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY", directoryContentBytes )
 
+		section.Print( "ID: ", entry.ID )
+
 		local isChildDirectory = ( entry.ChildDirectoryOffset ~= nil )
 		if isChildDirectory then
-			section.Print( "Child Directory ID ", entry.ID )
-
-			local childDirectoryContents = LIB.ReadResourceDirectory( resourcesBaseAddress, dataBaseAddress, dataVirtualAddress, resourcesBaseAddress + entry.ChildDirectoryOffset )
-
+			local childDirectoryContents = LIB.ReadResourceDirectory( resourceSectionBasePointer + entry.ChildDirectoryOffset )
 			idDirectoryContents[entry.ID] = childDirectoryContents
 		else
 
-			local dataEntrySize = deserializeLib.GetComplexDataTypeSize( "IMAGE_RESOURCE_DATA_ENTRY" )
-			local dataEntryBytes = LIB.FileBytes:sub(
-				resourcesBaseAddress + entry.DataEntryOffset,
-				resourcesBaseAddress + entry.DataEntryOffset + dataEntrySize
-			)
-			local dataEntry = deserializeLib.DeserializeComplexDataType( "IMAGE_RESOURCE_DATA_ENTRY", dataEntryBytes )
+			local dataAddress = resourceSectionBasePointer + ( entry.DataEntryOffset + 1 )
+
+			local dataEntry = LIB.ReadDataTypeFromAddress( dataAddress, "IMAGE_RESOURCE_DATA_ENTRY" )
 			assert( dataEntry ~= nil )
 
-			section.Print( "Leaf ", "Offset to Data: ", Hex( dataEntry.OffsetToData ), ", Size: ", dataEntry.Size, ", CodePage: ", dataEntry.CodePage, ", Reserved: ", dataEntry.Reserved )
+			local dataAddress = LIB.RelativeVirtualAddressToFileOffset( dataEntry.OffsetToData )
 
-			local dataAddress = dataBaseAddress + ( dataEntry.OffsetToData - dataVirtualAddress )
+			section.Print( "Data Address: ", dataAddress, " (", Hex( dataAddress ), ")" )
 
-			local correctAddress = 0x41F828
-
-			section.Print( "Section Base Address: ", Hex( dataBaseAddress ), ", Section Virtual Address: ", Hex( dataVirtualAddress ) )
-			section.Print( "Correct: ", correctAddress, ", ", Hex( correctAddress ) )
-			section.Print( "Ours:    ", dataAddress, ", ", Hex( dataAddress ) )
+			idDirectoryContents[entry.ID] = dataEntry
 		end
 
 	end
@@ -373,7 +463,7 @@ function LIB.ParseExecutable()
 	local fileContents = file.Read( "data/renegade/game.exe.txt", "THIRDPARTY" )
 	local resourceSectionStartIndex = textUtils.IndexOf( fileContents, ".rsrc" ) + #".rsrc"
 
-	local resourceSectionHeader = deserializeLib.ReadComplexDataType( "SectionHeader", fileContents:sub( resourceSectionStartIndex ) )
+	local resourceSectionHeader = deserializeLib.ReadComplexDataType( "SECTION_TABLE_HEADER", fileContents:sub( resourceSectionStartIndex ) )
 	local resourceBaseAddress = resourceSectionHeader.RawDataPointer + 1
 
 	local resourceSectionBytes = fileContents:sub( resourceBaseAddress, resourceBaseAddress + resourceSectionHeader.RawDataSize )
