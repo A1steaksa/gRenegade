@@ -134,12 +134,17 @@ local isHotload = not table.IsEmpty( LIB )
 --- @class ResourceLoaderLib
 --- @field FileBytes string
 
+--- @private
 --- @type ResourceTree
 LIB.IdResourceTree = {}
 
+--- @private
 --- @type SECTION_TABLE_HEADER[]
 LIB.SectionHeaders = {}
 
+LIB.ExecutablePath = "data/renegade/game.exe.txt"
+
+--- @private
 function LIB.StaticConstructor()
 
 	--- @class COFF_FILE_HEADER
@@ -271,27 +276,20 @@ function LIB.StaticConstructor()
 		{ Name = "CodePage", 	DataType = fundamentalDataTypeEnum.UInt32 },
 		{ Name = "Reserved", 	DataType = fundamentalDataTypeEnum.UInt32 },
 	} )
-
 end
 
-function LIB.RunTest()
-	LIB.ReadExecutable( "data/renegade/game.exe.txt" )
-	LIB.ParseSectionHeaders()
-	LIB.ParseResources()
-
-	local bytes = LIB.GetResourceBytes( resourceTypeEnum.RT_DIALOG, 221 )
-
-	section.Print( "Size: ", #bytes )
-	section.Print( "Bytes: ", Hex( bytes:sub( 1, 6 ) ), " ... ", Hex( bytes:sub( -6 ) ) )
-end
-
+--- @private
 function LIB.ReadExecutable( path )
 	LIB.FileBytes = file.Read( path, "THIRDPARTY" )
 	if LIB.FileBytes == nil then
 		section.Error( "Unable to read executable for resource parsing: '", path, "'" )
 	end
+
+	LIB.ParseSectionHeaders()
+	LIB.ParseResources()
 end
 
+--- @private
 function LIB.ParseSectionHeaders()
 	assert( LIB.FileBytes ~= nil )
 
@@ -325,6 +323,10 @@ end
 	--- @param language integer? [Default: `1033`]
 	--- @return string
 	function LIB.GetResourceBytes( resourceType, id, language )
+		if LIB.FileBytes == nil then
+			LIB.ReadExecutable( LIB.ExecutablePath )
+		end
+
 		assert( LIB.FileBytes ~= nil )
 		assert( LIB.IdResourceTree ~= nil and not table.IsEmpty( LIB.IdResourceTree ) )
 
@@ -344,6 +346,7 @@ end
 		return LIB.FileBytes:sub( dataAddress, dataAddress + dataEntry.Size - 1 )
 	end
 
+	--- @private
 	--- @param name string
 	--- @return SECTION_TABLE_HEADER?
 	function LIB.GetSectionHeader( name )
@@ -359,6 +362,7 @@ end
 
 --[[ Utils ]] do
 
+	--- @private
 	--- @param rva integer
 	--- @return integer
 	function LIB.RelativeVirtualAddressToFileOffset( rva )
@@ -374,6 +378,7 @@ end
 		error()
 	end
 
+	--- @private
 	--- @generic T
 	--- @param address integer
 	--- @param dataType FundamentalDataType|`T`
@@ -389,18 +394,9 @@ end
 
 		return dataTypeInstance, ( address + dataTypeSize )
 	end
-
-	--- @param address integer
-	--- @param length integer? [Default: `32`]
-	--- @return string
-	function LIB.Sample( address, length )
-		assert( LIB.FileBytes ~= nil )
-		if length == nil then length = 32 end
-
-		return Hex( LIB.FileBytes:sub( address, address + length ) )
-	end
 end
 
+--- @private
 --- @return ResourceTree
 function LIB.ParseResources()
 	local resourceSectionHeader = LIB.GetSectionHeader( ".rsrc" )
@@ -432,6 +428,7 @@ function LIB.ParseResources()
 	return LIB.IdResourceTree
 end
 
+--- @private
 --- @param directoryAddress integer
 --- @return IMAGE_RESOURCE_DIRECTORY_CONTENT
 function LIB.ReadResourceDirectory( directoryAddress )
@@ -488,89 +485,4 @@ function LIB.ReadResourceDirectory( directoryAddress )
 		NameEntries = nameDirectoryContents,
 		IdEntries = idDirectoryContents
 	}
-end
-
-function LIB.ParseExecutable()
-	local fileContents = file.Read( "data/renegade/game.exe.txt", "THIRDPARTY" )
-	local resourceSectionStartIndex = textUtils.IndexOf( fileContents, ".rsrc" ) + #".rsrc"
-
-	local resourceSectionHeader = deserializeLib.ReadComplexDataType( "SECTION_TABLE_HEADER", fileContents:sub( resourceSectionStartIndex ) )
-	local resourceBaseAddress = resourceSectionHeader.RawDataPointer + 1
-
-	local resourceSectionBytes = fileContents:sub( resourceBaseAddress, resourceBaseAddress + resourceSectionHeader.RawDataSize )
-
-	local resourceDirectoryTableHeader
-	resourceDirectoryTableHeader, resourceSectionBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY", resourceSectionBytes )
-
-	-- Read the name entries
-	local resourceDirectoryTableHeaderNameEntries = {}
-	for _ = 1, resourceDirectoryTableHeader.NumberOfNameEntries do
-		local entry
-		entry, resourceSectionBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_NAME_ENTRY", resourceSectionBytes )
-		resourceDirectoryTableHeaderNameEntries[#resourceDirectoryTableHeaderNameEntries + 1] = entry
-	end
-
-	if #resourceDirectoryTableHeaderNameEntries ~= 0 then
-		section.Start( "Name Resource Directory Table Entries" )
-		--- @param entry IMAGE_RESOURCE_DIRECTORY_NAME_ENTRY
-		for index, entry in ipairs( resourceDirectoryTableHeaderNameEntries ) do
-			section.Print( index, ". ", entry.NameOffset, " at offset ", entry )
-		end
-		section.End()
-	end
-
-	-- Read the ID entries
-	local resourceDirectoryTableHeaderIdEntries = {}
-	for _ = 1, resourceDirectoryTableHeader.NumberOfIdEntries do
-		local entry
-		entry, resourceSectionBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY", resourceSectionBytes )
-		resourceDirectoryTableHeaderIdEntries[#resourceDirectoryTableHeaderIdEntries + 1] = entry
-	end
-
-	if #resourceDirectoryTableHeaderIdEntries ~= 0 then
-		section.Start( "Resource Directory Table ID Entries" )
-		--- @param entry IMAGE_RESOURCE_DIRECTORY_ID_ENTRY
-		for index, entry in ipairs( resourceDirectoryTableHeaderIdEntries ) do
-			local idName = table.KeyFromValue( resourceTypeEnum, entry.ID ) or "UNKNOWN"
-			section.Print( index, ". ", idName, " (", entry.ID, ") at offset ", ( entry.DataEntryOffset or entry.ChildDirectoryOffset ) )
-		end
-		section.End()
-	end
-
-	local isSubDirMask = bit.lshift( 1, 31 )
-
-	-- Read each ID type's entries
-	--- @param idTypeEntry IMAGE_RESOURCE_DIRECTORY_ID_ENTRY
-	for _, idTypeEntry in ipairs( resourceDirectoryTableHeaderIdEntries ) do
-		local idName = table.KeyFromValue( resourceTypeEnum, idTypeEntry.ID ) or "UNKNOWN"
-		section.Start( idName )
-
-		local idEntriesGroupHeader
-		idEntriesGroupHeader, resourceSectionBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY", resourceSectionBytes )
-
-		for _ = 1, idEntriesGroupHeader.NumberOfIdEntries do
-			local entry
-			entry, resourceSectionBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY", resourceSectionBytes )
-
-			local isChildDirectory = ( entry.ChildDirectoryOffset ~= nil )
-
-			if isChildDirectory then
-				local childDirectoryBaseAddress = resourceBaseAddress + entry.ChildDirectoryOffset - 1
-
-				section.Print( "(DIR)  ", entry.ID, ". ", Hex( childDirectoryBaseAddress ) )
-			else
-				local dataEntryBaseAddress = resourceBaseAddress + entry.DataEntryOffset - 1
-
-				section.Print( "(LEAF) ", entry.ID, ". ", Hex( dataEntryBaseAddress ) )
-			end
-		end
-
-		section.End()
-	end
-end
-
-hook.Add( "Renegade_PostGameInit", "A1_Renegade_ResourceLoader_Test", LIB.RunTest )
-if isHotload then
-	LIB.StaticConstructor()
-	LIB.RunTest()
 end
