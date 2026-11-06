@@ -129,14 +129,13 @@ local isHotload = not table.IsEmpty( LIB )
 --- @field NameEntries IMAGE_RESOURCE_DIRECTORY_NAME_ENTRY[]
 --- @field IdEntries IMAGE_RESOURCE_DIRECTORY_ID_ENTRY[]
 
---- @alias ResourceTree table<string, table<ResourceType, table<integer, table<integer, string>>>>
-
+--- @alias ResourceTree table<ResourceType, table<integer, table<integer, IMAGE_RESOURCE_DATA_ENTRY>>>
 
 --- @class ResourceLoaderLib
 --- @field FileBytes string
 
 --- @type ResourceTree
-LIB.ResourceTree = {}
+LIB.IdResourceTree = {}
 
 --- @type SECTION_TABLE_HEADER[]
 LIB.SectionHeaders = {}
@@ -279,6 +278,11 @@ function LIB.RunTest()
 	LIB.ReadExecutable( "data/renegade/game.exe.txt" )
 	LIB.ParseSectionHeaders()
 	LIB.ParseResources()
+
+	local bytes = LIB.GetResourceBytes( resourceTypeEnum.RT_DIALOG, 221 )
+
+	section.Print( "Size: ", #bytes )
+	section.Print( "Bytes: ", Hex( bytes:sub( 1, 6 ) ), " ... ", Hex( bytes:sub( -6 ) ) )
 end
 
 function LIB.ReadExecutable( path )
@@ -316,6 +320,30 @@ end
 
 --[[ Getters ]] do
 
+	--- @param resourceType ResourceType
+	--- @param id integer
+	--- @param language integer? [Default: `1033`]
+	--- @return string
+	function LIB.GetResourceBytes( resourceType, id, language )
+		assert( LIB.FileBytes ~= nil )
+		assert( LIB.IdResourceTree ~= nil and not table.IsEmpty( LIB.IdResourceTree ) )
+
+		if language == nil then language = 1033 end
+
+		local resourceTypeTable = LIB.IdResourceTree[resourceType]
+		assert( resourceTypeTable ~= nil, "Unable to find resources for resource type '" .. resourceType .. "'" )
+
+		local idTable = resourceTypeTable[id]
+		assert( idTable ~= nil, "Unable to find resources for resource type '" .. resourceType .. "' and ID '", id, "'" )
+
+		local dataEntry = idTable[language]
+		assert( dataEntry ~= nil, "Unable to find resources for resource type '" .. resourceType .. "', ID '", id, "', and language '", language, "'" )
+
+		local dataAddress = LIB.RelativeVirtualAddressToFileOffset( dataEntry.OffsetToData ) + 1
+
+		return LIB.FileBytes:sub( dataAddress, dataAddress + dataEntry.Size - 1 )
+	end
+
 	--- @param name string
 	--- @return SECTION_TABLE_HEADER?
 	function LIB.GetSectionHeader( name )
@@ -331,13 +359,12 @@ end
 
 --[[ Utils ]] do
 
-
 	--- @param rva integer
 	--- @return integer
 	function LIB.RelativeVirtualAddressToFileOffset( rva )
 		assert( LIB.SectionHeaders ~= nil and #LIB.SectionHeaders > 0 )
 
-		for sectionIndex, sectionHeader in ipairs( LIB.SectionHeaders ) do
+		for ACT_DEPLOY_IDLE, sectionHeader in ipairs( LIB.SectionHeaders ) do
 			if ( rva >= sectionHeader.VirtualAddress ) and ( rva < ( sectionHeader.VirtualAddress + sectionHeader.VirtualSize ) ) then
 				return sectionHeader.PointerToRawData + ( rva - sectionHeader.VirtualAddress )
 			end
@@ -383,9 +410,26 @@ function LIB.ParseResources()
 	-- These IDs should correspond to ResourceType enums
 	local resourceTreeRoot = LIB.ReadResourceDirectory( resourceSectionHeader.PointerToRawData )
 
-	PrintTable( resourceTreeRoot )
+	LIB.IdResourceTree = {}
 
-	return LIB.ResourceTree
+	-- Clean the results up before storing them
+	--- @param resourceType ResourceType
+	--- @param resourceTypeEntry IMAGE_RESOURCE_DIRECTORY_CONTENT
+	for resourceType, resourceTypeEntry in pairs( resourceTreeRoot.IdEntries ) do
+		LIB.IdResourceTree[resourceType] = {}
+
+		--- @param resourceId integer
+		--- @param resourceIdEntry IMAGE_RESOURCE_DIRECTORY_CONTENT
+		for resourceId, resourceIdEntry in pairs( resourceTypeEntry.IdEntries ) do
+			LIB.IdResourceTree[resourceType][resourceId] = {}
+
+			for languageId, languageIdEntry in pairs( resourceTypeEntry.IdEntries[resourceId].IdEntries ) do
+				LIB.IdResourceTree[resourceType][resourceId][languageId] = languageIdEntry
+			end
+		end
+	end
+
+	return LIB.IdResourceTree
 end
 
 --- @param directoryAddress integer
@@ -395,8 +439,6 @@ function LIB.ReadResourceDirectory( directoryAddress )
 
 	local resourceSectionHeader = LIB.GetSectionHeader( ".rsrc" )
 	assert( resourceSectionHeader ~= nil )
-
-	section.Start( "Reading directory at ", Hex( directoryAddress ) )
 
 	-- Read the directory's header
 	local directoryHeader, directoryEntriesAddress = LIB.ReadDataTypeFromAddress( directoryAddress + 1, "IMAGE_RESOURCE_DIRECTORY" )
@@ -425,33 +467,22 @@ function LIB.ReadResourceDirectory( directoryAddress )
 
 	-- Read the directory's ID entries
 	local idDirectoryContents = {}
-	for directoryIdEntryIndex = 1, directoryHeader.NumberOfIdEntries do
+	for _ = 1, directoryHeader.NumberOfIdEntries do
 		local entry
 		entry, directoryContentBytes = deserializeLib.ReadComplexDataType( "IMAGE_RESOURCE_DIRECTORY_ID_ENTRY", directoryContentBytes )
-
-		section.Print( "ID: ", entry.ID )
 
 		local isChildDirectory = ( entry.ChildDirectoryOffset ~= nil )
 		if isChildDirectory then
 			local childDirectoryContents = LIB.ReadResourceDirectory( resourceSectionBasePointer + entry.ChildDirectoryOffset )
 			idDirectoryContents[entry.ID] = childDirectoryContents
 		else
-
-			local dataAddress = resourceSectionBasePointer + ( entry.DataEntryOffset + 1 )
-
-			local dataEntry = LIB.ReadDataTypeFromAddress( dataAddress, "IMAGE_RESOURCE_DATA_ENTRY" )
+			local dataEntryAddress = resourceSectionBasePointer + ( entry.DataEntryOffset + 1 )
+			local dataEntry = LIB.ReadDataTypeFromAddress( dataEntryAddress, "IMAGE_RESOURCE_DATA_ENTRY" )
 			assert( dataEntry ~= nil )
-
-			local dataAddress = LIB.RelativeVirtualAddressToFileOffset( dataEntry.OffsetToData )
-
-			section.Print( "Data Address: ", dataAddress, " (", Hex( dataAddress ), ")" )
 
 			idDirectoryContents[entry.ID] = dataEntry
 		end
-
 	end
-
-	section.End()
 
 	return {
 		NameEntries = nameDirectoryContents,
