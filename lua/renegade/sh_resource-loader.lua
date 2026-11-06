@@ -318,11 +318,11 @@ end
 
 --[[ Getters ]] do
 
-	--- @param resourceType ResourceType
 	--- @param id integer
+	--- @param resourceType ResourceType
 	--- @param language integer? [Default: `1033`]
 	--- @return string
-	function LIB.GetResourceBytes( resourceType, id, language )
+	function LIB.GetResourceBytes( id, resourceType, language )
 		if LIB.FileBytes == nil then
 			LIB.ReadExecutable( LIB.ExecutablePath )
 		end
