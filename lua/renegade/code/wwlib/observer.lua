@@ -57,7 +57,7 @@ end
 --- @field Notifiers NotifierInstance[]
 
 function INSTANCE:Renegade_Observer()
-    -- Empty in the original code.
+    self.Notifiers = {}
 end
 
 function INSTANCE:_Renegade_Observer()

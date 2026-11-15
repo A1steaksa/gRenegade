@@ -54,7 +54,7 @@ end
 --- @field Observers ObserverInstance[] "! Observer collection"
 
 function INSTANCE:Renegade_Notifier()
-    -- Empty in the original code.
+    self.Observers = {}
 end
 
 function INSTANCE:_Renegade_Notifier()
