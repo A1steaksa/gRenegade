@@ -225,7 +225,17 @@ end
 
 -- "Thinking support (for safely triggering game ends)"
 function STATIC.Think()
-    typecheck.NotImplementedError()
+    -- "Safely exit the game and return to the menu (as necessary)"
+    if STATIC.NeedsGameExit then
+        STATIC.EndGame()
+        STATIC.DisplayEndGameMenu()
+        STATIC.NeedsGameExit = false
+    end
+
+    if STATIC.NeedsGameExitAll then
+        STATIC.EndGame()
+        assert( false, "GameInitManagerClass tried to exit to desktop, which is crazy" )
+    end
 end
 
 --- @param needsExit boolean
