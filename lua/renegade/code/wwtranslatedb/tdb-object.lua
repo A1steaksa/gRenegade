@@ -31,8 +31,8 @@ INSTANCE.IsTdbObject = true
 	--- @type TranslateDbIdsClass
 	local translateDbIdsClass = CNC.Import( "code/wwtranslatedb/translate-db-ids.lua" )
 
-	--- @type TDBCategoryClass
-	local tDBCategoryClass = CNC.Import( "code/wwtranslatedb/tdb-category.lua" )
+	--- @type TdbCategoryClass
+	local tdbCategoryClass = CNC.Import( "code/wwtranslatedb/tdb-category.lua" )
 
 	--- @type EnumBuilderClass
 	local enumBuilderClass = CNC.Import( "sh_enum-builder.lua" )
@@ -45,6 +45,9 @@ INSTANCE.IsTdbObject = true
 
 	--- @type TranslateDbClass
 	local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
+
+	--- @type TextUtils
+	local textUtils = CNC.Import( "sh_text-utils.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -115,6 +118,8 @@ end
 --- @field TranslatedStrings string[]
 
 function INSTANCE:Renegade_TdbObject()
+	self.TranslatedStrings = {}
+
 	self.Id = 0
 	self.SoundId = -1
 	self.CategoryId = tdbCategoryClass.CATEGORY_DEFAULT
@@ -154,10 +159,19 @@ end
 
 		while cload:OpenChunk() do
 			chunkIOClass.ReadWWStringChunk( cload, ids.CHUNKID_ENGLISH_STRING, self, "EnglishString" )
-			chunkIOClass.ReadWWStringChunk( cload, ids.CHUNKID_TRANSLATED_STRING, self.TranslatedStrings, #self.TranslatedStrings + 1 )
 
 			local id = cload:CurChunkId()
-			if id == ids.CHUNKID_BASE_CLASS then
+			if id == ids.CHUNKID_TRANSLATED_STRING then
+				-- "Load the translated string from its chunk"
+				local readByteCount, readBytes = cload:Read( cload:CurChunkLength() )
+				assert( readBytes ~= nil )
+
+				local decodedString = textUtils.DecodeUtf16( readBytes )
+
+				-- "Add the translated string to our list"
+				self.TranslatedStrings[#self.TranslatedStrings+1] = decodedString
+
+			elseif id == ids.CHUNKID_BASE_CLASS then
 				persistClass.Instance.Load( self, cload )
 			elseif id == ids.CHUNKID_VARIABLES then
 				self:LoadVariables( cload )
@@ -194,7 +208,7 @@ end
 			languageId = translateDbClass.LANGUAGE_ID.LANGID_ENGLISH
 		end
 
-		return self.TranslatedStrings[languageId]
+		return self.TranslatedStrings[languageId + 1]
 	end
 
 	--- @return string
@@ -230,11 +244,11 @@ end
 	--- @param languageId integer
 	--- @param str string
 	function INSTANCE:SetString( languageId, str )
-		self.TranslatedStrings[languageId] = str
+		self.TranslatedStrings[languageId + 1] = str
 
 		-- "Keep a copy of the english string (if necessary)"
 		if languageId == translateDbClass.LANGUAGE_ID.LANGID_ENGLISH then
-			self.TranslatedStrings[languageId] = self.EnglishString
+			self.TranslatedStrings[languageId + 1] = self.EnglishString
 		end
 	end
 
@@ -280,7 +294,7 @@ end
 		local returnValue = false
 
 		-- "Simply check to see if the string contains any data"
-		returnValue = self.TranslatedStrings[languageId] ~= nil
+		returnValue = self.TranslatedStrings[languageId + 1] ~= nil
 
 		return returnValue
 	end
