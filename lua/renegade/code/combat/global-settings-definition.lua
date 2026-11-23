@@ -120,6 +120,8 @@ end
 	function STATIC.StaticConstructor()
 		STATIC.GlobalSettingsDefinitionPersistFactory = simplePersistFactoryClass.New( STATIC, combatChunkIdClass.CLASSID_GLOBAL_SETTINGS_DEF_GENERAL )
 		STATIC.GlobalSettingsDefinitionDefinitionFactory = simpleDefinitionFactoryClass.New( STATIC, combatChunkIdClass.CLASSID_GLOBAL_SETTINGS_DEF_GENERAL, "General" )
+
+		STATIC.GlobalSettings = STATIC.New()
 	end
 
 	--- @return GlobalSettingsDefinitionInstance

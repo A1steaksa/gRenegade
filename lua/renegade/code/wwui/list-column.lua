@@ -59,6 +59,7 @@ end
 --- @field Width number
 
 function INSTANCE:Renegade_ListColumn()
+	self.Header = listEntryClass.New()
 	self.Width = 0
 
 	self:ResetContents()

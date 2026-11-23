@@ -69,6 +69,8 @@ end
 --- @field Texture TextureInstance
 
 function INSTANCE:Renegade_ScreenCursor()
+    self.Renderer = render2dClass.New()
+
     self.Hotspot = Vector( 0, 0 )
     self.Texture = nil
     self.Width = 0

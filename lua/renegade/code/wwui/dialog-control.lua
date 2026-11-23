@@ -101,6 +101,8 @@ function INSTANCE:Renegade_DialogControl()
 	self._IsEmbedded = false
 	self.IsTextColorOverridden = false
 
+	self.ToolTipText = ""
+
 	self.TextColor = styleManagerClass.GetTextColor()
 end
 

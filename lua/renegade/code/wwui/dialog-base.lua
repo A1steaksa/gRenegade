@@ -95,6 +95,10 @@ function INSTANCE:Renegade_DialogBase( resourceId )
 	self.LastMouseClickTime = 0
 	self._IsVisible = true
 	self._IsRunning = false
+
+	self.Rect = rectClass.New()
+	self.ControlList = {}
+	self.ChildDialogList = {}
 end
 
 function INSTANCE:_Renegade_DialogBase()
