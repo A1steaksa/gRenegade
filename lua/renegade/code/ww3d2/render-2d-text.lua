@@ -9,8 +9,8 @@ local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 --- @class Render2dTextClass : Render2dClass
 --- @field Instance Render2dTextInstance The metatable used by Render2dTextInstance
 local STATIC = CNC.CreateExport( render2dClass )
-STATIC.Class = "Render2dTextClass"
 local isHotload = not table.IsEmpty( STATIC )
+STATIC.Class = "Render2dTextClass"
 
 --- @class Render2dTextInstance : Render2dInstance
 --- @field Static Render2dTextClass The static table for this instance's class
