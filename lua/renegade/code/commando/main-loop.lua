@@ -26,6 +26,9 @@ local isHotload = not table.IsEmpty( STATIC )
 
 	--- @type InitClass
 	local initClass = CNC.Import( "code/commando/init.lua" )
+
+	--- @type GameInitManagerClass
+	local gameInitManagerClass = CNC.Import( "code/commando/game-init-manager.lua" )
 --#endregion
 
 
@@ -34,7 +37,6 @@ local isHotload = not table.IsEmpty( STATIC )
 
 
 --- @class MainLoopClass
-
 
 function STATIC.GameMainLoopLoop()
     -- Omitting time manager update
@@ -48,8 +50,8 @@ function STATIC.GameMainLoopLoop()
         -- Omitting pathfinding evaluation for now
     end
 
-    -- gameModeManagerClass.Think()
-    -- gameInitManagerClass.Think()
+    gameModeManagerClass.Think()
+    gameInitManagerClass.Think()
 
     dialogManagerClass.OnFrameUpdate()
 
