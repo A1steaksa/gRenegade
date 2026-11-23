@@ -139,7 +139,9 @@ end
 
     --- @param dialogResourceId integer
     function STATIC.DoSimpleDialog( dialogResourceId )
-        typecheck.NotImplementedError()
+        -- "Show the dialog"
+        local dialog = popupDialogClass.New( dialogResourceId )
+        dialog:StartDialog()
     end
 end
 
