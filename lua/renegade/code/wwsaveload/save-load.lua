@@ -72,9 +72,11 @@ local isHotload = not table.IsEmpty( STATIC )
         end
 
         --- @param cload ChunkLoadInstance
-        --- @param autoPostLoad boolean
+        --- @param autoPostLoad boolean? [Default: `true`]
         --- @return boolean
         function STATIC.Load( cload, autoPostLoad )
+            if autoPostLoad == nil then autoPostLoad = true end
+
             STATIC.PointerRemapper:Reset()
 
             local ok = true
