@@ -383,15 +383,25 @@ function INSTANCE:Renegade_HudGlobalSettingsDefinition()
     self.NeutralColor 			 = Color( 255, 255, 255 )
     self.MutantColor 			 = Color(   0, 255,   0 )
     self.RenegadeColor 			 = Color(   0,   0, 255 )
+    self.CombineColor            = Color( 198, 131,  10 )
+    self.RebelColor              = Color( 251, 127,  12 )
+    self.BlackMesaColor          = Color( 251, 127,  12 )
+    self.HecuColor               = Color(  15,   0, 231 )
+    self.ApertureColor           = Color(   0, 153, 254 )
+
     self.PrimaryObjectiveColor 	 = Color(   0, 255,   0 )
     self.SecondaryObjectiveColor = Color(   0,   0, 255 )
     self.TertiaryObjectiveColor  = Color( 255,   0, 255 )
+
     self.HealthHighColor 		 = Color(   0, 255,   0 )
     self.HealthMediumColor 		 = Color( 255, 255,   0 )
     self.HealthLowColor 		 = Color( 255,   0,   0 )
+
     self.EnemyColor 			 = Color( 255,   0,   0 )
     self.FriendlyColor 			 = Color(   0, 255,   0 )
     self.NoRelationColor 		 = Color( 255, 255, 255 )
+
+    self.ReticleBusyColor        = Color( 255, 255,   0 )
 
     self.InfoTextureSize 			= STATIC.INFO_TEXTURE_SIZE
     self.StarBracketSize			= STATIC.STAR_BRACKET_SIZE
@@ -524,86 +534,86 @@ function INSTANCE:Load( cload )
                 chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_FRIENDLY_COLOR,			"Color", self, "FriendlyColor"           )
                 chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_NO_RELATION_COLOR,			"Color", self, "NoRelationColor"         )
 
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_INFO_TEXTURE_SIZE,             fundamentalDataTypeEnum.Float,  self, "InfoTextureSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_SIZE,             "Vector",               self, "StarBracketSize"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_OFFSET,           "Vector",               self, "StarBracketOffset"         )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_UV,               "RectInstance",         self, "StarBracketUV"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_SIZE,         "Vector",               self, "StarBracketTopSize"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_OFFSET,       "Vector",               self, "StarBracketTopOffset"      )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_UV,           "RectInstance",         self, "StarBracketTopUV"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_SIZE,   "Vector",               self, "StarBracketTopArmedSize"   )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_OFFSET, "Vector",               self, "StarBracketTopArmedOffset" )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_UV,     "RectInstance",         self, "StarBracketTopArmedUV"     )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_SIZE,                 "Vector",               self, "StarBarSize"               )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_OFFSET,               "Vector",               self, "StarBarOffset"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_UV,                   "RectInstance",         self, "StarBarUV"                 )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_SIZE,             "Vector",               self, "StarBarEndSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_OFFSET,           "Vector",               self, "StarBarEndOffset"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_UV,               "RectInstance",         self, "StarBarEndUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_SIZE,              "Vector",               self, "StarHealthSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_OFFSET,            "Vector",               self, "StarHealthOffset"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_UV,                "RectInstance",         self, "StarHealthUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_SIZE,              "Vector",               self, "StarShieldSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_OFFSET,            "Vector",               self, "StarShieldOffset"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_UV,                "RectInstance",         self, "StarShieldUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_WEAPON_ICON_SIZE,         "Vector",               self, "StarWeaponIconSize"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_WEAPON_ICON_OFFSET,       "Vector",               self, "StarWeaponIconOffset"      )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_SIZE,           "Vector",               self, "TargetBracketSize"         )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_OFFSET,         "Vector",               self, "TargetBracketOffset"       )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_UV,             "RectInstance",         self, "TargetBracketUV"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_ICON_SIZE,              "Vector",               self, "TargetIconSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_ICON_OFFSET,            "Vector",               self, "TargetIconOffset"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_SIZE,          "Vector",               self, "TargetNameBarSize"         )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_OFFSET,        "Vector",               self, "TargetNameBarOffset"       )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_UV,            "RectInstance",         self, "TargetNameBarUV"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_OFFSET,            "Vector",               self, "TargetNameOffset"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_SIZE,               "Vector",               self, "TargetBarSize"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_OFFSET,             "Vector",               self, "TargetBarOffset"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_UV,                 "RectInstance",         self, "TargetBarUV"               )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_SIZE,           "Vector",               self, "TargetBarEndSize"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_OFFSET,         "Vector",               self, "TargetBarEndOffset"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_UV,             "RectInstance",         self, "TargetBarEndUV"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_SIZE,            "Vector",               self, "TargetHealthSize"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_OFFSET,          "Vector",               self, "TargetHealthOffset"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_UV,              "RectInstance",         self, "TargetHealthUV"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_SIZE,            "Vector",               self, "TargetShieldSize"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_OFFSET,          "Vector",               self, "TargetShieldOffset"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_UV,              "RectInstance",         self, "TargetShieldUV"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_TEXTURE_SIZE,            fundamentalDataTypeEnum.Float,  self, "RadarTextureSize"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OFFSET,                  "Vector",               self, "RadarOffset"               )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_RADIUS,                  fundamentalDataTypeEnum.Float,  self, "RadarRadius"                )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_FRAME_SIZE,              "Vector",               self, "RadarFrameSize"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_FRAME_UV,                "RectInstance",         self, "RadarFrameUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_OFFSET,          "Vector",               self, "RadarCompassOffset"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_SIZE,            "Vector",               self, "RadarCompassSize"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_BASE_UV,         "RectInstance",         self, "RadarCompassBaseUV"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_UV_OFFSET,       "Vector",               self, "RadarCompassUvOffset"      )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_HUMAN_BLIP_UV,           "RectInstance",         self, "RadarHumanBlipUV"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_VEHICLE_BLIP_UV,         "RectInstance",         self, "RadarVehicleBlipUV"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_STATIONARY_BLIP_UV,      "RectInstance",         self, "RadarStationaryBlipUV"     )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OBJECTIVE_BLIP_UV,       "RectInstance",         self, "RadarObjectiveBlipUV"      )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_BLIP_BRACKET_UV,         "RectInstance",         self, "RadarBlipBracketUV"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_SWEEP_UV,                "RectInstance",         self, "RadarSweepUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_ON_SOUND_ID,             fundamentalDataTypeEnum.Int,    self, "RadarOnSoundID"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OFF_SOUND_ID,            fundamentalDataTypeEnum.Int,    self, "RadarOffSoundID"            )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TEXTURE_SIZE,           fundamentalDataTypeEnum.Float,  self, "SniperTextureSize"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_VIEW,                   "RectInstance",         self, "SniperView"                )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_VIEW_UV,                "RectInstance",         self, "SniperViewUV"              )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_SCAN_LINE_UV,           "RectInstance",         self, "SniperScanLineUV"          )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_BLACK_COVER_UV,         "RectInstance",         self, "SniperBlackCoverUV"        )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR,               "RectInstance",         self, "SniperTiltBar"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR_RATE,          fundamentalDataTypeEnum.Float, self, "SniperTiltBarRate"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR_UV,            "RectInstance",         self, "SniperTiltBarUV"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR,               "RectInstance",         self, "SniperTurnBar"             )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR_RATE,          fundamentalDataTypeEnum.Float, self, "SniperTurnBarRate"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR_UV,            "RectInstance",         self, "SniperTurnBarUV"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH,         "RectInstance",         self, "SniperDistanceGraph"       )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH_UV,      "RectInstance",         self, "SniperDistanceGraphUV"     )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH_MAX,     fundamentalDataTypeEnum.Float,  self, "SniperDistanceGraphMax"     )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_ZOOM_GRAPH,             "RectInstance",         self, "SniperZoomGraph"           )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_ZOOM_GRAPH_UV,          "RectInstance",         self, "SniperZoomGraphUV"         )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_DAMAGE_INDICATOR_UV,           "RectInstance",         self, "DamageIndicatorUV"         )
-                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_DAMAGE_DIAG_INDICATOR_UV,      "RectInstance",         self, "DamageDiagIndicatorUV"     )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_INFO_TEXTURE_SIZE,             fundamentalDataTypeEnum.Float,    self, "InfoTextureSize"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_SIZE,             "Vector2",              self, "StarBracketSize"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_OFFSET,           "Vector2",              self, "StarBracketOffset"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_UV,               "Rect",                 self, "StarBracketUV"             )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_SIZE,         "Vector2",              self, "StarBracketTopSize"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_OFFSET,       "Vector2",              self, "StarBracketTopOffset"      )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_UV,           "Rect",                 self, "StarBracketTopUV"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_SIZE,   "Vector2",              self, "StarBracketTopArmedSize"   )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_OFFSET, "Vector2",              self, "StarBracketTopArmedOffset" )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BRACKET_TOP_ARMED_UV,     "Rect",                 self, "StarBracketTopArmedUV"     )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_SIZE,                 "Vector2",              self, "StarBarSize"               )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_OFFSET,               "Vector2",              self, "StarBarOffset"             )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_UV,                   "Rect",                 self, "StarBarUV"                 )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_SIZE,             "Vector2",              self, "StarBarEndSize"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_OFFSET,           "Vector2",              self, "StarBarEndOffset"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_BAR_END_UV,               "Rect",                 self, "StarBarEndUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_SIZE,              "Vector2",              self, "StarHealthSize"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_OFFSET,            "Vector2",              self, "StarHealthOffset"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_HEALTH_UV,                "Rect",                 self, "StarHealthUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_SIZE,              "Vector2",              self, "StarShieldSize"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_OFFSET,            "Vector2",              self, "StarShieldOffset"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_SHIELD_UV,                "Rect",                 self, "StarShieldUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_WEAPON_ICON_SIZE,         "Vector2",              self, "StarWeaponIconSize"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_STAR_WEAPON_ICON_OFFSET,       "Vector2",              self, "StarWeaponIconOffset"      )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_SIZE,           "Vector2",              self, "TargetBracketSize"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_OFFSET,         "Vector2",              self, "TargetBracketOffset"       )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BRACKET_UV,             "Rect",                 self, "TargetBracketUV"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_ICON_SIZE,              "Vector2",              self, "TargetIconSize"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_ICON_OFFSET,            "Vector2",              self, "TargetIconOffset"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_SIZE,          "Vector2",              self, "TargetNameBarSize"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_OFFSET,        "Vector2",              self, "TargetNameBarOffset"       )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_BAR_UV,            "Rect",                 self, "TargetNameBarUV"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_NAME_OFFSET,            "Vector2",              self, "TargetNameOffset"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_SIZE,               "Vector2",              self, "TargetBarSize"             )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_OFFSET,             "Vector2",              self, "TargetBarOffset"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_UV,                 "Rect",                 self, "TargetBarUV"               )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_SIZE,           "Vector2",              self, "TargetBarEndSize"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_OFFSET,         "Vector2",              self, "TargetBarEndOffset"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_BAR_END_UV,             "Rect",                 self, "TargetBarEndUV"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_SIZE,            "Vector2",              self, "TargetHealthSize"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_OFFSET,          "Vector2",              self, "TargetHealthOffset"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_HEALTH_UV,              "Rect",                 self, "TargetHealthUV"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_SIZE,            "Vector2",              self, "TargetShieldSize"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_OFFSET,          "Vector2",              self, "TargetShieldOffset"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_TARGET_SHIELD_UV,              "Rect",                 self, "TargetShieldUV"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_TEXTURE_SIZE,            fundamentalDataTypeEnum.Float,    self, "RadarTextureSize"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OFFSET,                  "Vector2",              self, "RadarOffset"               )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_RADIUS,                  fundamentalDataTypeEnum.Float,    self, "RadarRadius"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_FRAME_SIZE,              "Vector2",              self, "RadarFrameSize"            )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_FRAME_UV,                "Rect",                 self, "RadarFrameUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_OFFSET,          "Vector2",              self, "RadarCompassOffset"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_SIZE,            "Vector2",              self, "RadarCompassSize"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_BASE_UV,         "Rect",                 self, "RadarCompassBaseUV"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_COMPASS_UV_OFFSET,       "Vector2",              self, "RadarCompassUvOffset"      )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_HUMAN_BLIP_UV,           "Rect",                 self, "RadarHumanBlipUV"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_VEHICLE_BLIP_UV,         "Rect",                 self, "RadarVehicleBlipUV"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_STATIONARY_BLIP_UV,      "Rect",                 self, "RadarStationaryBlipUV"     )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OBJECTIVE_BLIP_UV,       "Rect",                 self, "RadarObjectiveBlipUV"      )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_BLIP_BRACKET_UV,         "Rect",                 self, "RadarBlipBracketUV"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_SWEEP_UV,                "Rect",                 self, "RadarSweepUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_ON_SOUND_ID,             fundamentalDataTypeEnum.Int,      self, "RadarOnSoundID"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_RADAR_OFF_SOUND_ID,            fundamentalDataTypeEnum.Int,      self, "RadarOffSoundID"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TEXTURE_SIZE,           fundamentalDataTypeEnum.Float,    self, "SniperTextureSize"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_VIEW,                   "Rect",                 self, "SniperView"                )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_VIEW_UV,                "Rect",                 self, "SniperViewUV"              )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_SCAN_LINE_UV,           "Rect",                 self, "SniperScanLineUV"          )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_BLACK_COVER_UV,         "Rect",                 self, "SniperBlackCoverUV"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR,               "Rect",                 self, "SniperTiltBar"             )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR_RATE,          fundamentalDataTypeEnum.Float,    self, "SniperTiltBarRate"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TILT_BAR_UV,            "Rect",                 self, "SniperTiltBarUV"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR,               "Rect",                 self, "SniperTurnBar"             )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR_RATE,          fundamentalDataTypeEnum.Float,    self, "SniperTurnBarRate"        )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_TURN_BAR_UV,            "Rect",                 self, "SniperTurnBarUV"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH,         "Rect",                 self, "SniperDistanceGraph"       )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH_UV,      "Rect",                 self, "SniperDistanceGraphUV"     )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_DISTANCE_GRAPH_MAX,     fundamentalDataTypeEnum.Float,    self, "SniperDistanceGraphMax"   )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_ZOOM_GRAPH,             "Rect",                 self, "SniperZoomGraph"           )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_SNIPER_ZOOM_GRAPH_UV,          "Rect",                 self, "SniperZoomGraphUV"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_DAMAGE_INDICATOR_UV,           "Rect",                 self, "DamageIndicatorUV"         )
+                chunkIOClass.ReadMicroChunk( cload, ids.MICROCHUNKID_HUD_DEF_DAMAGE_DIAG_INDICATOR_UV,      "Rect",                 self, "DamageDiagIndicatorUV"     )
 
                 cload:CloseMicroChunk()
             end
@@ -622,72 +632,120 @@ function INSTANCE:GetFactory()
     return STATIC.HudGlobalSettingsDefinitionPersistFactory
 end
 
---- @return Color
-function INSTANCE:GetNodColor()
-    return self.NodColor
+--[[ Team Colors ]] do
+
+    --- @return Color
+    function INSTANCE:GetNodColor()
+        return self.NodColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetGdiColor()
+        return self.GdiColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetNeutralColor()
+        return self.NeutralColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetMutantColor()
+        return self.MutantColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetRenegadeColor()
+        return self.RenegadeColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetCombineColor()
+        return self.CombineColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetRebelColor()
+        return self.RebelColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetBlackMesaColor()
+        return self.BlackMesaColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetHecuColor()
+        return self.HecuColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetApertureColor()
+        return self.ApertureColor
+    end
 end
 
---- @return Color
-function INSTANCE:GetGdiColor()
-    return self.GdiColor
+
+--[[ Objective Colors ]] do
+
+    --- @return Color
+    function INSTANCE:GetPrimaryObjectiveColor()
+        return self.PrimaryObjectiveColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetSecondaryObjectiveColor()
+        return self.SecondaryObjectiveColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetTertiaryObjectiveColor()
+        return self.TertiaryObjectiveColor
+    end
 end
 
---- @return Color
-function INSTANCE:GetNeutralColor()
-    return self.NeutralColor
+
+--[[ Health Colors ]] do
+
+    --- @return Color
+    function INSTANCE:GetHealthHighColor()
+        return self.HealthHighColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetHealthMediumColor()
+        return self.HealthMediumColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetHealthLowColor()
+        return self.HealthLowColor
+    end
 end
 
---- @return Color
-function INSTANCE:GetMutantColor()
-    return self.MutantColor
+
+--[[ Relationship Colors ]] do
+
+    --- @return Color
+    function INSTANCE:GetEnemyColor()
+        return self.EnemyColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetFriendlyColor()
+        return self.FriendlyColor
+    end
+
+    --- @return Color
+    function INSTANCE:GetNoRelationColor()
+        return self.NoRelationColor
+    end
 end
 
---- @return Color
-function INSTANCE:GetRenegadeColor()
-    return self.RenegadeColor
-end
+--[[ Misc. Colors ]] do
 
---- @return Color
-function INSTANCE:GetPrimaryObjectiveColor()
-    return self.PrimaryObjectiveColor
-end
-
---- @return Color
-function INSTANCE:GetSecondaryObjectiveColor()
-    return self.SecondaryObjectiveColor
-end
-
---- @return Color
-function INSTANCE:GetTertiaryObjectiveColor()
-    return self.TertiaryObjectiveColor
-end
-
---- @return Color
-function INSTANCE:GetHealthHighColor()
-    return self.HealthHighColor
-end
-
---- @return Color
-function INSTANCE:GetHealthMediumColor()
-    return self.HealthMediumColor
-end
-
---- @return Color
-function INSTANCE:GetHealthLowColor()
-    return self.HealthLowColor
-end
-
---- @return Color
-function INSTANCE:GetEnemyColor()
-    return self.EnemyColor
-end
-
---- @return Color
-function INSTANCE:GetFriendlyColor()
-    return self.FriendlyColor
-end
-
---- @return Color
-function INSTANCE:GetNoRelationColor()
-    return self.NoRelationColor
+    --- @return Color
+    function INSTANCE:GetReticleBusyColor()
+        return self.ReticleBusyColor
+    end
 end

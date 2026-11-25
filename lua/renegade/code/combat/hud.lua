@@ -24,73 +24,73 @@ STATIC.Class = "HudClass"
 
 --#region Imports
 
-    --- @type MaterialsLib
-    local materialsLib = CNC.Import( "client/cl_materials.lua" )
+	--- @type MaterialsLib
+	local materialsLib = CNC.Import( "client/cl_materials.lua" )
 
-    --- @type GlobalSettingsClass
-    local globalSettingsClass = CNC.Import( "code/combat/global-settings.lua" )
+	--- @type CombatManagerClass
+	local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
 
-    --- @type CombatManagerClass
-    local combatManagerClass = CNC.Import( "code/combat/combat-manager.lua" )
+	--- @type RectClass
+	local rectClass = CNC.Import( "code/wwmath/rect.lua" )
 
-    --- @type RectClass
-    local rectClass = CNC.Import( "code/wwmath/rect.lua" )
+	--- @type StyleManagerClass
+	local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 
-    --- @type StyleManagerClass
-    local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
+	--- @type Render2dClass
+	local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
 
-    --- @type Render2dClass
-    local render2dClass = CNC.Import( "code/ww3d2/render-2d.lua" )
+	--- @type Render2dTextClass
+	local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
 
-    --- @type Render2dTextClass
-    local render2dTextClass = CNC.Import( "code/ww3d2/render-2d-text.lua" )
+	--- @type Font3dClass
+	local font3dClass = CNC.Import( "code/ww3d2/font-3d.lua" )
 
-    --- @type Font3dClass
-    local font3dClass = CNC.Import( "code/ww3d2/font-3d.lua" )
+	--- @type TranslateDbClass
+	local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
 
-    --- @type TranslateDbClass
-    local translateDbClass = CNC.Import( "code/wwtranslatedb/translate-db.lua" )
+	--- @type ObjectiveManagerClass
+	local objectiveManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
 
-    --- @type ObjectiveManagerClass
-    local objManagerClass = CNC.Import( "code/combat/objective-manager.lua" )
+	--- @type HudInfoClass
+	local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
 
-    --- @type HudInfoClass
-    local hudInfoClass = CNC.Import( "code/combat/hud-info.lua" )
+	--- @type PhysicalGameObjectsBridgeClass
+	local physicalGameObjectsBridgeClass = CNC.Import( "bridges/sh_physical-game-objects.lua" )
 
-    --- @type PhysicalGameObjectsBridgeClass
-    local physObjBridgeClass = CNC.Import( "bridges/sh_physical-game-objects.lua" )
+	--- @type BuildingsBridgeClass
+	local buildingsBridgeClass = CNC.Import( "bridges/sh_buildings.lua" )
 
-    --- @type BuildingsBridgeClass
-    local buildingsBridgeClass = CNC.Import( "bridges/sh_buildings.lua" )
+	--- @type Matrix3dClass
+	local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
 
-    --- @type Matrix3dClass
-    local matrix3dClass = CNC.Import( "code/wwmath/matrix3d.lua" )
+	--- @type AABoxClass
+	local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
 
-    --- @type AABoxClass
-    local aABoxClass = CNC.Import( "code/wwmath/aabox.lua" )
+	--- @type WWMathClass
+	local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
 
-    --- @type WWMathClass
-    local wWMathClass = CNC.Import( "code/wwmath/wwmath.lua" )
+	--- @type PlayerTypeClass
+	local playerTypeClass = CNC.Import( "code/combat/player-type.lua" )
 
-    --- @type PlayerTypeClass
-    local playerTypeLib = CNC.Import( "code/combat/player-type.lua" )
+	--- @type InfoEntityLib
+	local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
 
-    --- @type InfoEntityLib
-    local infoEntityLib = CNC.Import( "sh_info-entity.lua" )
+	--- @type CameraBridgeClass
+	local cameraBridgeClass = CNC.Import( "bridges/sh_camera.lua" )
 
-    --- @type CameraBridgeClass
-    local cameraBridgeClass = CNC.Import( "bridges/sh_camera.lua")
+	--- @type RadarManagerClass
+	local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
 
-    --- @type RadarManagerClass
-    local radarManagerClass = CNC.Import( "code/combat/radar.lua" )
+	--- @type HudGlobalSettingsDefinitionClass
+	local hudGlobalSettingsDefinitionClass = CNC.Import( "code/combat/hud-global-settings-definition.lua" )
 --#endregion
 
 
 --#region Imported Enums
 
-    local dispositionEnum = infoEntityLib.DISPOSITION
-    local playerTypeEnum = playerTypeLib.PLAYER_TYPE_ENUM
-    local fontStyleEnum = styleManagerClass.FONT_STYLE
+	local dispositionEnum = infoEntityLib.DISPOSITION
+	local playerTypeEnum = playerTypeClass.PLAYER_TYPE_ENUM
+	local fontStyleEnum = styleManagerClass.FONT_STYLE
 --#endregion
 
 
@@ -237,7 +237,7 @@ function STATIC.Think()
     -- STATIC.ObjectiveUpdate()
 
     --[[ Radar ]] do
-        local transformationMatrix = physObjBridgeClass.GetPlayerTransform():GetInverse()
+        local transformationMatrix = physicalGameObjectsBridgeClass.GetPlayerTransform():GetInverse()
 
         -- Omitted vehicle and 2D targetting logic
 
@@ -251,9 +251,11 @@ function STATIC.Think()
         radarManagerClass.Update( transformationMatrix, radarCenter )
     end
 
+    local settings = hudGlobalSettingsDefinitionClass.GetInstance()
+
     --[[ Reticle ]] do
 
-        local reticleColor = globalSettingsClass.Colors.NoRelation
+        local reticleColor = settings:GetNoRelationColor()
 
         -- Check for friendly or enemy targets to change the reticle color
         local targetEntity = hudInfoClass:GetWeaponTargetEntity()
@@ -261,10 +263,10 @@ function STATIC.Think()
             local entityInfo = infoEntityLib.GetEntityInfo( targetEntity ) --[[@as InfoEntityData]]
 
             if entityInfo.ShouldTarget then
-                reticleColor = globalSettingsClass.Colors.Friendly
-                if physObjBridgeClass.IsPhysicalGameObject( targetEntity ) then
+                reticleColor = settings:GetFriendlyColor()
+                if physicalGameObjectsBridgeClass.IsPhysicalGameObject( targetEntity ) then
                     if entityInfo.FeelingTowardPlayer == dispositionEnum.Enemy then
-                        reticleColor = globalSettingsClass.Colors.Enemy
+                        reticleColor = settings:GetEnemyColor()
                     end
                 end
             end
@@ -283,7 +285,7 @@ function STATIC.Think()
             )
 
             if isWeaponBusy then
-                reticleColor = globalSettingsClass.Colors.ReticleBusy
+                reticleColor = settings:GetReticleBusyColor()
             end
         end
 
@@ -668,10 +670,10 @@ end
     --- Adds a primary or secondary powerup notification
     --- @param type ObjectiveType
     function STATIC.AddObjective( type )
-        if type == objManagerClass.OBJECTIVE_TYPE.Primary then
+        if type == objectiveManagerClass.OBJECTIVE_TYPE.Primary then
             local powerupName = translateDbClass.GetString( "IDS_Enc_Obj_Priority_0_Primary" )
             STATIC.PowerupAdd( powerupName, 0, STATIC.Materials.Pickups.Eva1, POWERUP_PIXEL_UV_64X64, POWERUP_OFFSET_10X40, false )
-        elseif type == objManagerClass.OBJECTIVE_TYPE.Secondary then
+        elseif type == objectiveManagerClass.OBJECTIVE_TYPE.Secondary then
             local powerupName = translateDbClass.GetString( "IDS_Enc_Obj_Priority_0_Secondary" )
             STATIC.PowerupAdd( powerupName, 0, STATIC.Materials.Pickups.Eva2, POWERUP_PIXEL_UV_64X64, POWERUP_OFFSET_10X40, false )
         end
@@ -1129,20 +1131,22 @@ end
         STATIC.BoxZoomSize = STATIC.BoxZoomSize + frameTime * 4
         STATIC.BoxZoomSize = math.Clamp( STATIC.BoxZoomSize, 0, 1 )
 
-        local color = globalSettingsClass.Colors.NoRelation
-        if physObjBridgeClass.IsPhysicalGameObject( targetEnt ) then
-            if physObjBridgeClass.IsTeammate( combatStar, targetEnt ) then
-                color = globalSettingsClass.Colors.Friendly
-            elseif physObjBridgeClass.IsEnemy( combatStar, targetEnt ) then
-                color = globalSettingsClass.Colors.Enemy
+        local settings = hudGlobalSettingsDefinitionClass.GetInstance()
+
+        local color = settings:GetNoRelationColor()
+        if physicalGameObjectsBridgeClass.IsPhysicalGameObject( targetEnt ) then
+            if physicalGameObjectsBridgeClass.IsTeammate( combatStar, targetEnt ) then
+                color = settings:GetFriendlyColor()
+            elseif physicalGameObjectsBridgeClass.IsEnemy( combatStar, targetEnt ) then
+                color = settings:GetEnemyColor()
             end
         end
 
         if buildingsBridgeClass.IsBuilding( targetEnt ) then
             if buildingsBridgeClass.IsTeammate( combatStar, targetEnt ) then
-                color = globalSettingsClass.Colors.Friendly
+                color = settings:GetFriendlyColor()
             elseif buildingsBridgeClass.IsEnemy( combatStar, targetEnt ) then
-                color = globalSettingsClass.Colors.Enemy
+                color = settings:GetEnemyColor()
             end
         end
 
@@ -1350,13 +1354,13 @@ end
         local top = Vector( 0, 0 )
         local bottom = Vector( 0, 0 )
 
-        if physObjBridgeClass.IsPhysicalGameObject( ent ) then
+        if physicalGameObjectsBridgeClass.IsPhysicalGameObject( ent ) then
 
             -- "tm" here stands for "Transformation Matrix"
             -- "inv" here stands for "Inverse"
 
             local entBox = infoEntityLib.GetEntityLocalBoundingBox( ent )
-            local entTM = physObjBridgeClass.GetTransform( ent )
+            local entTM = physicalGameObjectsBridgeClass.GetTransform( ent )
 
             local combatCamera = combatManagerClass.GetCamera()
             local cameraTM = combatCamera:GetTransform()
@@ -1531,14 +1535,15 @@ end
     --- @param healthPercent number
     --- @return Color
     function STATIC.GetHealthColor( healthPercent )
-        local color = globalSettingsClass.Colors.HealthHigh
+        local settings = hudGlobalSettingsDefinitionClass.GetInstance()
+        local color = settings:GetHealthHighColor()
 
         if healthPercent <= 0.5 then
-            color = globalSettingsClass.Colors.HealthMed
+            color = settings:GetHealthMediumColor()
         end
 
         if healthPercent <= 0.25 then
-            color = globalSettingsClass.Colors.HealthLow
+            color = settings:GetHealthLowColor()
         end
 
         return color
