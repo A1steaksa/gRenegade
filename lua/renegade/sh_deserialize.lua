@@ -94,6 +94,24 @@ function STATIC.StaticConstructor()
     STATIC.RegisterFundamentalDataType( "Boolean", fundamentalDataTypeEnum.Boolean, false, 1,  STATIC.DeserializeBoolean )
     STATIC.RegisterFundamentalDataType( "Pointer", fundamentalDataTypeEnum.Pointer,     0, 4,  STATIC.DeserializeUInt32  )
 
+    STATIC.RegisterComplexDataType( "Color",
+        {
+            { Name = "r", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "g", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "b", DataType = fundamentalDataTypeEnum.Float },
+        },
+        function( name, loadedData )
+            local r, g, b, a = loadedData.r, loadedData.g, loadedData.b
+
+            local isNormalized = ( r <= 1 and r >= 0 and g <= 1 and g >= 0 and b <= 1 and b >= 0 )
+            if isNormalized then
+                return Color( r * 255, g * 255, b * 255 )
+            end
+
+            return Color( r, g, b )
+        end
+    )
+
     --- @class Vector3
     --- @field X number
     --- @field Y number
@@ -106,6 +124,19 @@ function STATIC.StaticConstructor()
         },
         function( name, loadedData )
             return Vector( loadedData.X, loadedData.Y, loadedData.Z )
+        end
+    )
+
+    --- @class Vector2
+    --- @field X number
+    --- @field Y number
+    STATIC.RegisterComplexDataType( "Vector2",
+        {
+            { Name = "X", DataType = fundamentalDataTypeEnum.Float },
+            { Name = "Y", DataType = fundamentalDataTypeEnum.Float },
+        },
+        function( name, loadedData )
+            return Vector( loadedData.X, loadedData.Y, 0 )
         end
     )
 end
@@ -443,7 +474,7 @@ end
                     if extractedBytes:len() ~= bytesToRead then
                         section.Error(
                             "While deserializing ComplexDataType '", registeryEntry.Name, "', the field '", schemaField.Name,
-                            "' of type '", deserializeLib.GetDataTypeName( schemaField.DataType ), "' only read ",
+                            "' of type '", STATIC.GetDataTypeName( schemaField.DataType ), "' only read ",
                             extractedBytes:len(), " bytes instead of the expected ", bytesToRead, " bytes"
                         )
                     end
