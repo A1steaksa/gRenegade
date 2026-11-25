@@ -100,7 +100,7 @@ STATIC.Class = "CombatManagerClass"
     --- @field private SoundEnvironment unknown
     --- @field private DazzleLayer unknown
     --- @field private MessageWindow MessageWindowInstance
-    --- @field private TheStar Entity
+    --- @field private TheStar SoldierGameObjectInstance
     --- @field private _IsStarDeterminingTarget boolean
     --- @field private _IsFirstLoad boolean
     --- @field private _AreObserversActive boolean
@@ -212,8 +212,6 @@ STATIC.Class = "CombatManagerClass"
 
         hudClass.Init( renderAvailable )
         -- screenFadeManagerClass.Init()
-
-        hook.Add( "Think", "A1_Renegade_CombatManager_Think", STATIC.Think )
     end
 
     function STATIC.Shutdown()
@@ -653,7 +651,7 @@ STATIC.Class = "CombatManagerClass"
 
     --[[ The Star ]] do
 
-        --- @param target Entity
+        --- @param target SoldierGameObjectInstance
         --- @param isStarDeterminingTarget boolean? [Default: true] 
         function STATIC.SetTheStar( target, isStarDeterminingTarget )
             if not isStarDeterminingTarget then
@@ -671,7 +669,7 @@ STATIC.Class = "CombatManagerClass"
                 -- TODO: Point the camera toward the new star's direction
             end
 
-            hudClass.ForceWeaponChartUpdate()
+            -- Omitted forcing weapon chat update
             -- Omitted weapon view class resetting
 
             if not STATIC.IsLevelInitialized then
@@ -681,10 +679,8 @@ STATIC.Class = "CombatManagerClass"
             end
         end
 
-        --- @return Entity
+        --- @return SoldierGameObjectInstance
         function STATIC.GetTheStar()
-            if CLIENT then return LocalPlayer() end
-
             return STATIC.TheStar
         end
 

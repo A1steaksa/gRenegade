@@ -825,7 +825,9 @@ end
         STATIC.WeaponClipCountRenderer:Reset()
         STATIC.WeaponTotalCountRenderer:Reset()
 
-        local combatStar = combatManagerClass.GetTheStar() --[[@as Player]]
+        local combatStarSoldier = combatManagerClass.GetTheStar()
+        if combatStarSoldier == nil then return end
+        local combatStar = combatStarSoldier.ConnectedEntity --[[@as Player]]
         if not IsValid( combatStar ) then return end
 
         --- @type Vehicle
@@ -1116,7 +1118,9 @@ end
 
         if not entityInfo.ShouldTarget then return end
 
-        local combatStar = combatManagerClass.GetTheStar()
+        local combatStarSoldier = combatManagerClass.GetTheStar()
+        if combatStarSoldier == nil then return end
+        local combatStar = combatStarSoldier.ConnectedEntity --[[@as Player]]
         if not IsValid( combatStar ) then return end
 
         local physObj = targetEnt:GetPhysicsObject()
