@@ -421,14 +421,18 @@ end
 --- @param topColor Color
 --- @param bottomColor Color
 function INSTANCE:AddQuadVerticalGradient( screen, topColor, bottomColor )
-    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
+    self:InternalAddQuadVertices( screen )
+    self:InternalAddQuadUvs( rectClass.New( 0, 0, 1, 1 ) )
+    self:InternalAddQuadVerticalColors( topColor, bottomColor )
 end
 
 ---@param screen RectInstance
 ---@param leftColor Color
 ---@param rightColor Color
-function INSTANCE:AddQuadVerticalGradient( screen, leftColor, rightColor )
-    typecheck.NotImplementedError( "AddQuadVerticalGradient" )
+function INSTANCE:AddQuadHorizontalGradient( screen, leftColor, rightColor )
+    self:InternalAddQuadVertices( screen )
+    self:InternalAddQuadUvs( rectClass.New( 0, 0, 1, 1 ) )
+    self:InternalAddQuadHorizontalColors( leftColor, rightColor )
 end
 
 --- @param vertex0 Vector
@@ -724,6 +728,38 @@ function INSTANCE:InternalAddQuadColors( color )
     self.Colors[#self.Colors + 1] = color
     self.Colors[#self.Colors + 1] = color
     self.Colors[#self.Colors + 1] = color
+end
+
+--- Adds a pair of colors to add a vertical gradient to a quad
+--- @param topColor Color 
+--- @param bottomColor Color
+--- @protected
+function INSTANCE:InternalAddQuadVerticalColors( topColor, bottomColor )
+    -- First Triangle
+    self.Colors[#self.Colors + 1] = bottomColor
+    self.Colors[#self.Colors + 1] = topColor
+    self.Colors[#self.Colors + 1] = topColor
+
+    -- Second Triangle
+    self.Colors[#self.Colors + 1] = bottomColor
+    self.Colors[#self.Colors + 1] = topColor
+    self.Colors[#self.Colors + 1] = bottomColor
+end
+
+--- Adds a pair of colors to add a horizontal gradient to a quad
+--- @param leftColor Color 
+--- @param rightColor Color
+--- @protected
+function INSTANCE:InternalAddQuadHorizontalColors( leftColor, rightColor )
+    -- First Triangle
+    self.Colors[#self.Colors + 1] = leftColor
+    self.Colors[#self.Colors + 1] = leftColor
+    self.Colors[#self.Colors + 1] = rightColor
+
+    -- Second Triangle
+    self.Colors[#self.Colors + 1] = rightColor
+    self.Colors[#self.Colors + 1] = leftColor
+    self.Colors[#self.Colors + 1] = rightColor
 end
 
 --- Updates the biased coordinate offsets based on if ScreenUvBias is enabled
