@@ -128,8 +128,8 @@ INSTANCE.IsMouseManager = true
 			if STATIC.MouseCursor == nil and onOff then
 				-- "Create the mouse cursor"
 				STATIC.MouseCursor = screenCursorClass.New()
-				STATIC.MouseCursor:SetTexture( STATIC.Textures[STATIC.CursorType] )
-				STATIC.MouseCursor:SetHotspot( STATIC.HOTSPOTS[STATIC.CursorType] )
+				STATIC.MouseCursor:SetTexture( STATIC.Textures[STATIC.CursorType + 1] )
+				STATIC.MouseCursor:SetHotspot( STATIC.HOTSPOTS[STATIC.CursorType + 1] )
 				STATIC.CursorWaitCount = 0
 			elseif STATIC.MouseCursor ~= nil and onOff == false then
 				-- "Free the mouse cursor"
@@ -140,8 +140,8 @@ INSTANCE.IsMouseManager = true
 		--- @param type CursorType
 		function STATIC.SetCursor( type )
 			if STATIC.CursorType ~= type and STATIC.MouseCursor ~= nil and STATIC.CursorWaitCount == 0 then
-				STATIC.MouseCursor:SetTexture( STATIC.Textures[type] )
-				STATIC.MouseCursor:SetHotspot( STATIC.HOTSPOTS[type] )
+				STATIC.MouseCursor:SetTexture( STATIC.Textures[type + 1] )
+				STATIC.MouseCursor:SetHotspot( STATIC.HOTSPOTS[type + 1] )
 				STATIC.CursorType = type
 			end
 		end

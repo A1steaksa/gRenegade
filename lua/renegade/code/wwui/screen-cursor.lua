@@ -31,6 +31,9 @@ INSTANCE.IsScreenCursor = true
 
 	--- @type RectClass
 	local rectClass = CNC.Import( "code/wwmath/rect.lua" )
+
+	--- @type StyleManagerClass
+	local styleManagerClass = CNC.Import( "code/wwui/style-manager.lua" )
 --#endregion
 
 --#region Imported Enums
@@ -40,7 +43,9 @@ INSTANCE.IsScreenCursor = true
 
     --- @class ScreenCursorClass
 
-    STATIC.Uvs = rectClass.New( 0, 0, 1, 1 )
+    STATIC.CursorScale = 1.5
+
+    STATIC.Uvs = rectClass.New( 0, 0, 0.98, 0.98 )
 
     --- Creates a new ScreenCursorInstance
     --- @return ScreenCursorInstance
@@ -83,14 +88,16 @@ end
 
 --- @param texture TextureInstance
 function INSTANCE:SetTexture( texture )
+    self.Texture = texture
+
     -- "Find the dimensions of the texture:"
     if self.Texture ~= nil then
         self.Texture:Init()
-        self.Width  = self.Texture:GetWidth()
-        self.Height = self.Texture:GetHeight()
+        self.Width  = self.Texture:GetWidth()   * STATIC.CursorScale
+        self.Height = self.Texture:GetHeight()  * STATIC.CursorScale
     end
 
-    self.Renderer:SetMaterial( self.Texture )
+    self.Renderer:SetTexture( self.Texture )
     self.Renderer:SetCoordinateRange( render2dClass.GetScreenResolution() )
 end
 
@@ -110,9 +117,9 @@ function INSTANCE:Render()
 
     -- "Build the screen-space rectangle we'll render to"
     local rect = rectClass.New()
-    rect.Left = cursorPos.x
-    rect.Top = cursorPos.y
-    rect.Right = cursorPos.x + self.Width
+    rect.Left   = cursorPos.x
+    rect.Top    = cursorPos.y
+    rect.Right  = cursorPos.x + self.Width
     rect.Bottom = cursorPos.y + self.Height
 
     -- "Render the mouse cursor"
