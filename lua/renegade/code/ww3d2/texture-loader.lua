@@ -142,7 +142,19 @@ INSTANCE.IsTextureLoader = true
 			return true, width, height, format, mipCount
 		end
 
-		typecheck.NotImplementedError()
+		local targa = targaClass.New()
+		local targaOpenResult = targa:Open( fileName, tgaAccessModeEnum.TGA_READMODE )
+		if targaOpenResult ~= 0 then
+			local errorName = table.KeyFromValue( tgaErrorCodeEnum, targaOpenResult ) or "UNKNOWN"
+			section.Error( "Failed to open TARGA file '", fileName, "' with code ", targaOpenResult, " (", errorName, ")" )
+		end
+
+		width  = bit.rshift( targa.Header.Width,  reduction )
+		height = bit.rshift( targa.Header.Height, reduction )
+		format = wW3dFormatEnum.WW3D_FORMAT_UNKNOWN -- For now, ignore the actual format
+		mipCount = 0
+
+		return true, width, height, format, mipCount
 	end
 
 	--- @param width integer
